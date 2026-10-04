@@ -4,6 +4,7 @@ import { injectText } from '@routeops/shared/i18n';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
+  canMarkDone,
   choiceLabel,
   DailyTrip,
   isServiceDate,
@@ -13,6 +14,8 @@ import {
   OperationsProblem,
   shiftDate,
   sortByTime,
+  TripRecording,
+  tripRecordings,
   tripStatus,
 } from '../domain/daily-trip';
 import { HolidayPanel } from './holiday-panel';
@@ -46,6 +49,11 @@ export class DailyOperations {
   protected readonly trips = signal<DailyTrip[]>([]);
   protected readonly choices = signal<OperationChoices>(noChoices);
   protected readonly editing = signal<DailyTrip | null>(null);
+  protected readonly recordings = tripRecordings;
+  protected readonly recording = signal<TripRecording>('automatic');
+  protected readonly savingRecording = signal(false);
+  protected readonly markingTripId = signal<string | null>(null);
+  protected readonly actionProblem = signal<OperationsProblem | null>(null);
 
   constructor() {
     void this.load();
@@ -56,7 +64,49 @@ export class DailyOperations {
   }
 
   protected statusOf(trip: DailyTrip) {
-    return tripStatus(trip, this.today);
+    return tripStatus(trip, this.today, this.recording());
+  }
+
+  protected canMarkDone(trip: DailyTrip): boolean {
+    return this.recording() === 'manual' && canMarkDone(trip, this.today);
+  }
+
+  protected async chooseRecording(recording: TripRecording): Promise<void> {
+    const organization = this.organization();
+    const previous = this.recording();
+    if (!organization || recording === previous) {
+      return;
+    }
+    this.recording.set(recording);
+    this.savingRecording.set(true);
+    this.actionProblem.set(null);
+    try {
+      await this.repository.chooseTripRecording(organization, recording);
+    } catch (error) {
+      this.recording.set(previous);
+      this.actionProblem.set(problemOf(error, 'save'));
+    } finally {
+      this.savingRecording.set(false);
+    }
+  }
+
+  protected async markDone(trip: DailyTrip, done: boolean): Promise<void> {
+    const organization = this.organization();
+    if (!organization) {
+      return;
+    }
+    this.markingTripId.set(trip.id);
+    this.actionProblem.set(null);
+    try {
+      const saved = await this.repository.markDone(organization, trip.id, done);
+      this.trips.set(
+        this.trips().map((item) => (item.id === saved.id ? saved : item)),
+      );
+    } catch (error) {
+      this.actionProblem.set(problemOf(error, 'save'));
+    } finally {
+      this.markingTripId.set(null);
+    }
   }
 
   protected chooseDate(value: string): void {
@@ -101,8 +151,13 @@ export class DailyOperations {
         this.status.set('error');
         return;
       }
+      const [choices, recording] = await Promise.all([
+        this.repository.choices(organization),
+        this.repository.tripRecording(organization),
+      ]);
+      this.choices.set(choices);
+      this.recording.set(recording);
       this.organization.set(organization);
-      this.choices.set(await this.repository.choices(organization));
       await this.loadDay();
     } catch (error) {
       this.fail(error);
@@ -117,6 +172,7 @@ export class DailyOperations {
     const serviceDate = this.serviceDate();
     this.status.set('loading');
     this.editing.set(null);
+    this.actionProblem.set(null);
     try {
       const trips = await this.repository.day(organization, serviceDate);
       if (serviceDate !== this.serviceDate()) {
@@ -130,11 +186,16 @@ export class DailyOperations {
   }
 
   private fail(error: unknown): void {
-    this.problem.set(
-      error instanceof OperationsAccessError ? error.problem : 'load',
-    );
+    this.problem.set(problemOf(error, 'load'));
     this.status.set('error');
   }
+}
+
+function problemOf(
+  error: unknown,
+  fallback: OperationsProblem,
+): OperationsProblem {
+  return error instanceof OperationsAccessError ? error.problem : fallback;
 }
 
 function localDate(date: Date): string {

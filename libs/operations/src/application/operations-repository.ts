@@ -3,6 +3,7 @@ import {
   OperationChoices,
   OperationsOrganization,
   TripChange,
+  TripRecording,
 } from '../domain/daily-trip';
 
 // Pass only an organization returned by organization(), which comes from the
@@ -17,10 +18,22 @@ export abstract class OperationsRepository {
     serviceDate: string,
   ): Promise<DailyTrip[]>;
   abstract choices(organization: OperationsOrganization): Promise<OperationChoices>;
+  abstract tripRecording(
+    organization: OperationsOrganization,
+  ): Promise<TripRecording>;
+  abstract chooseTripRecording(
+    organization: OperationsOrganization,
+    recording: TripRecording,
+  ): Promise<void>;
   abstract changeTrip(
     organization: OperationsOrganization,
     tripId: string,
     change: TripChange,
+  ): Promise<DailyTrip>;
+  abstract markDone(
+    organization: OperationsOrganization,
+    tripId: string,
+    done: boolean,
   ): Promise<DailyTrip>;
   abstract cancelForHoliday(
     organization: OperationsOrganization,

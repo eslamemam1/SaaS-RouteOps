@@ -15,6 +15,7 @@ const row = {
   vehicle_id: null,
   driver_id: 'driver-1',
   is_cancelled: true,
+  is_done: false,
   change_reason: 'vehicle_breakdown',
   notes: null,
 };
@@ -51,6 +52,7 @@ describe('SupabaseOperationsGateway', () => {
         cancelled: true,
         reason: 'vehicleBreakdown',
         notes: '',
+        done: false,
       },
     ]);
     expect(calls.filters).toEqual([
@@ -84,6 +86,72 @@ describe('SupabaseOperationsGateway', () => {
     ]);
   });
 
+  it('clears the done mark when a change cancels the trip', async () => {
+    const calls = recorder(() => ({ data: row, error: null }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await gateway.updateTrip('org-north', 'trip-1', {
+      vehicleId: '',
+      driverId: '',
+      cancelled: true,
+      reason: 'vehicleBreakdown',
+      notes: '',
+    });
+
+    expect(calls.updated).toMatchObject({ is_cancelled: true, is_done: false });
+  });
+
+  it('marks a trip done scoped to the trip and its organization', async () => {
+    const calls = recorder(() => ({
+      data: { ...row, is_cancelled: false, change_reason: null, is_done: true },
+      error: null,
+    }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    const trip = await gateway.updateDone('org-north', 'trip-1', true);
+
+    expect(calls.updated).toEqual({ is_done: true });
+    expect(calls.filters).toEqual([
+      ['id', 'trip-1'],
+      ['organization_id', 'org-north'],
+    ]);
+    expect(trip.done).toBe(true);
+  });
+
+  it('reads automatic recording when the organization has not chosen yet', async () => {
+    const calls = recorder(() => ({ data: null, error: null }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await expect(gateway.readTripRecording('org-north')).resolves.toBe(
+      'automatic',
+    );
+    expect(calls.filters).toEqual([['organization_id', 'org-north']]);
+  });
+
+  it('reads the recording the organization chose', async () => {
+    const calls = recorder(() => ({
+      data: { trip_recording: 'manual' },
+      error: null,
+    }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await expect(gateway.readTripRecording('org-north')).resolves.toBe('manual');
+  });
+
+  it('saves the recording through the database function for the organization', async () => {
+    const calls = recorder(() => ({ data: null, error: null }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await gateway.saveTripRecording('org-north', 'manual');
+
+    expect(calls.rpc).toEqual([
+      [
+        'set_trip_recording',
+        { p_organization_id: 'org-north', p_trip_recording: 'manual' },
+      ],
+    ]);
+  });
+
   it('refuses a change without a reason before calling the database', async () => {
     const calls = recorder(() => ({ data: row, error: null }));
     const gateway = new SupabaseOperationsGateway(calls.client);
@@ -106,7 +174,11 @@ describe('SupabaseOperationsGateway', () => {
 
     await gateway.cancelCustomerTrips('org-north', '2026-10-06', ['delta', 'nour']);
 
-    expect(calls.updated).toEqual({ is_cancelled: true, change_reason: 'holiday' });
+    expect(calls.updated).toEqual({
+      is_cancelled: true,
+      is_done: false,
+      change_reason: 'holiday',
+    });
     expect(calls.filters).toEqual([
       ['organization_id', 'org-north'],
       ['service_date', '2026-10-06'],
@@ -156,6 +228,7 @@ function recorder(result: () => Result) {
     },
     order: () => Promise.resolve(result()),
     single: () => Promise.resolve(result()),
+    maybeSingle: () => Promise.resolve(result()),
   };
   return {
     filters,

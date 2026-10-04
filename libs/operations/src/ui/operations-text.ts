@@ -3,6 +3,7 @@ import {
   ChangeReason,
   OperationsProblem,
   TripDirection,
+  TripRecording,
   TripStatus,
 } from '../domain/daily-trip';
 
@@ -11,6 +12,12 @@ export interface OperationsText {
   readonly directions: Record<TripDirection, string>;
   readonly statuses: Record<TripStatus, string>;
   readonly reasons: Record<ChangeReason, string>;
+  readonly recording: {
+    readonly title: string;
+    readonly hint: string;
+    readonly modes: Record<TripRecording, string>;
+    readonly modeHints: Record<TripRecording, string>;
+  };
   readonly day: {
     readonly back: string;
     readonly title: string;
@@ -31,6 +38,8 @@ export interface OperationsText {
     readonly reason: string;
     readonly notSet: string;
     readonly change: string;
+    readonly markDone: string;
+    readonly undoDone: string;
   };
   readonly change: {
     readonly title: string;
@@ -77,6 +86,7 @@ export const operationsText: Record<Language, OperationsText> = {
       done: 'تمّت',
       planned: 'مخططة',
       cancelled: 'ملغاة',
+      unrecorded: 'لم تُسجَّل بعد',
     },
     reasons: {
       holiday: 'إجازة رسمية',
@@ -85,10 +95,22 @@ export const operationsText: Record<Language, OperationsText> = {
       customerRequest: 'طلب من الشركة المتعاقدة',
       other: 'أخرى',
     },
+    recording: {
+      title: 'طريقة تسجيل الرحلات',
+      hint: 'ينطبق هذا الاختيار على كل الأيام وعلى كل من يستخدم حساب شركتك.',
+      modes: {
+        automatic: 'تلقائي',
+        manual: 'يدوي',
+      },
+      modeHints: {
+        automatic: 'كل رحلة تُحسب أنها تمّت عند حلول يومها، إلا إذا ألغيتها.',
+        manual: 'لا تُحسب الرحلة أنها تمّت إلا بعد أن تضغط "تمّت" بجانبها.',
+      },
+    },
     day: {
       back: 'الرجوع إلى الصفحة الرئيسية',
       title: 'التشغيل اليومي',
-      hint: 'رحلات كل يوم كما حدثت فعلًا. كل رحلة تُحسب أنها تمّت إلا إذا ألغيتها. التغيير هنا ليوم واحد فقط ولا يغيّر الخط.',
+      hint: 'رحلات كل يوم كما حدثت فعلًا. التغيير هنا ليوم واحد فقط ولا يغيّر الخط.',
       date: 'اليوم',
       previous: 'اليوم السابق',
       next: 'اليوم التالي',
@@ -105,6 +127,8 @@ export const operationsText: Record<Language, OperationsText> = {
       reason: 'السبب',
       notSet: 'لم يُحدد',
       change: 'تغيير',
+      markDone: 'تمّت',
+      undoDone: 'التراجع عن "تمّت"',
     },
     change: {
       title: 'تغيير رحلة',
@@ -149,6 +173,7 @@ export const operationsText: Record<Language, OperationsText> = {
       done: 'Done',
       planned: 'Planned',
       cancelled: 'Cancelled',
+      unrecorded: 'Not recorded yet',
     },
     reasons: {
       holiday: 'Public holiday',
@@ -157,10 +182,22 @@ export const operationsText: Record<Language, OperationsText> = {
       customerRequest: 'Client company request',
       other: 'Other',
     },
+    recording: {
+      title: 'How trips are recorded',
+      hint: 'This choice applies to every day and to everyone who uses your company account.',
+      modes: {
+        automatic: 'Automatic',
+        manual: 'Manual',
+      },
+      modeHints: {
+        automatic: 'Each trip counts as done once its day comes, unless you cancel it.',
+        manual: 'A trip counts as done only after you press "Done" next to it.',
+      },
+    },
     day: {
       back: 'Back to home',
       title: 'Daily operations',
-      hint: 'Each day\'s trips as they actually happened. A trip counts as done unless you cancel it. Changes here are for one day only and do not change the route.',
+      hint: 'Each day\'s trips as they actually happened. Changes here are for one day only and do not change the route.',
       date: 'Day',
       previous: 'Previous day',
       next: 'Next day',
@@ -177,6 +214,8 @@ export const operationsText: Record<Language, OperationsText> = {
       reason: 'Reason',
       notSet: 'Not set',
       change: 'Change',
+      markDone: 'Done',
+      undoDone: 'Undo "Done"',
     },
     change: {
       title: 'Change trip',

@@ -17,6 +17,26 @@
       <button type="button" (click)="chooseDate(today)">{{ text().day.today }}</button>
     }
   </div>
+  <fieldset>
+    <legend>{{ text().recording.title }}</legend>
+    <p class="hint">{{ text().recording.hint }}</p>
+    <div class="toggle">
+      @for (mode of recordings; track mode) {
+        <button
+          type="button"
+          [attr.aria-pressed]="recording() === mode"
+          [disabled]="savingRecording()"
+          (click)="chooseRecording(mode)"
+        >
+          {{ text().recording.modes[mode] }}
+        </button>
+      }
+    </div>
+    <p class="hint">{{ text().recording.modeHints[recording()] }}</p>
+  </fieldset>
+}
+@if (actionProblem(); as current) {
+  <p class="error">{{ text().problems[current] }}</p>
 }
 @if (status() === 'loading') {
   <p>{{ text().day.loading }}</p>
@@ -61,6 +81,15 @@
             }
           </td>
           <td>
+            @if (canMarkDone(trip)) {
+              <button
+                type="button"
+                [disabled]="markingTripId() === trip.id"
+                (click)="markDone(trip, !trip.done)"
+              >
+                {{ trip.done ? text().day.undoDone : text().day.markDone }}
+              </button>
+            }
             <button type="button" (click)="edit(trip)">{{ text().day.change }}</button>
           </td>
         </tr>

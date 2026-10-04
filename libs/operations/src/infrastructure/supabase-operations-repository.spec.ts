@@ -77,7 +77,10 @@ function fakeGateway(
       drivers: [],
       routes: [],
     })),
+    readTripRecording: vi.fn(async () => 'automatic' as const),
+    saveTripRecording: vi.fn(async () => undefined),
     updateTrip: vi.fn(),
+    updateDone: vi.fn(),
     cancelCustomerTrips: vi.fn(async () => undefined),
   };
 }

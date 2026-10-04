@@ -31,6 +31,7 @@ const outbound: DailyTrip = {
   cancelled: false,
   reason: '',
   notes: '',
+  done: false,
 };
 const cancelledReturn: DailyTrip = {
   ...outbound,
@@ -67,6 +68,70 @@ describe('DailyOperations', () => {
     expect(text(harness)).toContain(arabic.statuses.cancelled);
     expect(text(harness)).toContain(arabic.reasons.vehicleBreakdown);
     expect(text(harness)).toContain(arabic.day.notSet);
+  });
+
+  it('records trips automatically by default, without done buttons', async () => {
+    const harness = await open({ day: async () => [outbound] });
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.recording.title);
+    expect(pressed(harness)).toBe(arabic.recording.modes.automatic);
+    expect(text(harness)).toContain(arabic.recording.modeHints.automatic);
+    expect(button(harness, arabic.day.markDone)).toBeUndefined();
+    expect(text(harness)).toContain(arabic.statuses.done);
+  });
+
+  it('lets a member mark each trip done when recording is manual', async () => {
+    const markDone = vi.fn(async () => ({ ...outbound, done: true }));
+    const harness = await open({
+      tripRecording: async () => 'manual',
+      day: async () => [outbound, cancelledReturn],
+      markDone,
+    });
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.statuses.unrecorded);
+    expect(buttons(harness, arabic.day.markDone)).toHaveLength(1);
+
+    button(harness, arabic.day.markDone)?.click();
+    await settle(harness);
+
+    expect(markDone).toHaveBeenCalledWith(north, 'trip-1', true);
+    expect(text(harness)).not.toContain(arabic.statuses.unrecorded);
+    expect(button(harness, arabic.day.undoDone)).toBeDefined();
+  });
+
+  it('saves the chosen recording for the organization', async () => {
+    const chooseTripRecording = vi.fn(async () => undefined);
+    const harness = await open({
+      day: async () => [outbound],
+      chooseTripRecording,
+    });
+    await settle(harness);
+
+    button(harness, arabic.recording.modes.manual)?.click();
+    await settle(harness);
+
+    expect(chooseTripRecording).toHaveBeenCalledWith(north, 'manual');
+    expect(pressed(harness)).toBe(arabic.recording.modes.manual);
+    expect(button(harness, arabic.day.markDone)).toBeDefined();
+  });
+
+  it('keeps the previous recording when saving the choice fails', async () => {
+    const harness = await open({
+      day: async () => [outbound],
+      chooseTripRecording: async () => {
+        throw new OperationsAccessError('save');
+      },
+    });
+    await settle(harness);
+
+    button(harness, arabic.recording.modes.manual)?.click();
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.problems.save);
+    expect(pressed(harness)).toBe(arabic.recording.modes.automatic);
+    expect(button(harness, arabic.day.markDone)).toBeUndefined();
   });
 
   it('offers the companies with running trips for a holiday', async () => {
@@ -140,7 +205,10 @@ async function open(overrides: Partial<OperationsRepository>) {
     organization: async () => north,
     day: async () => [],
     choices: async () => choices,
+    tripRecording: async () => 'automatic',
+    chooseTripRecording: async () => undefined,
     changeTrip: async () => outbound,
+    markDone: async () => outbound,
     cancelForHoliday: async () => [],
     ...overrides,
   };
@@ -169,6 +237,30 @@ async function settle(harness: RouterTestingHarness): Promise<void> {
   }
   await harness.fixture.whenStable();
   harness.detectChanges();
+}
+
+function pressed(harness: RouterTestingHarness): string {
+  return (
+    harness.routeNativeElement
+      ?.querySelector('.toggle button[aria-pressed="true"]')
+      ?.textContent?.trim() ?? ''
+  );
+}
+
+function buttons(
+  harness: RouterTestingHarness,
+  label: string,
+): HTMLButtonElement[] {
+  return [
+    ...(harness.routeNativeElement?.querySelectorAll('button') ?? []),
+  ].filter((item) => item.textContent?.trim() === label);
+}
+
+function button(
+  harness: RouterTestingHarness,
+  label: string,
+): HTMLButtonElement | undefined {
+  return buttons(harness, label)[0];
 }
 
 function text(harness: RouterTestingHarness): string {

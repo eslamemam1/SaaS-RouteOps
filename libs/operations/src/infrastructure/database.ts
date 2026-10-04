@@ -37,6 +37,7 @@ export type Database = {
           driver_id: string | null
           id: string
           is_cancelled: boolean
+          is_done: boolean
           notes: string | null
           organization_id: string
           route_id: string
@@ -53,6 +54,7 @@ export type Database = {
           driver_id?: string | null
           id?: string
           is_cancelled?: boolean
+          is_done?: boolean
           notes?: string | null
           organization_id: string
           route_id: string
@@ -69,6 +71,7 @@ export type Database = {
           driver_id?: string | null
           id?: string
           is_cancelled?: boolean
+          is_done?: boolean
           notes?: string | null
           organization_id?: string
           route_id?: string
@@ -83,6 +86,12 @@ export type Database = {
         id: string
         is_active: boolean
         organization_id: string
+      }>
+      operations_settings: ReadOnlyTable<{
+        created_at: string
+        organization_id: string
+        trip_recording: string
+        updated_at: string
       }>
       organization_memberships: {
         Row: {
@@ -153,6 +162,10 @@ export type Database = {
     Functions: {
       prepare_daily_trips: {
         Args: { p_organization_id: string; p_service_date: string }
+        Returns: undefined
+      }
+      set_trip_recording: {
+        Args: { p_organization_id: string; p_trip_recording: string }
         Returns: undefined
       }
     }

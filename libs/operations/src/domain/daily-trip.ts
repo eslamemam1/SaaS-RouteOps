@@ -46,9 +46,17 @@ export interface DailyTrip extends TripChange {
   readonly direction: TripDirection;
   readonly departureTime: string;
   readonly customerId: string;
+  // A member marked the trip done.
+  readonly done: boolean;
 }
 
-export type TripStatus = 'done' | 'planned' | 'cancelled';
+// How the organization records its trips: automatically, or a member marks
+// each trip done.
+export const tripRecordings = ['automatic', 'manual'] as const;
+
+export type TripRecording = (typeof tripRecordings)[number];
+
+export type TripStatus = 'done' | 'planned' | 'cancelled' | 'unrecorded';
 
 export const tripLimits = {
   notes: 2000,
@@ -75,6 +83,10 @@ export function isChangeReason(value: string): value is ChangeReason {
   return (changeReasons as readonly string[]).includes(value);
 }
 
+export function isTripRecording(value: string): value is TripRecording {
+  return (tripRecordings as readonly string[]).includes(value);
+}
+
 export function isServiceDate(value: string): boolean {
   if (!datePattern.test(value)) {
     return false;
@@ -89,12 +101,28 @@ export function shiftDate(value: string, days: number): string {
   return date.toISOString().slice(0, 10);
 }
 
-// A trip counts as done unless it is cancelled, once its day has come.
-export function tripStatus(trip: DailyTrip, today: string): TripStatus {
+// A trip marked done counts as done. Otherwise, once its day has come, it
+// counts as done when recording is automatic and stays unrecorded when manual.
+export function tripStatus(
+  trip: DailyTrip,
+  today: string,
+  recording: TripRecording,
+): TripStatus {
   if (trip.cancelled) {
     return 'cancelled';
   }
-  return trip.serviceDate <= today ? 'done' : 'planned';
+  if (trip.done) {
+    return 'done';
+  }
+  if (trip.serviceDate > today) {
+    return 'planned';
+  }
+  return recording === 'automatic' ? 'done' : 'unrecorded';
+}
+
+// Only a trip that is not cancelled and whose day has come can be marked done.
+export function canMarkDone(trip: DailyTrip, today: string): boolean {
+  return !trip.cancelled && trip.serviceDate <= today;
 }
 
 export function changeOf(trip: DailyTrip): TripChange {

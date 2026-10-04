@@ -1,5 +1,6 @@
 import {
   availableChoices,
+  canMarkDone,
   customersWithRunningTrips,
   DailyTrip,
   isServiceDate,
@@ -22,17 +23,45 @@ const trip = (overrides: Partial<DailyTrip>): DailyTrip => ({
   cancelled: false,
   reason: '',
   notes: '',
+  done: false,
   ...overrides,
 });
 
 describe('tripStatus', () => {
-  it('counts a trip as done once its day has come, unless cancelled', () => {
-    expect(tripStatus(trip({ serviceDate: '2026-10-04' }), '2026-10-04')).toBe('done');
-    expect(tripStatus(trip({ serviceDate: '2026-10-01' }), '2026-10-04')).toBe('done');
-    expect(tripStatus(trip({ serviceDate: '2026-10-05' }), '2026-10-04')).toBe('planned');
+  const today = '2026-10-04';
+
+  it('counts a trip as done once its day has come, unless cancelled, when recording is automatic', () => {
+    expect(tripStatus(trip({ serviceDate: today }), today, 'automatic')).toBe('done');
+    expect(tripStatus(trip({ serviceDate: '2026-10-01' }), today, 'automatic')).toBe('done');
+    expect(tripStatus(trip({ serviceDate: '2026-10-05' }), today, 'automatic')).toBe('planned');
     expect(
-      tripStatus(trip({ cancelled: true, reason: 'holiday' }), '2026-10-04'),
+      tripStatus(trip({ cancelled: true, reason: 'holiday' }), today, 'automatic'),
     ).toBe('cancelled');
+  });
+
+  it('counts a trip as done only once marked done when recording is manual', () => {
+    expect(tripStatus(trip({ serviceDate: today }), today, 'manual')).toBe('unrecorded');
+    expect(tripStatus(trip({ serviceDate: '2026-10-01' }), today, 'manual')).toBe('unrecorded');
+    expect(tripStatus(trip({ done: true }), today, 'manual')).toBe('done');
+    expect(tripStatus(trip({ serviceDate: '2026-10-05' }), today, 'manual')).toBe('planned');
+    expect(
+      tripStatus(trip({ cancelled: true, reason: 'holiday' }), today, 'manual'),
+    ).toBe('cancelled');
+  });
+
+  it('keeps a trip marked done as done after switching back to automatic', () => {
+    expect(tripStatus(trip({ done: true }), today, 'automatic')).toBe('done');
+  });
+});
+
+describe('canMarkDone', () => {
+  it('allows a trip whose day has come and that is not cancelled', () => {
+    expect(canMarkDone(trip({ serviceDate: '2026-10-04' }), '2026-10-04')).toBe(true);
+    expect(canMarkDone(trip({ serviceDate: '2026-10-01' }), '2026-10-04')).toBe(true);
+    expect(canMarkDone(trip({ serviceDate: '2026-10-05' }), '2026-10-04')).toBe(false);
+    expect(
+      canMarkDone(trip({ cancelled: true, reason: 'holiday' }), '2026-10-04'),
+    ).toBe(false);
   });
 });
 

@@ -6,8 +6,10 @@ import {
   OperationChoice,
   OperationChoices,
   OperationsOrganization,
+  isTripRecording,
   TripChange,
   TripDirection,
+  TripRecording,
 } from '../domain/daily-trip';
 import { Database } from './database';
 
@@ -17,10 +19,20 @@ export interface OperationsGateway {
   prepareDay(organizationId: string, serviceDate: string): Promise<void>;
   listTrips(organizationId: string, serviceDate: string): Promise<DailyTrip[]>;
   listChoices(organizationId: string): Promise<OperationChoices>;
+  readTripRecording(organizationId: string): Promise<TripRecording>;
+  saveTripRecording(
+    organizationId: string,
+    recording: TripRecording,
+  ): Promise<void>;
   updateTrip(
     organizationId: string,
     tripId: string,
     change: TripChange,
+  ): Promise<DailyTrip>;
+  updateDone(
+    organizationId: string,
+    tripId: string,
+    done: boolean,
   ): Promise<DailyTrip>;
   cancelCustomerTrips(
     organizationId: string,
@@ -40,12 +52,13 @@ type TripRow = Pick<
   | 'vehicle_id'
   | 'driver_id'
   | 'is_cancelled'
+  | 'is_done'
   | 'change_reason'
   | 'notes'
 >;
 
 const tripColumns =
-  'id, route_id, service_date, direction, departure_time, customer_id, vehicle_id, driver_id, is_cancelled, change_reason, notes';
+  'id, route_id, service_date, direction, departure_time, customer_id, vehicle_id, driver_id, is_cancelled, is_done, change_reason, notes';
 
 const reasonColumns: Record<ChangeReason, string> = {
   holiday: 'holiday',
@@ -152,6 +165,37 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     };
   }
 
+  async readTripRecording(organizationId: string): Promise<TripRecording> {
+    const { data, error } = await this.requireClient()
+      .from('operations_settings')
+      .select('trip_recording')
+      .eq('organization_id', organizationId)
+      .maybeSingle();
+    if (error) {
+      throw new OperationsAccessError('load');
+    }
+    if (!data) {
+      return 'automatic';
+    }
+    if (!isTripRecording(data.trip_recording)) {
+      throw new OperationsAccessError('load');
+    }
+    return data.trip_recording;
+  }
+
+  async saveTripRecording(
+    organizationId: string,
+    recording: TripRecording,
+  ): Promise<void> {
+    const { error } = await this.requireClient().rpc('set_trip_recording', {
+      p_organization_id: organizationId,
+      p_trip_recording: recording,
+    });
+    if (error) {
+      throw new OperationsAccessError('save');
+    }
+  }
+
   async updateTrip(
     organizationId: string,
     tripId: string,
@@ -160,15 +204,32 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     if (change.reason === '') {
       throw new OperationsAccessError('reason');
     }
+    return this.saveTrip(organizationId, tripId, {
+      vehicle_id: blankToNull(change.vehicleId),
+      driver_id: blankToNull(change.driverId),
+      is_cancelled: change.cancelled,
+      change_reason: reasonColumns[change.reason],
+      notes: blankToNull(change.notes),
+      ...(change.cancelled ? { is_done: false } : {}),
+    });
+  }
+
+  updateDone(
+    organizationId: string,
+    tripId: string,
+    done: boolean,
+  ): Promise<DailyTrip> {
+    return this.saveTrip(organizationId, tripId, { is_done: done });
+  }
+
+  private async saveTrip(
+    organizationId: string,
+    tripId: string,
+    values: Database['public']['Tables']['daily_trips']['Update'],
+  ): Promise<DailyTrip> {
     const { data, error } = await this.requireClient()
       .from('daily_trips')
-      .update({
-        vehicle_id: blankToNull(change.vehicleId),
-        driver_id: blankToNull(change.driverId),
-        is_cancelled: change.cancelled,
-        change_reason: reasonColumns[change.reason],
-        notes: blankToNull(change.notes),
-      })
+      .update(values)
       .eq('id', tripId)
       .eq('organization_id', organizationId)
       .select(tripColumns)
@@ -186,7 +247,11 @@ export class SupabaseOperationsGateway implements OperationsGateway {
   ): Promise<void> {
     const { error } = await this.requireClient()
       .from('daily_trips')
-      .update({ is_cancelled: true, change_reason: reasonColumns.holiday })
+      .update({
+        is_cancelled: true,
+        is_done: false,
+        change_reason: reasonColumns.holiday,
+      })
       .eq('organization_id', organizationId)
       .eq('service_date', serviceDate)
       .in('customer_id', [...customerIds]);
@@ -220,6 +285,7 @@ function toTrip(row: TripRow): DailyTrip {
     cancelled: row.is_cancelled,
     reason: toReason(row.change_reason),
     notes: row.notes ?? '',
+    done: row.is_done,
   };
 }
 

@@ -7,6 +7,7 @@ import {
   OperationChoices,
   OperationsOrganization,
   TripChange,
+  TripRecording,
 } from '../domain/daily-trip';
 import { OperationsGateway } from './operations-gateway';
 
@@ -41,12 +42,31 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     return this.gateway.listChoices(organization.id);
   }
 
+  tripRecording(organization: OperationsOrganization): Promise<TripRecording> {
+    return this.gateway.readTripRecording(organization.id);
+  }
+
+  chooseTripRecording(
+    organization: OperationsOrganization,
+    recording: TripRecording,
+  ): Promise<void> {
+    return this.gateway.saveTripRecording(organization.id, recording);
+  }
+
   changeTrip(
     organization: OperationsOrganization,
     tripId: string,
     change: TripChange,
   ): Promise<DailyTrip> {
     return this.gateway.updateTrip(organization.id, tripId, change);
+  }
+
+  markDone(
+    organization: OperationsOrganization,
+    tripId: string,
+    done: boolean,
+  ): Promise<DailyTrip> {
+    return this.gateway.updateDone(organization.id, tripId, done);
   }
 
   async cancelForHoliday(

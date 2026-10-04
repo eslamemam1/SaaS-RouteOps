@@ -69,6 +69,16 @@ fieldset {
   border: 1px solid #ddd;
 }
 
+.toggle {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.toggle button[aria-pressed='true'] {
+  background: #111;
+  color: #fff;
+}
+
 label.checkbox {
   display: flex;
   align-items: center;
