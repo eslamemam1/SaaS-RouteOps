@@ -1,0 +1,74 @@
+<h3>{{ driver() ? text().form.editTitle : text().form.addTitle }}</h3>
+<form (submit)="onSubmit($event)">
+  <label>
+    {{ text().form.fullName }}
+    <span class="hint">{{ text().form.fullNameHint }}</span>
+    <input type="text" [formField]="driverForm.fullName" />
+  </label>
+  @if (driverForm.fullName().touched() && driverForm.fullName().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
+    {{ text().form.phone }}
+    <input type="tel" dir="ltr" [formField]="driverForm.phone" />
+  </label>
+  @if (driverForm.phone().touched() && driverForm.phone().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
+    {{ text().form.nationalId }}
+    <span class="hint">{{ text().form.nationalIdHint }}</span>
+    <input type="text" inputmode="numeric" dir="ltr" [formField]="driverForm.nationalId" />
+  </label>
+  @if (
+    driverForm.nationalId().touched() && driverForm.nationalId().errors()[0];
+    as error
+  ) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
+    {{ text().form.licenseNumber }}
+    <input type="text" dir="ltr" [formField]="driverForm.licenseNumber" />
+  </label>
+  @if (
+    driverForm.licenseNumber().touched() && driverForm.licenseNumber().errors()[0];
+    as error
+  ) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
+    {{ text().form.licenseExpiry }}
+    <span class="hint">{{ text().form.licenseExpiryHint }}</span>
+    <input type="date" [formField]="driverForm.licenseExpiry" />
+  </label>
+  @if (
+    driverForm.licenseExpiry().touched() && driverForm.licenseExpiry().errors()[0];
+    as error
+  ) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
+    {{ text().form.notes }}
+    <span class="hint">{{ text().form.notesHint }}</span>
+    <textarea [formField]="driverForm.notes"></textarea>
+  </label>
+  @if (driverForm.notes().touched() && driverForm.notes().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label class="checkbox">
+    <input type="checkbox" [formField]="driverForm.active" />
+    {{ text().form.active }}
+  </label>
+  <button type="submit" [disabled]="submitting()">
+    {{ driver() ? text().form.save : text().form.add }}
+  </button>
+  @if (driver()) {
+    <button type="button" (click)="cancelled.emit()">{{ text().form.cancel }}</button>
+  }
+</form>
+@if (outcome(); as done) {
+  <p>{{ text().form[done] }}</p>
+}
+@if (problem(); as current) {
+  <p class="error">{{ text().problems[current] }}</p>
+}

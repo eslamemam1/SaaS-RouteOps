@@ -59,6 +59,7 @@ describe('Organizations', () => {
     expect(text(fixture)).toContain('Welcome, North');
     expect(text(fixture)).toContain(organizationsText.en.home.customers);
     expect(text(fixture)).toContain(organizationsText.en.home.vehicles);
+    expect(text(fixture)).toContain(organizationsText.en.home.drivers);
   });
 });
 
