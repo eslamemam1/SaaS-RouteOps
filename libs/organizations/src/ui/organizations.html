@@ -42,6 +42,12 @@
         </a>
         <span class="hint">{{ text().home.driversHint }}</span>
       </li>
+      <li>
+        <a [routerLink]="['/organizations', current.id, 'routes']">
+          {{ text().home.routes }}
+        </a>
+        <span class="hint">{{ text().home.routesHint }}</span>
+      </li>
     </ul>
   }
 }

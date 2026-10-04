@@ -22,6 +22,8 @@ export interface OrganizationsText {
     readonly vehiclesHint: string;
     readonly drivers: string;
     readonly driversHint: string;
+    readonly routes: string;
+    readonly routesHint: string;
     readonly operatorTitle: string;
     readonly signOut: string;
   };
@@ -72,6 +74,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       vehiclesHint: 'الأتوبيسات والميكروباصات والسيارات التي تنقل بها الموظفين.',
       drivers: 'السائقون',
       driversHint: 'السائقون الذين يعملون معك في نقل الموظفين.',
+      routes: 'الخطوط',
+      routesHint: 'اربط كل شركة متعاقدة بمركبة وسائق ومواعيد.',
       operatorTitle: 'لوحة مدير الموقع',
       signOut: 'تسجيل الخروج',
     },
@@ -123,6 +127,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       vehiclesHint: 'The buses, microbuses, and cars you use to transport staff.',
       drivers: 'Drivers',
       driversHint: 'The drivers who work with you transporting staff.',
+      routes: 'Routes',
+      routesHint: 'Link each client company to a vehicle, a driver, and times.',
       operatorTitle: 'Site manager panel',
       signOut: 'Sign out',
     },

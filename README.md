@@ -10,6 +10,7 @@ Multi-tenant operations app for staff transportation companies.
 - `libs/customers` keeps each organization's customers.
 - `libs/vehicles` keeps each organization's vehicles.
 - `libs/drivers` keeps each organization's drivers.
+- `libs/routes` keeps each organization's routes: the customer, vehicle, driver, trip times, and working days.
 - `libs/shared/supabase` holds the single Supabase client and the signed-in route guard.
 - `libs/shared/i18n` holds the Arabic and English language switch.
 - Tag feature libraries `scope:<feature>` and `type:feature`.

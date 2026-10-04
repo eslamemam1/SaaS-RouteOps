@@ -17,6 +17,11 @@ export const appRoutes: Route[] = [
       import('@routeops/drivers').then((module) => module.driversRoutes),
   },
   {
+    path: 'organizations/:organizationId/routes',
+    loadChildren: () =>
+      import('@routeops/routes').then((module) => module.routesRoutes),
+  },
+  {
     path: '',
     loadChildren: () =>
       import('@routeops/organizations').then(

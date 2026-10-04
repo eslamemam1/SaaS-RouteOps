@@ -19,6 +19,7 @@
       "@routeops/customers": ["./libs/customers/src/index.ts"],
       "@routeops/vehicles": ["./libs/vehicles/src/index.ts"],
       "@routeops/drivers": ["./libs/drivers/src/index.ts"],
+      "@routeops/routes": ["./libs/routes/src/index.ts"],
       "@routeops/shared/supabase": ["./libs/shared/supabase/src/index.ts"],
       "@routeops/shared/i18n": ["./libs/shared/i18n/src/index.ts"]
     }

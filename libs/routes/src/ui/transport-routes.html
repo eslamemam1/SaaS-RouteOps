@@ -1,0 +1,57 @@
+<a routerLink="/">{{ text().list.back }}</a>
+<h2>{{ text().list.title }}</h2>
+<p class="hint">{{ text().list.hint }}</p>
+@if (status() === 'loading') {
+  <p>{{ text().list.loading }}</p>
+}
+@if (status() === 'error') {
+  <p class="error">{{ text().problems[problem()] }}</p>
+}
+@if (status() === 'empty') {
+  <p>{{ text().list.empty }}</p>
+}
+@if (status() === 'success') {
+  <table>
+    <thead>
+      <tr>
+        <th>{{ text().list.name }}</th>
+        <th>{{ text().list.customer }}</th>
+        <th>{{ text().list.vehicle }}</th>
+        <th>{{ text().list.driver }}</th>
+        <th>{{ text().list.outboundTime }}</th>
+        <th>{{ text().list.returnTime }}</th>
+        <th>{{ text().list.days }}</th>
+        <th>{{ text().list.work }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (route of routes(); track route.id) {
+        <tr>
+          <td>{{ route.name }}</td>
+          <td>{{ label(choices().customers, route.customerId) }}</td>
+          <td><bdi>{{ label(choices().vehicles, route.vehicleId) }}</bdi></td>
+          <td>{{ label(choices().drivers, route.driverId) }}</td>
+          <td><bdi>{{ route.outboundTime }}</bdi></td>
+          <td><bdi>{{ route.returnTime }}</bdi></td>
+          <td>{{ daysLabel(route) }}</td>
+          <td>{{ route.active ? text().list.working : text().list.stopped }}</td>
+          <td>
+            <button type="button" (click)="edit(route)">{{ text().list.edit }}</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+@if (organization(); as current) {
+  @if (status() === 'success' || status() === 'empty') {
+    <app-route-form
+      [organization]="current"
+      [choices]="choices()"
+      [route]="editing()"
+      (saved)="onSaved($event)"
+      (cancelled)="stopEditing()"
+    />
+  }
+}
