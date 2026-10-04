@@ -48,6 +48,12 @@
         </a>
         <span class="hint">{{ text().home.routesHint }}</span>
       </li>
+      <li>
+        <a [routerLink]="['/organizations', current.id, 'operations']">
+          {{ text().home.operations }}
+        </a>
+        <span class="hint">{{ text().home.operationsHint }}</span>
+      </li>
     </ul>
   }
 }

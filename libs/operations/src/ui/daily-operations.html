@@ -1,0 +1,90 @@
+<a routerLink="/">{{ text().day.back }}</a>
+<h2>{{ text().day.title }}</h2>
+<p class="hint">{{ text().day.hint }}</p>
+@if (organization()) {
+  <div class="day-picker">
+    <button type="button" (click)="moveDay(-1)">{{ text().day.previous }}</button>
+    <label>
+      {{ text().day.date }}
+      <input
+        type="date"
+        [value]="serviceDate()"
+        (change)="chooseDate($any($event.target).value)"
+      />
+    </label>
+    <button type="button" (click)="moveDay(1)">{{ text().day.next }}</button>
+    @if (serviceDate() !== today) {
+      <button type="button" (click)="chooseDate(today)">{{ text().day.today }}</button>
+    }
+  </div>
+}
+@if (status() === 'loading') {
+  <p>{{ text().day.loading }}</p>
+}
+@if (status() === 'error') {
+  <p class="error">{{ text().problems[problem()] }}</p>
+}
+@if (status() === 'empty') {
+  <p>{{ text().day.empty }}</p>
+}
+@if (status() === 'success') {
+  <table>
+    <thead>
+      <tr>
+        <th>{{ text().day.time }}</th>
+        <th>{{ text().day.route }}</th>
+        <th>{{ text().day.customer }}</th>
+        <th>{{ text().day.direction }}</th>
+        <th>{{ text().day.vehicle }}</th>
+        <th>{{ text().day.driver }}</th>
+        <th>{{ text().day.status }}</th>
+        <th>{{ text().day.reason }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (trip of trips(); track trip.id) {
+        <tr>
+          <td><bdi>{{ trip.departureTime }}</bdi></td>
+          <td>{{ label(choices().routes, trip.routeId) }}</td>
+          <td>{{ label(choices().customers, trip.customerId) }}</td>
+          <td>{{ text().directions[trip.direction] }}</td>
+          <td><bdi>{{ label(choices().vehicles, trip.vehicleId) }}</bdi></td>
+          <td>{{ label(choices().drivers, trip.driverId) }}</td>
+          <td [class.error]="trip.cancelled">{{ text().statuses[statusOf(trip)] }}</td>
+          <td>
+            @if (trip.reason) {
+              {{ text().reasons[trip.reason] }}
+            }
+            @if (trip.notes) {
+              <span class="hint">{{ trip.notes }}</span>
+            }
+          </td>
+          <td>
+            <button type="button" (click)="edit(trip)">{{ text().day.change }}</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+@if (organization(); as current) {
+  @if (editing(); as trip) {
+    <app-trip-change-form
+      [organization]="current"
+      [trip]="trip"
+      [choices]="choices()"
+      (saved)="onTripSaved($event)"
+      (cancelled)="stopEditing()"
+    />
+  }
+  @if (status() === 'success') {
+    <app-holiday-panel
+      [organization]="current"
+      [serviceDate]="serviceDate()"
+      [trips]="trips()"
+      [choices]="choices()"
+      (recorded)="onHolidayRecorded($event)"
+    />
+  }
+}

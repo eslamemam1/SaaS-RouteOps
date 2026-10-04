@@ -1,0 +1,29 @@
+<h3>{{ text().holiday.title }}</h3>
+<p class="hint">{{ text().holiday.hint }}</p>
+@if (customers().length === 0) {
+  <p>{{ text().holiday.none }}</p>
+} @else {
+  @for (customer of customers(); track customer.id) {
+    <label class="checkbox">
+      <input
+        type="checkbox"
+        [checked]="selected().has(customer.id)"
+        (change)="toggle(customer.id, $any($event.target).checked)"
+      />
+      {{ customer.label }}
+    </label>
+  }
+  <button
+    type="button"
+    [disabled]="submitting() || selected().size === 0"
+    (click)="record()"
+  >
+    {{ text().holiday.submit }}
+  </button>
+}
+@if (done()) {
+  <p>{{ text().holiday.done }}</p>
+}
+@if (problem(); as current) {
+  <p class="error">{{ text().problems[current] }}</p>
+}

@@ -1,0 +1,54 @@
+<h3>
+  {{ text().change.title }}: {{ routeName() }} -
+  {{ text().directions[trip().direction] }} <bdi>{{ trip().departureTime }}</bdi>
+</h3>
+<p class="hint">{{ text().change.hint }}</p>
+<form (submit)="onSubmit($event)">
+  <label>
+    {{ text().change.vehicle }}
+    <select [formField]="changeForm.vehicleId">
+      <option value="">{{ text().change.notSet }}</option>
+      @for (vehicle of vehicles(); track vehicle.id) {
+        <option [value]="vehicle.id">{{ vehicle.label }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    {{ text().change.driver }}
+    <select [formField]="changeForm.driverId">
+      <option value="">{{ text().change.notSet }}</option>
+      @for (driver of drivers(); track driver.id) {
+        <option [value]="driver.id">{{ driver.label }}</option>
+      }
+    </select>
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" [formField]="changeForm.cancelled" />
+    {{ text().change.cancelled }}
+  </label>
+  <label>
+    {{ text().change.reason }}
+    <select [formField]="changeForm.reason">
+      <option value="">{{ text().change.chooseReason }}</option>
+      @for (reason of reasons; track reason) {
+        <option [value]="reason">{{ text().reasons[reason] }}</option>
+      }
+    </select>
+  </label>
+  @if (changeForm.reason().touched() && changeForm.reason().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
+    {{ text().change.notes }}
+    <span class="hint">{{ text().change.notesHint }}</span>
+    <textarea [formField]="changeForm.notes"></textarea>
+  </label>
+  @if (changeForm.notes().touched() && changeForm.notes().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <button type="submit" [disabled]="submitting()">{{ text().change.save }}</button>
+  <button type="button" (click)="cancelled.emit()">{{ text().change.cancel }}</button>
+</form>
+@if (problem(); as current) {
+  <p class="error">{{ text().problems[current] }}</p>
+}

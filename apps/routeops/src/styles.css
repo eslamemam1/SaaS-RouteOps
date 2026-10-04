@@ -56,6 +56,19 @@ label {
   gap: 0.25rem;
 }
 
+.day-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+fieldset {
+  display: grid;
+  gap: 0.5rem;
+  border: 1px solid #ddd;
+}
+
 label.checkbox {
   display: flex;
   align-items: center;
