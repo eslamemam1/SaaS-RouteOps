@@ -1,13 +1,15 @@
 import {
   availableChoices,
   choiceLabel,
+  copyForAnotherCustomer,
   customerError,
   daysError,
   emptyTransportRouteDetails,
   memberOrganization,
   routeNameError,
+  routesOfCustomer,
   selectedDays,
-  sortByName,
+  sortByCustomerAndName,
   startPointError,
   timeError,
   TransportRoute,
@@ -110,18 +112,54 @@ describe('memberOrganization', () => {
   });
 });
 
-describe('sortByName', () => {
-  it('orders routes by name', () => {
-    const route = (id: string, name: string): TransportRoute => ({
-      ...emptyTransportRouteDetails,
-      id,
-      name,
-    });
+describe('the same route name for several customers', () => {
+  const customers = [
+    { id: 'nour', label: 'Nour Company', active: true },
+    { id: 'delta', label: 'Delta Factory', active: true },
+  ];
+  const route = (
+    id: string,
+    name: string,
+    customerId: string,
+  ): TransportRoute => ({
+    ...emptyTransportRouteDetails,
+    id,
+    name,
+    customerId,
+    vehicleId: `vehicle-${id}`,
+    driverId: `driver-${id}`,
+    startPoint: 'Hegaz Square',
+    endPoint: 'Factory gate',
+    outboundTime: '07:00',
+    notes: 'Gate 3',
+  });
+  const routes = [
+    route('1', 'Nasr City', 'nour'),
+    route('2', 'Heliopolis', 'delta'),
+    route('3', 'Nasr City', 'delta'),
+  ];
 
+  it('groups routes by customer, then by name', () => {
     expect(
-      sortByName([route('2', 'Zeta'), route('1', 'Alpha')]).map(
-        (item) => item.name,
-      ),
-    ).toEqual(['Alpha', 'Zeta']);
+      sortByCustomerAndName(routes, customers).map((item) => item.id),
+    ).toEqual(['2', '3', '1']);
+  });
+
+  it('shows one customer routes, or all of them', () => {
+    expect(routesOfCustomer(routes, 'delta').map((item) => item.id)).toEqual([
+      '2',
+      '3',
+    ]);
+    expect(routesOfCustomer(routes, '')).toHaveLength(3);
+  });
+
+  it('copies a route for another customer without its customer, vehicle, or driver', () => {
+    expect(copyForAnotherCustomer(routes[0])).toEqual({
+      ...emptyTransportRouteDetails,
+      name: 'Nasr City',
+      startPoint: 'Hegaz Square',
+      endPoint: 'Factory gate',
+      outboundTime: '07:00',
+    });
   });
 });

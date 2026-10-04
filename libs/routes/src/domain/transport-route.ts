@@ -57,6 +57,7 @@ export const routeLimits = {
 
 export const routeProblems = [
   'name',
+  'nameTaken',
   'customer',
   'startPoint',
   'endPoint',
@@ -176,8 +177,45 @@ export function memberOrganization(
   );
 }
 
-export function sortByName(routes: readonly TransportRoute[]): TransportRoute[] {
-  return [...routes].sort((first, second) =>
-    first.name.localeCompare(second.name),
+// The same route name may serve several customers, so routes are grouped by
+// customer first.
+export function sortByCustomerAndName(
+  routes: readonly TransportRoute[],
+  customers: readonly RouteChoice[],
+): TransportRoute[] {
+  return [...routes].sort(
+    (first, second) =>
+      choiceLabel(customers, first.customerId).localeCompare(
+        choiceLabel(customers, second.customerId),
+      ) || first.name.localeCompare(second.name),
   );
+}
+
+export function routesOfCustomer(
+  routes: readonly TransportRoute[],
+  customerId: string,
+): TransportRoute[] {
+  return customerId.length === 0
+    ? [...routes]
+    : routes.filter((route) => route.customerId === customerId);
+}
+
+// Starts a route for another customer from an existing one. The customer,
+// vehicle, and driver are left for the user to choose.
+export function copyForAnotherCustomer(
+  route: TransportRoute,
+): TransportRouteDetails {
+  return {
+    name: route.name,
+    customerId: '',
+    vehicleId: '',
+    driverId: '',
+    startPoint: route.startPoint,
+    endPoint: route.endPoint,
+    outboundTime: route.outboundTime,
+    returnTime: route.returnTime,
+    days: route.days,
+    notes: '',
+    active: true,
+  };
 }

@@ -37,6 +37,7 @@ export class RouteForm {
   readonly organization = input.required<RouteOrganization>();
   readonly choices = input.required<RouteChoices>();
   readonly route = input<TransportRoute | null>(null);
+  readonly draft = input<TransportRouteDetails | null>(null);
   readonly saved = output<TransportRoute>();
   readonly cancelled = output<void>();
 
@@ -66,7 +67,10 @@ export class RouteForm {
 
   constructor() {
     effect(() => {
-      const details = detailsOf(this.route());
+      const route = this.route();
+      const details = route
+        ? detailsOf(route)
+        : (this.draft() ?? emptyTransportRouteDetails);
       untracked(() => {
         this.routeForm().reset(details);
         this.outcome.set(null);
@@ -105,10 +109,7 @@ export class RouteForm {
   }
 }
 
-function detailsOf(route: TransportRoute | null): TransportRouteDetails {
-  if (!route) {
-    return emptyTransportRouteDetails;
-  }
+function detailsOf(route: TransportRoute): TransportRouteDetails {
   return {
     name: route.name,
     customerId: route.customerId,

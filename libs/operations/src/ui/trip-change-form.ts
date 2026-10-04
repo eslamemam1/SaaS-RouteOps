@@ -60,6 +60,9 @@ export class TripChangeForm {
   protected readonly routeName = computed(() =>
     choiceLabel(this.choices().routes, this.trip().routeId),
   );
+  protected readonly customerName = computed(() =>
+    choiceLabel(this.choices().customers, this.trip().customerId),
+  );
   protected readonly vehicles = computed(() =>
     availableChoices(this.choices().vehicles, this.model().vehicleId),
   );

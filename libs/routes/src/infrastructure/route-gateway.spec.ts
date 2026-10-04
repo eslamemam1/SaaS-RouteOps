@@ -4,7 +4,10 @@ import { emptyTransportRouteDetails } from '../domain/transport-route';
 import { Database } from './database';
 import { SupabaseRouteGateway } from './route-gateway';
 
-type Result = { data: unknown; error: { message: string } | null };
+type Result = {
+  data: unknown;
+  error: { message: string; code?: string } | null;
+};
 
 const row = {
   id: 'route-1',
@@ -114,6 +117,25 @@ describe('SupabaseRouteGateway', () => {
       ['id', 'route-1'],
       ['organization_id', 'org-north'],
     ]);
+  });
+
+  it('reports a route name the customer already uses', async () => {
+    const calls = recorder(() => ({
+      data: null,
+      error: { message: 'duplicate key value', code: '23505' },
+    }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+
+    await expect(
+      gateway.insertRoute('org-north', {
+        ...emptyTransportRouteDetails,
+        name: 'Nasr City',
+        customerId: 'customer-1',
+        startPoint: 'A',
+        endPoint: 'B',
+        outboundTime: '07:00',
+      }),
+    ).rejects.toEqual(new RouteAccessError('nameTaken'));
   });
 
   it('replaces a database error with a safe code', async () => {

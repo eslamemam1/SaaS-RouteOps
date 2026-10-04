@@ -1,4 +1,4 @@
-import { SupabaseClient } from '@supabase/supabase-js';
+import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 import { RouteAccessError } from '../application/route-access-error';
 import {
   RouteChoice,
@@ -47,6 +47,8 @@ type RouteRow = Pick<
 
 const routeColumns =
   'id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, notes, is_active';
+
+const uniqueViolation = '23505';
 
 // PostgreSQL day-of-week numbers, which the routes table stores.
 const dayNumbers: Record<Weekday, number> = {
@@ -142,7 +144,7 @@ export class SupabaseRouteGateway implements RouteGateway {
       .select(routeColumns)
       .single();
     if (error || !data) {
-      throw new RouteAccessError('save');
+      throw new RouteAccessError(saveProblem(error));
     }
     return toRoute(data);
   }
@@ -160,7 +162,7 @@ export class SupabaseRouteGateway implements RouteGateway {
       .select(routeColumns)
       .single();
     if (error || !data) {
-      throw new RouteAccessError('save');
+      throw new RouteAccessError(saveProblem(error));
     }
     return toRoute(data);
   }
@@ -171,6 +173,10 @@ export class SupabaseRouteGateway implements RouteGateway {
     }
     return this.client;
   }
+}
+
+function saveProblem(error: PostgrestError | null) {
+  return error?.code === uniqueViolation ? 'nameTaken' : 'save';
 }
 
 function choice(id: string, label: string, active: boolean): RouteChoice {

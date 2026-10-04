@@ -11,38 +11,55 @@
   <p>{{ text().list.empty }}</p>
 }
 @if (status() === 'success') {
-  <table>
-    <thead>
-      <tr>
-        <th>{{ text().list.name }}</th>
-        <th>{{ text().list.customer }}</th>
-        <th>{{ text().list.vehicle }}</th>
-        <th>{{ text().list.driver }}</th>
-        <th>{{ text().list.outboundTime }}</th>
-        <th>{{ text().list.returnTime }}</th>
-        <th>{{ text().list.days }}</th>
-        <th>{{ text().list.work }}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (route of routes(); track route.id) {
-        <tr>
-          <td>{{ route.name }}</td>
-          <td>{{ label(choices().customers, route.customerId) }}</td>
-          <td><bdi>{{ label(choices().vehicles, route.vehicleId) }}</bdi></td>
-          <td>{{ label(choices().drivers, route.driverId) }}</td>
-          <td><bdi>{{ route.outboundTime }}</bdi></td>
-          <td><bdi>{{ route.returnTime }}</bdi></td>
-          <td>{{ daysLabel(route) }}</td>
-          <td>{{ route.active ? text().list.working : text().list.stopped }}</td>
-          <td>
-            <button type="button" (click)="edit(route)">{{ text().list.edit }}</button>
-          </td>
-        </tr>
+  <label>
+    {{ text().list.filter }}
+    <select
+      [value]="customerFilter()"
+      (change)="filterBy($any($event.target).value)"
+    >
+      <option value="">{{ text().list.allCustomers }}</option>
+      @for (customer of choices().customers; track customer.id) {
+        <option [value]="customer.id">{{ customer.label }}</option>
       }
-    </tbody>
-  </table>
+    </select>
+  </label>
+  @if (visibleRoutes().length === 0) {
+    <p>{{ text().list.noMatch }}</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>{{ text().list.customer }}</th>
+          <th>{{ text().list.name }}</th>
+          <th>{{ text().list.vehicle }}</th>
+          <th>{{ text().list.driver }}</th>
+          <th>{{ text().list.outboundTime }}</th>
+          <th>{{ text().list.returnTime }}</th>
+          <th>{{ text().list.days }}</th>
+          <th>{{ text().list.work }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (route of visibleRoutes(); track route.id) {
+          <tr>
+            <td>{{ label(choices().customers, route.customerId) }}</td>
+            <td>{{ route.name }}</td>
+            <td><bdi>{{ label(choices().vehicles, route.vehicleId) }}</bdi></td>
+            <td>{{ label(choices().drivers, route.driverId) }}</td>
+            <td><bdi>{{ route.outboundTime }}</bdi></td>
+            <td><bdi>{{ route.returnTime }}</bdi></td>
+            <td>{{ daysLabel(route) }}</td>
+            <td>{{ route.active ? text().list.working : text().list.stopped }}</td>
+            <td>
+              <button type="button" (click)="edit(route)">{{ text().list.edit }}</button>
+              <button type="button" (click)="copy(route)">{{ text().list.copy }}</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
 }
 @if (organization(); as current) {
   @if (status() === 'success' || status() === 'empty') {
@@ -50,6 +67,7 @@
       [organization]="current"
       [choices]="choices()"
       [route]="editing()"
+      [draft]="draft()"
       (saved)="onSaved($event)"
       (cancelled)="stopEditing()"
     />

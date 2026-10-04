@@ -10,6 +10,10 @@ export interface RoutesText {
     readonly hint: string;
     readonly loading: string;
     readonly empty: string;
+    readonly filter: string;
+    readonly allCustomers: string;
+    readonly noMatch: string;
+    readonly copy: string;
     readonly name: string;
     readonly customer: string;
     readonly vehicle: string;
@@ -28,6 +32,8 @@ export interface RoutesText {
   readonly form: {
     readonly addTitle: string;
     readonly editTitle: string;
+    readonly copyTitle: string;
+    readonly copyHint: string;
     readonly name: string;
     readonly nameHint: string;
     readonly customer: string;
@@ -64,6 +70,7 @@ export const routesText: Record<Language, RoutesText> = {
   ar: {
     problems: {
       name: 'أدخل اسم الخط.',
+      nameTaken: 'يوجد خط بنفس الاسم لهذه الشركة. اختر اسمًا آخر.',
       customer: 'اختر الشركة المتعاقدة.',
       startPoint: 'أدخل نقطة البداية.',
       endPoint: 'أدخل نقطة النهاية.',
@@ -92,6 +99,10 @@ export const routesText: Record<Language, RoutesText> = {
       hint: 'كل خط يحدد أي مركبة وأي سائق ينقلان موظفي أي شركة متعاقدة، وفي أي مواعيد وأيام.',
       loading: 'جارٍ التحميل...',
       empty: 'لم تضف أي خط بعد. ابدأ بإضافة أول خط من النموذج بالأسفل.',
+      filter: 'عرض خطوط',
+      allCustomers: 'كل الشركات',
+      noMatch: 'لا توجد خطوط لهذه الشركة بعد.',
+      copy: 'نسخ لشركة أخرى',
       name: 'الخط',
       customer: 'الشركة المتعاقدة',
       vehicle: 'المركبة',
@@ -110,8 +121,10 @@ export const routesText: Record<Language, RoutesText> = {
     form: {
       addTitle: 'إضافة خط جديد',
       editTitle: 'تعديل بيانات الخط',
+      copyTitle: 'نسخ خط لشركة أخرى',
+      copyHint: 'اختر الشركة، ثم غيّر المركبة والسائق والمواعيد والأيام حسب هذه الشركة.',
       name: 'اسم الخط',
-      nameHint: 'اسم تعرف به الخط، مثل: مصنع الدلتا - مدينة نصر.',
+      nameHint: 'اسم تعرف به الخط، مثل: مدينة نصر. يمكن استخدام نفس الاسم لأكثر من شركة.',
       customer: 'الشركة المتعاقدة',
       customerHint: 'الشركة التي ينقل هذا الخط موظفيها.',
       chooseCustomer: 'اختر الشركة',
@@ -144,6 +157,7 @@ export const routesText: Record<Language, RoutesText> = {
   en: {
     problems: {
       name: 'Enter the route name.',
+      nameTaken: 'This company already has a route with this name. Choose another name.',
       customer: 'Choose the client company.',
       startPoint: 'Enter the start point.',
       endPoint: 'Enter the end point.',
@@ -172,6 +186,10 @@ export const routesText: Record<Language, RoutesText> = {
       hint: 'Each route sets which vehicle and driver carry which client company staff, at which times and on which days.',
       loading: 'Loading...',
       empty: 'You have not added any route yet. Add the first one using the form below.',
+      filter: 'Show routes of',
+      allCustomers: 'All companies',
+      noMatch: 'This company has no routes yet.',
+      copy: 'Copy for another company',
       name: 'Route',
       customer: 'Client company',
       vehicle: 'Vehicle',
@@ -190,8 +208,10 @@ export const routesText: Record<Language, RoutesText> = {
     form: {
       addTitle: 'Add a new route',
       editTitle: 'Edit route details',
+      copyTitle: 'Copy a route for another company',
+      copyHint: 'Choose the company, then change the vehicle, driver, times, and days for it.',
       name: 'Route name',
-      nameHint: 'A name you know the route by, e.g. Delta Factory - Nasr City.',
+      nameHint: 'A name you know the route by, e.g. Nasr City. The same name can serve more than one company.',
       customer: 'Client company',
       customerHint: 'The company whose staff this route carries.',
       chooseCustomer: 'Choose a company',

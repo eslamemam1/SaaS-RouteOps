@@ -66,6 +66,43 @@ describe('TransportRoutes', () => {
     expect(text(harness)).toContain(arabic.form.addTitle);
   });
 
+  it('filters routes with the same name by company', async () => {
+    const nour = { id: 'customer-2', label: 'Nour Company', active: true };
+    const nourRoute = { ...delta, id: 'route-2', customerId: nour.id };
+    const harness = await open({
+      list: async () => [delta, nourRoute],
+      choices: async () => ({ ...choices, customers: [...choices.customers, nour] }),
+    });
+    await settle(harness);
+
+    expect(rows(harness)).toHaveLength(2);
+
+    const filter = harness.routeNativeElement!.querySelector('select')!;
+    filter.value = nour.id;
+    filter.dispatchEvent(new Event('change'));
+    await settle(harness);
+
+    expect(rows(harness)).toHaveLength(1);
+    expect(rows(harness)[0].textContent).toContain('Nour Company');
+  });
+
+  it('starts a copy for another company from an existing route', async () => {
+    const harness = await open({ list: async () => [delta] });
+    await settle(harness);
+
+    const copy = [...harness.routeNativeElement!.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === arabic.list.copy,
+    );
+    copy?.click();
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.form.copyTitle);
+    const name = harness.routeNativeElement!.querySelector<HTMLInputElement>(
+      'form input[type="text"]',
+    );
+    expect(name?.value).toBe('Delta - Nasr City');
+  });
+
   it('points to the client companies page when there are none yet', async () => {
     const harness = await open({
       choices: async () => ({ customers: [], vehicles: [], drivers: [] }),
@@ -138,6 +175,14 @@ async function settle(harness: RouterTestingHarness): Promise<void> {
   await Promise.resolve();
   await harness.fixture.whenStable();
   harness.detectChanges();
+}
+
+function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
+  return [
+    ...(harness.routeNativeElement?.querySelectorAll<HTMLTableRowElement>(
+      'tbody tr',
+    ) ?? []),
+  ];
 }
 
 function text(harness: RouterTestingHarness): string {

@@ -1,17 +1,20 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { injectText } from '@routeops/shared/i18n';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
 import {
   choiceLabel,
+  copyForAnotherCustomer,
   RouteChoice,
   RouteChoices,
   RouteOrganization,
   RouteProblem,
+  routesOfCustomer,
   selectedDays,
-  sortByName,
+  sortByCustomerAndName,
   TransportRoute,
+  TransportRouteDetails,
   weekdays,
 } from '../domain/transport-route';
 import { RouteForm } from './route-form';
@@ -37,6 +40,11 @@ export class TransportRoutes {
   protected readonly routes = signal<TransportRoute[]>([]);
   protected readonly choices = signal<RouteChoices>(noChoices);
   protected readonly editing = signal<TransportRoute | null>(null);
+  protected readonly draft = signal<TransportRouteDetails | null>(null);
+  protected readonly customerFilter = signal('');
+  protected readonly visibleRoutes = computed(() =>
+    routesOfCustomer(this.routes(), this.customerFilter()),
+  );
 
   constructor() {
     void this.load();
@@ -55,18 +63,31 @@ export class TransportRoutes {
     return days.map((day) => text.weekdays[day]).join(text.list.daySeparator);
   }
 
+  protected filterBy(customerId: string): void {
+    this.customerFilter.set(customerId);
+  }
+
   protected edit(route: TransportRoute): void {
+    this.draft.set(null);
     this.editing.set(route);
+  }
+
+  protected copy(route: TransportRoute): void {
+    this.editing.set(null);
+    this.draft.set(copyForAnotherCustomer(route));
   }
 
   protected stopEditing(): void {
     this.editing.set(null);
+    this.draft.set(null);
   }
 
   protected onSaved(route: TransportRoute): void {
     const others = this.routes().filter((item) => item.id !== route.id);
-    this.routes.set(sortByName([...others, route]));
-    this.editing.set(null);
+    this.routes.set(
+      sortByCustomerAndName([...others, route], this.choices().customers),
+    );
+    this.stopEditing();
     this.status.set('success');
   }
 
@@ -86,7 +107,7 @@ export class TransportRoutes {
         this.repository.list(organization),
         this.repository.choices(organization),
       ]);
-      this.routes.set(routes);
+      this.routes.set(sortByCustomerAndName(routes, choices.customers));
       this.choices.set(choices);
       this.status.set(routes.length === 0 ? 'empty' : 'success');
     } catch (error) {

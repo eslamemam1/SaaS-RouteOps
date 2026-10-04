@@ -1,4 +1,11 @@
-<h3>{{ route() ? text().form.editTitle : text().form.addTitle }}</h3>
+@if (route()) {
+  <h3>{{ text().form.editTitle }}</h3>
+} @else if (draft()) {
+  <h3>{{ text().form.copyTitle }}</h3>
+  <p class="hint">{{ text().form.copyHint }}</p>
+} @else {
+  <h3>{{ text().form.addTitle }}</h3>
+}
 @if (choices().customers.length === 0) {
   <p class="hint">
     {{ text().form.noCustomers }}
@@ -114,7 +121,7 @@
   <button type="submit" [disabled]="submitting()">
     {{ route() ? text().form.save : text().form.add }}
   </button>
-  @if (route()) {
+  @if (route() || draft()) {
     <button type="button" (click)="cancelled.emit()">{{ text().form.cancel }}</button>
   }
 </form>
