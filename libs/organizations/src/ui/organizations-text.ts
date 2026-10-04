@@ -26,6 +26,8 @@ export interface OrganizationsText {
     readonly routesHint: string;
     readonly operations: string;
     readonly operationsHint: string;
+    readonly reports: string;
+    readonly reportsHint: string;
     readonly operatorTitle: string;
     readonly signOut: string;
   };
@@ -80,6 +82,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       routesHint: 'اربط كل شركة متعاقدة بمركبة وسائق ومواعيد.',
       operations: 'التشغيل اليومي',
       operationsHint: 'رحلات كل يوم: غياب سائق، عطل مركبة، أو إجازة.',
+      reports: 'التقارير',
+      reportsHint: 'عدد الرحلات التي تمّت كل شهر، لكل شركة متعاقدة ومركبة وسائق.',
       operatorTitle: 'لوحة مدير الموقع',
       signOut: 'تسجيل الخروج',
     },
@@ -135,6 +139,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       routesHint: 'Link each client company to a vehicle, a driver, and times.',
       operations: 'Daily operations',
       operationsHint: "Each day's trips: an absent driver, a broken vehicle, or a holiday.",
+      reports: 'Reports',
+      reportsHint: 'How many trips were done each month, per client company, vehicle, and driver.',
       operatorTitle: 'Site manager panel',
       signOut: 'Sign out',
     },

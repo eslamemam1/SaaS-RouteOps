@@ -1,0 +1,105 @@
+<a routerLink="/">{{ text().report.back }}</a>
+<h2>{{ text().report.title }}</h2>
+<p class="hint">{{ text().report.hint }}</p>
+@if (organization()) {
+  <div class="day-picker">
+    <button type="button" (click)="moveMonth(-1)">{{ text().report.previous }}</button>
+    <label>
+      {{ text().report.month }}
+      <input
+        type="month"
+        dir="ltr"
+        [value]="month()"
+        (change)="chooseMonth($any($event.target).value)"
+      />
+    </label>
+    <button type="button" (click)="moveMonth(1)">{{ text().report.next }}</button>
+    @if (month() !== thisMonth) {
+      <button type="button" (click)="chooseMonth(thisMonth)">
+        {{ text().report.thisMonth }}
+      </button>
+    }
+  </div>
+}
+@if (status() === 'loading') {
+  <p>{{ text().report.loading }}</p>
+}
+@if (status() === 'error') {
+  <p class="error">{{ text().problems[problem()] }}</p>
+}
+@if (status() === 'success' || status() === 'empty') {
+  @if (report().unopenedDays.length > 0) {
+    <fieldset>
+      <legend class="error">
+        {{ text().report.unopenedTitle }} (<bdi>{{ report().unopenedDays.length }}</bdi>)
+      </legend>
+      <p class="hint">{{ text().report.unopenedHint }}</p>
+      <p>
+        @for (day of report().unopenedDays; track day; let last = $last) {
+          <bdi>{{ day }}</bdi>@if (!last) {<span>{{ text().report.separator }}</span>}
+        }
+      </p>
+    </fieldset>
+  }
+}
+@if (status() === 'empty') {
+  <p>{{ text().report.empty }}</p>
+}
+@if (status() === 'success') {
+  <p>
+    {{ text().report.doneTotal }}: <strong><bdi>{{ total().done }}</bdi></strong>
+    ({{ text().report.extraTotal }}: <bdi>{{ total().extra }}</bdi>)
+  </p>
+  <p class="hint">{{ text().report.countedHint }}</p>
+  <fieldset>
+    <legend>{{ text().report.groupBy }}</legend>
+    <div class="toggle">
+      @for (choice of groups; track choice) {
+        <button
+          type="button"
+          [attr.aria-pressed]="group() === choice"
+          (click)="group.set(choice)"
+        >
+          {{ text().groups[choice] }}
+        </button>
+      }
+    </div>
+  </fieldset>
+  <table>
+    <thead>
+      <tr>
+        <th>{{ text().groupHeadings[group()] }}</th>
+        @if (group() === 'vehicle') {
+          <th>{{ text().report.ownership }}</th>
+        }
+        <th>{{ text().report.done }}</th>
+        <th>{{ text().report.extra }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (line of lines(); track line.id) {
+        <tr>
+          <td>
+            @if (line.label) {
+              <bdi>{{ line.label }}</bdi>
+            } @else {
+              <span class="hint">{{ text().missing[group()] }}</span>
+            }
+          </td>
+          @if (group() === 'vehicle') {
+            <td>
+              @if (vehicleOf(line); as vehicle) {
+                {{ text().ownerships[vehicle.ownership] }}
+                @if (vehicle.ownerName) {
+                  <span class="hint">{{ vehicle.ownerName }}</span>
+                }
+              }
+            </td>
+          }
+          <td><bdi>{{ line.done }}</bdi></td>
+          <td><bdi>{{ line.extra }}</bdi></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

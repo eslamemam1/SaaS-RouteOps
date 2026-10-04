@@ -12,11 +12,12 @@ Multi-tenant operations app for staff transportation companies.
 - `libs/drivers` keeps each organization's drivers.
 - `libs/routes` keeps each organization's routes: the customer, vehicle, driver, trip times, and working days.
 - `libs/operations` keeps each day's trips as they happened: swapped vehicles or drivers, cancellations, and holidays.
+- `libs/reports` counts the trips done each month per client company, vehicle, and driver, and lists the days nobody opened.
 - `libs/shared/supabase` holds the single Supabase client and the signed-in route guard.
 - `libs/shared/i18n` holds the Arabic and English language switch.
 - Tag feature libraries `scope:<feature>` and `type:feature`.
 - `supabase/migrations` is the database source of truth. Local Supabase needs Docker.
-- `supabase/tests/database` holds pgTAP tests for tenant isolation and daily operations. They run against the local database only.
+- `supabase/tests/database` holds pgTAP tests for tenant isolation, daily operations, vehicle ownership, and the trip report. They run against the local database only.
 
 ## Tasks
 
