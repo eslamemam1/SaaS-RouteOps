@@ -33,5 +33,5 @@ Database tests, with Docker running:
 ```sh
 npx supabase db start
 npx supabase test db
-npx supabase db stop
+npx supabase stop
 ```

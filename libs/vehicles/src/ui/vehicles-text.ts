@@ -1,17 +1,22 @@
 import { Language } from '@routeops/shared/i18n';
-import { VehicleProblem, VehicleType } from '../domain/vehicle';
+import { VehicleOwnership, VehicleProblem, VehicleType } from '../domain/vehicle';
 
 export interface VehiclesText {
   readonly problems: Record<VehicleProblem, string>;
   readonly types: Record<VehicleType, string>;
+  readonly ownerships: Record<VehicleOwnership, string>;
   readonly list: {
     readonly back: string;
     readonly title: string;
     readonly hint: string;
     readonly loading: string;
     readonly empty: string;
+    readonly filter: string;
+    readonly allOwnerships: string;
+    readonly noMatch: string;
     readonly plateNumber: string;
     readonly type: string;
+    readonly ownership: string;
     readonly model: string;
     readonly year: string;
     readonly seats: string;
@@ -36,6 +41,11 @@ export interface VehiclesText {
     readonly seatsHint: string;
     readonly licenseExpiry: string;
     readonly licenseExpiryHint: string;
+    readonly ownership: string;
+    readonly ownershipHint: string;
+    readonly ownerName: string;
+    readonly ownerNameHint: string;
+    readonly ownerPhone: string;
     readonly notes: string;
     readonly notesHint: string;
     readonly active: string;
@@ -53,6 +63,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       plate: 'أدخل رقم اللوحة.',
       plateTaken: 'رقم اللوحة هذا مسجّل بالفعل لمركبة أخرى.',
       type: 'اختر نوع المركبة.',
+      ownerName: 'اكتب اسم صاحب المركبة أو المكتب.',
       tooLong: 'النص أطول من المسموح.',
       year: 'أدخل سنة صحيحة من 1950 حتى العام القادم، مثل 2020.',
       seats: 'أدخل عدد مقاعد صحيحًا من 1 إلى 100.',
@@ -69,14 +80,23 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       microbus: 'ميكروباص',
       car: 'سيارة ملاكي',
     },
+    ownerships: {
+      owned: 'ملك الشركة',
+      rented: 'إيجار',
+      contractor: 'متعاقد بمركبته',
+    },
     list: {
       back: 'الرجوع إلى الصفحة الرئيسية',
       title: 'المركبات',
-      hint: 'الأتوبيسات والميكروباصات والسيارات التي تنقل بها الموظفين.',
+      hint: 'الأتوبيسات والميكروباصات والسيارات التي تنقل بها الموظفين، سواء كانت ملكك أو إيجارًا أو تخص متعاقدًا يعمل معك.',
       loading: 'جارٍ التحميل...',
       empty: 'لم تضف أي مركبة بعد. ابدأ بإضافة أول مركبة من النموذج بالأسفل.',
+      filter: 'عرض',
+      allOwnerships: 'كل المركبات',
+      noMatch: 'لا توجد مركبات من هذا النوع.',
       plateNumber: 'رقم اللوحة',
       type: 'النوع',
+      ownership: 'الملكية',
       model: 'الموديل',
       year: 'سنة الصنع',
       seats: 'المقاعد',
@@ -101,6 +121,11 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       seatsHint: 'عدد الركاب الذين تتسع لهم المركبة.',
       licenseExpiry: 'تاريخ انتهاء الرخصة (اختياري)',
       licenseExpiryHint: 'تظهر كلمة "منتهية" في القائمة بعد هذا التاريخ.',
+      ownership: 'ملكية المركبة',
+      ownershipHint: 'إيجار: مركبة تستأجرها من صاحبها أو من مكتب. متعاقد بمركبته: شخص يعمل معك بمركبته.',
+      ownerName: 'اسم صاحب المركبة أو المكتب',
+      ownerNameHint: 'الشخص الذي تحاسبه على هذه المركبة.',
+      ownerPhone: 'رقم موبايله (اختياري)',
       notes: 'ملاحظات (اختياري)',
       notesHint: 'أي معلومة تريد تذكّرها عن هذه المركبة.',
       active: 'المركبة في الخدمة',
@@ -116,6 +141,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       plate: 'Enter the plate number.',
       plateTaken: 'This plate number is already used by another vehicle.',
       type: 'Choose the vehicle type.',
+      ownerName: "Enter the vehicle owner's or office's name.",
       tooLong: 'This text is too long.',
       year: 'Enter a valid year from 1950 to next year, e.g. 2020.',
       seats: 'Enter a seat count from 1 to 100.',
@@ -132,14 +158,23 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       microbus: 'Microbus',
       car: 'Car',
     },
+    ownerships: {
+      owned: 'Company owned',
+      rented: 'Rented',
+      contractor: 'Contractor vehicle',
+    },
     list: {
       back: 'Back to home',
       title: 'Vehicles',
-      hint: 'The buses, microbuses, and cars you use to transport staff.',
+      hint: 'The buses, microbuses, and cars you use to transport staff, whether you own them, rent them, or a contractor brings them.',
       loading: 'Loading...',
       empty: 'You have not added any vehicle yet. Add the first one using the form below.',
+      filter: 'Show',
+      allOwnerships: 'All vehicles',
+      noMatch: 'There are no vehicles of this kind.',
       plateNumber: 'Plate number',
       type: 'Type',
+      ownership: 'Ownership',
       model: 'Model',
       year: 'Year',
       seats: 'Seats',
@@ -164,6 +199,11 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       seatsHint: 'How many passengers the vehicle carries.',
       licenseExpiry: 'License expiry date (optional)',
       licenseExpiryHint: 'The list shows "Expired" after this date.',
+      ownership: 'Vehicle ownership',
+      ownershipHint: 'Rented: a vehicle you rent from its owner or an office. Contractor vehicle: someone who works with you using their own vehicle.',
+      ownerName: "Owner's or office's name",
+      ownerNameHint: 'The person you settle with for this vehicle.',
+      ownerPhone: 'Their mobile number (optional)',
       notes: 'Notes (optional)',
       notesHint: 'Anything you want to remember about this vehicle.',
       active: 'This vehicle is in service',

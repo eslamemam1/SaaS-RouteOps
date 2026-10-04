@@ -1,13 +1,17 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { injectText } from '@routeops/shared/i18n';
 import { VehicleAccessError } from '../application/vehicle-access-error';
 import { VehicleRepository } from '../application/vehicle-repository';
 import {
+  isVehicleOwnership,
   licenseExpired,
+  ofOwnership,
   sortByPlate,
   Vehicle,
   VehicleOrganization,
+  VehicleOwnership,
+  vehicleOwnerships,
   VehicleProblem,
 } from '../domain/vehicle';
 import { VehicleForm } from './vehicle-form';
@@ -31,9 +35,18 @@ export class Vehicles {
   protected readonly organization = signal<VehicleOrganization | null>(null);
   protected readonly vehicles = signal<Vehicle[]>([]);
   protected readonly editing = signal<Vehicle | null>(null);
+  protected readonly ownerships = vehicleOwnerships;
+  protected readonly ownershipFilter = signal<VehicleOwnership | ''>('');
+  protected readonly visibleVehicles = computed(() =>
+    ofOwnership(this.vehicles(), this.ownershipFilter()),
+  );
 
   constructor() {
     void this.load();
+  }
+
+  protected filterBy(value: string): void {
+    this.ownershipFilter.set(isVehicleOwnership(value) ? value : '');
   }
 
   protected expired(vehicle: Vehicle): boolean {

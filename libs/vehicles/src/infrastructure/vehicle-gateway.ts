@@ -1,6 +1,7 @@
 import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 import { VehicleAccessError } from '../application/vehicle-access-error';
 import {
+  isVehicleOwnership,
   isVehicleType,
   normalizePlate,
   Vehicle,
@@ -34,12 +35,15 @@ type VehicleRow = Pick<
   | 'model_year'
   | 'seats'
   | 'license_expires_on'
+  | 'ownership'
+  | 'owner_name'
+  | 'owner_phone'
   | 'notes'
   | 'is_active'
 >;
 
 const vehicleColumns =
-  'id, plate_number, vehicle_type, model, model_year, seats, license_expires_on, notes, is_active';
+  'id, plate_number, vehicle_type, model, model_year, seats, license_expires_on, ownership, owner_name, owner_phone, notes, is_active';
 
 const uniqueViolation = '23505';
 
@@ -129,7 +133,7 @@ function saveProblem(error: PostgrestError | null) {
 }
 
 function toVehicle(row: VehicleRow): Vehicle {
-  if (!isVehicleType(row.vehicle_type)) {
+  if (!isVehicleType(row.vehicle_type) || !isVehicleOwnership(row.ownership)) {
     throw new VehicleAccessError('load');
   }
   return {
@@ -140,6 +144,9 @@ function toVehicle(row: VehicleRow): Vehicle {
     year: row.model_year === null ? '' : String(row.model_year),
     seats: row.seats === null ? '' : String(row.seats),
     licenseExpiry: row.license_expires_on ?? '',
+    ownership: row.ownership,
+    ownerName: row.owner_name ?? '',
+    ownerPhone: row.owner_phone ?? '',
     notes: row.notes ?? '',
     active: row.is_active,
   };
@@ -149,6 +156,7 @@ function toColumns(details: VehicleDetails) {
   if (!isVehicleType(details.type)) {
     throw new VehicleAccessError('type');
   }
+  const owned = details.ownership === 'owned';
   return {
     plate_number: normalizePlate(details.plateNumber),
     vehicle_type: details.type,
@@ -156,6 +164,9 @@ function toColumns(details: VehicleDetails) {
     model_year: wholeNumber(details.year),
     seats: wholeNumber(details.seats),
     license_expires_on: blankToNull(details.licenseExpiry),
+    ownership: details.ownership,
+    owner_name: owned ? null : blankToNull(details.ownerName),
+    owner_phone: owned ? null : blankToNull(details.ownerPhone),
     notes: blankToNull(details.notes),
     is_active: details.active,
   };

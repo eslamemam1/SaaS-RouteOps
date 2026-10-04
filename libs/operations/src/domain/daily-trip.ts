@@ -17,9 +17,17 @@ export interface OperationRoute extends OperationChoice {
   readonly driverId: string;
 }
 
+export const vehicleOwnerships = ['owned', 'rented', 'contractor'] as const;
+
+export type VehicleOwnership = (typeof vehicleOwnerships)[number];
+
+export interface OperationVehicle extends OperationChoice {
+  readonly ownership: VehicleOwnership;
+}
+
 export interface OperationChoices {
   readonly customers: readonly OperationChoice[];
-  readonly vehicles: readonly OperationChoice[];
+  readonly vehicles: readonly OperationVehicle[];
   readonly drivers: readonly OperationChoice[];
   readonly routes: readonly OperationRoute[];
 }
@@ -237,11 +245,74 @@ export function sortByTime(trips: readonly DailyTrip[]): DailyTrip[] {
   );
 }
 
+// Trips only have a departure time, so two trips of the same vehicle or driver
+// that leave less than this many minutes apart are taken to overlap.
+export const conflictWindowMinutes = 60;
+
+export type ConflictKind = 'vehicle' | 'driver';
+
+export interface TripConflict {
+  readonly kind: ConflictKind;
+  readonly trip: DailyTrip;
+}
+
+export type ConflictCandidate = Pick<
+  DailyTrip,
+  'id' | 'vehicleId' | 'driverId' | 'departureTime' | 'cancelled'
+>;
+
+// Other trips of the same day that use the candidate's vehicle or driver
+// within the conflict window. Cancelled trips never conflict.
+export function tripConflicts(
+  candidate: ConflictCandidate,
+  trips: readonly DailyTrip[],
+): TripConflict[] {
+  if (candidate.cancelled || departureTimeError(candidate.departureTime)) {
+    return [];
+  }
+  const start = minutesOf(candidate.departureTime);
+  return trips
+    .filter(
+      (trip) =>
+        trip.id !== candidate.id &&
+        !trip.cancelled &&
+        Math.abs(minutesOf(trip.departureTime) - start) < conflictWindowMinutes,
+    )
+    .flatMap((trip) => [
+      ...(candidate.vehicleId && trip.vehicleId === candidate.vehicleId
+        ? [{ kind: 'vehicle' as const, trip }]
+        : []),
+      ...(candidate.driverId && trip.driverId === candidate.driverId
+        ? [{ kind: 'driver' as const, trip }]
+        : []),
+    ]);
+}
+
+export function conflictsByTrip(
+  trips: readonly DailyTrip[],
+): ReadonlyMap<string, TripConflict[]> {
+  const conflicts = new Map<string, TripConflict[]>();
+  for (const trip of trips) {
+    const found = tripConflicts(trip, trips);
+    if (found.length > 0) {
+      conflicts.set(trip.id, found);
+    }
+  }
+  return conflicts;
+}
+
+function minutesOf(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
 export interface TripFilter {
   readonly customerId: string;
   readonly direction: TripDirection | '';
   readonly status: TripStatus | '';
   readonly search: string;
+  readonly conflictsOnly: boolean;
+  readonly ownership: VehicleOwnership | '';
 }
 
 export const emptyTripFilter: TripFilter = {
@@ -249,7 +320,21 @@ export const emptyTripFilter: TripFilter = {
   direction: '',
   status: '',
   search: '',
+  conflictsOnly: false,
+  ownership: '',
 };
+
+export function isVehicleOwnership(value: string): value is VehicleOwnership {
+  return (vehicleOwnerships as readonly string[]).includes(value);
+}
+
+// Empty for a trip without a vehicle.
+export function vehicleOwnership(
+  vehicles: readonly OperationVehicle[],
+  vehicleId: string,
+): VehicleOwnership | '' {
+  return vehicles.find((vehicle) => vehicle.id === vehicleId)?.ownership ?? '';
+}
 
 // Search matches the route name, the driver name, or the vehicle plate.
 export function filterTrips(
@@ -260,8 +345,12 @@ export function filterTrips(
   recording: TripRecording,
 ): DailyTrip[] {
   const search = searchKey(filter.search);
+  const conflicts = filter.conflictsOnly ? conflictsByTrip(trips) : null;
   return trips.filter(
     (trip) =>
+      (!conflicts || conflicts.has(trip.id)) &&
+      (!filter.ownership ||
+        vehicleOwnership(choices.vehicles, trip.vehicleId) === filter.ownership) &&
       (!filter.customerId || trip.customerId === filter.customerId) &&
       (!filter.direction || trip.direction === filter.direction) &&
       (!filter.status ||

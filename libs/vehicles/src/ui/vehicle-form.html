@@ -58,6 +58,38 @@
     <p class="error">{{ error.message }}</p>
   }
   <label>
+    {{ text().form.ownership }}
+    <span class="hint">{{ text().form.ownershipHint }}</span>
+    <select [formField]="vehicleForm.ownership">
+      @for (ownership of ownerships; track ownership) {
+        <option [value]="ownership">{{ text().ownerships[ownership] }}</option>
+      }
+    </select>
+  </label>
+  @if (model().ownership !== 'owned') {
+    <label>
+      {{ text().form.ownerName }}
+      <span class="hint">{{ text().form.ownerNameHint }}</span>
+      <input type="text" [formField]="vehicleForm.ownerName" />
+    </label>
+    @if (
+      vehicleForm.ownerName().touched() && vehicleForm.ownerName().errors()[0];
+      as error
+    ) {
+      <p class="error">{{ error.message }}</p>
+    }
+    <label>
+      {{ text().form.ownerPhone }}
+      <input type="tel" dir="ltr" [formField]="vehicleForm.ownerPhone" />
+    </label>
+    @if (
+      vehicleForm.ownerPhone().touched() && vehicleForm.ownerPhone().errors()[0];
+      as error
+    ) {
+      <p class="error">{{ error.message }}</p>
+    }
+  }
+  <label>
     {{ text().form.notes }}
     <span class="hint">{{ text().form.notesHint }}</span>
     <textarea [formField]="vehicleForm.notes"></textarea>

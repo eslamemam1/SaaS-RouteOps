@@ -3,6 +3,7 @@ import { schema, validate } from '@angular/forms/signals';
 import {
   dateError,
   optionalTextError,
+  ownerNameError,
   plateError,
   seatsError,
   VehicleDetails,
@@ -39,6 +40,12 @@ export function vehicleDetailsSchema(problems: Problems, currentYear: number) {
     );
     validate(path.licenseExpiry, ({ value }) =>
       fieldError(dateError(value()), problems),
+    );
+    validate(path.ownerName, ({ value, valueOf }) =>
+      fieldError(ownerNameError(value(), valueOf(path.ownership)), problems),
+    );
+    validate(path.ownerPhone, ({ value }) =>
+      fieldError(optionalTextError(value(), vehicleLimits.ownerPhone), problems),
     );
     validate(path.notes, ({ value }) =>
       fieldError(optionalTextError(value(), vehicleLimits.notes), problems),

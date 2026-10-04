@@ -1,6 +1,7 @@
 import {
   availableChoices,
   canMarkDone,
+  conflictsByTrip,
   countByStatus,
   customersOnDay,
   customersWithRunningTrips,
@@ -14,6 +15,7 @@ import {
   reasonError,
   shiftDate,
   sortByTime,
+  tripConflicts,
   TripFilter,
   TripRecording,
   tripStatus,
@@ -36,6 +38,8 @@ const trip = (overrides: Partial<DailyTrip>): DailyTrip => ({
   extra: false,
   ...overrides,
 });
+
+const noChoices = { customers: [], vehicles: [], drivers: [], routes: [] };
 
 describe('tripStatus', () => {
   const today = '2026-10-04';
@@ -125,7 +129,10 @@ describe('filtering a busy day', () => {
       { id: 'delta', label: 'Delta Factory', active: true },
       { id: 'misr', label: 'Misr Bank', active: true },
     ],
-    vehicles: [{ id: 'bus-1', label: 'أ ب ج 1234', active: true }],
+    vehicles: [
+      { id: 'bus-1', label: 'أ ب ج 1234', active: true, ownership: 'rented' as const },
+      { id: 'vehicle-1', label: 'د هـ و 5678', active: true, ownership: 'contractor' as const },
+    ],
     drivers: [{ id: 'ahmed', label: 'أحمد علي', active: true }],
     routes: [
       { id: 'nasr', label: 'مدينة نصر', active: true, customerId: 'delta', vehicleId: '', driverId: '' },
@@ -163,6 +170,13 @@ describe('filtering a busy day', () => {
     expect(ids({ search: 'Heliopolis' })).toEqual([]);
   });
 
+  it('shows only the trips of rented or contractor vehicles', () => {
+    expect(ids({ ownership: 'rented' })).toEqual(['1']);
+    expect(ids({ ownership: 'contractor' })).toEqual(['4']);
+    expect(ids({ ownership: 'owned' })).toEqual([]);
+    expect(ids({ ownership: 'rented', customerId: 'nour' })).toEqual([]);
+  });
+
   it('counts the day trips by status', () => {
     expect(countByStatus(trips, today, 'manual')).toEqual({
       done: 1,
@@ -180,6 +194,64 @@ describe('filtering a busy day', () => {
     expect(
       customersOnDay(trips, choices.customers, 'misr').map((item) => item.id),
     ).toEqual(['delta', 'misr', 'nour']);
+  });
+});
+
+describe('vehicle and driver conflicts', () => {
+  const morning = trip({ id: 'morning', departureTime: '07:00', vehicleId: 'bus-1', driverId: 'ahmed' });
+
+  it('warns when the same vehicle leaves again less than an hour later', () => {
+    const other = trip({ id: 'other', departureTime: '07:45', vehicleId: 'bus-1', driverId: 'karim' });
+
+    expect(tripConflicts(morning, [morning, other])).toEqual([
+      { kind: 'vehicle', trip: other },
+    ]);
+  });
+
+  it('warns about the same driver and reports both kinds when both repeat', () => {
+    const sameDriver = trip({ id: 'driver', departureTime: '06:30', vehicleId: 'bus-2', driverId: 'ahmed' });
+    const both = trip({ id: 'both', departureTime: '07:00', vehicleId: 'bus-1', driverId: 'ahmed', extra: true });
+
+    expect(
+      tripConflicts(morning, [morning, sameDriver, both]).map(
+        (conflict) => `${conflict.trip.id}:${conflict.kind}`,
+      ),
+    ).toEqual(['driver:driver', 'both:vehicle', 'both:driver']);
+  });
+
+  it('allows the same vehicle and driver an hour or more apart', () => {
+    const later = trip({ id: 'later', departureTime: '08:00', vehicleId: 'bus-1', driverId: 'ahmed' });
+
+    expect(tripConflicts(morning, [morning, later])).toEqual([]);
+  });
+
+  it('ignores cancelled trips and trips without a vehicle or driver', () => {
+    const cancelled = trip({ id: 'cancelled', vehicleId: 'bus-1', cancelled: true, reason: 'holiday' });
+    const unassigned = trip({ id: 'unassigned', vehicleId: '', driverId: '' });
+
+    expect(tripConflicts(morning, [morning, cancelled])).toEqual([]);
+    expect(tripConflicts(unassigned, [unassigned, trip({ id: 'x', vehicleId: '', driverId: '' })])).toEqual([]);
+    expect(tripConflicts({ ...morning, cancelled: true }, [morning, trip({ id: 'y' })])).toEqual([]);
+  });
+
+  it('checks a trip that is not saved yet, once its time is valid', () => {
+    const candidate = { id: '', vehicleId: 'bus-1', driverId: '', departureTime: '07:20', cancelled: false };
+
+    expect(tripConflicts(candidate, [morning]).map((conflict) => conflict.kind)).toEqual(['vehicle']);
+    expect(tripConflicts({ ...candidate, departureTime: '' }, [morning])).toEqual([]);
+  });
+
+  it('lists the conflicts of every trip of the day and filters by them', () => {
+    const other = trip({ id: 'other', departureTime: '07:30', vehicleId: 'bus-1', driverId: 'karim' });
+    const free = trip({ id: 'free', departureTime: '07:30', vehicleId: 'bus-2', driverId: 'mona' });
+    const day = [morning, other, free];
+
+    expect([...conflictsByTrip(day).keys()]).toEqual(['morning', 'other']);
+    expect(
+      filterTrips(day, { ...emptyTripFilter, conflictsOnly: true }, noChoices, '2026-10-04', 'automatic').map(
+        (item) => item.id,
+      ),
+    ).toEqual(['morning', 'other']);
   });
 });
 

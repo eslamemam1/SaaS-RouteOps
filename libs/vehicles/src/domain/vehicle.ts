@@ -7,6 +7,12 @@ export const vehicleTypes = ['bus', 'minibus', 'microbus', 'car'] as const;
 
 export type VehicleType = (typeof vehicleTypes)[number];
 
+// Owned by the company, rented from an owner or an office, or brought by a
+// contractor who works with the company.
+export const vehicleOwnerships = ['owned', 'rented', 'contractor'] as const;
+
+export type VehicleOwnership = (typeof vehicleOwnerships)[number];
+
 export interface VehicleDetails {
   readonly plateNumber: string;
   readonly type: VehicleType | '';
@@ -14,6 +20,10 @@ export interface VehicleDetails {
   readonly year: string;
   readonly seats: string;
   readonly licenseExpiry: string;
+  readonly ownership: VehicleOwnership;
+  // Only for a vehicle the company does not own.
+  readonly ownerName: string;
+  readonly ownerPhone: string;
   readonly notes: string;
   readonly active: boolean;
 }
@@ -26,6 +36,8 @@ export interface Vehicle extends VehicleDetails {
 export const vehicleLimits = {
   plateNumber: 20,
   model: 100,
+  ownerName: 200,
+  ownerPhone: 50,
   notes: 2000,
   earliestYear: 1950,
   seats: 100,
@@ -35,6 +47,7 @@ export const vehicleProblems = [
   'plate',
   'plateTaken',
   'type',
+  'ownerName',
   'tooLong',
   'year',
   'seats',
@@ -55,6 +68,9 @@ export const emptyVehicleDetails: VehicleDetails = {
   year: '',
   seats: '',
   licenseExpiry: '',
+  ownership: 'owned',
+  ownerName: '',
+  ownerPhone: '',
   notes: '',
   active: true,
 };
@@ -79,6 +95,34 @@ export function plateError(value: string): VehicleProblem | null {
 
 export function vehicleTypeError(value: string): VehicleProblem | null {
   return isVehicleType(value) ? null : 'type';
+}
+
+export function isVehicleOwnership(value: string): value is VehicleOwnership {
+  return (vehicleOwnerships as readonly string[]).includes(value);
+}
+
+// A vehicle the company does not own needs its owner's name.
+export function ownerNameError(
+  value: string,
+  ownership: VehicleOwnership,
+): VehicleProblem | null {
+  if (ownership === 'owned') {
+    return null;
+  }
+  const name = value.trim();
+  if (name.length === 0) {
+    return 'ownerName';
+  }
+  return name.length > vehicleLimits.ownerName ? 'tooLong' : null;
+}
+
+export function ofOwnership(
+  vehicles: readonly Vehicle[],
+  ownership: VehicleOwnership | '',
+): Vehicle[] {
+  return vehicles.filter(
+    (vehicle) => !ownership || vehicle.ownership === ownership,
+  );
 }
 
 export function optionalTextError(

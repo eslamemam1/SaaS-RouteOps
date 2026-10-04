@@ -159,6 +159,7 @@ export type Database = {
         id: string
         is_active: boolean
         organization_id: string
+        ownership: string
         plate_number: string
       }>
     }

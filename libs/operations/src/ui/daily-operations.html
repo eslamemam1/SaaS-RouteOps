@@ -54,6 +54,7 @@
         [organization]="current"
         [serviceDate]="serviceDate()"
         [choices]="choices()"
+        [trips]="trips()"
         (added)="onExtraAdded($event)"
         (cancelled)="addingExtra.set(false)"
       />
@@ -112,6 +113,31 @@
         (input)="filterBy({ search: $any($event.target).value })"
       />
     </label>
+    @if (hasOtherOwnerships() || filter().ownership) {
+      <label>
+        {{ text().filter.ownership }}
+        <select (change)="filterBy({ ownership: $any($event.target).value })">
+          <option value="" [selected]="filter().ownership === ''">
+            {{ text().filter.allOwnerships }}
+          </option>
+          @for (ownership of ownerships; track ownership) {
+            <option [value]="ownership" [selected]="filter().ownership === ownership">
+              {{ text().ownerships[ownership] }}
+            </option>
+          }
+        </select>
+      </label>
+    }
+    @if (conflicts().size > 0 || filter().conflictsOnly) {
+      <label class="checkbox">
+        <input
+          type="checkbox"
+          [checked]="filter().conflictsOnly"
+          (change)="filterBy({ conflictsOnly: $any($event.target).checked })"
+        />
+        {{ text().conflict.filter }}
+      </label>
+    }
     @if (filtered()) {
       <button type="button" (click)="clearFilter()">{{ text().filter.clear }}</button>
     }
@@ -119,6 +145,9 @@
   <p class="hint">
     {{ text().filter.showing }} <bdi>{{ visibleTrips().length }}</bdi> / <bdi>{{ trips().length }}</bdi>
   </p>
+  @if (conflicts().size > 0) {
+    <p class="error">{{ text().conflict.count }} <bdi>{{ conflicts().size }}</bdi></p>
+  }
 }
 @if (status() === 'success' && visibleTrips().length === 0) {
   <p>{{ text().filter.noMatch }}</p>
@@ -150,9 +179,19 @@
           </td>
           <td>{{ label(choices().customers, trip.customerId) }}</td>
           <td>{{ text().directions[trip.direction] }}</td>
-          <td><bdi>{{ label(choices().vehicles, trip.vehicleId) }}</bdi></td>
+          <td>
+            <bdi>{{ label(choices().vehicles, trip.vehicleId) }}</bdi>
+            @if (ownershipOf(trip); as ownership) {
+              @if (ownership !== 'owned') {
+                <span class="hint">{{ text().ownerships[ownership] }}</span>
+              }
+            }
+          </td>
           <td>{{ label(choices().drivers, trip.driverId) }}</td>
-          <td [class.error]="trip.cancelled">{{ text().statuses[statusOf(trip)] }}</td>
+          <td>
+            <span [class.error]="trip.cancelled">{{ text().statuses[statusOf(trip)] }}</span>
+            <app-conflict-list [conflicts]="conflictsOf(trip)" [choices]="choices()" />
+          </td>
           <td>
             @if (trip.reason) {
               {{ text().reasons[trip.reason] }}
@@ -194,6 +233,7 @@
       [organization]="current"
       [trip]="trip"
       [choices]="choices()"
+      [trips]="trips()"
       (saved)="onTripSaved($event)"
       (cancelled)="stopEditing()"
     />

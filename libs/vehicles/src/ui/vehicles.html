@@ -11,11 +11,28 @@
   <p>{{ text().list.empty }}</p>
 }
 @if (status() === 'success') {
+  <label>
+    {{ text().list.filter }}
+    <select (change)="filterBy($any($event.target).value)">
+      <option value="" [selected]="ownershipFilter() === ''">{{ text().list.allOwnerships }}</option>
+      @for (ownership of ownerships; track ownership) {
+        <option [value]="ownership" [selected]="ownershipFilter() === ownership">
+          {{ text().ownerships[ownership] }}
+        </option>
+      }
+    </select>
+  </label>
+}
+@if (status() === 'success' && visibleVehicles().length === 0) {
+  <p>{{ text().list.noMatch }}</p>
+}
+@if (status() === 'success' && visibleVehicles().length > 0) {
   <table>
     <thead>
       <tr>
         <th>{{ text().list.plateNumber }}</th>
         <th>{{ text().list.type }}</th>
+        <th>{{ text().list.ownership }}</th>
         <th>{{ text().list.model }}</th>
         <th>{{ text().list.year }}</th>
         <th>{{ text().list.seats }}</th>
@@ -25,10 +42,19 @@
       </tr>
     </thead>
     <tbody>
-      @for (vehicle of vehicles(); track vehicle.id) {
+      @for (vehicle of visibleVehicles(); track vehicle.id) {
         <tr>
           <td><bdi>{{ vehicle.plateNumber }}</bdi></td>
           <td>{{ text().types[vehicle.type] }}</td>
+          <td>
+            {{ text().ownerships[vehicle.ownership] }}
+            @if (vehicle.ownerName) {
+              <span class="hint">{{ vehicle.ownerName }}</span>
+            }
+            @if (vehicle.ownerPhone) {
+              <span class="hint"><bdi>{{ vehicle.ownerPhone }}</bdi></span>
+            }
+          </td>
           <td>{{ vehicle.model }}</td>
           <td><bdi>{{ vehicle.year }}</bdi></td>
           <td><bdi>{{ vehicle.seats }}</bdi></td>

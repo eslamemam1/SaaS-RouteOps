@@ -15,7 +15,7 @@ import { operationsText } from './operations-text';
 const north: OperationsOrganization = { id: 'org-north', name: 'North' };
 const choices: OperationChoices = {
   customers: [{ id: 'customer-1', label: 'Delta Factory', active: true }],
-  vehicles: [{ id: 'vehicle-1', label: 'ABC 1234', active: true }],
+  vehicles: [{ id: 'vehicle-1', label: 'ABC 1234', active: true, ownership: 'owned' }],
   drivers: [{ id: 'driver-1', label: 'Ahmed', active: true }],
   routes: [
     {
@@ -194,6 +194,87 @@ describe('DailyOperations', () => {
     button(harness, arabic.filter.clear)?.click();
     await settle(harness);
     expect(rows(harness)).toHaveLength(2);
+  });
+
+  it('hides the ownership filter when every vehicle belongs to the company', async () => {
+    const harness = await open({ day: async () => [outbound] });
+    await settle(harness);
+
+    expect(text(harness)).not.toContain(arabic.filter.ownership);
+  });
+
+  it('marks rented vehicles and shows their trips alone', async () => {
+    const rentedTrip: DailyTrip = { ...outbound, id: 'trip-3', vehicleId: 'vehicle-2' };
+    const harness = await open({
+      choices: async () => ({
+        ...choices,
+        vehicles: [
+          ...choices.vehicles,
+          { id: 'vehicle-2', label: 'XYZ 99', active: true, ownership: 'rented' },
+        ],
+      }),
+      day: async () => [outbound, rentedTrip],
+    });
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(2);
+    expect(rows(harness)[1].textContent).toContain(arabic.ownerships.rented);
+    expect(rows(harness)[0].textContent).not.toContain(arabic.ownerships.owned);
+
+    const ownership = harness.routeNativeElement!.querySelectorAll('select')[3];
+    ownership.value = 'rented';
+    ownership.dispatchEvent(new Event('change'));
+    await settle(harness);
+
+    expect(rows(harness)).toHaveLength(1);
+    expect(rows(harness)[0].textContent).toContain('XYZ 99');
+  });
+
+  it('warns when the same vehicle has two trips less than an hour apart', async () => {
+    const clash: DailyTrip = {
+      ...outbound,
+      id: 'trip-5',
+      departureTime: '07:30',
+      driverId: '',
+    };
+    const later: DailyTrip = {
+      ...outbound,
+      id: 'trip-6',
+      departureTime: '10:00',
+    };
+    const harness = await open({ day: async () => [outbound, clash, later] });
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.conflict.count);
+    expect(rows(harness)[0].textContent).toContain(arabic.conflict.vehicle);
+    expect(rows(harness)[0].textContent).toContain('07:30');
+    expect(rows(harness)[2].textContent).not.toContain(arabic.conflict.vehicle);
+
+    const conflictsOnly = harness.routeNativeElement!.querySelector<HTMLInputElement>(
+      '.day-picker input[type="checkbox"]',
+    )!;
+    conflictsOnly.click();
+    await settle(harness);
+
+    expect(rows(harness)).toHaveLength(2);
+  });
+
+  it('warns in the extra trip form before saving a clashing driver', async () => {
+    const harness = await open({ day: async () => [outbound] });
+    await settle(harness);
+
+    button(harness, arabic.day.addExtra)?.click();
+    await settle(harness);
+    const form = harness.routeNativeElement!.querySelector('app-extra-trip-form')!;
+    const route = form.querySelector('select')!;
+    route.value = 'route-1';
+    route.dispatchEvent(new Event('change'));
+    const time = form.querySelector<HTMLInputElement>('input[type="time"]')!;
+    time.value = '07:15';
+    time.dispatchEvent(new Event('input'));
+    await settle(harness);
+
+    expect(form.textContent).toContain(arabic.conflict.formHint);
+    expect(form.textContent).toContain(arabic.conflict.driver);
   });
 
   it('adds an extra trip from a route, even on a day without trips', async () => {

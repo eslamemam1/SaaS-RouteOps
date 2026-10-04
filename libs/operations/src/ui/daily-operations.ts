@@ -6,6 +6,7 @@ import { OperationsRepository } from '../application/operations-repository';
 import {
   canMarkDone,
   choiceLabel,
+  conflictsByTrip,
   countByStatus,
   customersOnDay,
   DailyTrip,
@@ -18,13 +19,18 @@ import {
   OperationsProblem,
   shiftDate,
   sortByTime,
+  TripConflict,
   tripDirections,
   TripFilter,
   TripRecording,
   tripRecordings,
   tripStatus,
   tripStatuses,
+  VehicleOwnership,
+  vehicleOwnership,
+  vehicleOwnerships,
 } from '../domain/daily-trip';
+import { ConflictList } from './conflict-list';
 import { ExtraTripForm } from './extra-trip-form';
 import { HolidayPanel } from './holiday-panel';
 import { operationsText } from './operations-text';
@@ -39,7 +45,7 @@ const noChoices: OperationChoices = {
 
 @Component({
   selector: 'app-daily-operations',
-  imports: [ExtraTripForm, HolidayPanel, RouterLink, TripChangeForm],
+  imports: [ConflictList, ExtraTripForm, HolidayPanel, RouterLink, TripChangeForm],
   templateUrl: './daily-operations.html',
 })
 export class DailyOperations {
@@ -75,6 +81,7 @@ export class DailyOperations {
       this.recording(),
     ),
   );
+  protected readonly conflicts = computed(() => conflictsByTrip(this.trips()));
   protected readonly counts = computed(() =>
     countByStatus(this.trips(), this.today, this.recording()),
   );
@@ -93,9 +100,18 @@ export class DailyOperations {
   protected readonly filtered = computed(() => {
     const filter = this.filter();
     return Boolean(
-      filter.customerId || filter.direction || filter.status || filter.search.trim(),
+      filter.customerId ||
+        filter.direction ||
+        filter.status ||
+        filter.search.trim() ||
+        filter.conflictsOnly ||
+        filter.ownership,
     );
   });
+  protected readonly ownerships = vehicleOwnerships;
+  protected readonly hasOtherOwnerships = computed(() =>
+    this.choices().vehicles.some((vehicle) => vehicle.ownership !== 'owned'),
+  );
 
   constructor() {
     void this.load();
@@ -105,8 +121,16 @@ export class DailyOperations {
     return choiceLabel(choices, id) || this.text().day.notSet;
   }
 
+  protected ownershipOf(trip: DailyTrip): VehicleOwnership | '' {
+    return vehicleOwnership(this.choices().vehicles, trip.vehicleId);
+  }
+
   protected statusOf(trip: DailyTrip) {
     return tripStatus(trip, this.today, this.recording());
+  }
+
+  protected conflictsOf(trip: DailyTrip): TripConflict[] {
+    return this.conflicts().get(trip.id) ?? [];
   }
 
   protected canMarkDone(trip: DailyTrip): boolean {

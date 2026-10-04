@@ -22,13 +22,15 @@ import {
   OperationsOrganization,
   OperationsProblem,
   TripChange,
+  tripConflicts,
 } from '../domain/daily-trip';
+import { ConflictList } from './conflict-list';
 import { operationsText } from './operations-text';
 import { tripChangeSchema } from './trip-change-fields';
 
 @Component({
   selector: 'app-trip-change-form',
-  imports: [FormField],
+  imports: [ConflictList, FormField],
   templateUrl: './trip-change-form.html',
 })
 export class TripChangeForm {
@@ -37,6 +39,8 @@ export class TripChangeForm {
   readonly organization = input.required<OperationsOrganization>();
   readonly trip = input.required<DailyTrip>();
   readonly choices = input.required<OperationChoices>();
+  // The other trips of the day, to warn about vehicle and driver conflicts.
+  readonly trips = input<readonly DailyTrip[]>([]);
   readonly saved = output<DailyTrip>();
   readonly cancelled = output<void>();
 
@@ -64,6 +68,9 @@ export class TripChangeForm {
   );
   protected readonly customerName = computed(() =>
     choiceLabel(this.choices().customers, this.trip().customerId),
+  );
+  protected readonly conflicts = computed(() =>
+    tripConflicts({ ...this.trip(), ...this.model() }, this.trips()),
   );
   protected readonly vehicles = computed(() =>
     availableChoices(this.choices().vehicles, this.model().vehicleId),

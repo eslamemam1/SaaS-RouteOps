@@ -12,15 +12,17 @@ import {
   OperationChoices,
   OperationsOrganization,
   OperationsProblem,
+  tripConflicts,
   tripDirections,
   withRoute,
 } from '../domain/daily-trip';
+import { ConflictList } from './conflict-list';
 import { extraTripSchema } from './extra-trip-fields';
 import { operationsText } from './operations-text';
 
 @Component({
   selector: 'app-extra-trip-form',
-  imports: [FormField],
+  imports: [ConflictList, FormField],
   templateUrl: './extra-trip-form.html',
 })
 export class ExtraTripForm {
@@ -29,6 +31,8 @@ export class ExtraTripForm {
   readonly organization = input.required<OperationsOrganization>();
   readonly serviceDate = input.required<string>();
   readonly choices = input.required<OperationChoices>();
+  // The trips of the day, to warn about vehicle and driver conflicts.
+  readonly trips = input<readonly DailyTrip[]>([]);
   readonly added = output<DailyTrip>();
   readonly cancelled = output<void>();
 
@@ -51,6 +55,9 @@ export class ExtraTripForm {
         label: `${route.label} - ${choiceLabel(this.choices().customers, route.customerId)}`,
       }))
       .sort((first, second) => first.label.localeCompare(second.label)),
+  );
+  protected readonly conflicts = computed(() =>
+    tripConflicts({ ...this.model(), id: '', cancelled: false }, this.trips()),
   );
   protected readonly customers = computed(() =>
     availableChoices(this.choices().customers, this.model().customerId),

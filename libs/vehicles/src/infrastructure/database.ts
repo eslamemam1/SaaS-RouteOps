@@ -74,6 +74,9 @@ export type Database = {
           model_year: number | null
           notes: string | null
           organization_id: string
+          owner_name: string | null
+          owner_phone: string | null
+          ownership: string
           plate_number: string
           seats: number | null
           updated_at: string
@@ -88,6 +91,9 @@ export type Database = {
           model_year?: number | null
           notes?: string | null
           organization_id: string
+          owner_name?: string | null
+          owner_phone?: string | null
+          ownership?: string
           plate_number: string
           seats?: number | null
           updated_at?: string
@@ -102,6 +108,9 @@ export type Database = {
           model_year?: number | null
           notes?: string | null
           organization_id?: string
+          owner_name?: string | null
+          owner_phone?: string | null
+          ownership?: string
           plate_number?: string
           seats?: number | null
           updated_at?: string

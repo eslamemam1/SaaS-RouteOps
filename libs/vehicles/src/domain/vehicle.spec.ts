@@ -4,6 +4,8 @@ import {
   licenseExpired,
   memberOrganization,
   normalizePlate,
+  ofOwnership,
+  ownerNameError,
   plateError,
   seatsError,
   sortByPlate,
@@ -12,6 +14,44 @@ import {
   wholeNumber,
   yearError,
 } from './vehicle';
+
+describe('ownerNameError', () => {
+  it('needs no owner for a company vehicle', () => {
+    expect(ownerNameError('', 'owned')).toBeNull();
+  });
+
+  it('requires the owner of a rented or contractor vehicle', () => {
+    expect(ownerNameError('  ', 'rented')).toBe('ownerName');
+    expect(ownerNameError('', 'contractor')).toBe('ownerName');
+    expect(ownerNameError('مكتب النور', 'rented')).toBeNull();
+  });
+
+  it('rejects an owner name longer than 200 characters', () => {
+    expect(ownerNameError('م'.repeat(201), 'contractor')).toBe('tooLong');
+  });
+});
+
+describe('ofOwnership', () => {
+  const vehicles: Vehicle[] = [
+    { ...emptyVehicleDetails, id: 'a', plateNumber: 'A', type: 'bus' },
+    {
+      ...emptyVehicleDetails,
+      id: 'b',
+      plateNumber: 'B',
+      type: 'bus',
+      ownership: 'rented',
+      ownerName: 'مكتب النور',
+    },
+  ];
+
+  it('keeps every vehicle when no ownership is chosen', () => {
+    expect(ofOwnership(vehicles, '')).toHaveLength(2);
+  });
+
+  it('keeps only vehicles of the chosen ownership', () => {
+    expect(ofOwnership(vehicles, 'rented').map((vehicle) => vehicle.id)).toEqual(['b']);
+  });
+});
 
 describe('plateError', () => {
   it('requires a plate number', () => {

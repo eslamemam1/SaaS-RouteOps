@@ -1,22 +1,30 @@
 import { Language } from '@routeops/shared/i18n';
 import {
   ChangeReason,
+  ConflictKind,
   OperationsProblem,
   TripDirection,
   TripRecording,
   TripStatus,
+  VehicleOwnership,
 } from '../domain/daily-trip';
 
 export interface OperationsText {
   readonly problems: Record<OperationsProblem, string>;
   readonly directions: Record<TripDirection, string>;
   readonly statuses: Record<TripStatus, string>;
+  readonly ownerships: Record<VehicleOwnership, string>;
   readonly reasons: Record<ChangeReason, string>;
   readonly recording: {
     readonly title: string;
     readonly hint: string;
     readonly modes: Record<TripRecording, string>;
     readonly modeHints: Record<TripRecording, string>;
+  };
+  readonly conflict: Record<ConflictKind, string> & {
+    readonly count: string;
+    readonly filter: string;
+    readonly formHint: string;
   };
   readonly day: {
     readonly back: string;
@@ -71,6 +79,8 @@ export interface OperationsText {
     readonly allDirections: string;
     readonly status: string;
     readonly allStatuses: string;
+    readonly ownership: string;
+    readonly allOwnerships: string;
     readonly search: string;
     readonly searchHint: string;
     readonly clear: string;
@@ -126,6 +136,11 @@ export const operationsText: Record<Language, OperationsText> = {
       cancelled: 'ملغاة',
       unrecorded: 'لم تُسجَّل بعد',
     },
+    ownerships: {
+      owned: 'ملك الشركة',
+      rented: 'إيجار',
+      contractor: 'متعاقد بمركبته',
+    },
     reasons: {
       holiday: 'إجازة رسمية',
       vehicleBreakdown: 'عطل في المركبة',
@@ -144,6 +159,13 @@ export const operationsText: Record<Language, OperationsText> = {
         automatic: 'كل رحلة تُحسب أنها تمّت عند حلول يومها، إلا إذا ألغيتها.',
         manual: 'لا تُحسب الرحلة أنها تمّت إلا بعد أن تضغط "تمّت" بجانبها.',
       },
+    },
+    conflict: {
+      vehicle: 'المركبة نفسها في رحلة أخرى الساعة',
+      driver: 'السائق نفسه في رحلة أخرى الساعة',
+      count: 'رحلات بها تعارض:',
+      filter: 'الرحلات المتعارضة فقط',
+      formHint: 'تنبيه: يفصل بين هذه الرحلة والرحلات التالية أقل من ساعة. يمكنك الحفظ رغم ذلك.',
     },
     day: {
       back: 'الرجوع إلى الصفحة الرئيسية',
@@ -198,6 +220,8 @@ export const operationsText: Record<Language, OperationsText> = {
       allDirections: 'الذهاب والعودة',
       status: 'الحالة',
       allStatuses: 'كل الحالات',
+      ownership: 'ملكية المركبة',
+      allOwnerships: 'كل المركبات',
       search: 'بحث',
       searchHint: 'اسم الخط أو السائق أو رقم اللوحة',
       clear: 'إظهار كل الرحلات',
@@ -251,6 +275,11 @@ export const operationsText: Record<Language, OperationsText> = {
       cancelled: 'Cancelled',
       unrecorded: 'Not recorded yet',
     },
+    ownerships: {
+      owned: 'Company owned',
+      rented: 'Rented',
+      contractor: 'Contractor vehicle',
+    },
     reasons: {
       holiday: 'Public holiday',
       vehicleBreakdown: 'Vehicle breakdown',
@@ -269,6 +298,13 @@ export const operationsText: Record<Language, OperationsText> = {
         automatic: 'Each trip counts as done once its day comes, unless you cancel it.',
         manual: 'A trip counts as done only after you press "Done" next to it.',
       },
+    },
+    conflict: {
+      vehicle: 'Same vehicle on another trip at',
+      driver: 'Same driver on another trip at',
+      count: 'Trips with a conflict:',
+      filter: 'Only trips with a conflict',
+      formHint: 'Warning: these trips leave less than an hour from this one. You can still save.',
     },
     day: {
       back: 'Back to home',
@@ -323,6 +359,8 @@ export const operationsText: Record<Language, OperationsText> = {
       allDirections: 'Outbound and return',
       status: 'Status',
       allStatuses: 'All statuses',
+      ownership: 'Vehicle ownership',
+      allOwnerships: 'All vehicles',
       search: 'Search',
       searchHint: 'Route, driver, or plate number',
       clear: 'Show all trips',

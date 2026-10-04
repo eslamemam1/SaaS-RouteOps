@@ -17,6 +17,7 @@ import {
   Vehicle,
   VehicleDetails,
   VehicleOrganization,
+  vehicleOwnerships,
   VehicleProblem,
   vehicleTypes,
 } from '../domain/vehicle';
@@ -40,6 +41,7 @@ export class VehicleForm {
   private readonly problems = computed(() => this.text().problems);
 
   protected readonly types = vehicleTypes;
+  protected readonly ownerships = vehicleOwnerships;
   protected readonly submitting = signal(false);
   protected readonly outcome = signal<'added' | 'saved' | null>(null);
   protected readonly problem = signal<VehicleProblem | null>(null);
@@ -103,6 +105,9 @@ function detailsOf(vehicle: Vehicle | null): VehicleDetails {
     year: vehicle.year,
     seats: vehicle.seats,
     licenseExpiry: vehicle.licenseExpiry,
+    ownership: vehicle.ownership,
+    ownerName: vehicle.ownerName,
+    ownerPhone: vehicle.ownerPhone,
     notes: vehicle.notes,
     active: vehicle.active,
   };

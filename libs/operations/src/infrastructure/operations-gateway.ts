@@ -8,6 +8,7 @@ import {
   OperationChoices,
   OperationsOrganization,
   isTripRecording,
+  isVehicleOwnership,
   TripChange,
   TripDirection,
   TripRecording,
@@ -140,7 +141,7 @@ export class SupabaseOperationsGateway implements OperationsGateway {
         .order('name'),
       client
         .from('vehicles')
-        .select('id, plate_number, is_active')
+        .select('id, plate_number, is_active, ownership')
         .eq('organization_id', organizationId)
         .order('plate_number'),
       client
@@ -161,9 +162,15 @@ export class SupabaseOperationsGateway implements OperationsGateway {
       customers: (customers.data ?? []).map((row) =>
         choice(row.id, row.name, row.is_active),
       ),
-      vehicles: (vehicles.data ?? []).map((row) =>
-        choice(row.id, row.plate_number, row.is_active),
-      ),
+      vehicles: (vehicles.data ?? []).map((row) => {
+        if (!isVehicleOwnership(row.ownership)) {
+          throw new OperationsAccessError('load');
+        }
+        return {
+          ...choice(row.id, row.plate_number, row.is_active),
+          ownership: row.ownership,
+        };
+      }),
       drivers: (drivers.data ?? []).map((row) =>
         choice(row.id, row.full_name, row.is_active),
       ),

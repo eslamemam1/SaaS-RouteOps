@@ -17,6 +17,9 @@ const row = {
   model_year: 2020,
   seats: null,
   license_expires_on: null,
+  ownership: 'owned',
+  owner_name: null,
+  owner_phone: null,
   notes: null,
   is_active: true,
 };
@@ -35,11 +38,71 @@ describe('SupabaseVehicleGateway', () => {
         year: '2020',
         seats: '',
         licenseExpiry: '',
+        ownership: 'owned',
+        ownerName: '',
+        ownerPhone: '',
         notes: '',
         active: true,
       },
     ]);
     expect(calls.filters).toEqual([['organization_id', 'org-north']]);
+  });
+
+  it('maps a rented vehicle with its owner', async () => {
+    const calls = recorder({
+      data: [{ ...row, ownership: 'rented', owner_name: 'مكتب النور', owner_phone: '0100' }],
+      error: null,
+    });
+    const gateway = new SupabaseVehicleGateway(calls.client);
+
+    const [vehicle] = await gateway.listVehicles('org-north');
+
+    expect(vehicle).toMatchObject({
+      ownership: 'rented',
+      ownerName: 'مكتب النور',
+      ownerPhone: '0100',
+    });
+  });
+
+  it('rejects an ownership the app does not know', async () => {
+    const calls = recorder({ data: [{ ...row, ownership: 'leased' }], error: null });
+    const gateway = new SupabaseVehicleGateway(calls.client);
+
+    await expect(gateway.listVehicles('org-north')).rejects.toEqual(
+      new VehicleAccessError('load'),
+    );
+  });
+
+  it('stores the owner of a contractor vehicle and clears it for a company vehicle', async () => {
+    const contractor = recorder({ data: row, error: null });
+    await new SupabaseVehicleGateway(contractor.client).insertVehicle('org-north', {
+      ...emptyVehicleDetails,
+      plateNumber: 'X 1',
+      type: 'bus',
+      ownership: 'contractor',
+      ownerName: '  محمد علي ',
+      ownerPhone: ' ',
+    });
+    expect(contractor.inserted).toMatchObject({
+      ownership: 'contractor',
+      owner_name: 'محمد علي',
+      owner_phone: null,
+    });
+
+    const owned = recorder({ data: row, error: null });
+    await new SupabaseVehicleGateway(owned.client).insertVehicle('org-north', {
+      ...emptyVehicleDetails,
+      plateNumber: 'X 1',
+      type: 'bus',
+      ownership: 'owned',
+      ownerName: 'leftover',
+      ownerPhone: '0100',
+    });
+    expect(owned.inserted).toMatchObject({
+      ownership: 'owned',
+      owner_name: null,
+      owner_phone: null,
+    });
   });
 
   it('normalizes the plate, converts numbers, and stores blanks as null', async () => {
@@ -62,6 +125,9 @@ describe('SupabaseVehicleGateway', () => {
       model_year: 2020,
       seats: null,
       license_expires_on: null,
+      ownership: 'owned',
+      owner_name: null,
+      owner_phone: null,
       notes: null,
       is_active: true,
     });

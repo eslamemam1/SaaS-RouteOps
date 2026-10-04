@@ -17,8 +17,21 @@ const hiace: Vehicle = {
   year: '2020',
   seats: '14',
   licenseExpiry: '2000-01-01',
+  ownership: 'owned',
+  ownerName: '',
+  ownerPhone: '',
   notes: '',
   active: true,
+};
+const rentedBus: Vehicle = {
+  ...hiace,
+  id: 'vehicle-2',
+  plateNumber: 'د هـ و 5678',
+  type: 'bus',
+  model: 'Mercedes',
+  ownership: 'rented',
+  ownerName: 'مكتب النور',
+  ownerPhone: '01001234567',
 };
 const arabic = vehiclesText.ar;
 
@@ -50,6 +63,64 @@ describe('Vehicles', () => {
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.list.expired);
+  });
+
+  it('shows who owns a rented vehicle and filters by ownership', async () => {
+    const harness = await open({ list: async () => [hiace, rentedBus] });
+    await settle(harness);
+
+    expect(text(harness)).toContain('مكتب النور');
+    expect(rows(harness)).toHaveLength(2);
+
+    const [filter] = all<HTMLSelectElement>(harness, 'select');
+    fill(filter, 'rented', 'change');
+    await settle(harness);
+
+    expect(rows(harness)).toHaveLength(1);
+    expect(text(harness)).toContain('Mercedes');
+    expect(text(harness)).not.toContain('Toyota Hiace');
+
+    fill(filter, 'contractor', 'change');
+    await settle(harness);
+
+    expect(rows(harness)).toHaveLength(0);
+    expect(text(harness)).toContain(arabic.list.noMatch);
+  });
+
+  it('asks for the owner before adding a rented vehicle', async () => {
+    const add = vi.fn(async () => rentedBus);
+    const harness = await open({ list: async () => [], add });
+    await settle(harness);
+
+    const [plate] = all<HTMLInputElement>(harness, 'form input[type="text"]');
+    const [type, ownership] = all<HTMLSelectElement>(harness, 'form select');
+    fill(plate, 'د هـ و 5678', 'input');
+    fill(type, 'bus', 'input');
+    fill(ownership, 'rented', 'input');
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.form.ownerName);
+    submit(harness);
+    await settle(harness);
+
+    expect(add).not.toHaveBeenCalled();
+    expect(text(harness)).toContain(arabic.problems.ownerName);
+
+    const ownerName = all<HTMLInputElement>(harness, 'form input[type="text"]').at(-1)!;
+    fill(ownerName, 'مكتب النور', 'input');
+    fill(all<HTMLInputElement>(harness, 'form input[type="tel"]')[0], '01001234567', 'input');
+    await settle(harness);
+    submit(harness);
+    await settle(harness);
+
+    expect(add).toHaveBeenCalledWith(
+      north,
+      expect.objectContaining({
+        ownership: 'rented',
+        ownerName: 'مكتب النور',
+        ownerPhone: '01001234567',
+      }),
+    );
   });
 
   it('shows an empty state and the add form when there are no vehicles', async () => {
@@ -122,4 +193,34 @@ async function settle(harness: RouterTestingHarness): Promise<void> {
 
 function text(harness: RouterTestingHarness): string {
   return harness.routeNativeElement?.textContent ?? '';
+}
+
+function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
+  return [
+    ...(harness.routeNativeElement?.querySelectorAll<HTMLTableRowElement>(
+      'tbody tr',
+    ) ?? []),
+  ];
+}
+
+function all<Element extends HTMLElement>(
+  harness: RouterTestingHarness,
+  selector: string,
+): Element[] {
+  return [...(harness.routeNativeElement?.querySelectorAll<Element>(selector) ?? [])];
+}
+
+function fill(
+  field: HTMLInputElement | HTMLSelectElement,
+  value: string,
+  event: 'input' | 'change',
+): void {
+  field.value = value;
+  field.dispatchEvent(new Event(event));
+}
+
+function submit(harness: RouterTestingHarness): void {
+  harness.routeNativeElement!
+    .querySelector('form')!
+    .dispatchEvent(new Event('submit', { cancelable: true }));
 }

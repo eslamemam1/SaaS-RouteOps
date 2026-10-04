@@ -46,6 +46,12 @@
   @if (changeForm.notes().touched() && changeForm.notes().errors()[0]; as error) {
     <p class="error">{{ error.message }}</p>
   }
+  @if (conflicts().length > 0) {
+    <div>
+      <p class="hint">{{ text().conflict.formHint }}</p>
+      <app-conflict-list [conflicts]="conflicts()" [choices]="choices()" />
+    </div>
+  }
   <button type="submit" [disabled]="submitting()">{{ text().change.save }}</button>
   <button type="button" (click)="cancelled.emit()">{{ text().change.cancel }}</button>
 </form>
