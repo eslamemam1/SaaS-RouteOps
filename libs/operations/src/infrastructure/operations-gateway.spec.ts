@@ -16,6 +16,7 @@ const row = {
   driver_id: 'driver-1',
   is_cancelled: true,
   is_done: false,
+  is_extra: false,
   change_reason: 'vehicle_breakdown',
   notes: null,
 };
@@ -53,6 +54,7 @@ describe('SupabaseOperationsGateway', () => {
         reason: 'vehicleBreakdown',
         notes: '',
         done: false,
+        extra: false,
       },
     ]);
     expect(calls.filters).toEqual([
@@ -152,6 +154,61 @@ describe('SupabaseOperationsGateway', () => {
     ]);
   });
 
+  it('adds an extra trip without a route for the organization', async () => {
+    const calls = recorder(() => ({
+      data: { ...row, route_id: null, is_extra: true, is_cancelled: false, change_reason: null },
+      error: null,
+    }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    const trip = await gateway.insertExtraTrip('org-north', '2026-10-04', {
+      routeId: '',
+      customerId: 'customer-1',
+      direction: 'return',
+      departureTime: '21:00',
+      vehicleId: 'vehicle-1',
+      driverId: '',
+      notes: ' Airport ',
+    });
+
+    expect(calls.inserted).toEqual({
+      organization_id: 'org-north',
+      route_id: null,
+      service_date: '2026-10-04',
+      direction: 'return',
+      departure_time: '21:00',
+      customer_id: 'customer-1',
+      vehicle_id: 'vehicle-1',
+      driver_id: null,
+      notes: 'Airport',
+      is_extra: true,
+    });
+    expect(trip).toMatchObject({ routeId: '', extra: true });
+  });
+
+  it('deletes only an extra trip of the organization', async () => {
+    const calls = recorder(() => ({ data: [{ id: 'trip-9' }], error: null }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await gateway.deleteExtraTrip('org-north', 'trip-9');
+
+    expect(calls.deleted).toBe(true);
+    expect(calls.filters).toEqual([
+      ['id', 'trip-9'],
+      ['organization_id', 'org-north'],
+      ['is_extra', true],
+    ]);
+  });
+
+  it('reports a failure when no extra trip was deleted', async () => {
+    const calls = recorder(() => ({ data: [], error: null }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await expect(gateway.deleteExtraTrip('org-north', 'trip-1')).rejects.toEqual(
+      new OperationsAccessError('save'),
+    );
+  });
+
   it('refuses a change without a reason before calling the database', async () => {
     const calls = recorder(() => ({ data: row, error: null }));
     const gateway = new SupabaseOperationsGateway(calls.client);
@@ -208,20 +265,34 @@ describe('SupabaseOperationsGateway', () => {
 });
 
 function recorder(result: () => Result) {
-  const filters: [string, string][] = [];
+  const filters: [string, unknown][] = [];
   const inFilters: [string, string[]][] = [];
   const rpc: [string, unknown][] = [];
   let updated: unknown = null;
+  let inserted: unknown = null;
+  let deleted = false;
   const query = {
     select: () => query,
     update: (value: unknown) => {
       updated = value;
       return query;
     },
-    eq: (column: string, value: string) => {
+    insert: (value: unknown) => {
+      inserted = value;
+      return query;
+    },
+    delete: () => {
+      deleted = true;
+      return query;
+    },
+    eq: (column: string, value: unknown) => {
       filters.push([column, value]);
       return query;
     },
+    then: (
+      resolve: (value: Result) => unknown,
+      reject: (reason: unknown) => unknown,
+    ) => Promise.resolve(result()).then(resolve, reject),
     in: (column: string, values: string[]) => {
       inFilters.push([column, values]);
       return Promise.resolve(result());
@@ -236,6 +307,12 @@ function recorder(result: () => Result) {
     rpc,
     get updated() {
       return updated;
+    },
+    get inserted() {
+      return inserted;
+    },
+    get deleted() {
+      return deleted;
     },
     client: {
       from: () => query,

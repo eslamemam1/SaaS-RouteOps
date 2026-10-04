@@ -3,6 +3,7 @@ import { OperationsAccessError } from '../application/operations-access-error';
 import {
   ChangeReason,
   DailyTrip,
+  ExtraTripDetails,
   OperationChoice,
   OperationChoices,
   OperationsOrganization,
@@ -34,6 +35,12 @@ export interface OperationsGateway {
     tripId: string,
     done: boolean,
   ): Promise<DailyTrip>;
+  insertExtraTrip(
+    organizationId: string,
+    serviceDate: string,
+    details: ExtraTripDetails,
+  ): Promise<DailyTrip>;
+  deleteExtraTrip(organizationId: string, tripId: string): Promise<void>;
   cancelCustomerTrips(
     organizationId: string,
     serviceDate: string,
@@ -53,12 +60,13 @@ type TripRow = Pick<
   | 'driver_id'
   | 'is_cancelled'
   | 'is_done'
+  | 'is_extra'
   | 'change_reason'
   | 'notes'
 >;
 
 const tripColumns =
-  'id, route_id, service_date, direction, departure_time, customer_id, vehicle_id, driver_id, is_cancelled, is_done, change_reason, notes';
+  'id, route_id, service_date, direction, departure_time, customer_id, vehicle_id, driver_id, is_cancelled, is_done, is_extra, change_reason, notes';
 
 const reasonColumns: Record<ChangeReason, string> = {
   holiday: 'holiday',
@@ -142,7 +150,7 @@ export class SupabaseOperationsGateway implements OperationsGateway {
         .order('full_name'),
       client
         .from('routes')
-        .select('id, name, is_active')
+        .select('id, name, is_active, customer_id, vehicle_id, driver_id')
         .eq('organization_id', organizationId)
         .order('name'),
     ]);
@@ -159,9 +167,12 @@ export class SupabaseOperationsGateway implements OperationsGateway {
       drivers: (drivers.data ?? []).map((row) =>
         choice(row.id, row.full_name, row.is_active),
       ),
-      routes: (routes.data ?? []).map((row) =>
-        choice(row.id, row.name, row.is_active),
-      ),
+      routes: (routes.data ?? []).map((row) => ({
+        ...choice(row.id, row.name, row.is_active),
+        customerId: row.customer_id,
+        vehicleId: row.vehicle_id ?? '',
+        driverId: row.driver_id ?? '',
+      })),
     };
   }
 
@@ -240,6 +251,46 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     return toTrip(data);
   }
 
+  async insertExtraTrip(
+    organizationId: string,
+    serviceDate: string,
+    details: ExtraTripDetails,
+  ): Promise<DailyTrip> {
+    const { data, error } = await this.requireClient()
+      .from('daily_trips')
+      .insert({
+        organization_id: organizationId,
+        route_id: blankToNull(details.routeId),
+        service_date: serviceDate,
+        direction: details.direction,
+        departure_time: details.departureTime,
+        customer_id: details.customerId,
+        vehicle_id: blankToNull(details.vehicleId),
+        driver_id: blankToNull(details.driverId),
+        notes: blankToNull(details.notes),
+        is_extra: true,
+      })
+      .select(tripColumns)
+      .single();
+    if (error || !data) {
+      throw new OperationsAccessError('save');
+    }
+    return toTrip(data);
+  }
+
+  async deleteExtraTrip(organizationId: string, tripId: string): Promise<void> {
+    const { data, error } = await this.requireClient()
+      .from('daily_trips')
+      .delete()
+      .eq('id', tripId)
+      .eq('organization_id', organizationId)
+      .eq('is_extra', true)
+      .select('id');
+    if (error || !data || data.length === 0) {
+      throw new OperationsAccessError('save');
+    }
+  }
+
   async cancelCustomerTrips(
     organizationId: string,
     serviceDate: string,
@@ -275,7 +326,7 @@ function choice(id: string, label: string, active: boolean): OperationChoice {
 function toTrip(row: TripRow): DailyTrip {
   return {
     id: row.id,
-    routeId: row.route_id,
+    routeId: row.route_id ?? '',
     serviceDate: row.service_date,
     direction: toDirection(row.direction),
     departureTime: row.departure_time.slice(0, 5),
@@ -286,6 +337,7 @@ function toTrip(row: TripRow): DailyTrip {
     reason: toReason(row.change_reason),
     notes: row.notes ?? '',
     done: row.is_done,
+    extra: row.is_extra,
   };
 }
 

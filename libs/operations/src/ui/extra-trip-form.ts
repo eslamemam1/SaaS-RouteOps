@@ -1,69 +1,59 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  output,
-  signal,
-  untracked,
-} from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
   availableChoices,
-  changeOf,
-  changeReasons,
   choiceLabel,
   DailyTrip,
+  emptyExtraTrip,
+  ExtraTripDetails,
   OperationChoices,
   OperationsOrganization,
   OperationsProblem,
-  TripChange,
+  tripDirections,
+  withRoute,
 } from '../domain/daily-trip';
+import { extraTripSchema } from './extra-trip-fields';
 import { operationsText } from './operations-text';
-import { tripChangeSchema } from './trip-change-fields';
 
 @Component({
-  selector: 'app-trip-change-form',
+  selector: 'app-extra-trip-form',
   imports: [FormField],
-  templateUrl: './trip-change-form.html',
+  templateUrl: './extra-trip-form.html',
 })
-export class TripChangeForm {
+export class ExtraTripForm {
   private readonly repository = inject(OperationsRepository);
 
   readonly organization = input.required<OperationsOrganization>();
-  readonly trip = input.required<DailyTrip>();
+  readonly serviceDate = input.required<string>();
   readonly choices = input.required<OperationChoices>();
-  readonly saved = output<DailyTrip>();
+  readonly added = output<DailyTrip>();
   readonly cancelled = output<void>();
 
   protected readonly text = injectText(operationsText);
   private readonly problems = computed(() => this.text().problems);
 
-  protected readonly reasons = changeReasons;
+  protected readonly directions = tripDirections;
   protected readonly submitting = signal(false);
   protected readonly problem = signal<OperationsProblem | null>(null);
-  protected readonly model = signal<TripChange>({
-    vehicleId: '',
-    driverId: '',
-    cancelled: false,
-    reason: '',
-    notes: '',
-  });
-  protected readonly changeForm = form(this.model, (field) => {
-    apply(field, tripChangeSchema(this.problems));
+  protected readonly model = signal<ExtraTripDetails>(emptyExtraTrip);
+  protected readonly extraForm = form(this.model, (field) => {
+    apply(field, extraTripSchema(this.problems));
   });
 
-  protected readonly routeName = computed(
-    () =>
-      choiceLabel(this.choices().routes, this.trip().routeId) ||
-      this.text().day.noRoute,
+  // The same route name may serve several customers, so each route shows its customer.
+  protected readonly routes = computed(() =>
+    availableChoices(this.choices().routes, this.model().routeId)
+      .map((route) => ({
+        id: route.id,
+        label: `${route.label} - ${choiceLabel(this.choices().customers, route.customerId)}`,
+      }))
+      .sort((first, second) => first.label.localeCompare(second.label)),
   );
-  protected readonly customerName = computed(() =>
-    choiceLabel(this.choices().customers, this.trip().customerId),
+  protected readonly customers = computed(() =>
+    availableChoices(this.choices().customers, this.model().customerId),
   );
   protected readonly vehicles = computed(() =>
     availableChoices(this.choices().vehicles, this.model().vehicleId),
@@ -72,28 +62,25 @@ export class TripChangeForm {
     availableChoices(this.choices().drivers, this.model().driverId),
   );
 
-  constructor() {
-    effect(() => {
-      const change = changeOf(this.trip());
-      untracked(() => {
-        this.changeForm().reset(change);
-        this.problem.set(null);
-      });
-    });
+  protected useRoute(routeId: string): void {
+    this.model.update((details) =>
+      withRoute(details, this.choices().routes, routeId),
+    );
   }
 
   protected onSubmit(event: Event): void {
     event.preventDefault();
-    void submit(this.changeForm, async () => {
+    void submit(this.extraForm, async () => {
       this.submitting.set(true);
       this.problem.set(null);
       try {
-        const saved = await this.repository.changeTrip(
+        const trip = await this.repository.addExtraTrip(
           this.organization(),
-          this.trip().id,
+          this.serviceDate(),
           this.model(),
         );
-        this.saved.emit(saved);
+        this.extraForm().reset(emptyExtraTrip);
+        this.added.emit(trip);
         return undefined;
       } catch (error) {
         const problem =

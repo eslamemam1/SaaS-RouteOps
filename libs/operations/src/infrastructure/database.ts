@@ -38,9 +38,10 @@ export type Database = {
           id: string
           is_cancelled: boolean
           is_done: boolean
+          is_extra: boolean
           notes: string | null
           organization_id: string
-          route_id: string
+          route_id: string | null
           service_date: string
           updated_at: string
           vehicle_id: string | null
@@ -55,9 +56,10 @@ export type Database = {
           id?: string
           is_cancelled?: boolean
           is_done?: boolean
+          is_extra?: boolean
           notes?: string | null
           organization_id: string
-          route_id: string
+          route_id?: string | null
           service_date: string
           updated_at?: string
           vehicle_id?: string | null
@@ -72,9 +74,10 @@ export type Database = {
           id?: string
           is_cancelled?: boolean
           is_done?: boolean
+          is_extra?: boolean
           notes?: string | null
           organization_id?: string
-          route_id?: string
+          route_id?: string | null
           service_date?: string
           updated_at?: string
           vehicle_id?: string | null
@@ -144,10 +147,13 @@ export type Database = {
         Relationships: []
       }
       routes: ReadOnlyTable<{
+        customer_id: string
+        driver_id: string | null
         id: string
         is_active: boolean
         name: string
         organization_id: string
+        vehicle_id: string | null
       }>
       vehicles: ReadOnlyTable<{
         id: string

@@ -1,5 +1,5 @@
 import { OperationsAccessError } from '../application/operations-access-error';
-import { OperationsOrganization } from '../domain/daily-trip';
+import { emptyExtraTrip, OperationsOrganization } from '../domain/daily-trip';
 import { OperationsGateway } from './operations-gateway';
 import { SupabaseOperationsRepository } from './supabase-operations-repository';
 
@@ -51,6 +51,40 @@ describe('SupabaseOperationsRepository', () => {
     expect(gateway.prepareDay).not.toHaveBeenCalled();
   });
 
+  it('refuses an extra trip without a company or time before calling the database', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseOperationsRepository(gateway);
+
+    await expect(
+      repository.addExtraTrip(north, '2026-10-04', emptyExtraTrip),
+    ).rejects.toEqual(new OperationsAccessError('customer'));
+    await expect(
+      repository.addExtraTrip(north, '2026-10-04', {
+        ...emptyExtraTrip,
+        customerId: 'delta',
+      }),
+    ).rejects.toEqual(new OperationsAccessError('time'));
+    expect(gateway.insertExtraTrip).not.toHaveBeenCalled();
+  });
+
+  it('adds a valid extra trip for the organization and day', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseOperationsRepository(gateway);
+    const details = {
+      ...emptyExtraTrip,
+      customerId: 'delta',
+      departureTime: '21:00',
+    };
+
+    await repository.addExtraTrip(north, '2026-10-04', details);
+
+    expect(gateway.insertExtraTrip).toHaveBeenCalledWith(
+      'org-north',
+      '2026-10-04',
+      details,
+    );
+  });
+
   it('needs at least one customer to record a holiday', async () => {
     const gateway = fakeGateway('user-1', [north]);
     const repository = new SupabaseOperationsRepository(gateway);
@@ -81,6 +115,8 @@ function fakeGateway(
     saveTripRecording: vi.fn(async () => undefined),
     updateTrip: vi.fn(),
     updateDone: vi.fn(),
+    insertExtraTrip: vi.fn(),
+    deleteExtraTrip: vi.fn(async () => undefined),
     cancelCustomerTrips: vi.fn(async () => undefined),
   };
 }

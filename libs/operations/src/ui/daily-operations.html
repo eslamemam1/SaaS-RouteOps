@@ -47,6 +47,21 @@
 @if (status() === 'empty') {
   <p>{{ text().day.empty }}</p>
 }
+@if (organization(); as current) {
+  @if (status() === 'success' || status() === 'empty') {
+    @if (addingExtra()) {
+      <app-extra-trip-form
+        [organization]="current"
+        [serviceDate]="serviceDate()"
+        [choices]="choices()"
+        (added)="onExtraAdded($event)"
+        (cancelled)="addingExtra.set(false)"
+      />
+    } @else {
+      <p><button type="button" (click)="startExtra()">{{ text().day.addExtra }}</button></p>
+    }
+  }
+}
 @if (status() === 'success') {
   <div class="day-picker">
     <label>
@@ -127,7 +142,12 @@
       @for (trip of visibleTrips(); track trip.id) {
         <tr>
           <td><bdi>{{ trip.departureTime }}</bdi></td>
-          <td>{{ label(choices().routes, trip.routeId) }}</td>
+          <td>
+            {{ trip.routeId ? label(choices().routes, trip.routeId) : text().day.noRoute }}
+            @if (trip.extra) {
+              <span class="hint">{{ text().day.extra }}</span>
+            }
+          </td>
           <td>{{ label(choices().customers, trip.customerId) }}</td>
           <td>{{ text().directions[trip.direction] }}</td>
           <td><bdi>{{ label(choices().vehicles, trip.vehicleId) }}</bdi></td>
@@ -152,6 +172,16 @@
               </button>
             }
             <button type="button" (click)="edit(trip)">{{ text().day.change }}</button>
+            @if (trip.extra) {
+              <button
+                type="button"
+                class="error"
+                [disabled]="markingTripId() === trip.id"
+                (click)="remove(trip)"
+              >
+                {{ confirmingRemoveId() === trip.id ? text().day.confirmRemove : text().day.remove }}
+              </button>
+            }
           </td>
         </tr>
       }

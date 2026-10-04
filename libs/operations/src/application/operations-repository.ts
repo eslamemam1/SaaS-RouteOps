@@ -1,5 +1,6 @@
 import {
   DailyTrip,
+  ExtraTripDetails,
   OperationChoices,
   OperationsOrganization,
   TripChange,
@@ -35,6 +36,16 @@ export abstract class OperationsRepository {
     tripId: string,
     done: boolean,
   ): Promise<DailyTrip>;
+  abstract addExtraTrip(
+    organization: OperationsOrganization,
+    serviceDate: string,
+    details: ExtraTripDetails,
+  ): Promise<DailyTrip>;
+  // Removes only an extra trip; the trips of the routes are cancelled instead.
+  abstract removeExtraTrip(
+    organization: OperationsOrganization,
+    tripId: string,
+  ): Promise<void>;
   abstract cancelForHoliday(
     organization: OperationsOrganization,
     serviceDate: string,

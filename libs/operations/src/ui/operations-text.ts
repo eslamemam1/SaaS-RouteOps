@@ -40,6 +40,29 @@ export interface OperationsText {
     readonly change: string;
     readonly markDone: string;
     readonly undoDone: string;
+    readonly addExtra: string;
+    readonly extra: string;
+    readonly noRoute: string;
+    readonly remove: string;
+    readonly confirmRemove: string;
+  };
+  readonly extra: {
+    readonly title: string;
+    readonly hint: string;
+    readonly route: string;
+    readonly routeHint: string;
+    readonly noRoute: string;
+    readonly customer: string;
+    readonly customerFromRoute: string;
+    readonly chooseCustomer: string;
+    readonly direction: string;
+    readonly time: string;
+    readonly vehicle: string;
+    readonly driver: string;
+    readonly notSet: string;
+    readonly notes: string;
+    readonly save: string;
+    readonly cancel: string;
   };
   readonly filter: {
     readonly customer: string;
@@ -84,6 +107,8 @@ export const operationsText: Record<Language, OperationsText> = {
       otherNotes: 'اكتب ملاحظة توضح السبب.',
       tooLong: 'النص أطول من المسموح.',
       date: 'اختر تاريخًا صحيحًا.',
+      customer: 'اختر الشركة المتعاقدة.',
+      time: 'اكتب ميعاد الرحلة.',
       customers: 'اختر شركة واحدة على الأقل.',
       load: 'تعذّر تحميل رحلات اليوم. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
@@ -142,6 +167,29 @@ export const operationsText: Record<Language, OperationsText> = {
       change: 'تغيير',
       markDone: 'تمّت',
       undoDone: 'التراجع عن "تمّت"',
+      addExtra: 'إضافة رحلة إضافية',
+      extra: 'رحلة إضافية',
+      noRoute: 'بدون خط',
+      remove: 'حذف',
+      confirmRemove: 'تأكيد الحذف',
+    },
+    extra: {
+      title: 'إضافة رحلة إضافية',
+      hint: 'رحلة زيادة على رحلات الخطوط في هذا اليوم فقط، مثل رحلة بالليل أو مشوار لمرة واحدة. تُحسب مثل باقي الرحلات.',
+      route: 'الخط (اختياري)',
+      routeHint: 'عند اختيار خط تُملأ الشركة والمركبة والسائق منه، ويمكنك تغيير المركبة والسائق.',
+      noRoute: 'بدون خط',
+      customer: 'الشركة المتعاقدة',
+      customerFromRoute: 'الشركة صاحبة الخط المختار.',
+      chooseCustomer: 'اختر الشركة',
+      direction: 'الرحلة',
+      time: 'الميعاد',
+      vehicle: 'المركبة (اختياري)',
+      driver: 'السائق (اختياري)',
+      notSet: 'لم يُحدد',
+      notes: 'ملاحظات (اختياري)',
+      save: 'إضافة الرحلة',
+      cancel: 'إلغاء',
     },
     filter: {
       customer: 'الشركة المتعاقدة',
@@ -184,6 +232,8 @@ export const operationsText: Record<Language, OperationsText> = {
       otherNotes: 'Write a note that explains the reason.',
       tooLong: 'This text is too long.',
       date: 'Choose a valid date.',
+      customer: 'Choose the client company.',
+      time: 'Enter the trip time.',
       customers: 'Choose at least one company.',
       load: "Could not load the day's trips. Please try again.",
       save: 'Could not save. Please try again.',
@@ -242,6 +292,29 @@ export const operationsText: Record<Language, OperationsText> = {
       change: 'Change',
       markDone: 'Done',
       undoDone: 'Undo "Done"',
+      addExtra: 'Add an extra trip',
+      extra: 'Extra trip',
+      noRoute: 'No route',
+      remove: 'Delete',
+      confirmRemove: 'Confirm delete',
+    },
+    extra: {
+      title: 'Add an extra trip',
+      hint: 'A trip on top of the route trips, on this day only, such as an evening trip or a one-off run. It counts like any other trip.',
+      route: 'Route (optional)',
+      routeHint: 'Choosing a route fills in its company, vehicle, and driver. You can still change the vehicle and driver.',
+      noRoute: 'No route',
+      customer: 'Client company',
+      customerFromRoute: 'The company of the chosen route.',
+      chooseCustomer: 'Choose a company',
+      direction: 'Trip',
+      time: 'Time',
+      vehicle: 'Vehicle (optional)',
+      driver: 'Driver (optional)',
+      notSet: 'Not set',
+      notes: 'Notes (optional)',
+      save: 'Add trip',
+      cancel: 'Cancel',
     },
     filter: {
       customer: 'Client company',

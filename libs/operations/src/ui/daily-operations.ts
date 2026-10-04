@@ -25,6 +25,7 @@ import {
   tripStatus,
   tripStatuses,
 } from '../domain/daily-trip';
+import { ExtraTripForm } from './extra-trip-form';
 import { HolidayPanel } from './holiday-panel';
 import { operationsText } from './operations-text';
 import { TripChangeForm } from './trip-change-form';
@@ -38,7 +39,7 @@ const noChoices: OperationChoices = {
 
 @Component({
   selector: 'app-daily-operations',
-  imports: [HolidayPanel, RouterLink, TripChangeForm],
+  imports: [ExtraTripForm, HolidayPanel, RouterLink, TripChangeForm],
   templateUrl: './daily-operations.html',
 })
 export class DailyOperations {
@@ -61,6 +62,8 @@ export class DailyOperations {
   protected readonly savingRecording = signal(false);
   protected readonly markingTripId = signal<string | null>(null);
   protected readonly actionProblem = signal<OperationsProblem | null>(null);
+  protected readonly addingExtra = signal(false);
+  protected readonly confirmingRemoveId = signal<string | null>(null);
   protected readonly directions = tripDirections;
   protected readonly filter = signal<TripFilter>(emptyTripFilter);
   protected readonly visibleTrips = computed(() =>
@@ -168,6 +171,7 @@ export class DailyOperations {
   }
 
   protected edit(trip: DailyTrip): void {
+    this.addingExtra.set(false);
     this.editing.set(trip);
   }
 
@@ -180,6 +184,46 @@ export class DailyOperations {
       sortByTime([...this.trips().filter((item) => item.id !== trip.id), trip]),
     );
     this.editing.set(null);
+  }
+
+  protected startExtra(): void {
+    this.editing.set(null);
+    this.addingExtra.set(true);
+  }
+
+  protected onExtraAdded(trip: DailyTrip): void {
+    this.trips.set(sortByTime([...this.trips(), trip]));
+    this.status.set('success');
+    this.addingExtra.set(false);
+  }
+
+  protected async remove(trip: DailyTrip): Promise<void> {
+    const organization = this.organization();
+    if (!organization || !trip.extra) {
+      return;
+    }
+    if (this.confirmingRemoveId() !== trip.id) {
+      this.confirmingRemoveId.set(trip.id);
+      return;
+    }
+    this.markingTripId.set(trip.id);
+    this.actionProblem.set(null);
+    try {
+      await this.repository.removeExtraTrip(organization, trip.id);
+      const trips = this.trips().filter((item) => item.id !== trip.id);
+      this.trips.set(trips);
+      if (this.editing()?.id === trip.id) {
+        this.editing.set(null);
+      }
+      if (trips.length === 0) {
+        this.status.set('empty');
+      }
+    } catch (error) {
+      this.actionProblem.set(problemOf(error, 'save'));
+    } finally {
+      this.markingTripId.set(null);
+      this.confirmingRemoveId.set(null);
+    }
   }
 
   protected onHolidayRecorded(trips: DailyTrip[]): void {
@@ -219,6 +263,8 @@ export class DailyOperations {
     const serviceDate = this.serviceDate();
     this.status.set('loading');
     this.editing.set(null);
+    this.addingExtra.set(false);
+    this.confirmingRemoveId.set(null);
     this.actionProblem.set(null);
     try {
       const trips = await this.repository.day(organization, serviceDate);

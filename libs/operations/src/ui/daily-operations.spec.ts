@@ -17,7 +17,16 @@ const choices: OperationChoices = {
   customers: [{ id: 'customer-1', label: 'Delta Factory', active: true }],
   vehicles: [{ id: 'vehicle-1', label: 'ABC 1234', active: true }],
   drivers: [{ id: 'driver-1', label: 'Ahmed', active: true }],
-  routes: [{ id: 'route-1', label: 'Delta - Nasr City', active: true }],
+  routes: [
+    {
+      id: 'route-1',
+      label: 'Delta - Nasr City',
+      active: true,
+      customerId: 'customer-1',
+      vehicleId: 'vehicle-1',
+      driverId: 'driver-1',
+    },
+  ],
 };
 const outbound: DailyTrip = {
   id: 'trip-1',
@@ -32,6 +41,7 @@ const outbound: DailyTrip = {
   reason: '',
   notes: '',
   done: false,
+  extra: false,
 };
 const cancelledReturn: DailyTrip = {
   ...outbound,
@@ -150,7 +160,14 @@ describe('DailyOperations', () => {
         ],
         routes: [
           ...choices.routes,
-          { id: 'route-2', label: 'Nour - Maadi', active: true },
+          {
+            id: 'route-2',
+            label: 'Nour - Maadi',
+            active: true,
+            customerId: 'customer-2',
+            vehicleId: '',
+            driverId: '',
+          },
         ],
       }),
       day: async () => [outbound, nourTrip],
@@ -177,6 +194,70 @@ describe('DailyOperations', () => {
     button(harness, arabic.filter.clear)?.click();
     await settle(harness);
     expect(rows(harness)).toHaveLength(2);
+  });
+
+  it('adds an extra trip from a route, even on a day without trips', async () => {
+    const evening: DailyTrip = {
+      ...outbound,
+      id: 'trip-9',
+      direction: 'return',
+      departureTime: '21:00',
+      driverId: '',
+      extra: true,
+    };
+    const addExtraTrip = vi.fn(async () => evening);
+    const harness = await open({ day: async () => [], addExtraTrip });
+    await settle(harness);
+    expect(text(harness)).toContain(arabic.day.empty);
+
+    button(harness, arabic.day.addExtra)?.click();
+    await settle(harness);
+    expect(text(harness)).toContain(arabic.extra.hint);
+
+    const form = harness.routeNativeElement!.querySelector('app-extra-trip-form')!;
+    const route = form.querySelector('select')!;
+    route.value = 'route-1';
+    route.dispatchEvent(new Event('change'));
+    const time = form.querySelector<HTMLInputElement>('input[type="time"]')!;
+    time.value = '21:00';
+    time.dispatchEvent(new Event('input'));
+    await settle(harness);
+    form.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(harness);
+
+    expect(addExtraTrip).toHaveBeenCalledWith(
+      north,
+      expect.any(String),
+      expect.objectContaining({
+        routeId: 'route-1',
+        customerId: 'customer-1',
+        vehicleId: 'vehicle-1',
+        driverId: 'driver-1',
+        departureTime: '21:00',
+      }),
+    );
+    expect(rows(harness)).toHaveLength(1);
+    expect(rows(harness)[0].textContent).toContain(arabic.day.extra);
+  });
+
+  it('deletes an extra trip only after confirming', async () => {
+    const extra: DailyTrip = { ...outbound, id: 'trip-9', extra: true };
+    const removeExtraTrip = vi.fn(async () => undefined);
+    const harness = await open({
+      day: async () => [outbound, extra],
+      removeExtraTrip,
+    });
+    await settle(harness);
+    expect(buttons(harness, arabic.day.remove)).toHaveLength(1);
+
+    button(harness, arabic.day.remove)?.click();
+    await settle(harness);
+    expect(removeExtraTrip).not.toHaveBeenCalled();
+
+    button(harness, arabic.day.confirmRemove)?.click();
+    await settle(harness);
+    expect(removeExtraTrip).toHaveBeenCalledWith(north, 'trip-9');
+    expect(rows(harness)).toHaveLength(1);
   });
 
   it('offers the companies with running trips for a holiday', async () => {
@@ -254,6 +335,8 @@ async function open(overrides: Partial<OperationsRepository>) {
     chooseTripRecording: async () => undefined,
     changeTrip: async () => outbound,
     markDone: async () => outbound,
+    addExtraTrip: async () => outbound,
+    removeExtraTrip: async () => undefined,
     cancelForHoliday: async () => [],
     ...overrides,
   };

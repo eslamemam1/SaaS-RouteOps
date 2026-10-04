@@ -5,7 +5,9 @@ import {
   customersOnDay,
   customersWithRunningTrips,
   DailyTrip,
+  emptyExtraTrip,
   emptyTripFilter,
+  extraTripError,
   filterTrips,
   isServiceDate,
   notesError,
@@ -15,6 +17,7 @@ import {
   TripFilter,
   TripRecording,
   tripStatus,
+  withRoute,
 } from './daily-trip';
 
 const trip = (overrides: Partial<DailyTrip>): DailyTrip => ({
@@ -30,6 +33,7 @@ const trip = (overrides: Partial<DailyTrip>): DailyTrip => ({
   reason: '',
   notes: '',
   done: false,
+  extra: false,
   ...overrides,
 });
 
@@ -124,8 +128,8 @@ describe('filtering a busy day', () => {
     vehicles: [{ id: 'bus-1', label: 'أ ب ج 1234', active: true }],
     drivers: [{ id: 'ahmed', label: 'أحمد علي', active: true }],
     routes: [
-      { id: 'nasr', label: 'مدينة نصر', active: true },
-      { id: 'maadi', label: 'Maadi', active: true },
+      { id: 'nasr', label: 'مدينة نصر', active: true, customerId: 'delta', vehicleId: '', driverId: '' },
+      { id: 'maadi', label: 'Maadi', active: true, customerId: 'nour', vehicleId: '', driverId: '' },
     ],
   };
   const trips = [
@@ -176,6 +180,46 @@ describe('filtering a busy day', () => {
     expect(
       customersOnDay(trips, choices.customers, 'misr').map((item) => item.id),
     ).toEqual(['delta', 'misr', 'nour']);
+  });
+});
+
+describe('extra trips', () => {
+  const routes = [
+    {
+      id: 'nasr',
+      label: 'Nasr City',
+      active: true,
+      customerId: 'delta',
+      vehicleId: 'bus-1',
+      driverId: 'ahmed',
+    },
+  ];
+
+  it('fills the customer, vehicle, and driver from the chosen route', () => {
+    expect(withRoute(emptyExtraTrip, routes, 'nasr')).toEqual({
+      ...emptyExtraTrip,
+      routeId: 'nasr',
+      customerId: 'delta',
+      vehicleId: 'bus-1',
+      driverId: 'ahmed',
+    });
+  });
+
+  it('keeps the chosen company when the route is cleared', () => {
+    const chosen = withRoute(emptyExtraTrip, routes, 'nasr');
+
+    expect(withRoute(chosen, routes, '')).toEqual({ ...chosen, routeId: '' });
+  });
+
+  it('needs a company and a time, but no route, vehicle, or driver', () => {
+    expect(extraTripError(emptyExtraTrip)).toBe('customer');
+    expect(extraTripError({ ...emptyExtraTrip, customerId: 'delta' })).toBe('time');
+    expect(
+      extraTripError({ ...emptyExtraTrip, customerId: 'delta', departureTime: '25:00' }),
+    ).toBe('time');
+    expect(
+      extraTripError({ ...emptyExtraTrip, customerId: 'delta', departureTime: '21:30' }),
+    ).toBeNull();
   });
 });
 

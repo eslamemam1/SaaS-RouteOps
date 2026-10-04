@@ -1,19 +1,6 @@
-import { Signal } from '@angular/core';
 import { schema, validate } from '@angular/forms/signals';
-import {
-  notesError,
-  OperationsProblem,
-  reasonError,
-  TripChange,
-} from '../domain/daily-trip';
-
-type Problems = Signal<Record<OperationsProblem, string>>;
-
-function fieldError(problem: OperationsProblem | null, problems: Problems) {
-  return problem === null
-    ? undefined
-    : { kind: problem, message: problems()[problem] };
-}
+import { notesError, reasonError, TripChange } from '../domain/daily-trip';
+import { fieldError, Problems } from './field-error';
 
 export function tripChangeSchema(problems: Problems) {
   return schema<TripChange>((path) => {

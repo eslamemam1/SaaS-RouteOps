@@ -2,6 +2,8 @@ import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
   DailyTrip,
+  ExtraTripDetails,
+  extraTripError,
   isServiceDate,
   memberOrganization,
   OperationChoices,
@@ -67,6 +69,28 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     done: boolean,
   ): Promise<DailyTrip> {
     return this.gateway.updateDone(organization.id, tripId, done);
+  }
+
+  async addExtraTrip(
+    organization: OperationsOrganization,
+    serviceDate: string,
+    details: ExtraTripDetails,
+  ): Promise<DailyTrip> {
+    if (!isServiceDate(serviceDate)) {
+      throw new OperationsAccessError('date');
+    }
+    const problem = extraTripError(details);
+    if (problem) {
+      throw new OperationsAccessError(problem);
+    }
+    return this.gateway.insertExtraTrip(organization.id, serviceDate, details);
+  }
+
+  removeExtraTrip(
+    organization: OperationsOrganization,
+    tripId: string,
+  ): Promise<void> {
+    return this.gateway.deleteExtraTrip(organization.id, tripId);
   }
 
   async cancelForHoliday(

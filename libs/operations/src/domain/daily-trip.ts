@@ -10,11 +10,18 @@ export interface OperationChoice {
   readonly active: boolean;
 }
 
+// A route with the customer, vehicle, and driver it normally uses.
+export interface OperationRoute extends OperationChoice {
+  readonly customerId: string;
+  readonly vehicleId: string;
+  readonly driverId: string;
+}
+
 export interface OperationChoices {
   readonly customers: readonly OperationChoice[];
   readonly vehicles: readonly OperationChoice[];
   readonly drivers: readonly OperationChoice[];
-  readonly routes: readonly OperationChoice[];
+  readonly routes: readonly OperationRoute[];
 }
 
 export const tripDirections = ['outbound', 'return'] as const;
@@ -41,6 +48,7 @@ export interface TripChange {
 
 export interface DailyTrip extends TripChange {
   readonly id: string;
+  // Empty for an extra trip that belongs to no route.
   readonly routeId: string;
   readonly serviceDate: string;
   readonly direction: TripDirection;
@@ -48,7 +56,29 @@ export interface DailyTrip extends TripChange {
   readonly customerId: string;
   // A member marked the trip done.
   readonly done: boolean;
+  // A member added the trip by hand, on top of the trips of the routes.
+  readonly extra: boolean;
 }
+
+export interface ExtraTripDetails {
+  readonly routeId: string;
+  readonly customerId: string;
+  readonly direction: TripDirection;
+  readonly departureTime: string;
+  readonly vehicleId: string;
+  readonly driverId: string;
+  readonly notes: string;
+}
+
+export const emptyExtraTrip: ExtraTripDetails = {
+  routeId: '',
+  customerId: '',
+  direction: 'outbound',
+  departureTime: '',
+  vehicleId: '',
+  driverId: '',
+  notes: '',
+};
 
 // How the organization records its trips: automatically, or a member marks
 // each trip done.
@@ -74,6 +104,8 @@ export const operationsProblems = [
   'otherNotes',
   'tooLong',
   'date',
+  'customer',
+  'time',
   'customers',
   'load',
   'save',
@@ -155,6 +187,46 @@ export function notesError(
     return 'tooLong';
   }
   return reason === 'other' && text.length === 0 ? 'otherNotes' : null;
+}
+
+const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+export function extraCustomerError(customerId: string): OperationsProblem | null {
+  return customerId.trim().length === 0 ? 'customer' : null;
+}
+
+export function departureTimeError(value: string): OperationsProblem | null {
+  return timePattern.test(value) ? null : 'time';
+}
+
+export function extraTripError(
+  details: ExtraTripDetails,
+): OperationsProblem | null {
+  return (
+    extraCustomerError(details.customerId) ??
+    departureTimeError(details.departureTime) ??
+    notesError(details.notes, '')
+  );
+}
+
+// Choosing a route fills in its customer, vehicle, and driver; the member may
+// still change the vehicle and driver for this trip.
+export function withRoute(
+  details: ExtraTripDetails,
+  routes: readonly OperationRoute[],
+  routeId: string,
+): ExtraTripDetails {
+  const route = routes.find((item) => item.id === routeId);
+  if (!route) {
+    return { ...details, routeId: '' };
+  }
+  return {
+    ...details,
+    routeId: route.id,
+    customerId: route.customerId,
+    vehicleId: route.vehicleId,
+    driverId: route.driverId,
+  };
 }
 
 export function sortByTime(trips: readonly DailyTrip[]): DailyTrip[] {
@@ -254,10 +326,10 @@ export function customersWithRunningTrips(trips: readonly DailyTrip[]): string[]
 }
 
 // Keeps choices the user may pick now, plus the one already saved.
-export function availableChoices(
-  choices: readonly OperationChoice[],
+export function availableChoices<Choice extends OperationChoice>(
+  choices: readonly Choice[],
   selectedId: string,
-): OperationChoice[] {
+): Choice[] {
   return choices.filter((choice) => choice.active || choice.id === selectedId);
 }
 

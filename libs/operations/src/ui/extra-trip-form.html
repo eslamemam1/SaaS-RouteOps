@@ -1,0 +1,76 @@
+<h3>{{ text().extra.title }}</h3>
+<p class="hint">{{ text().extra.hint }}</p>
+<form (submit)="onSubmit($event)">
+  <label>
+    {{ text().extra.route }}
+    <span class="hint">{{ text().extra.routeHint }}</span>
+    <select (change)="useRoute($any($event.target).value)">
+      <option value="" [selected]="model().routeId === ''">{{ text().extra.noRoute }}</option>
+      @for (route of routes(); track route.id) {
+        <option [value]="route.id" [selected]="model().routeId === route.id">
+          {{ route.label }}
+        </option>
+      }
+    </select>
+  </label>
+  <label>
+    {{ text().extra.customer }}
+    @if (model().routeId) {
+      <span class="hint">{{ text().extra.customerFromRoute }}</span>
+    }
+    <select [formField]="extraForm.customerId">
+      <option value="">{{ text().extra.chooseCustomer }}</option>
+      @for (customer of customers(); track customer.id) {
+        <option [value]="customer.id">{{ customer.label }}</option>
+      }
+    </select>
+  </label>
+  @if (extraForm.customerId().touched() && extraForm.customerId().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
+    {{ text().extra.direction }}
+    <select [formField]="extraForm.direction">
+      @for (direction of directions; track direction) {
+        <option [value]="direction">{{ text().directions[direction] }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    {{ text().extra.time }}
+    <input type="time" [formField]="extraForm.departureTime" />
+  </label>
+  @if (extraForm.departureTime().touched() && extraForm.departureTime().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
+    {{ text().extra.vehicle }}
+    <select [formField]="extraForm.vehicleId">
+      <option value="">{{ text().extra.notSet }}</option>
+      @for (vehicle of vehicles(); track vehicle.id) {
+        <option [value]="vehicle.id">{{ vehicle.label }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    {{ text().extra.driver }}
+    <select [formField]="extraForm.driverId">
+      <option value="">{{ text().extra.notSet }}</option>
+      @for (driver of drivers(); track driver.id) {
+        <option [value]="driver.id">{{ driver.label }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    {{ text().extra.notes }}
+    <textarea [formField]="extraForm.notes"></textarea>
+  </label>
+  @if (extraForm.notes().touched() && extraForm.notes().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <button type="submit" [disabled]="submitting()">{{ text().extra.save }}</button>
+  <button type="button" (click)="cancelled.emit()">{{ text().extra.cancel }}</button>
+</form>
+@if (problem(); as current) {
+  <p class="error">{{ text().problems[current] }}</p>
+}
