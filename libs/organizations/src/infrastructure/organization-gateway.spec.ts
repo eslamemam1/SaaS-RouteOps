@@ -13,10 +13,7 @@ describe('SupabaseOrganizationGateway', () => {
         return { data: [{ organization_id: 'org-north' }], error: null };
       },
     });
-    const gateway = new SupabaseOrganizationGateway(
-      { url: '', publishableKey: '' },
-      client,
-    );
+    const gateway = new SupabaseOrganizationGateway(client);
 
     await expect(gateway.membershipOrganizationIds('user-1')).resolves.toEqual([
       'org-north',
@@ -33,10 +30,7 @@ describe('SupabaseOrganizationGateway', () => {
         };
       },
     });
-    const gateway = new SupabaseOrganizationGateway(
-      { url: '', publishableKey: '' },
-      client,
-    );
+    const gateway = new SupabaseOrganizationGateway(client);
 
     await expect(gateway.membershipOrganizationIds('user-1')).rejects.toEqual(
       new OrganizationAccessError(companyAccountMessages.load),
@@ -52,10 +46,7 @@ describe('SupabaseOrganizationGateway', () => {
         };
       },
     });
-    const gateway = new SupabaseOrganizationGateway(
-      { url: '', publishableKey: '' },
-      client,
-    );
+    const gateway = new SupabaseOrganizationGateway(client);
 
     await expect(gateway.organizationsByIds(['org-north'])).resolves.toEqual([
       { id: 'org-north', name: 'North' },

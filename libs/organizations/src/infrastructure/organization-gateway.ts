@@ -1,4 +1,4 @@
-import { SupabaseClient, createClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { companyAccountMessages } from '../domain/company-account';
 import { Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
@@ -16,29 +16,10 @@ export interface OrganizationGateway {
   provision(input: ProvisionCompany): Promise<void>;
 }
 
-export interface SupabasePublishableConfig {
-  readonly url: string;
-  readonly publishableKey: string;
-}
-
 const safeMessages: readonly string[] = Object.values(companyAccountMessages);
 
 export class SupabaseOrganizationGateway implements OrganizationGateway {
-  private readonly client: SupabaseClient<Database> | null;
-
-  constructor(
-    config: SupabasePublishableConfig,
-    client?: SupabaseClient<Database>,
-  ) {
-    if (client) {
-      this.client = client;
-      return;
-    }
-    this.client =
-      config.url.length > 0 && config.publishableKey.length > 0
-        ? createClient<Database>(config.url, config.publishableKey)
-        : null;
-  }
+  constructor(private readonly client: SupabaseClient<Database> | null) {}
 
   isConfigured(): boolean {
     return this.client !== null;

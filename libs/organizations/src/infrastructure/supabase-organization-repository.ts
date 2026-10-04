@@ -16,14 +16,6 @@ export class SupabaseOrganizationRepository extends OrganizationRepository {
     return this.gateway.isConfigured();
   }
 
-  async hasSession(): Promise<boolean> {
-    if (!this.gateway.isConfigured()) {
-      return false;
-    }
-    const userId = await this.gateway.sessionUserId();
-    return userId !== null;
-  }
-
   signIn(email: string, password: string): Promise<void> {
     return this.gateway.signIn(email, password);
   }

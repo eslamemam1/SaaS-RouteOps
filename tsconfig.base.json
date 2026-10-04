@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "strict": true,
     "paths": {
-      "@routeops/organizations": ["./libs/organizations/src/index.ts"]
+      "@routeops/organizations": ["./libs/organizations/src/index.ts"],
+      "@routeops/shared/supabase": ["./libs/shared/supabase/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

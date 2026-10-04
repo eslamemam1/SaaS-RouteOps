@@ -57,7 +57,6 @@ describe('Organizations', () => {
 async function render(overrides: Partial<OrganizationRepository>) {
   const repository: OrganizationRepository = {
     isConfigured: () => true,
-    hasSession: async () => true,
     signIn: async () => undefined,
     signOut: async () => undefined,
     listMine: async () => [],
