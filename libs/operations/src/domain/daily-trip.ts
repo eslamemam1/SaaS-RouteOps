@@ -1,6 +1,9 @@
+import { amountError, Currency } from '@routeops/shared/money';
+
 export interface OperationsOrganization {
   readonly id: string;
   readonly name: string;
+  readonly currency: Currency;
 }
 
 // A customer, vehicle, driver, or route a trip can point to.
@@ -75,6 +78,9 @@ export interface ExtraTripDetails {
   readonly departureTime: string;
   readonly vehicleId: string;
   readonly driverId: string;
+  // As the member types it in the organization's currency, such as "150.50".
+  // Blank means the trip is counted at its route's price, if it has one.
+  readonly tripPrice: string;
   readonly notes: string;
 }
 
@@ -85,6 +91,7 @@ export const emptyExtraTrip: ExtraTripDetails = {
   departureTime: '',
   vehicleId: '',
   driverId: '',
+  tripPrice: '',
   notes: '',
 };
 
@@ -115,6 +122,7 @@ export const operationsProblems = [
   'customer',
   'driver',
   'time',
+  'tripPrice',
   'customers',
   'load',
   'save',
@@ -212,13 +220,22 @@ export function driverError(driverId: string): OperationsProblem | null {
   return driverId.length === 0 ? 'driver' : null;
 }
 
+export function tripPriceError(
+  value: string,
+  currency: Currency,
+): OperationsProblem | null {
+  return amountError(value, currency) ? 'tripPrice' : null;
+}
+
 export function extraTripError(
   details: ExtraTripDetails,
+  currency: Currency,
 ): OperationsProblem | null {
   return (
     extraCustomerError(details.customerId) ??
     departureTimeError(details.departureTime) ??
     driverError(details.driverId) ??
+    tripPriceError(details.tripPrice, currency) ??
     notesError(details.notes, '')
   );
 }

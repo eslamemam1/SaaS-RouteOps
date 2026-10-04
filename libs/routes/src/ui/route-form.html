@@ -109,6 +109,20 @@
     <p class="error">{{ error.message }}</p>
   }
   <label>
+    {{ text().form.tripPrice }}
+    <span class="hint">{{ text().form.tripPriceHint }}</span>
+    <input
+      type="text"
+      inputmode="decimal"
+      dir="ltr"
+      [formField]="routeForm.tripPrice"
+    />
+    <bdi>{{ organization().currency }}</bdi>
+  </label>
+  @if (routeForm.tripPrice().touched() && routeForm.tripPrice().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
     {{ text().form.notes }}
     <span class="hint">{{ text().form.notesHint }}</span>
     <textarea [formField]="routeForm.notes"></textarea>

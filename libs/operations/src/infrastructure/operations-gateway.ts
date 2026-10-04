@@ -1,4 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import { defaultCurrency, isCurrency } from '@routeops/shared/money';
 import { OperationsAccessError } from '../application/operations-access-error';
 import {
   ChangeReason,
@@ -36,10 +37,12 @@ export interface OperationsGateway {
     tripId: string,
     done: boolean,
   ): Promise<DailyTrip>;
+  // The price is in the smallest unit of the organization currency.
   insertExtraTrip(
     organizationId: string,
     serviceDate: string,
     details: ExtraTripDetails,
+    tripPrice: number | null,
   ): Promise<DailyTrip>;
   deleteExtraTrip(organizationId: string, tripId: string): Promise<void>;
   cancelCustomerTrips(
@@ -93,14 +96,22 @@ export class SupabaseOperationsGateway implements OperationsGateway {
   ): Promise<OperationsOrganization[]> {
     const { data, error } = await this.requireClient()
       .from('organization_memberships')
-      .select('organizations(id, name)')
+      .select('organizations(id, name, currency)')
       .eq('user_id', userId);
     if (error) {
       throw new OperationsAccessError('load');
     }
     return (data ?? []).flatMap((row) =>
       row.organizations
-        ? [{ id: row.organizations.id, name: row.organizations.name }]
+        ? [
+            {
+              id: row.organizations.id,
+              name: row.organizations.name,
+              currency: isCurrency(row.organizations.currency)
+                ? row.organizations.currency
+                : defaultCurrency,
+            },
+          ]
         : [],
     );
   }
@@ -262,6 +273,7 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     organizationId: string,
     serviceDate: string,
     details: ExtraTripDetails,
+    tripPrice: number | null,
   ): Promise<DailyTrip> {
     const { data, error } = await this.requireClient()
       .from('daily_trips')
@@ -274,6 +286,7 @@ export class SupabaseOperationsGateway implements OperationsGateway {
         customer_id: details.customerId,
         vehicle_id: blankToNull(details.vehicleId),
         driver_id: details.driverId,
+        trip_price: tripPrice,
         notes: blankToNull(details.notes),
         is_extra: true,
       })

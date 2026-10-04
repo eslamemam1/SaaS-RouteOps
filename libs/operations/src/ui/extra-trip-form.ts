@@ -44,7 +44,13 @@ export class ExtraTripForm {
   protected readonly problem = signal<OperationsProblem | null>(null);
   protected readonly model = signal<ExtraTripDetails>(emptyExtraTrip);
   protected readonly extraForm = form(this.model, (field) => {
-    apply(field, extraTripSchema(this.problems));
+    apply(
+      field,
+      extraTripSchema(
+        this.problems,
+        computed(() => this.organization().currency),
+      ),
+    );
   });
 
   // The same route name may serve several customers, so each route shows its customer.

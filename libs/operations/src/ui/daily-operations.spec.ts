@@ -12,7 +12,7 @@ import {
 import { DailyOperations } from './daily-operations';
 import { operationsText } from './operations-text';
 
-const north: OperationsOrganization = { id: 'org-north', name: 'North' };
+const north: OperationsOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 const choices: OperationChoices = {
   customers: [{ id: 'customer-1', label: 'Delta Factory', active: true }],
   vehicles: [{ id: 'vehicle-1', label: 'ABC 1234', active: true, ownership: 'owned' }],
@@ -303,6 +303,10 @@ describe('DailyOperations', () => {
     time.value = '21:00';
     time.dispatchEvent(new Event('input'));
     await settle(harness);
+    expect(form.textContent).toContain(arabic.extra.tripPriceRouteHint);
+    const price = form.querySelector<HTMLInputElement>('input[inputmode="decimal"]')!;
+    price.value = '250';
+    price.dispatchEvent(new Event('input'));
     form.querySelector('form')!.dispatchEvent(new Event('submit'));
     await settle(harness);
 
@@ -315,6 +319,7 @@ describe('DailyOperations', () => {
         vehicleId: 'vehicle-1',
         driverId: 'driver-1',
         departureTime: '21:00',
+        tripPrice: '250',
       }),
     );
     expect(rows(harness)).toHaveLength(1);

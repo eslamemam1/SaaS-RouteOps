@@ -40,6 +40,15 @@
   ) {
     <p class="error">{{ error.message }}</p>
   }
+  <label>
+    {{ text().provision.currency }}
+    <span class="hint">{{ text().provision.currencyHint }}</span>
+    <select [formField]="companyForm.currency">
+      @for (currency of currencies; track currency) {
+        <option [value]="currency">{{ text().currencies[currency] }}</option>
+      }
+    </select>
+  </label>
   <button type="submit" [disabled]="submitting()">
     {{ text().provision.submit }}
   </button>

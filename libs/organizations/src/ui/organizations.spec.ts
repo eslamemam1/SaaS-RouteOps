@@ -49,6 +49,41 @@ describe('Organizations', () => {
     expect(text(fixture)).not.toContain('select ');
   });
 
+  it('lets the operator create a company in Egyptian pounds or another currency', async () => {
+    const provisionCompany = vi.fn<OrganizationRepository['provisionCompany']>(
+      async () => undefined,
+    );
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      provisionCompany,
+    });
+    await settle(fixture);
+    const element: HTMLElement = fixture.nativeElement;
+    const currency = element.querySelector('select') as HTMLSelectElement;
+
+    expect(currency.value).toBe('EGP');
+    expect(text(fixture)).toContain(arabic.currencies.SAR);
+
+    const [name, email, password] = Array.from(
+      element.querySelectorAll('app-provision-company input'),
+    ) as HTMLInputElement[];
+    fill(name, 'Gulf Transport');
+    fill(email, 'gulf@example.com');
+    fill(password, 'secret1');
+    currency.value = 'SAR';
+    currency.dispatchEvent(new Event('input'));
+    (element.querySelector('app-provision-company form') as HTMLFormElement)
+      .dispatchEvent(new Event('submit'));
+    await settle(fixture);
+
+    expect(provisionCompany).toHaveBeenCalledWith({
+      organizationName: 'Gulf Transport',
+      email: 'gulf@example.com',
+      password: 'secret1',
+      currency: 'SAR',
+    });
+  });
+
   it('shows the screen in English after switching language', async () => {
     const fixture = await render({ listMine: async () => [north] });
     await settle(fixture);
@@ -92,6 +127,11 @@ async function settle(fixture: ComponentFixture<Organizations>): Promise<void> {
   await Promise.resolve();
   await fixture.whenStable();
   fixture.detectChanges();
+}
+
+function fill(input: HTMLInputElement, value: string): void {
+  input.value = value;
+  input.dispatchEvent(new Event('input'));
 }
 
 function text(fixture: ComponentFixture<Organizations>): string {

@@ -21,6 +21,7 @@ export interface RoutesText {
     readonly outboundTime: string;
     readonly returnTime: string;
     readonly days: string;
+    readonly tripPrice: string;
     readonly everyDay: string;
     readonly daySeparator: string;
     readonly notSet: string;
@@ -56,6 +57,8 @@ export interface RoutesText {
     readonly returnTime: string;
     readonly days: string;
     readonly daysHint: string;
+    readonly tripPrice: string;
+    readonly tripPriceHint: string;
     readonly notes: string;
     readonly notesHint: string;
     readonly active: string;
@@ -80,6 +83,7 @@ export const routesText: Record<Language, RoutesText> = {
       time: 'أدخل ميعادًا صحيحًا.',
       trip: 'حدد ميعاد رحلة الذهاب أو رحلة العودة على الأقل.',
       days: 'اختر يومًا واحدًا على الأقل.',
+      tripPrice: 'أدخل السعر بالأرقام فقط، مثل 150 أو 150.50',
       load: 'تعذّر تحميل الخطوط. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
@@ -112,6 +116,7 @@ export const routesText: Record<Language, RoutesText> = {
       outboundTime: 'الذهاب',
       returnTime: 'العودة',
       days: 'الأيام',
+      tripPrice: 'سعر الرحلة',
       everyDay: 'كل يوم',
       daySeparator: '، ',
       notSet: 'لم يُحدد',
@@ -147,6 +152,9 @@ export const routesText: Record<Language, RoutesText> = {
       returnTime: 'ميعاد رحلة العودة (رجوع الموظفين من العمل)',
       days: 'أيام العمل',
       daysHint: 'الأيام التي يعمل فيها هذا الخط كل أسبوع.',
+      tripPrice: 'سعر الرحلة (اختياري)',
+      tripPriceHint:
+        'المبلغ الذي تدفعه الشركة المتعاقدة عن كل رحلة ذهاب أو عودة. يُستخدم لحساب الإيراد في التقارير. تغيير السعر لا يغيّر الرحلات التي مضت.',
       notes: 'ملاحظات (اختياري)',
       notesHint: 'أي معلومة تريد تذكّرها عن هذا الخط.',
       active: 'الخط يعمل حاليًا',
@@ -169,6 +177,7 @@ export const routesText: Record<Language, RoutesText> = {
       time: 'Enter a valid time.',
       trip: 'Set the outbound or return trip time, at least one.',
       days: 'Choose at least one day.',
+      tripPrice: 'Enter the price in numbers only, like 150 or 150.50',
       load: 'Could not load your routes. Please try again.',
       save: 'Could not save. Please try again.',
       organization: 'You cannot open this page from your account.',
@@ -201,6 +210,7 @@ export const routesText: Record<Language, RoutesText> = {
       outboundTime: 'Outbound',
       returnTime: 'Return',
       days: 'Days',
+      tripPrice: 'Trip price',
       everyDay: 'Every day',
       daySeparator: ', ',
       notSet: 'Not set',
@@ -236,6 +246,9 @@ export const routesText: Record<Language, RoutesText> = {
       returnTime: 'Return trip time (taking staff home)',
       days: 'Working days',
       daysHint: 'The days this route runs every week.',
+      tripPrice: 'Trip price (optional)',
+      tripPriceHint:
+        'What the client company pays for each outbound or return trip. Reports use it to work out revenue. Changing it does not change past trips.',
       notes: 'Notes (optional)',
       notesHint: 'Anything you want to remember about this route.',
       active: 'This route is currently running',

@@ -1,4 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import { defaultCurrency, isCurrency } from '@routeops/shared/money';
 import { ReportsAccessError } from '../application/reports-access-error';
 import {
   DateRange,
@@ -37,14 +38,22 @@ export class SupabaseReportsGateway implements ReportsGateway {
   ): Promise<ReportOrganization[]> {
     const { data, error } = await this.requireClient()
       .from('organization_memberships')
-      .select('organizations(id, name)')
+      .select('organizations(id, name, currency)')
       .eq('user_id', userId);
     if (error) {
       throw new ReportsAccessError('load');
     }
     return (data ?? []).flatMap((row) =>
       row.organizations
-        ? [{ id: row.organizations.id, name: row.organizations.name }]
+        ? [
+            {
+              id: row.organizations.id,
+              name: row.organizations.name,
+              currency: isCurrency(row.organizations.currency)
+                ? row.organizations.currency
+                : defaultCurrency,
+            },
+          ]
         : [],
     );
   }
@@ -112,6 +121,8 @@ export class SupabaseReportsGateway implements ReportsGateway {
       driverId: row.driver_id ?? '',
       done: row.done_trips,
       extra: row.extra_trips,
+      revenue: Number(row.revenue),
+      unpriced: row.unpriced_trips,
     }));
   }
 

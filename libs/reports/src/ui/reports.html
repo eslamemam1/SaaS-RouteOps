@@ -50,7 +50,19 @@
     {{ text().report.doneTotal }}: <strong><bdi>{{ total().done }}</bdi></strong>
     ({{ text().report.extraTotal }}: <bdi>{{ total().extra }}</bdi>)
   </p>
+  <p>
+    {{ text().report.revenueTotal }}: <strong><bdi>{{ money(total().revenue) }}</bdi></strong>
+  </p>
   <p class="hint">{{ text().report.countedHint }}</p>
+  @if (total().unpriced > 0) {
+    <p class="error">
+      {{ text().report.unpricedTitle }} (<bdi>{{ total().unpriced }}</bdi>):
+      {{ text().report.unpricedHint }}
+      @if (organization(); as current) {
+        <a [routerLink]="['/organizations', current.id, 'routes']">{{ text().report.routesLink }}</a>
+      }
+    </p>
+  }
   <fieldset>
     <legend>{{ text().report.groupBy }}</legend>
     <div class="toggle">
@@ -74,6 +86,7 @@
         }
         <th>{{ text().report.done }}</th>
         <th>{{ text().report.extra }}</th>
+        <th>{{ text().report.revenue }}</th>
       </tr>
     </thead>
     <tbody>
@@ -98,6 +111,14 @@
           }
           <td><bdi>{{ line.done }}</bdi></td>
           <td><bdi>{{ line.extra }}</bdi></td>
+          <td>
+            <bdi>{{ money(line.revenue) }}</bdi>
+            @if (line.unpriced > 0) {
+              <span class="hint">
+                (<bdi>{{ line.unpriced }}</bdi> {{ text().report.unpricedTrips }})
+              </span>
+            }
+          </td>
         </tr>
       }
     </tbody>

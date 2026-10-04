@@ -3,7 +3,7 @@ import { emptyExtraTrip, OperationsOrganization } from '../domain/daily-trip';
 import { OperationsGateway } from './operations-gateway';
 import { SupabaseOperationsRepository } from './supabase-operations-repository';
 
-const north: OperationsOrganization = { id: 'org-north', name: 'North' };
+const north: OperationsOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 
 describe('SupabaseOperationsRepository', () => {
   it('resolves the organization from the signed-in user memberships', async () => {
@@ -78,11 +78,24 @@ describe('SupabaseOperationsRepository', () => {
     };
 
     await repository.addExtraTrip(north, '2026-10-04', details);
+    await repository.addExtraTrip(north, '2026-10-04', {
+      ...details,
+      tripPrice: '250.5',
+    });
 
-    expect(gateway.insertExtraTrip).toHaveBeenCalledWith(
+    expect(gateway.insertExtraTrip).toHaveBeenNthCalledWith(
+      1,
       'org-north',
       '2026-10-04',
       details,
+      null,
+    );
+    expect(gateway.insertExtraTrip).toHaveBeenNthCalledWith(
+      2,
+      'org-north',
+      '2026-10-04',
+      { ...details, tripPrice: '250.5' },
+      25050,
     );
   });
 

@@ -7,6 +7,7 @@ export const companyAccountProblems = [
   'email',
   'emailFormat',
   'password',
+  'currency',
   'emailTaken',
   'operatorOnly',
   'signIn',

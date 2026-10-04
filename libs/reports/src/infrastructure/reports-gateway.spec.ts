@@ -15,6 +15,8 @@ describe('SupabaseReportsGateway', () => {
           driver_id: null,
           done_trips: 22,
           extra_trips: 1,
+          revenue: 315000,
+          unpriced_trips: 1,
         },
       ],
       error: null,
@@ -28,7 +30,15 @@ describe('SupabaseReportsGateway', () => {
         '2026-10-04',
       ),
     ).resolves.toEqual([
-      { customerId: 'delta', vehicleId: 'bus-1', driverId: '', done: 22, extra: 1 },
+      {
+        customerId: 'delta',
+        vehicleId: 'bus-1',
+        driverId: '',
+        done: 22,
+        extra: 1,
+        revenue: 315000,
+        unpriced: 1,
+      },
     ]);
     expect(calls.rpc).toEqual([
       [

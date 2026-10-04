@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { injectText } from '@routeops/shared/i18n';
+import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { formatMoney } from '@routeops/shared/money';
 import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
 import {
@@ -33,6 +34,7 @@ export class Reports {
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected readonly text = injectText(reportsText);
+  private readonly language = inject(LanguageService).language;
   protected readonly today = localDate(new Date());
   protected readonly thisMonth = monthOf(this.today);
   protected readonly month = signal(this.thisMonth);
@@ -52,6 +54,13 @@ export class Reports {
 
   constructor() {
     void this.load();
+  }
+
+  protected money(minor: number): string {
+    const organization = this.organization();
+    return organization
+      ? formatMoney(minor, organization.currency, this.language())
+      : '';
   }
 
   protected vehicleOf(line: ReportLine): ReportVehicle | undefined {

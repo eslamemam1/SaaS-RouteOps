@@ -2,13 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { LanguageService } from '@routeops/shared/i18n';
+import { formatMoney } from '@routeops/shared/money';
 import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
 import { MonthReport, ReportChoices, ReportOrganization } from '../domain/trip-report';
 import { Reports } from './reports';
 import { reportsText } from './reports-text';
 
-const north: ReportOrganization = { id: 'org-north', name: 'North' };
+const north: ReportOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 const choices: ReportChoices = {
   customers: [
     { id: 'delta', label: 'Delta Factory' },
@@ -22,8 +23,8 @@ const choices: ReportChoices = {
 };
 const october: MonthReport = {
   counts: [
-    { customerId: 'delta', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0 },
-    { customerId: 'nour', vehicleId: 'van-2', driverId: '', done: 22, extra: 3 },
+    { customerId: 'delta', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, revenue: 600000, unpriced: 0 },
+    { customerId: 'nour', vehicleId: 'van-2', driverId: '', done: 22, extra: 3, revenue: 0, unpriced: 0 },
   ],
   unopenedDays: [],
 };
@@ -64,6 +65,28 @@ describe('Reports', () => {
     button(harness, arabic.groups.driver)?.click();
     await settle(harness);
     expect(rows(harness)[1].textContent).toContain(arabic.missing.driver);
+  });
+
+  it('shows the revenue in the organization currency', async () => {
+    const harness = await open({});
+    await settle(harness);
+
+    expect(text(harness)).toContain(formatMoney(600000, 'EGP', 'ar'));
+    expect(rows(harness)[0].textContent).toContain(formatMoney(600000, 'EGP', 'ar'));
+    expect(text(harness)).not.toContain(arabic.report.unpricedTitle);
+  });
+
+  it('warns about done trips without a price', async () => {
+    const harness = await open({
+      month: async () => ({
+        ...october,
+        counts: [{ ...october.counts[1], unpriced: 22 }],
+      }),
+    });
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.report.unpricedTitle);
+    expect(rows(harness)[0].textContent).toContain(arabic.report.unpricedTrips);
   });
 
   it('warns about the days nobody opened', async () => {

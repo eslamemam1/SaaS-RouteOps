@@ -7,6 +7,7 @@ import {
   driverError,
   emptyTransportRouteDetails,
   memberOrganization,
+  RouteOrganization,
   routeNameError,
   routesOfCustomer,
   selectedDays,
@@ -15,6 +16,7 @@ import {
   timeError,
   TransportRoute,
   tripError,
+  tripPriceError,
 } from './transport-route';
 
 describe('route text fields', () => {
@@ -40,6 +42,20 @@ describe('driverError', () => {
   it('requires a driver', () => {
     expect(driverError('')).toBe('driver');
     expect(driverError('driver-1')).toBeNull();
+  });
+});
+
+describe('tripPriceError', () => {
+  it('accepts no price or an amount in the organization currency', () => {
+    expect(tripPriceError('', 'EGP')).toBeNull();
+    expect(tripPriceError('150.50', 'EGP')).toBeNull();
+    expect(tripPriceError('1.250', 'KWD')).toBeNull();
+  });
+
+  it('rejects a text that is not an amount in that currency', () => {
+    expect(tripPriceError('150.505', 'EGP')).toBe('tripPrice');
+    expect(tripPriceError('-5', 'EGP')).toBe('tripPrice');
+    expect(tripPriceError('abc', 'EGP')).toBe('tripPrice');
   });
 });
 
@@ -112,7 +128,9 @@ describe('choices', () => {
 });
 
 describe('memberOrganization', () => {
-  const memberships = [{ id: 'org-north', name: 'North' }];
+  const memberships: RouteOrganization[] = [
+    { id: 'org-north', name: 'North', currency: 'EGP' },
+  ];
 
   it('returns null for an organization the user does not belong to', () => {
     expect(memberOrganization(memberships, 'org-north')).toEqual(memberships[0]);
@@ -161,8 +179,10 @@ describe('the same route name for several customers', () => {
     expect(routesOfCustomer(routes, '')).toHaveLength(3);
   });
 
-  it('copies a route for another customer without its customer, vehicle, or driver', () => {
-    expect(copyForAnotherCustomer(routes[0])).toEqual({
+  it('copies a route for another customer without its customer, vehicle, driver, or price', () => {
+    expect(
+      copyForAnotherCustomer({ ...routes[0], tripPrice: '150' }),
+    ).toEqual({
       ...emptyTransportRouteDetails,
       name: 'Nasr City',
       startPoint: 'Hegaz Square',

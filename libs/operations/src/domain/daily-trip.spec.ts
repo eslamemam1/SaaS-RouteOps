@@ -285,13 +285,13 @@ describe('extra trips', () => {
   });
 
   it('needs a company, a time, and a driver, but no route or vehicle', () => {
-    expect(extraTripError(emptyExtraTrip)).toBe('customer');
-    expect(extraTripError({ ...emptyExtraTrip, customerId: 'delta' })).toBe('time');
+    expect(extraTripError(emptyExtraTrip, 'EGP')).toBe('customer');
+    expect(extraTripError({ ...emptyExtraTrip, customerId: 'delta' }, 'EGP')).toBe('time');
     expect(
-      extraTripError({ ...emptyExtraTrip, customerId: 'delta', departureTime: '25:00' }),
+      extraTripError({ ...emptyExtraTrip, customerId: 'delta', departureTime: '25:00' }, 'EGP'),
     ).toBe('time');
     expect(
-      extraTripError({ ...emptyExtraTrip, customerId: 'delta', departureTime: '21:30' }),
+      extraTripError({ ...emptyExtraTrip, customerId: 'delta', departureTime: '21:30' }, 'EGP'),
     ).toBe('driver');
     expect(
       extraTripError({
@@ -299,8 +299,22 @@ describe('extra trips', () => {
         customerId: 'delta',
         departureTime: '21:30',
         driverId: 'ahmed',
-      }),
+      }, 'EGP'),
     ).toBeNull();
+  });
+
+  it('accepts no price or an amount in the organization currency on an extra trip', () => {
+    const trip = {
+      ...emptyExtraTrip,
+      customerId: 'delta',
+      departureTime: '21:30',
+      driverId: 'ahmed',
+    };
+
+    expect(extraTripError({ ...trip, tripPrice: '250' }, 'EGP')).toBeNull();
+    expect(extraTripError({ ...trip, tripPrice: '2.125' }, 'KWD')).toBeNull();
+    expect(extraTripError({ ...trip, tripPrice: '2.125' }, 'EGP')).toBe('tripPrice');
+    expect(extraTripError({ ...trip, tripPrice: '250 EGP' }, 'EGP')).toBe('tripPrice');
   });
 
   it('keeps a driver on every trip change', () => {

@@ -65,6 +65,22 @@
     <p class="error">{{ error.message }}</p>
   }
   <label>
+    {{ text().extra.tripPrice }}
+    <span class="hint">
+      {{ model().routeId ? text().extra.tripPriceRouteHint : text().extra.tripPriceHint }}
+    </span>
+    <input
+      type="text"
+      inputmode="decimal"
+      dir="ltr"
+      [formField]="extraForm.tripPrice"
+    />
+    <bdi>{{ organization().currency }}</bdi>
+  </label>
+  @if (extraForm.tripPrice().touched() && extraForm.tripPrice().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
+  <label>
     {{ text().extra.notes }}
     <textarea [formField]="extraForm.notes"></textarea>
   </label>

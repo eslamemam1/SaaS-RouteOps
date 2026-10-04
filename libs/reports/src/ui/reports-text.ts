@@ -28,6 +28,12 @@ export interface ReportsText {
     readonly ownership: string;
     readonly done: string;
     readonly extra: string;
+    readonly revenue: string;
+    readonly revenueTotal: string;
+    readonly unpricedTitle: string;
+    readonly unpricedHint: string;
+    readonly unpricedTrips: string;
+    readonly routesLink: string;
     readonly unopenedTitle: string;
     readonly unopenedHint: string;
     readonly separator: string;
@@ -65,7 +71,7 @@ export const reportsText: Record<Language, ReportsText> = {
     report: {
       back: 'الرجوع إلى الصفحة الرئيسية',
       title: 'تقرير الرحلات الشهري',
-      hint: 'عدد الرحلات التي تمّت في الشهر، لكل شركة متعاقدة ومركبة وسائق. استخدمه في محاسبة الشركات والمركبات المؤجرة والمتعاقدين.',
+      hint: 'عدد الرحلات التي تمّت في الشهر وإيرادها، لكل شركة متعاقدة ومركبة وسائق. استخدمه في محاسبة الشركات والمركبات المؤجرة والمتعاقدين. الإيراد يُحسب من سعر الرحلة المسجّل لكل خط.',
       month: 'الشهر',
       previous: 'الشهر السابق',
       next: 'الشهر التالي',
@@ -79,6 +85,12 @@ export const reportsText: Record<Language, ReportsText> = {
       ownership: 'الملكية',
       done: 'رحلات تمّت',
       extra: 'منها إضافية',
+      revenue: 'الإيراد',
+      revenueTotal: 'إيراد الرحلات التي تمّت',
+      unpricedTitle: 'رحلات بدون سعر',
+      unpricedHint: 'لم تُحسب في الإيراد لأن خطها ليس له سعر. حدد سعر الرحلة لكل خط من صفحة',
+      unpricedTrips: 'بدون سعر',
+      routesLink: 'الخطوط',
       unopenedTitle: 'أيام لم تُفتح في التشغيل اليومي',
       unopenedHint: 'رحلات هذه الأيام غير محسوبة في التقرير، لأن أحدًا لم يفتحها في صفحة التشغيل اليومي. افتح كل يوم منها هناك ليُحسب.',
       separator: '، ',
@@ -114,7 +126,7 @@ export const reportsText: Record<Language, ReportsText> = {
     report: {
       back: 'Back to home',
       title: 'Monthly trip report',
-      hint: 'How many trips were done in the month, per client company, vehicle, and driver. Use it to settle with client companies, rented vehicles, and contractors.',
+      hint: 'How many trips were done in the month and their revenue, per client company, vehicle, and driver. Use it to settle with client companies, rented vehicles, and contractors. Revenue comes from the trip price set on each route.',
       month: 'Month',
       previous: 'Previous month',
       next: 'Next month',
@@ -128,6 +140,12 @@ export const reportsText: Record<Language, ReportsText> = {
       ownership: 'Ownership',
       done: 'Trips done',
       extra: 'of which extra',
+      revenue: 'Revenue',
+      revenueTotal: 'Revenue of the trips done',
+      unpricedTitle: 'Trips without a price',
+      unpricedHint: 'They are not in the revenue because their route has no price. Set the trip price of each route on the page',
+      unpricedTrips: 'without a price',
+      routesLink: 'Routes',
       unopenedTitle: 'Days not opened in daily operations',
       unopenedHint: 'The trips of these days are not in the report, because nobody opened them on the daily operations page. Open each of these days there to count it.',
       separator: ', ',

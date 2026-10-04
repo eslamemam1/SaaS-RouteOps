@@ -5,6 +5,7 @@ import {
   monthDays,
   ReportChoices,
   reportLines,
+  ReportOrganization,
   reportTotal,
   shiftMonth,
   TripCount,
@@ -55,41 +56,41 @@ describe('report lines', () => {
     drivers: [{ id: 'ahmed', label: 'أحمد علي' }],
   };
   const counts: TripCount[] = [
-    { customerId: 'delta', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0 },
-    { customerId: 'nour', vehicleId: 'bus-1', driverId: 'ahmed', done: 10, extra: 2 },
-    { customerId: 'nour', vehicleId: 'van-2', driverId: '', done: 22, extra: 1 },
+    { customerId: 'delta', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, revenue: 400000, unpriced: 0 },
+    { customerId: 'nour', vehicleId: 'bus-1', driverId: 'ahmed', done: 10, extra: 2, revenue: 150000, unpriced: 0 },
+    { customerId: 'nour', vehicleId: 'van-2', driverId: '', done: 22, extra: 1, revenue: 210000, unpriced: 1 },
   ];
 
   it('adds up the trips of each client company, most trips first', () => {
     expect(reportLines(counts, 'customer', choices)).toEqual([
-      { id: 'delta', label: 'Delta Factory', done: 40, extra: 0 },
-      { id: 'nour', label: 'Nour Company', done: 32, extra: 3 },
+      { id: 'delta', label: 'Delta Factory', done: 40, extra: 0, revenue: 400000, unpriced: 0 },
+      { id: 'nour', label: 'Nour Company', done: 32, extra: 3, revenue: 360000, unpriced: 1 },
     ]);
   });
 
   it('adds up the trips of each vehicle', () => {
     expect(reportLines(counts, 'vehicle', choices)).toEqual([
-      { id: 'bus-1', label: 'أ ب ج 1234', done: 50, extra: 2 },
-      { id: 'van-2', label: 'د هـ و 5678', done: 22, extra: 1 },
+      { id: 'bus-1', label: 'أ ب ج 1234', done: 50, extra: 2, revenue: 550000, unpriced: 0 },
+      { id: 'van-2', label: 'د هـ و 5678', done: 22, extra: 1, revenue: 210000, unpriced: 1 },
     ]);
   });
 
   it('keeps trips without a driver on their own line', () => {
     expect(reportLines(counts, 'driver', choices)).toEqual([
-      { id: 'ahmed', label: 'أحمد علي', done: 50, extra: 2 },
-      { id: '', label: '', done: 22, extra: 1 },
+      { id: 'ahmed', label: 'أحمد علي', done: 50, extra: 2, revenue: 550000, unpriced: 0 },
+      { id: '', label: '', done: 22, extra: 1, revenue: 210000, unpriced: 1 },
     ]);
   });
 
   it('totals the month', () => {
-    expect(reportTotal(counts)).toEqual({ done: 72, extra: 3 });
-    expect(reportTotal([])).toEqual({ done: 0, extra: 0 });
+    expect(reportTotal(counts)).toEqual({ done: 72, extra: 3, revenue: 760000, unpriced: 1 });
+    expect(reportTotal([])).toEqual({ done: 0, extra: 0, revenue: 0, unpriced: 0 });
   });
 });
 
 describe('memberOrganization', () => {
   it('returns only an organization the user belongs to', () => {
-    const north = { id: 'org-north', name: 'North' };
+    const north: ReportOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
     expect(memberOrganization([north], 'org-north')).toBe(north);
     expect(memberOrganization([north], 'org-south')).toBeNull();
   });

@@ -1,9 +1,11 @@
+import { Currency } from '@routeops/shared/money';
 import { Organization } from '../domain/organization';
 
 export interface ProvisionCompany {
   readonly organizationName: string;
   readonly email: string;
   readonly password: string;
+  readonly currency: Currency;
 }
 
 // Session methods live here so the UI never imports Supabase.

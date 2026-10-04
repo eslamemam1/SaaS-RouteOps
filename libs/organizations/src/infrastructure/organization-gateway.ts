@@ -93,6 +93,7 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
           organizationName: input.organizationName.trim(),
           email: input.email.trim(),
           password: input.password,
+          currency: input.currency,
         },
       },
     );

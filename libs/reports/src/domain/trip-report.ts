@@ -1,3 +1,5 @@
+import { Currency } from '@routeops/shared/money';
+
 export const reportProblems = [
   'signedOut',
   'organization',
@@ -10,6 +12,7 @@ export type ReportProblem = (typeof reportProblems)[number];
 export interface ReportOrganization {
   readonly id: string;
   readonly name: string;
+  readonly currency: Currency;
 }
 
 export const vehicleOwnerships = ['owned', 'rented', 'contractor'] as const;
@@ -34,12 +37,16 @@ export interface ReportChoices {
 
 // Done trips of one customer, vehicle, and driver. An id is empty when the
 // trips had no vehicle or no driver.
+// revenue is in the smallest unit of the organization currency; unpriced trips
+// had no price of their own and no route price, so revenue leaves them out.
 export interface TripCount {
   readonly customerId: string;
   readonly vehicleId: string;
   readonly driverId: string;
   readonly done: number;
   readonly extra: number;
+  readonly revenue: number;
+  readonly unpriced: number;
 }
 
 // unopenedDays are working days nobody opened on the daily screen, so their
@@ -58,11 +65,15 @@ export interface ReportLine {
   readonly label: string;
   readonly done: number;
   readonly extra: number;
+  readonly revenue: number;
+  readonly unpriced: number;
 }
 
 export interface ReportTotal {
   readonly done: number;
   readonly extra: number;
+  readonly revenue: number;
+  readonly unpriced: number;
 }
 
 export interface DateRange {
@@ -110,14 +121,10 @@ export function reportLines(
   group: ReportGroup,
   choices: ReportChoices,
 ): ReportLine[] {
-  const totals = new Map<string, { done: number; extra: number }>();
+  const totals = new Map<string, ReportTotal>();
   for (const count of counts) {
     const id = groupId(count, group);
-    const total = totals.get(id) ?? { done: 0, extra: 0 };
-    totals.set(id, {
-      done: total.done + count.done,
-      extra: total.extra + count.extra,
-    });
+    totals.set(id, addCount(totals.get(id) ?? emptyTotal, count));
   }
   const names = groupChoices(group, choices);
   return [...totals]
@@ -133,13 +140,18 @@ export function reportLines(
 }
 
 export function reportTotal(counts: readonly TripCount[]): ReportTotal {
-  return counts.reduce(
-    (total, count) => ({
-      done: total.done + count.done,
-      extra: total.extra + count.extra,
-    }),
-    { done: 0, extra: 0 },
-  );
+  return counts.reduce(addCount, emptyTotal);
+}
+
+const emptyTotal: ReportTotal = { done: 0, extra: 0, revenue: 0, unpriced: 0 };
+
+function addCount(total: ReportTotal, count: TripCount): ReportTotal {
+  return {
+    done: total.done + count.done,
+    extra: total.extra + count.extra,
+    revenue: total.revenue + count.revenue,
+    unpriced: total.unpriced + count.unpriced,
+  };
 }
 
 export function memberOrganization(

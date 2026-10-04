@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { LanguageService } from '@routeops/shared/i18n';
+import { formatMoney } from '@routeops/shared/money';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
 import {
@@ -13,7 +14,7 @@ import {
 import { routesText } from './routes-text';
 import { TransportRoutes } from './transport-routes';
 
-const north: RouteOrganization = { id: 'org-north', name: 'North' };
+const north: RouteOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 const choices: RouteChoices = {
   customers: [{ id: 'customer-1', label: 'Delta Factory', active: true }],
   vehicles: [{ id: 'vehicle-1', label: 'ABC 1234', active: true }],
@@ -56,6 +57,28 @@ describe('TransportRoutes', () => {
     expect(text(harness)).toContain('ABC 1234');
     expect(text(harness)).toContain(arabic.list.notSet);
     expect(text(harness)).toContain(arabic.weekdays.saturday);
+  });
+
+  it('shows each trip price in the organization currency, and leaves it out of a copy', async () => {
+    const harness = await open({
+      list: async () => [{ ...delta, tripPrice: '150.50' }],
+    });
+    await settle(harness);
+
+    expect(rows(harness)[0].textContent).toContain(
+      formatMoney(15050, 'EGP', 'ar'),
+    );
+
+    const copy = [...harness.routeNativeElement!.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === arabic.list.copy,
+    );
+    copy?.click();
+    await settle(harness);
+
+    const price = harness.routeNativeElement!.querySelector<HTMLInputElement>(
+      'form input[inputmode="decimal"]',
+    );
+    expect(price?.value).toBe('');
   });
 
   it('shows an empty state and the add form when there are no routes', async () => {

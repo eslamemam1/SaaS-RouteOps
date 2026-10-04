@@ -1,8 +1,9 @@
 import { ReportsAccessError } from '../application/reports-access-error';
+import { ReportOrganization } from '../domain/trip-report';
 import { ReportsGateway } from './reports-gateway';
 import { SupabaseReportsRepository } from './supabase-reports-repository';
 
-const north = { id: 'org-north', name: 'North' };
+const north: ReportOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 
 describe('SupabaseReportsRepository', () => {
   it('refuses a signed-out user', async () => {

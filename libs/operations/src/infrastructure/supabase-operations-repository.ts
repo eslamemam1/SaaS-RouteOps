@@ -1,3 +1,4 @@
+import { toMinorUnits } from '@routeops/shared/money';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -84,11 +85,16 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     if (!isServiceDate(serviceDate)) {
       throw new OperationsAccessError('date');
     }
-    const problem = extraTripError(details);
+    const problem = extraTripError(details, organization.currency);
     if (problem) {
       throw new OperationsAccessError(problem);
     }
-    return this.gateway.insertExtraTrip(organization.id, serviceDate, details);
+    return this.gateway.insertExtraTrip(
+      organization.id,
+      serviceDate,
+      details,
+      toMinorUnits(details.tripPrice, organization.currency) ?? null,
+    );
   }
 
   removeExtraTrip(

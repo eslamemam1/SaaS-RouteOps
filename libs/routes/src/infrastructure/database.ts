@@ -146,18 +146,21 @@ export type Database = {
       organizations: {
         Row: {
           created_at: string
+          currency: string
           id: string
           name: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          currency?: string
           id?: string
           name: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          currency?: string
           id?: string
           name?: string
           updated_at?: string
@@ -179,6 +182,7 @@ export type Database = {
           outbound_time: string | null
           return_time: string | null
           start_point: string
+          trip_price: number | null
           updated_at: string
           vehicle_id: string | null
         }
@@ -196,6 +200,7 @@ export type Database = {
           outbound_time?: string | null
           return_time?: string | null
           start_point: string
+          trip_price?: number | null
           updated_at?: string
           vehicle_id?: string | null
         }
@@ -213,6 +218,7 @@ export type Database = {
           outbound_time?: string | null
           return_time?: string | null
           start_point?: string
+          trip_price?: number | null
           updated_at?: string
           vehicle_id?: string | null
         }

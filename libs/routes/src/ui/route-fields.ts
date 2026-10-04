@@ -1,5 +1,6 @@
 import { Signal } from '@angular/core';
 import { schema, validate } from '@angular/forms/signals';
+import { Currency } from '@routeops/shared/money';
 import {
   customerError,
   daysError,
@@ -13,6 +14,7 @@ import {
   timeError,
   TransportRouteDetails,
   tripError,
+  tripPriceError,
 } from '../domain/transport-route';
 
 type Problems = Signal<Record<RouteProblem, string>>;
@@ -23,7 +25,10 @@ function fieldError(problem: RouteProblem | null, problems: Problems) {
     : { kind: problem, message: problems()[problem] };
 }
 
-export function routeDetailsSchema(problems: Problems) {
+export function routeDetailsSchema(
+  problems: Problems,
+  currency: Signal<Currency>,
+) {
   return schema<TransportRouteDetails>((path) => {
     validate(path.name, ({ value }) =>
       fieldError(routeNameError(value()), problems),
@@ -51,6 +56,9 @@ export function routeDetailsSchema(problems: Problems) {
     );
     validate(path.days, ({ value }) =>
       fieldError(daysError(value()), problems),
+    );
+    validate(path.tripPrice, ({ value }) =>
+      fieldError(tripPriceError(value(), currency()), problems),
     );
     validate(path.notes, ({ value }) =>
       fieldError(optionalTextError(value(), routeLimits.notes), problems),

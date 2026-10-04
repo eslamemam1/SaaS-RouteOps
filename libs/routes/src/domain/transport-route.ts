@@ -1,6 +1,9 @@
+import { amountError, Currency } from '@routeops/shared/money';
+
 export interface RouteOrganization {
   readonly id: string;
   readonly name: string;
+  readonly currency: Currency;
 }
 
 // A customer, vehicle, or driver the route can point to.
@@ -41,6 +44,9 @@ export interface TransportRouteDetails {
   readonly outboundTime: string;
   readonly returnTime: string;
   readonly days: WeekdaySelection;
+  // The price of one trip, outbound or return, as the member types it in the
+  // organization's currency, such as "150.50". Blank until a price is set.
+  readonly tripPrice: string;
   readonly notes: string;
   readonly active: boolean;
 }
@@ -66,6 +72,7 @@ export const routeProblems = [
   'time',
   'trip',
   'days',
+  'tripPrice',
   'load',
   'save',
   'organization',
@@ -93,6 +100,7 @@ export const emptyTransportRouteDetails: TransportRouteDetails = {
     thursday: true,
     friday: false,
   },
+  tripPrice: '',
   notes: '',
   active: true,
 };
@@ -157,6 +165,13 @@ export function daysError(days: WeekdaySelection): RouteProblem | null {
   return selectedDays(days).length === 0 ? 'days' : null;
 }
 
+export function tripPriceError(
+  value: string,
+  currency: Currency,
+): RouteProblem | null {
+  return amountError(value, currency) ? 'tripPrice' : null;
+}
+
 // Keeps choices the user may pick now, plus the one already saved, so editing
 // a route whose driver has stopped working does not silently drop the driver.
 export function availableChoices(
@@ -206,7 +221,7 @@ export function routesOfCustomer(
 }
 
 // Starts a route for another customer from an existing one. The customer,
-// vehicle, and driver are left for the user to choose.
+// vehicle, driver, and price are left for the user to choose.
 export function copyForAnotherCustomer(
   route: TransportRoute,
 ): TransportRouteDetails {
@@ -220,6 +235,7 @@ export function copyForAnotherCustomer(
     outboundTime: route.outboundTime,
     returnTime: route.returnTime,
     days: route.days,
+    tripPrice: '',
     notes: '',
     active: true,
   };

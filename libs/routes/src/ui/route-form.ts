@@ -52,7 +52,13 @@ export class RouteForm {
     emptyTransportRouteDetails,
   );
   protected readonly routeForm = form(this.model, (field) => {
-    apply(field, routeDetailsSchema(this.problems));
+    apply(
+      field,
+      routeDetailsSchema(
+        this.problems,
+        computed(() => this.organization().currency),
+      ),
+    );
   });
 
   protected readonly customers = computed(() =>
@@ -120,6 +126,7 @@ function detailsOf(route: TransportRoute): TransportRouteDetails {
     outboundTime: route.outboundTime,
     returnTime: route.returnTime,
     days: route.days,
+    tripPrice: route.tripPrice,
     notes: route.notes,
     active: route.active,
   };

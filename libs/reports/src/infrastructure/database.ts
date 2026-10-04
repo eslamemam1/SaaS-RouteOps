@@ -49,6 +49,7 @@ export type Database = {
         ]
       }
       organizations: ReadOnlyTable<{
+        currency: string
         id: string
         name: string
       }>
@@ -77,6 +78,8 @@ export type Database = {
           driver_id: string | null
           done_trips: number
           extra_trips: number
+          revenue: number
+          unpriced_trips: number
         }[]
       }
       unopened_days: {

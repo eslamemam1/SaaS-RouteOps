@@ -3,7 +3,7 @@ import { RouteOrganization } from '../domain/transport-route';
 import { RouteGateway } from './route-gateway';
 import { SupabaseRouteRepository } from './supabase-route-repository';
 
-const north: RouteOrganization = { id: 'org-north', name: 'North' };
+const north: RouteOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 
 describe('SupabaseRouteRepository', () => {
   it('resolves the organization from the signed-in user memberships', async () => {
@@ -37,7 +37,7 @@ describe('SupabaseRouteRepository', () => {
     await repository.list(north);
     await repository.choices(north);
 
-    expect(gateway.listRoutes).toHaveBeenCalledWith('org-north');
+    expect(gateway.listRoutes).toHaveBeenCalledWith(north);
     expect(gateway.listChoices).toHaveBeenCalledWith('org-north');
   });
 });

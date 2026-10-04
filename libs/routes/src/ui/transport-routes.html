@@ -36,6 +36,7 @@
           <th>{{ text().list.outboundTime }}</th>
           <th>{{ text().list.returnTime }}</th>
           <th>{{ text().list.days }}</th>
+          <th>{{ text().list.tripPrice }}</th>
           <th>{{ text().list.work }}</th>
           <th></th>
         </tr>
@@ -50,6 +51,7 @@
             <td><bdi>{{ route.outboundTime }}</bdi></td>
             <td><bdi>{{ route.returnTime }}</bdi></td>
             <td>{{ daysLabel(route) }}</td>
+            <td><bdi>{{ priceLabel(route) }}</bdi></td>
             <td>{{ route.active ? text().list.working : text().list.stopped }}</td>
             <td>
               <button type="button" (click)="edit(route)">{{ text().list.edit }}</button>

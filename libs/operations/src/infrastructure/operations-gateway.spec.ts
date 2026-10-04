@@ -168,8 +168,9 @@ describe('SupabaseOperationsGateway', () => {
       departureTime: '21:00',
       vehicleId: 'vehicle-1',
       driverId: 'driver-1',
+      tripPrice: '250',
       notes: ' Airport ',
-    });
+    }, 25000);
 
     expect(calls.inserted).toEqual({
       organization_id: 'org-north',
@@ -180,6 +181,7 @@ describe('SupabaseOperationsGateway', () => {
       customer_id: 'customer-1',
       vehicle_id: 'vehicle-1',
       driver_id: 'driver-1',
+      trip_price: 25000,
       notes: 'Airport',
       is_extra: true,
     });

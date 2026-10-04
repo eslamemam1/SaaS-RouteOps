@@ -1,6 +1,7 @@
 import { Component, computed, inject, output, signal } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
+import { currencies, Currency, defaultCurrency } from '@routeops/shared/money';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -27,10 +28,17 @@ export class ProvisionCompanyForm {
   protected readonly submitting = signal(false);
   protected readonly succeeded = signal(false);
   protected readonly problem = signal<CompanyAccountProblem | null>(null);
-  protected readonly model = signal({
+  protected readonly currencies = currencies;
+  protected readonly model = signal<{
+    organizationName: string;
+    email: string;
+    password: string;
+    currency: Currency;
+  }>({
     organizationName: '',
     email: '',
     password: '',
+    currency: defaultCurrency,
   });
   protected readonly companyForm = form(this.model, (field) => {
     apply(field.organizationName, organizationNameField(this.problems));
@@ -50,8 +58,14 @@ export class ProvisionCompanyForm {
           organizationName: value.organizationName,
           email: value.email,
           password: value.password,
+          currency: value.currency,
         });
-        this.companyForm().reset({ organizationName: '', email: '', password: '' });
+        this.companyForm().reset({
+          organizationName: '',
+          email: '',
+          password: '',
+          currency: defaultCurrency,
+        });
         this.succeeded.set(true);
         this.created.emit();
         return undefined;

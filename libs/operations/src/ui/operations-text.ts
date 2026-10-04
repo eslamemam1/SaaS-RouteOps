@@ -69,6 +69,9 @@ export interface OperationsText {
     readonly driver: string;
     readonly chooseDriver: string;
     readonly notSet: string;
+    readonly tripPrice: string;
+    readonly tripPriceHint: string;
+    readonly tripPriceRouteHint: string;
     readonly notes: string;
     readonly save: string;
     readonly cancel: string;
@@ -122,6 +125,7 @@ export const operationsText: Record<Language, OperationsText> = {
       customer: 'اختر الشركة المتعاقدة.',
       driver: 'اختر السائق.',
       time: 'اكتب ميعاد الرحلة.',
+      tripPrice: 'أدخل السعر بالأرقام فقط، مثل 150 أو 150.50',
       customers: 'اختر شركة واحدة على الأقل.',
       load: 'تعذّر تحميل رحلات اليوم. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
@@ -213,6 +217,9 @@ export const operationsText: Record<Language, OperationsText> = {
       driver: 'السائق',
       chooseDriver: 'اختر السائق',
       notSet: 'لم يُحدد',
+      tripPrice: 'سعر الرحلة (اختياري)',
+      tripPriceHint: 'المبلغ الذي تدفعه الشركة المتعاقدة عن هذه الرحلة. اتركه فارغًا إن لم يكن لها سعر.',
+      tripPriceRouteHint: 'اتركه فارغًا لتُحسب الرحلة بسعر الخط المختار.',
       notes: 'ملاحظات (اختياري)',
       save: 'إضافة الرحلة',
       cancel: 'إلغاء',
@@ -264,6 +271,7 @@ export const operationsText: Record<Language, OperationsText> = {
       customer: 'Choose the client company.',
       driver: 'Choose the driver.',
       time: 'Enter the trip time.',
+      tripPrice: 'Enter the price in numbers only, like 150 or 150.50',
       customers: 'Choose at least one company.',
       load: "Could not load the day's trips. Please try again.",
       save: 'Could not save. Please try again.',
@@ -355,6 +363,9 @@ export const operationsText: Record<Language, OperationsText> = {
       driver: 'Driver',
       chooseDriver: 'Choose a driver',
       notSet: 'Not set',
+      tripPrice: 'Trip price (optional)',
+      tripPriceHint: 'What the client company pays for this trip. Leave it empty if it has no price.',
+      tripPriceRouteHint: "Leave it empty to count the trip at the chosen route's price.",
       notes: 'Notes (optional)',
       save: 'Add trip',
       cancel: 'Cancel',

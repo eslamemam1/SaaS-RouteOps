@@ -1,8 +1,17 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { RouteAccessError } from '../application/route-access-error';
-import { emptyTransportRouteDetails } from '../domain/transport-route';
+import {
+  emptyTransportRouteDetails,
+  RouteOrganization,
+} from '../domain/transport-route';
 import { Database } from './database';
 import { SupabaseRouteGateway } from './route-gateway';
+
+const north: RouteOrganization = {
+  id: 'org-north',
+  name: 'North',
+  currency: 'EGP',
+};
 
 type Result = {
   data: unknown;
@@ -20,6 +29,7 @@ const row = {
   outbound_time: '07:00:00',
   return_time: null,
   operating_days: [0, 1, 2, 3, 4, 6],
+  trip_price: 15050,
   notes: null,
   is_active: true,
 };
@@ -29,12 +39,13 @@ describe('SupabaseRouteGateway', () => {
     const calls = recorder(() => ({ data: [row], error: null }));
     const gateway = new SupabaseRouteGateway(calls.client);
 
-    const [route] = await gateway.listRoutes('org-north');
+    const [route] = await gateway.listRoutes(north);
 
     expect(calls.filters).toEqual([['organization_id', 'org-north']]);
     expect(route.vehicleId).toBe('');
     expect(route.outboundTime).toBe('07:00');
     expect(route.returnTime).toBe('');
+    expect(route.tripPrice).toBe('150.50');
     expect(route.days).toEqual({
       saturday: true,
       sunday: true,
@@ -50,7 +61,7 @@ describe('SupabaseRouteGateway', () => {
     const calls = recorder(() => ({ data: row, error: null }));
     const gateway = new SupabaseRouteGateway(calls.client);
 
-    await gateway.insertRoute('org-north', {
+    await gateway.insertRoute(north, {
       ...emptyTransportRouteDetails,
       name: ' Delta - Nasr City ',
       customerId: 'customer-1',
@@ -71,9 +82,66 @@ describe('SupabaseRouteGateway', () => {
       outbound_time: '07:00',
       return_time: null,
       operating_days: [0, 1, 2, 3, 4, 6],
+      trip_price: null,
       notes: null,
       is_active: true,
     });
+  });
+
+  it('stores the trip price in the smallest unit of the organization currency', async () => {
+    const calls = recorder(() => ({ data: row, error: null }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+    const details = {
+      ...emptyTransportRouteDetails,
+      name: 'Delta',
+      customerId: 'customer-1',
+      driverId: 'driver-1',
+      startPoint: 'A',
+      endPoint: 'B',
+      outboundTime: '07:00',
+      tripPrice: '١٥٠٫٥',
+    };
+
+    await gateway.insertRoute(north, details);
+    expect(calls.inserted).toMatchObject({ trip_price: 15050 });
+
+    await gateway.insertRoute({ ...north, currency: 'KWD' }, details);
+    expect(calls.inserted).toMatchObject({ trip_price: 150500 });
+  });
+
+  it('refuses a price that is not an amount before reaching the database', async () => {
+    const calls = recorder(() => ({ data: row, error: null }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+
+    await expect(
+      gateway.insertRoute(north, {
+        ...emptyTransportRouteDetails,
+        name: 'Delta',
+        customerId: 'customer-1',
+        driverId: 'driver-1',
+        startPoint: 'A',
+        endPoint: 'B',
+        outboundTime: '07:00',
+        tripPrice: '150.505',
+      }),
+    ).rejects.toEqual(new RouteAccessError('tripPrice'));
+    expect(calls.inserted).toBeNull();
+  });
+
+  it('reads the organization currency with the memberships', async () => {
+    const calls = recorder(() => ({
+      data: [
+        { organizations: { id: 'org-north', name: 'North', currency: 'SAR' } },
+        { organizations: { id: 'org-south', name: 'South', currency: 'XXX' } },
+      ],
+      error: null,
+    }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+
+    await expect(gateway.membershipOrganizations('user-1')).resolves.toEqual([
+      { id: 'org-north', name: 'North', currency: 'SAR' },
+      { id: 'org-south', name: 'South', currency: 'EGP' },
+    ]);
   });
 
   it('loads customers, vehicles, and drivers of the organization as choices', async () => {
@@ -104,7 +172,7 @@ describe('SupabaseRouteGateway', () => {
     const calls = recorder(() => ({ data: row, error: null }));
     const gateway = new SupabaseRouteGateway(calls.client);
 
-    await gateway.updateRoute('org-north', 'route-1', {
+    await gateway.updateRoute(north, 'route-1', {
       ...emptyTransportRouteDetails,
       name: 'Delta',
       customerId: 'customer-1',
@@ -125,7 +193,7 @@ describe('SupabaseRouteGateway', () => {
     const gateway = new SupabaseRouteGateway(calls.client);
 
     await expect(
-      gateway.insertRoute('org-north', {
+      gateway.insertRoute(north, {
         ...emptyTransportRouteDetails,
         name: 'Delta',
         customerId: 'customer-1',
@@ -145,7 +213,7 @@ describe('SupabaseRouteGateway', () => {
     const gateway = new SupabaseRouteGateway(calls.client);
 
     await expect(
-      gateway.insertRoute('org-north', {
+      gateway.insertRoute(north, {
         ...emptyTransportRouteDetails,
         name: 'Nasr City',
         customerId: 'customer-1',
@@ -165,7 +233,7 @@ describe('SupabaseRouteGateway', () => {
     const gateway = new SupabaseRouteGateway(calls.client);
 
     await expect(
-      gateway.insertRoute('org-north', {
+      gateway.insertRoute(north, {
         ...emptyTransportRouteDetails,
         name: 'X',
         customerId: 'customer-of-another-organization',
@@ -180,7 +248,7 @@ describe('SupabaseRouteGateway', () => {
   it('reports that the app is not connected when there is no client', async () => {
     const gateway = new SupabaseRouteGateway(null);
 
-    await expect(gateway.listRoutes('org-north')).rejects.toEqual(
+    await expect(gateway.listRoutes(north)).rejects.toEqual(
       new RouteAccessError('notConnected'),
     );
   });
@@ -203,6 +271,7 @@ function recorder(result: (table: string) => Result) {
       },
       order: () => Promise.resolve(result(table)),
       single: () => Promise.resolve(result(table)),
+      then: (resolve: (value: Result) => void) => resolve(result(table)),
     };
     return query;
   };

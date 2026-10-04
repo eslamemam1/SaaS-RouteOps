@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { injectText } from '@routeops/shared/i18n';
+import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { formatMoney, toMinorUnits } from '@routeops/shared/money';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
 import {
@@ -32,6 +33,7 @@ export class TransportRoutes {
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected readonly text = injectText(routesText);
+  private readonly language = inject(LanguageService).language;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -52,6 +54,14 @@ export class TransportRoutes {
 
   protected label(choices: readonly RouteChoice[], id: string): string {
     return choiceLabel(choices, id) || this.text().list.notSet;
+  }
+
+  protected priceLabel(route: TransportRoute): string {
+    const currency = this.organization()?.currency;
+    const minor = currency ? toMinorUnits(route.tripPrice, currency) : null;
+    return currency && typeof minor === 'number'
+      ? formatMoney(minor, currency, this.language())
+      : this.text().list.notSet;
   }
 
   protected daysLabel(route: TransportRoute): string {

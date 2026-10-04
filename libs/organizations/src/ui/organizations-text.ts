@@ -1,8 +1,10 @@
 import { Language } from '@routeops/shared/i18n';
+import { Currency } from '@routeops/shared/money';
 import { CompanyAccountProblem } from '../domain/company-account';
 
 export interface OrganizationsText {
   readonly problems: Record<CompanyAccountProblem, string>;
+  readonly currencies: Record<Currency, string>;
   readonly signIn: {
     readonly title: string;
     readonly hint: string;
@@ -38,6 +40,8 @@ export interface OrganizationsText {
     readonly email: string;
     readonly password: string;
     readonly passwordHint: string;
+    readonly currency: string;
+    readonly currencyHint: string;
     readonly submit: string;
     readonly created: string;
   };
@@ -51,6 +55,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       email: 'أدخل البريد الإلكتروني.',
       emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا، مثل name@company.com',
       password: 'يجب ألا تقل كلمة المرور عن 6 أحرف.',
+      currency: 'اختر عملة الشركة.',
       emailTaken: 'يوجد حساب بهذا البريد الإلكتروني بالفعل.',
       operatorOnly: 'إنشاء الشركات متاح لمدير الموقع فقط.',
       signIn: 'تعذّر تسجيل الدخول. تأكد من البريد الإلكتروني وكلمة المرور.',
@@ -58,6 +63,16 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       create: 'تعذّر إنشاء الشركة. حاول مرة أخرى.',
       signedOut: 'سجّل الدخول للمتابعة.',
       notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
+    },
+    currencies: {
+      EGP: 'جنيه مصري',
+      SAR: 'ريال سعودي',
+      AED: 'درهم إماراتي',
+      QAR: 'ريال قطري',
+      KWD: 'دينار كويتي',
+      BHD: 'دينار بحريني',
+      OMR: 'ريال عماني',
+      JOD: 'دينار أردني',
     },
     signIn: {
       title: 'تسجيل الدخول',
@@ -83,7 +98,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operations: 'التشغيل اليومي',
       operationsHint: 'رحلات كل يوم: غياب سائق، عطل مركبة، أو إجازة.',
       reports: 'التقارير',
-      reportsHint: 'عدد الرحلات التي تمّت كل شهر، لكل شركة متعاقدة ومركبة وسائق.',
+      reportsHint: 'الرحلات التي تمّت كل شهر وإيرادها، لكل شركة متعاقدة ومركبة وسائق.',
       operatorTitle: 'لوحة مدير الموقع',
       signOut: 'تسجيل الخروج',
     },
@@ -94,6 +109,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       email: 'البريد الإلكتروني لتسجيل الدخول',
       password: 'كلمة المرور',
       passwordHint: '6 أحرف أو أرقام على الأقل.',
+      currency: 'العملة',
+      currencyHint: 'تُكتب بها كل الأسعار والإيرادات في حساب الشركة، ولا يمكن تغييرها لاحقًا.',
       submit: 'إنشاء الحساب',
       created:
         'تم إنشاء حساب الشركة. أرسل لها البريد الإلكتروني وكلمة المرور لتبدأ العمل.',
@@ -106,6 +123,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       email: 'Enter an email address.',
       emailFormat: 'Enter a valid email, like name@company.com',
       password: 'The password must be at least 6 characters.',
+      currency: "Choose the company's currency.",
       emailTaken: 'An account with this email already exists.',
       operatorOnly: 'Only the site manager can create companies.',
       signIn: 'Could not sign in. Check the email and password.',
@@ -113,6 +131,16 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       create: 'Could not create the company. Please try again.',
       signedOut: 'Sign in to continue.',
       notConnected: 'The app is not connected to the database.',
+    },
+    currencies: {
+      EGP: 'Egyptian pound',
+      SAR: 'Saudi riyal',
+      AED: 'UAE dirham',
+      QAR: 'Qatari riyal',
+      KWD: 'Kuwaiti dinar',
+      BHD: 'Bahraini dinar',
+      OMR: 'Omani rial',
+      JOD: 'Jordanian dinar',
     },
     signIn: {
       title: 'Sign in',
@@ -140,7 +168,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operations: 'Daily operations',
       operationsHint: "Each day's trips: an absent driver, a broken vehicle, or a holiday.",
       reports: 'Reports',
-      reportsHint: 'How many trips were done each month, per client company, vehicle, and driver.',
+      reportsHint: 'The trips done each month and their revenue, per client company, vehicle, and driver.',
       operatorTitle: 'Site manager panel',
       signOut: 'Sign out',
     },
@@ -151,6 +179,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       email: 'Sign-in email',
       password: 'Password',
       passwordHint: 'At least 6 letters or numbers.',
+      currency: 'Currency',
+      currencyHint: "All prices and revenue in the company's account use it. It cannot be changed later.",
       submit: 'Create account',
       created:
         'The company account was created. Send them the email and password so they can start.',

@@ -1,4 +1,11 @@
 import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
+import {
+  Currency,
+  defaultCurrency,
+  isCurrency,
+  toAmountText,
+  toMinorUnits,
+} from '@routeops/shared/money';
 import { RouteAccessError } from '../application/route-access-error';
 import {
   driverError,
@@ -17,14 +24,14 @@ import { Database } from './database';
 export interface RouteGateway {
   sessionUserId(): Promise<string | null>;
   membershipOrganizations(userId: string): Promise<RouteOrganization[]>;
-  listRoutes(organizationId: string): Promise<TransportRoute[]>;
+  listRoutes(organization: RouteOrganization): Promise<TransportRoute[]>;
   listChoices(organizationId: string): Promise<RouteChoices>;
   insertRoute(
-    organizationId: string,
+    organization: RouteOrganization,
     details: TransportRouteDetails,
   ): Promise<TransportRoute>;
   updateRoute(
-    organizationId: string,
+    organization: RouteOrganization,
     routeId: string,
     details: TransportRouteDetails,
   ): Promise<TransportRoute>;
@@ -42,12 +49,13 @@ type RouteRow = Pick<
   | 'outbound_time'
   | 'return_time'
   | 'operating_days'
+  | 'trip_price'
   | 'notes'
   | 'is_active'
 >;
 
 const routeColumns =
-  'id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, notes, is_active';
+  'id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, trip_price, notes, is_active';
 
 const uniqueViolation = '23505';
 
@@ -76,28 +84,36 @@ export class SupabaseRouteGateway implements RouteGateway {
   async membershipOrganizations(userId: string): Promise<RouteOrganization[]> {
     const { data, error } = await this.requireClient()
       .from('organization_memberships')
-      .select('organizations(id, name)')
+      .select('organizations(id, name, currency)')
       .eq('user_id', userId);
     if (error) {
       throw new RouteAccessError('load');
     }
     return (data ?? []).flatMap((row) =>
       row.organizations
-        ? [{ id: row.organizations.id, name: row.organizations.name }]
+        ? [
+            {
+              id: row.organizations.id,
+              name: row.organizations.name,
+              currency: isCurrency(row.organizations.currency)
+                ? row.organizations.currency
+                : defaultCurrency,
+            },
+          ]
         : [],
     );
   }
 
-  async listRoutes(organizationId: string): Promise<TransportRoute[]> {
+  async listRoutes(organization: RouteOrganization): Promise<TransportRoute[]> {
     const { data, error } = await this.requireClient()
       .from('routes')
       .select(routeColumns)
-      .eq('organization_id', organizationId)
+      .eq('organization_id', organization.id)
       .order('name');
     if (error) {
       throw new RouteAccessError('load');
     }
-    return (data ?? []).map(toRoute);
+    return (data ?? []).map((row) => toRoute(row, organization.currency));
   }
 
   async listChoices(organizationId: string): Promise<RouteChoices> {
@@ -136,36 +152,39 @@ export class SupabaseRouteGateway implements RouteGateway {
   }
 
   async insertRoute(
-    organizationId: string,
+    organization: RouteOrganization,
     details: TransportRouteDetails,
   ): Promise<TransportRoute> {
     const { data, error } = await this.requireClient()
       .from('routes')
-      .insert({ organization_id: organizationId, ...toColumns(details) })
+      .insert({
+        organization_id: organization.id,
+        ...toColumns(details, organization.currency),
+      })
       .select(routeColumns)
       .single();
     if (error || !data) {
       throw new RouteAccessError(saveProblem(error));
     }
-    return toRoute(data);
+    return toRoute(data, organization.currency);
   }
 
   async updateRoute(
-    organizationId: string,
+    organization: RouteOrganization,
     routeId: string,
     details: TransportRouteDetails,
   ): Promise<TransportRoute> {
     const { data, error } = await this.requireClient()
       .from('routes')
-      .update(toColumns(details))
+      .update(toColumns(details, organization.currency))
       .eq('id', routeId)
-      .eq('organization_id', organizationId)
+      .eq('organization_id', organization.id)
       .select(routeColumns)
       .single();
     if (error || !data) {
       throw new RouteAccessError(saveProblem(error));
     }
-    return toRoute(data);
+    return toRoute(data, organization.currency);
   }
 
   private requireClient(): SupabaseClient<Database> {
@@ -184,7 +203,7 @@ function choice(id: string, label: string, active: boolean): RouteChoice {
   return { id, label, active };
 }
 
-function toRoute(row: RouteRow): TransportRoute {
+function toRoute(row: RouteRow, currency: Currency): TransportRoute {
   return {
     id: row.id,
     name: row.name,
@@ -196,15 +215,20 @@ function toRoute(row: RouteRow): TransportRoute {
     outboundTime: toClock(row.outbound_time),
     returnTime: toClock(row.return_time),
     days: toDays(row.operating_days),
+    tripPrice: toAmountText(row.trip_price, currency),
     notes: row.notes ?? '',
     active: row.is_active,
   };
 }
 
-function toColumns(details: TransportRouteDetails) {
+function toColumns(details: TransportRouteDetails, currency: Currency) {
   const missingDriver = driverError(details.driverId);
   if (missingDriver) {
     throw new RouteAccessError(missingDriver);
+  }
+  const tripPrice = toMinorUnits(details.tripPrice, currency);
+  if (tripPrice === undefined) {
+    throw new RouteAccessError('tripPrice');
   }
   return {
     name: details.name.trim(),
@@ -218,6 +242,7 @@ function toColumns(details: TransportRouteDetails) {
     operating_days: selectedDays(details.days)
       .map((day) => dayNumbers[day])
       .sort((first, second) => first - second),
+    trip_price: tripPrice,
     notes: blankToNull(details.notes),
     is_active: details.active,
   };

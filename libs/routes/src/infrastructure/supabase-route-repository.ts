@@ -24,7 +24,7 @@ export class SupabaseRouteRepository extends RouteRepository {
   }
 
   list(organization: RouteOrganization): Promise<TransportRoute[]> {
-    return this.gateway.listRoutes(organization.id);
+    return this.gateway.listRoutes(organization);
   }
 
   choices(organization: RouteOrganization): Promise<RouteChoices> {
@@ -35,7 +35,7 @@ export class SupabaseRouteRepository extends RouteRepository {
     organization: RouteOrganization,
     details: TransportRouteDetails,
   ): Promise<TransportRoute> {
-    return this.gateway.insertRoute(organization.id, details);
+    return this.gateway.insertRoute(organization, details);
   }
 
   update(
@@ -43,6 +43,6 @@ export class SupabaseRouteRepository extends RouteRepository {
     routeId: string,
     details: TransportRouteDetails,
   ): Promise<TransportRoute> {
-    return this.gateway.updateRoute(organization.id, routeId, details);
+    return this.gateway.updateRoute(organization, routeId, details);
   }
 }

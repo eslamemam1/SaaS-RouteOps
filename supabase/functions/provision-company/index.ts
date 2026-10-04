@@ -15,6 +15,7 @@ type Problem =
   | 'email'
   | 'emailFormat'
   | 'password'
+  | 'currency'
   | 'emailTaken'
   | 'operatorOnly'
   | 'signedOut'
@@ -86,7 +87,7 @@ async function provisionCompany(request: Request): Promise<Response> {
 
   const { data: organization, error: organizationError } = await admin
     .from('organizations')
-    .insert({ name: parsed.organizationName })
+    .insert({ name: parsed.organizationName, currency: parsed.currency })
     .select('id, name')
     .single();
   if (organizationError || !organization) {
@@ -109,9 +110,15 @@ async function provisionCompany(request: Request): Promise<Response> {
   return json({ organizationName: organization.name }, 200);
 }
 
+// Keep in sync with currencies in libs/shared/money and the
+// organizations_currency_known check.
+const currencies = ['EGP', 'SAR', 'AED', 'QAR', 'KWD', 'BHD', 'OMR', 'JOD'];
+
 function parseBody(
   body: unknown,
-): { organizationName: string; email: string; password: string } | { error: Problem } {
+):
+  | { organizationName: string; email: string; password: string; currency: string }
+  | { error: Problem } {
   if (typeof body !== 'object' || body === null) {
     return { error: 'create' };
   }
@@ -124,6 +131,7 @@ function parseBody(
     typeof record['email'] === 'string' ? record['email'].trim() : '';
   const password =
     typeof record['password'] === 'string' ? record['password'] : '';
+  const currency = record['currency'] ?? 'EGP';
 
   if (organizationName.length === 0) {
     return { error: 'organizationName' };
@@ -140,7 +148,10 @@ function parseBody(
   if (password.length < 6) {
     return { error: 'password' };
   }
-  return { organizationName, email, password };
+  if (typeof currency !== 'string' || !currencies.includes(currency)) {
+    return { error: 'currency' };
+  }
+  return { organizationName, email, password, currency };
 }
 
 function json(
