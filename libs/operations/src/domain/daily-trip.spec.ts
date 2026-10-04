@@ -1,13 +1,19 @@
 import {
   availableChoices,
   canMarkDone,
+  countByStatus,
+  customersOnDay,
   customersWithRunningTrips,
   DailyTrip,
+  emptyTripFilter,
+  filterTrips,
   isServiceDate,
   notesError,
   reasonError,
   shiftDate,
   sortByTime,
+  TripFilter,
+  TripRecording,
   tripStatus,
 } from './daily-trip';
 
@@ -104,6 +110,72 @@ describe('customersWithRunningTrips', () => {
         trip({ id: '3', customerId: 'nour', cancelled: true, reason: 'holiday' }),
       ]),
     ).toEqual(['delta']);
+  });
+});
+
+describe('filtering a busy day', () => {
+  const today = '2026-10-04';
+  const choices = {
+    customers: [
+      { id: 'nour', label: 'Nour Company', active: true },
+      { id: 'delta', label: 'Delta Factory', active: true },
+      { id: 'misr', label: 'Misr Bank', active: true },
+    ],
+    vehicles: [{ id: 'bus-1', label: 'أ ب ج 1234', active: true }],
+    drivers: [{ id: 'ahmed', label: 'أحمد علي', active: true }],
+    routes: [
+      { id: 'nasr', label: 'مدينة نصر', active: true },
+      { id: 'maadi', label: 'Maadi', active: true },
+    ],
+  };
+  const trips = [
+    trip({ id: '1', customerId: 'delta', routeId: 'nasr', vehicleId: 'bus-1', driverId: 'ahmed' }),
+    trip({ id: '2', customerId: 'delta', routeId: 'nasr', direction: 'return', vehicleId: '', driverId: '' }),
+    trip({ id: '3', customerId: 'nour', routeId: 'maadi', vehicleId: '', driverId: '', done: true }),
+    trip({ id: '4', customerId: 'nour', routeId: 'maadi', cancelled: true, reason: 'holiday' }),
+  ];
+  const ids = (filter: Partial<TripFilter>, recording: TripRecording = 'manual') =>
+    filterTrips(trips, { ...emptyTripFilter, ...filter }, choices, today, recording).map(
+      (item) => item.id,
+    );
+
+  it('shows every trip without a filter', () => {
+    expect(ids({})).toEqual(['1', '2', '3', '4']);
+  });
+
+  it('narrows by company, direction, and status together', () => {
+    expect(ids({ customerId: 'delta' })).toEqual(['1', '2']);
+    expect(ids({ customerId: 'delta', direction: 'return' })).toEqual(['2']);
+    expect(ids({ status: 'unrecorded' })).toEqual(['1', '2']);
+    expect(ids({ status: 'done' })).toEqual(['3']);
+    expect(ids({ status: 'done' }, 'automatic')).toEqual(['1', '2', '3']);
+  });
+
+  it('searches route, driver, and plate, ignoring spaces and Arabic letter forms', () => {
+    expect(ids({ search: 'مدينه نصر' })).toEqual(['1', '2']);
+    expect(ids({ search: 'احمد' })).toEqual(['1']);
+    expect(ids({ search: 'ابج١٢٣٤' })).toEqual(['1']);
+    expect(ids({ search: 'MAADI' })).toEqual(['3', '4']);
+    expect(ids({ search: 'Heliopolis' })).toEqual([]);
+  });
+
+  it('counts the day trips by status', () => {
+    expect(countByStatus(trips, today, 'manual')).toEqual({
+      done: 1,
+      unrecorded: 2,
+      planned: 0,
+      cancelled: 1,
+    });
+  });
+
+  it('offers only companies with trips on the day, plus the chosen one', () => {
+    expect(customersOnDay(trips, choices.customers, '').map((item) => item.id)).toEqual([
+      'delta',
+      'nour',
+    ]);
+    expect(
+      customersOnDay(trips, choices.customers, 'misr').map((item) => item.id),
+    ).toEqual(['delta', 'misr', 'nour']);
   });
 });
 

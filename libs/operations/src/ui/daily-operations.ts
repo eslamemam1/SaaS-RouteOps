@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { injectText } from '@routeops/shared/i18n';
 import { OperationsAccessError } from '../application/operations-access-error';
@@ -6,7 +6,11 @@ import { OperationsRepository } from '../application/operations-repository';
 import {
   canMarkDone,
   choiceLabel,
+  countByStatus,
+  customersOnDay,
   DailyTrip,
+  emptyTripFilter,
+  filterTrips,
   isServiceDate,
   OperationChoice,
   OperationChoices,
@@ -14,9 +18,12 @@ import {
   OperationsProblem,
   shiftDate,
   sortByTime,
+  tripDirections,
+  TripFilter,
   TripRecording,
   tripRecordings,
   tripStatus,
+  tripStatuses,
 } from '../domain/daily-trip';
 import { HolidayPanel } from './holiday-panel';
 import { operationsText } from './operations-text';
@@ -54,6 +61,38 @@ export class DailyOperations {
   protected readonly savingRecording = signal(false);
   protected readonly markingTripId = signal<string | null>(null);
   protected readonly actionProblem = signal<OperationsProblem | null>(null);
+  protected readonly directions = tripDirections;
+  protected readonly filter = signal<TripFilter>(emptyTripFilter);
+  protected readonly visibleTrips = computed(() =>
+    filterTrips(
+      this.trips(),
+      this.filter(),
+      this.choices(),
+      this.today,
+      this.recording(),
+    ),
+  );
+  protected readonly counts = computed(() =>
+    countByStatus(this.trips(), this.today, this.recording()),
+  );
+  protected readonly statusChoices = computed(() =>
+    tripStatuses.filter(
+      (status) => this.counts()[status] > 0 || this.filter().status === status,
+    ),
+  );
+  protected readonly dayCustomers = computed(() =>
+    customersOnDay(
+      this.trips(),
+      this.choices().customers,
+      this.filter().customerId,
+    ),
+  );
+  protected readonly filtered = computed(() => {
+    const filter = this.filter();
+    return Boolean(
+      filter.customerId || filter.direction || filter.status || filter.search.trim(),
+    );
+  });
 
   constructor() {
     void this.load();
@@ -114,6 +153,14 @@ export class DailyOperations {
       this.serviceDate.set(value);
       void this.loadDay();
     }
+  }
+
+  protected filterBy(patch: Partial<TripFilter>): void {
+    this.filter.update((filter) => ({ ...filter, ...patch }));
+  }
+
+  protected clearFilter(): void {
+    this.filter.set(emptyTripFilter);
   }
 
   protected moveDay(days: number): void {

@@ -41,6 +41,19 @@ export interface OperationsText {
     readonly markDone: string;
     readonly undoDone: string;
   };
+  readonly filter: {
+    readonly customer: string;
+    readonly allCustomers: string;
+    readonly direction: string;
+    readonly allDirections: string;
+    readonly status: string;
+    readonly allStatuses: string;
+    readonly search: string;
+    readonly searchHint: string;
+    readonly clear: string;
+    readonly showing: string;
+    readonly noMatch: string;
+  };
   readonly change: {
     readonly title: string;
     readonly hint: string;
@@ -130,6 +143,19 @@ export const operationsText: Record<Language, OperationsText> = {
       markDone: 'تمّت',
       undoDone: 'التراجع عن "تمّت"',
     },
+    filter: {
+      customer: 'الشركة المتعاقدة',
+      allCustomers: 'كل الشركات',
+      direction: 'الرحلة',
+      allDirections: 'الذهاب والعودة',
+      status: 'الحالة',
+      allStatuses: 'كل الحالات',
+      search: 'بحث',
+      searchHint: 'اسم الخط أو السائق أو رقم اللوحة',
+      clear: 'إظهار كل الرحلات',
+      showing: 'الرحلات الظاهرة:',
+      noMatch: 'لا توجد رحلات تطابق اختيارك. غيّر البحث أو اضغط "إظهار كل الرحلات".',
+    },
     change: {
       title: 'تغيير رحلة',
       hint: 'هذا التغيير لهذا اليوم فقط. لتغيير دائم، مثل سائق جديد بدل سائق ترك العمل، عدّل الخط من صفحة الخطوط.',
@@ -216,6 +242,19 @@ export const operationsText: Record<Language, OperationsText> = {
       change: 'Change',
       markDone: 'Done',
       undoDone: 'Undo "Done"',
+    },
+    filter: {
+      customer: 'Client company',
+      allCustomers: 'All companies',
+      direction: 'Trip',
+      allDirections: 'Outbound and return',
+      status: 'Status',
+      allStatuses: 'All statuses',
+      search: 'Search',
+      searchHint: 'Route, driver, or plate number',
+      clear: 'Show all trips',
+      showing: 'Trips shown:',
+      noMatch: 'No trips match your choice. Change the search or press "Show all trips".',
     },
     change: {
       title: 'Change trip',

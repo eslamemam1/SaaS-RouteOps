@@ -48,6 +48,67 @@
   <p>{{ text().day.empty }}</p>
 }
 @if (status() === 'success') {
+  <div class="day-picker">
+    <label>
+      {{ text().filter.customer }}
+      <select (change)="filterBy({ customerId: $any($event.target).value })">
+        <option value="" [selected]="filter().customerId === ''">
+          {{ text().filter.allCustomers }}
+        </option>
+        @for (customer of dayCustomers(); track customer.id) {
+          <option [value]="customer.id" [selected]="filter().customerId === customer.id">
+            {{ customer.label }}
+          </option>
+        }
+      </select>
+    </label>
+    <label>
+      {{ text().filter.direction }}
+      <select (change)="filterBy({ direction: $any($event.target).value })">
+        <option value="" [selected]="filter().direction === ''">
+          {{ text().filter.allDirections }}
+        </option>
+        @for (direction of directions; track direction) {
+          <option [value]="direction" [selected]="filter().direction === direction">
+            {{ text().directions[direction] }}
+          </option>
+        }
+      </select>
+    </label>
+    <label>
+      {{ text().filter.status }}
+      <select (change)="filterBy({ status: $any($event.target).value })">
+        <option value="" [selected]="filter().status === ''">
+          {{ text().filter.allStatuses }} ({{ trips().length }})
+        </option>
+        @for (tripStatus of statusChoices(); track tripStatus) {
+          <option [value]="tripStatus" [selected]="filter().status === tripStatus">
+            {{ text().statuses[tripStatus] }} ({{ counts()[tripStatus] }})
+          </option>
+        }
+      </select>
+    </label>
+    <label>
+      {{ text().filter.search }}
+      <input
+        type="search"
+        [value]="filter().search"
+        [placeholder]="text().filter.searchHint"
+        (input)="filterBy({ search: $any($event.target).value })"
+      />
+    </label>
+    @if (filtered()) {
+      <button type="button" (click)="clearFilter()">{{ text().filter.clear }}</button>
+    }
+  </div>
+  <p class="hint">
+    {{ text().filter.showing }} <bdi>{{ visibleTrips().length }}</bdi> / <bdi>{{ trips().length }}</bdi>
+  </p>
+}
+@if (status() === 'success' && visibleTrips().length === 0) {
+  <p>{{ text().filter.noMatch }}</p>
+}
+@if (status() === 'success' && visibleTrips().length > 0) {
   <table>
     <thead>
       <tr>
@@ -63,7 +124,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (trip of trips(); track trip.id) {
+      @for (trip of visibleTrips(); track trip.id) {
         <tr>
           <td><bdi>{{ trip.departureTime }}</bdi></td>
           <td>{{ label(choices().routes, trip.routeId) }}</td>

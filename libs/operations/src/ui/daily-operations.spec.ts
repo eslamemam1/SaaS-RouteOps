@@ -134,6 +134,51 @@ describe('DailyOperations', () => {
     expect(button(harness, arabic.day.markDone)).toBeUndefined();
   });
 
+  it('narrows a busy day by company and search, then shows everything again', async () => {
+    const nourTrip: DailyTrip = {
+      ...outbound,
+      id: 'trip-3',
+      routeId: 'route-2',
+      customerId: 'customer-2',
+    };
+    const harness = await open({
+      choices: async () => ({
+        ...choices,
+        customers: [
+          ...choices.customers,
+          { id: 'customer-2', label: 'Nour Company', active: true },
+        ],
+        routes: [
+          ...choices.routes,
+          { id: 'route-2', label: 'Nour - Maadi', active: true },
+        ],
+      }),
+      day: async () => [outbound, nourTrip],
+    });
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(2);
+
+    const company = harness.routeNativeElement!.querySelector('select')!;
+    company.value = 'customer-2';
+    company.dispatchEvent(new Event('change'));
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(1);
+    expect(rows(harness)[0].textContent).toContain('Nour - Maadi');
+
+    const search = harness.routeNativeElement!.querySelector<HTMLInputElement>(
+      'input[type="search"]',
+    )!;
+    search.value = 'Nasr';
+    search.dispatchEvent(new Event('input'));
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(0);
+    expect(text(harness)).toContain(arabic.filter.noMatch);
+
+    button(harness, arabic.filter.clear)?.click();
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(2);
+  });
+
   it('offers the companies with running trips for a holiday', async () => {
     const harness = await open({ day: async () => [outbound] });
     await settle(harness);
@@ -237,6 +282,14 @@ async function settle(harness: RouterTestingHarness): Promise<void> {
   }
   await harness.fixture.whenStable();
   harness.detectChanges();
+}
+
+function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
+  return [
+    ...(harness.routeNativeElement?.querySelectorAll<HTMLTableRowElement>(
+      'tbody tr',
+    ) ?? []),
+  ];
 }
 
 function pressed(harness: RouterTestingHarness): string {

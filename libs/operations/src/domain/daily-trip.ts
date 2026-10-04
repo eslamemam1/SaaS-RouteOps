@@ -56,7 +56,14 @@ export const tripRecordings = ['automatic', 'manual'] as const;
 
 export type TripRecording = (typeof tripRecordings)[number];
 
-export type TripStatus = 'done' | 'planned' | 'cancelled' | 'unrecorded';
+export const tripStatuses = [
+  'done',
+  'unrecorded',
+  'planned',
+  'cancelled',
+] as const;
+
+export type TripStatus = (typeof tripStatuses)[number];
 
 export const tripLimits = {
   notes: 2000,
@@ -156,6 +163,85 @@ export function sortByTime(trips: readonly DailyTrip[]): DailyTrip[] {
       first.departureTime.localeCompare(second.departureTime) ||
       first.direction.localeCompare(second.direction),
   );
+}
+
+export interface TripFilter {
+  readonly customerId: string;
+  readonly direction: TripDirection | '';
+  readonly status: TripStatus | '';
+  readonly search: string;
+}
+
+export const emptyTripFilter: TripFilter = {
+  customerId: '',
+  direction: '',
+  status: '',
+  search: '',
+};
+
+// Search matches the route name, the driver name, or the vehicle plate.
+export function filterTrips(
+  trips: readonly DailyTrip[],
+  filter: TripFilter,
+  choices: OperationChoices,
+  today: string,
+  recording: TripRecording,
+): DailyTrip[] {
+  const search = searchKey(filter.search);
+  return trips.filter(
+    (trip) =>
+      (!filter.customerId || trip.customerId === filter.customerId) &&
+      (!filter.direction || trip.direction === filter.direction) &&
+      (!filter.status ||
+        tripStatus(trip, today, recording) === filter.status) &&
+      (!search ||
+        [
+          choiceLabel(choices.routes, trip.routeId),
+          choiceLabel(choices.drivers, trip.driverId),
+          choiceLabel(choices.vehicles, trip.vehicleId),
+        ].some((label) => searchKey(label).includes(search))),
+  );
+}
+
+export function countByStatus(
+  trips: readonly DailyTrip[],
+  today: string,
+  recording: TripRecording,
+): Record<TripStatus, number> {
+  const counts: Record<TripStatus, number> = {
+    done: 0,
+    planned: 0,
+    cancelled: 0,
+    unrecorded: 0,
+  };
+  for (const trip of trips) {
+    counts[tripStatus(trip, today, recording)]++;
+  }
+  return counts;
+}
+
+// Customers with at least one trip on the day, plus the one already chosen,
+// ordered by name.
+export function customersOnDay(
+  trips: readonly DailyTrip[],
+  customers: readonly OperationChoice[],
+  selectedId: string,
+): OperationChoice[] {
+  const ids = new Set(trips.map((trip) => trip.customerId));
+  return customers
+    .filter((customer) => ids.has(customer.id) || customer.id === selectedId)
+    .sort((first, second) => first.label.localeCompare(second.label));
+}
+
+// Ignores case, spaces, Arabic digit forms, and common Arabic letter variants.
+function searchKey(value: string): string {
+  return value
+    .toLocaleLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي');
 }
 
 // Customers that still have trips running on the day, for the holiday list.
