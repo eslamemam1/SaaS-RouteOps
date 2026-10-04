@@ -1,0 +1,54 @@
+<a routerLink="/">Back to organizations</a>
+<h2>Customers</h2>
+@if (organization(); as current) {
+  <p>Organization: {{ current.name }}</p>
+}
+@if (status() === 'loading') {
+  <p>Loading customers.</p>
+}
+@if (status() === 'error') {
+  <p>{{ message() }}</p>
+}
+@if (status() === 'empty') {
+  <p>No customers yet. Add the first one below.</p>
+}
+@if (status() === 'success') {
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Contact person</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Address</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (customer of customers(); track customer.id) {
+        <tr>
+          <td>{{ customer.name }}</td>
+          <td>{{ customer.contactName }}</td>
+          <td>{{ customer.phone }}</td>
+          <td>{{ customer.email }}</td>
+          <td>{{ customer.address }}</td>
+          <td>{{ customer.active ? 'Active' : 'Inactive' }}</td>
+          <td>
+            <button type="button" (click)="edit(customer)">Edit</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+@if (organization(); as current) {
+  @if (status() === 'success' || status() === 'empty') {
+    <app-customer-form
+      [organization]="current"
+      [customer]="editing()"
+      (saved)="onSaved($event)"
+      (cancelled)="stopEditing()"
+    />
+  }
+}

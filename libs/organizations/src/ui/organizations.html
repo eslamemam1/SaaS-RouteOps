@@ -11,6 +11,7 @@
   <h2>Organizations</h2>
   @if (active(); as current) {
     <p>Active organization: {{ current.name }}</p>
+    <a [routerLink]="['/organizations', current.id, 'customers']">Customers</a>
   } @else {
     <p>Choose an organization.</p>
   }

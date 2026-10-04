@@ -16,6 +16,7 @@
     "strict": true,
     "paths": {
       "@routeops/organizations": ["./libs/organizations/src/index.ts"],
+      "@routeops/customers": ["./libs/customers/src/index.ts"],
       "@routeops/shared/supabase": ["./libs/shared/supabase/src/index.ts"]
     }
   },

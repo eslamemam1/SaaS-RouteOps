@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { companyAccountMessages } from '../domain/company-account';
 import { activeOrganization, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
@@ -8,7 +8,7 @@ import { ProvisionCompanyForm } from './provision-company';
 
 @Component({
   selector: 'app-organizations',
-  imports: [ProvisionCompanyForm],
+  imports: [ProvisionCompanyForm, RouterLink],
   templateUrl: './organizations.html',
 })
 export class Organizations {

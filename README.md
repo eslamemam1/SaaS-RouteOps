@@ -6,7 +6,10 @@ Multi-tenant operations app for staff transportation companies.
 
 - `apps/routeops` is the only Angular application.
 - `apps/routeops-e2e` is the Playwright project.
-- `libs/organizations` is the first feature library. Tag later libraries `scope:<feature>` and `type:feature`.
+- `libs/organizations` signs users in and creates companies.
+- `libs/customers` keeps each organization's customers.
+- `libs/shared/supabase` holds the single Supabase client and the signed-in route guard.
+- Tag feature libraries `scope:<feature>` and `type:feature`.
 - `supabase/migrations` is the database source of truth. Local Supabase needs Docker.
 
 ## Tasks
