@@ -1,16 +1,22 @@
-<h2>Sign in</h2>
+<h2>تسجيل الدخول</h2>
 <form (submit)="onSubmit($event)">
   <label>
-    Email
-    <input type="email" autocomplete="username" [formField]="signInForm.email" />
+    البريد الإلكتروني
+    <input
+      type="email"
+      dir="ltr"
+      autocomplete="username"
+      [formField]="signInForm.email"
+    />
   </label>
   @if (signInForm.email().touched() && signInForm.email().errors()[0]; as error) {
     <p>{{ error.message }}</p>
   }
   <label>
-    Password
+    كلمة المرور
     <input
       type="password"
+      dir="ltr"
       autocomplete="current-password"
       [formField]="signInForm.password"
     />
@@ -18,7 +24,7 @@
   @if (signInForm.password().touched() && signInForm.password().errors()[0]; as error) {
     <p>{{ error.message }}</p>
   }
-  <button type="submit" [disabled]="submitting()">Sign in</button>
+  <button type="submit" [disabled]="submitting()">دخول</button>
 </form>
 @if (message()) {
   <p>{{ message() }}</p>

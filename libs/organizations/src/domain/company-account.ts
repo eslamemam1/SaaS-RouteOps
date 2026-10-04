@@ -2,18 +2,18 @@ export const minimumPasswordLength = 6;
 export const maximumOrganizationNameLength = 200;
 
 export const companyAccountMessages = {
-  organizationName: 'Enter an organization name.',
-  organizationNameLength: 'Use a shorter organization name.',
-  email: 'Enter an email address.',
-  emailFormat: 'Use a valid email address.',
-  password: 'Use at least 6 characters for the password.',
-  emailTaken: 'An account with that email already exists.',
-  operatorOnly: 'Only the site operator can create a company.',
-  signIn: 'Could not sign in.',
-  load: 'Could not load organizations.',
-  create: 'Could not create the company.',
-  signedOut: 'Sign in to continue.',
-  notConnected: 'The app is not connected to the database.',
+  organizationName: 'أدخل اسم الشركة.',
+  organizationNameLength: 'اسم الشركة أطول من المسموح.',
+  email: 'أدخل البريد الإلكتروني.',
+  emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا.',
+  password: 'يجب ألا تقل كلمة المرور عن 6 أحرف.',
+  emailTaken: 'يوجد حساب بهذا البريد الإلكتروني بالفعل.',
+  operatorOnly: 'إنشاء الشركات متاح لمدير الموقع فقط.',
+  signIn: 'تعذّر تسجيل الدخول. تأكد من البريد الإلكتروني وكلمة المرور.',
+  load: 'تعذّر تحميل بيانات الشركة.',
+  create: 'تعذّر إنشاء الشركة.',
+  signedOut: 'سجّل الدخول للمتابعة.',
+  notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
 } as const;
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

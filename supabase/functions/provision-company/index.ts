@@ -8,15 +8,15 @@ const headers = {
 };
 
 const messages = {
-  organizationName: 'Enter an organization name.',
-  organizationNameLength: 'Use a shorter organization name.',
-  email: 'Enter an email address.',
-  emailFormat: 'Use a valid email address.',
-  password: 'Use at least 6 characters for the password.',
-  emailTaken: 'An account with that email already exists.',
-  operatorOnly: 'Only the site operator can create a company.',
-  signedOut: 'Sign in to continue.',
-  create: 'Could not create the company.',
+  organizationName: 'أدخل اسم الشركة.',
+  organizationNameLength: 'اسم الشركة أطول من المسموح.',
+  email: 'أدخل البريد الإلكتروني.',
+  emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا.',
+  password: 'يجب ألا تقل كلمة المرور عن 6 أحرف.',
+  emailTaken: 'يوجد حساب بهذا البريد الإلكتروني بالفعل.',
+  operatorOnly: 'إنشاء الشركات متاح لمدير الموقع فقط.',
+  signedOut: 'سجّل الدخول للمتابعة.',
+  create: 'تعذّر إنشاء الشركة.',
 } as const;
 
 Deno.serve(async (request) => {

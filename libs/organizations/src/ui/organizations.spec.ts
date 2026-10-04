@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { companyAccountMessages } from '../domain/company-account';
 import { Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -17,7 +18,7 @@ describe('Organizations', () => {
         }),
     });
 
-    expect(text(fixture)).toContain('Loading organizations.');
+    expect(text(fixture)).toContain('جارٍ تحميل بيانات الشركة.');
 
     resolveList([north]);
     await Promise.resolve();
@@ -25,7 +26,7 @@ describe('Organizations', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(text(fixture)).toContain('Active organization: North');
+    expect(text(fixture)).toContain('الشركة الحالية: North');
   });
 
   it('shows an empty state when the account has no organization', async () => {
@@ -35,21 +36,19 @@ describe('Organizations', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(text(fixture)).toContain(
-      'No organization is assigned to this account.',
-    );
+    expect(text(fixture)).toContain('هذا الحساب غير مرتبط بأي شركة.');
   });
 
   it('shows a safe error when loading fails', async () => {
     const fixture = await render({
       listMine: async () => {
-        throw new OrganizationAccessError('Could not load organizations.');
+        throw new OrganizationAccessError(companyAccountMessages.load);
       },
     });
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(text(fixture)).toContain('Could not load organizations.');
+    expect(text(fixture)).toContain(companyAccountMessages.load);
     expect(text(fixture)).not.toContain('select ');
   });
 });

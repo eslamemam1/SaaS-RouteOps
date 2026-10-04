@@ -45,7 +45,7 @@ export class ProvisionCompanyForm {
         });
         this.model.set({ organizationName: '', email: '', password: '' });
         this.message.set(
-          'Company created. Share that email and password with them.',
+          'تم إنشاء الشركة. أرسل البريد الإلكتروني وكلمة المرور للشركة.',
         );
         this.created.emit();
         return undefined;

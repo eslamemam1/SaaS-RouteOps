@@ -1,19 +1,19 @@
 @if (status() === 'loading') {
-  <p>Loading organizations.</p>
+  <p>جارٍ تحميل بيانات الشركة.</p>
 }
 @if (status() === 'error') {
   <p>{{ message() }}</p>
 }
 @if (status() === 'empty') {
-  <p>No organization is assigned to this account.</p>
+  <p>هذا الحساب غير مرتبط بأي شركة.</p>
 }
 @if (status() === 'success') {
-  <h2>Organizations</h2>
+  <h2>الشركات</h2>
   @if (active(); as current) {
-    <p>Active organization: {{ current.name }}</p>
-    <a [routerLink]="['/organizations', current.id, 'customers']">Customers</a>
+    <p>الشركة الحالية: {{ current.name }}</p>
+    <a [routerLink]="['/organizations', current.id, 'customers']">العملاء</a>
   } @else {
-    <p>Choose an organization.</p>
+    <p>اختر شركة.</p>
   }
   <ul>
     @for (organization of organizations(); track organization.id) {
@@ -28,4 +28,4 @@
 @if (operator()) {
   <app-provision-company (created)="reload()" />
 }
-<button type="button" (click)="signOut()">Sign out</button>
+<button type="button" (click)="signOut()">تسجيل الخروج</button>

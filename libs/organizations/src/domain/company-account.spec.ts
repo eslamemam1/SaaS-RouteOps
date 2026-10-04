@@ -1,4 +1,5 @@
 import {
+  companyAccountMessages,
   emailError,
   organizationNameError,
   passwordError,
@@ -10,12 +11,12 @@ const south: Organization = { id: 'org-south', name: 'South' };
 
 describe('organization name', () => {
   it('rejects a blank name', () => {
-    expect(organizationNameError('   ')).toBe('Enter an organization name.');
+    expect(organizationNameError('   ')).toBe(companyAccountMessages.organizationName);
   });
 
   it('rejects a name longer than 200 characters', () => {
     expect(organizationNameError('a'.repeat(201))).toBe(
-      'Use a shorter organization name.',
+      companyAccountMessages.organizationNameLength,
     );
   });
 
@@ -26,13 +27,11 @@ describe('organization name', () => {
 
 describe('email and password', () => {
   it('rejects an email without a domain', () => {
-    expect(emailError('owner@fleet')).toBe('Use a valid email address.');
+    expect(emailError('owner@fleet')).toBe(companyAccountMessages.emailFormat);
   });
 
   it('rejects a password shorter than 6 characters', () => {
-    expect(passwordError('short')).toBe(
-      'Use at least 6 characters for the password.',
-    );
+    expect(passwordError('short')).toBe(companyAccountMessages.password);
   });
 });
 

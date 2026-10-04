@@ -27,14 +27,14 @@ export const customerLimits = {
 } as const;
 
 export const customerMessages = {
-  name: 'Enter a customer name.',
-  tooLong: 'Use a shorter value.',
-  emailFormat: 'Use a valid email address.',
-  load: 'Could not load customers.',
-  save: 'Could not save the customer.',
-  organization: 'This organization is not available to your account.',
-  signedOut: 'Sign in to continue.',
-  notConnected: 'The app is not connected to the database.',
+  name: 'أدخل اسم العميل.',
+  tooLong: 'النص أطول من المسموح.',
+  emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا.',
+  load: 'تعذّر تحميل العملاء.',
+  save: 'تعذّر حفظ بيانات العميل.',
+  organization: 'هذه الشركة غير متاحة لحسابك.',
+  signedOut: 'سجّل الدخول للمتابعة.',
+  notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
 } as const;
 
 export const emptyCustomerDetails: CustomerDetails = {

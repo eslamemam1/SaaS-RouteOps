@@ -29,6 +29,7 @@ Domain and application code stay independent of Supabase and of the hosting prov
 - The Nx workspace will have one Angular application under `apps/` and libraries under `libs/`. Do not add a NestJS application in the initial setup.
 - The site operator provisions each company. There is no public self-signup. The operator creates the organization and one email-and-password login, and that login is a membership of that organization. Creating those credentials happens on a server-side path, because the service-role key must stay out of the Angular build.
 - The operator is the person who provisions tenants. That is not an in-company permission role. Do not invent roles inside a customer organization.
+- The interface is Arabic only, written right to left, for Egypt and other Arab countries. Use Modern Standard Arabic for screen text and user-facing messages. Messages returned by server functions must match the Arabic messages the client accepts. Code, identifiers, and database names stay English. A second language waits until it is requested.
 - In-app payment collection is a later feature library. Until that feature starts, a company pays the operator outside the product. Do not add a payment provider, checkout, or payment columns on organization or operations tables. Transport expenses, revenue, and payments still wait on a recorded money representation.
 
 ## Workflow

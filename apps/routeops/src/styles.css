@@ -3,11 +3,18 @@ body {
   margin: 0;
   background: #fff;
   color: #111;
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif;
 }
 
 body {
   padding: 1.5rem;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
 form {
@@ -19,4 +26,21 @@ form {
 label {
   display: grid;
   gap: 0.25rem;
+}
+
+label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.5rem;
+  text-align: start;
+  border-bottom: 1px solid #ddd;
 }

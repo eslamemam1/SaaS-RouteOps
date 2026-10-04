@@ -1,7 +1,7 @@
-<h2>Create a company</h2>
+<h2>إنشاء حساب شركة</h2>
 <form (submit)="onSubmit($event)">
   <label>
-    Organization name
+    اسم الشركة
     <input type="text" [formField]="companyForm.organizationName" />
   </label>
   @if (
@@ -12,16 +12,22 @@
     <p>{{ error.message }}</p>
   }
   <label>
-    Email
-    <input type="email" autocomplete="off" [formField]="companyForm.email" />
+    البريد الإلكتروني
+    <input
+      type="email"
+      dir="ltr"
+      autocomplete="off"
+      [formField]="companyForm.email"
+    />
   </label>
   @if (companyForm.email().touched() && companyForm.email().errors()[0]; as error) {
     <p>{{ error.message }}</p>
   }
   <label>
-    Password
+    كلمة المرور
     <input
       type="password"
+      dir="ltr"
       autocomplete="new-password"
       [formField]="companyForm.password"
     />
@@ -32,7 +38,7 @@
   ) {
     <p>{{ error.message }}</p>
   }
-  <button type="submit" [disabled]="submitting()">Create company</button>
+  <button type="submit" [disabled]="submitting()">إنشاء الشركة</button>
 </form>
 @if (message()) {
   <p>{{ message() }}</p>

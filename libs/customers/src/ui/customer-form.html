@@ -1,14 +1,14 @@
-<h3>{{ customer() ? 'Edit customer' : 'Add a customer' }}</h3>
+<h3>{{ customer() ? 'تعديل بيانات العميل' : 'إضافة عميل' }}</h3>
 <form (submit)="onSubmit($event)">
   <label>
-    Customer name
+    اسم العميل
     <input type="text" [formField]="customerForm.name" />
   </label>
   @if (customerForm.name().touched() && customerForm.name().errors()[0]; as error) {
     <p>{{ error.message }}</p>
   }
   <label>
-    Contact person
+    الشخص المسؤول
     <input type="text" [formField]="customerForm.contactName" />
   </label>
   @if (
@@ -18,21 +18,21 @@
     <p>{{ error.message }}</p>
   }
   <label>
-    Phone
-    <input type="tel" [formField]="customerForm.phone" />
+    رقم الهاتف
+    <input type="tel" dir="ltr" [formField]="customerForm.phone" />
   </label>
   @if (customerForm.phone().touched() && customerForm.phone().errors()[0]; as error) {
     <p>{{ error.message }}</p>
   }
   <label>
-    Email
-    <input type="email" [formField]="customerForm.email" />
+    البريد الإلكتروني
+    <input type="email" dir="ltr" [formField]="customerForm.email" />
   </label>
   @if (customerForm.email().touched() && customerForm.email().errors()[0]; as error) {
     <p>{{ error.message }}</p>
   }
   <label>
-    Address
+    العنوان
     <input type="text" [formField]="customerForm.address" />
   </label>
   @if (
@@ -42,21 +42,21 @@
     <p>{{ error.message }}</p>
   }
   <label>
-    Notes
+    ملاحظات
     <textarea [formField]="customerForm.notes"></textarea>
   </label>
   @if (customerForm.notes().touched() && customerForm.notes().errors()[0]; as error) {
     <p>{{ error.message }}</p>
   }
-  <label>
+  <label class="checkbox">
     <input type="checkbox" [formField]="customerForm.active" />
-    Active
+    نشط
   </label>
   <button type="submit" [disabled]="submitting()">
-    {{ customer() ? 'Save changes' : 'Add customer' }}
+    {{ customer() ? 'حفظ التعديلات' : 'إضافة العميل' }}
   </button>
   @if (customer()) {
-    <button type="button" (click)="cancelled.emit()">Cancel</button>
+    <button type="button" (click)="cancelled.emit()">إلغاء</button>
   }
 </form>
 @if (message()) {

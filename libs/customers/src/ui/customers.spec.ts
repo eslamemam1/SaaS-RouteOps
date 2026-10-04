@@ -33,21 +33,21 @@ describe('Customers', () => {
     });
     await settle(harness);
 
-    expect(text(harness)).toContain('Loading customers.');
+    expect(text(harness)).toContain('جارٍ تحميل العملاء.');
 
     resolveList([delta]);
     await settle(harness);
 
     expect(text(harness)).toContain('Delta Factory');
-    expect(text(harness)).toContain('Organization: North');
+    expect(text(harness)).toContain('الشركة: North');
   });
 
   it('shows an empty state and the add form when there are no customers', async () => {
     const harness = await open({ list: async () => [] });
     await settle(harness);
 
-    expect(text(harness)).toContain('No customers yet.');
-    expect(text(harness)).toContain('Add a customer');
+    expect(text(harness)).toContain('لا يوجد عملاء بعد.');
+    expect(text(harness)).toContain('إضافة عميل');
   });
 
   it('refuses an organization outside the user memberships', async () => {

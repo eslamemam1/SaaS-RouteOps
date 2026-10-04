@@ -63,7 +63,9 @@ export class CustomerForm {
             )
           : await this.repository.add(this.organization(), this.model());
         this.customerForm().reset(emptyCustomerDetails);
-        this.message.set(existing ? 'Customer updated.' : 'Customer added.');
+        this.message.set(
+          existing ? 'تم تحديث بيانات العميل.' : 'تمت إضافة العميل.',
+        );
         this.saved.emit(saved);
         return undefined;
       } catch (error) {
