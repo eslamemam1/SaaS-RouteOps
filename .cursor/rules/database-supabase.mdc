@@ -1,0 +1,27 @@
+---
+description: PostgreSQL migrations, schema naming, and the Supabase adapter
+globs: supabase/**,**/*.sql
+alwaysApply: false
+---
+
+# Database and Supabase
+
+PostgreSQL is the database. Supabase is the initial host, not a domain concept.
+
+Put every schema change in a migration under `supabase/migrations` and commit it. Create the file with `supabase migration new <name>`. Apply local changes through the Supabase CLI. Do not treat an edit in the hosted SQL editor as the source of truth.
+
+## Shape
+
+- Use `snake_case` identifiers and plural table names (`vehicles`).
+- Name foreign keys `<entity>_id`.
+- Put `created_at` and `updated_at` on tables whose rows change.
+- Add primary keys, foreign keys, unique constraints, and check constraints for invariants that are already decided.
+- Index columns used to find rows, including `organization_id` on tenant-owned tables.
+
+Every tenant-owned table has a non-null `organization_id` referencing `organizations`. Ship the row level security policy in the same migration as the table. What that policy must prove is defined in `security-multitenancy.mdc`.
+
+Do not add a money column until `AGENTS.md` records how money is stored. Avoid storing a copy of a value that can be derived, unless a measured query needs it.
+
+## Generated types
+
+After a schema change, regenerate types with `supabase gen types typescript` (`--local` or `--project-id`) and write them into that feature's `infrastructure` folder. Mapping those types to domain types is defined in `project-architecture.mdc`.

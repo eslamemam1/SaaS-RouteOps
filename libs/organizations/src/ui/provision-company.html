@@ -1,0 +1,39 @@
+<h2>Create a company</h2>
+<form (submit)="onSubmit($event)">
+  <label>
+    Organization name
+    <input type="text" [formField]="companyForm.organizationName" />
+  </label>
+  @if (
+    companyForm.organizationName().touched() &&
+    companyForm.organizationName().errors()[0];
+    as error
+  ) {
+    <p>{{ error.message }}</p>
+  }
+  <label>
+    Email
+    <input type="email" autocomplete="off" [formField]="companyForm.email" />
+  </label>
+  @if (companyForm.email().touched() && companyForm.email().errors()[0]; as error) {
+    <p>{{ error.message }}</p>
+  }
+  <label>
+    Password
+    <input
+      type="password"
+      autocomplete="new-password"
+      [formField]="companyForm.password"
+    />
+  </label>
+  @if (
+    companyForm.password().touched() && companyForm.password().errors()[0];
+    as error
+  ) {
+    <p>{{ error.message }}</p>
+  }
+  <button type="submit" [disabled]="submitting()">Create company</button>
+</form>
+@if (message()) {
+  <p>{{ message() }}</p>
+}

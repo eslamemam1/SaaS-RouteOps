@@ -1,0 +1,31 @@
+---
+description: Angular and TypeScript conventions for UI and application code
+globs: apps/**/*.ts,apps/**/*.html,libs/**/*.ts,libs/**/*.html
+alwaysApply: false
+---
+
+# Angular and TypeScript
+
+Apply this rule to components, templates, and application services. `project-architecture.mdc` owns layer imports.
+
+Use strict TypeScript. Prefer inference when the type is obvious. Use `unknown` instead of `any`. Explain any remaining cast in a short comment.
+
+Follow the defaults of the installed Angular version. Current Angular defaults to standalone components and `OnPush`, so do not set `standalone: true` or `changeDetection: ChangeDetectionStrategy.OnPush` on new components. On a version where those are not defaults, set both.
+
+- Declare inputs, outputs, and models with `input()`, `output()`, and `model()`. Mark them `readonly`.
+- Inject dependencies with `inject()`.
+- Put host bindings in the decorator `host` object.
+- Use `@if`, `@for`, and `@switch`.
+- Bind `class` and `style` directly. Import only the pipes and directives a template uses.
+- Name files in hyphen-case and match the class (`user-profile.ts`, `user-profile.html`).
+- Keep template-only members `protected`. Move derived template values into `computed()`.
+
+## Forms, state, and screens
+
+For business forms, use Signal Forms from `@angular/forms/signals` when that package is stable in the installed Angular version. Otherwise use reactive forms. Do not use template-driven forms for business forms. Share a validation rule across the screens that use it instead of copying it.
+
+Keep feature state in that feature with signals. Add a global state library only after a documented requirement.
+
+A component calls an application use case and renders loading, success, empty, and error. Do not use `console.log` as the error path. What an error may reveal is defined in `security-multitenancy.mdc`.
+
+Register a singleton with the root provider of the installed version: `@Service` where Angular provides it, otherwise `@Injectable({ providedIn: 'root' })`.

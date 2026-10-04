@@ -1,0 +1,22 @@
+html,
+body {
+  margin: 0;
+  background: #fff;
+  color: #111;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  padding: 1.5rem;
+}
+
+form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 24rem;
+}
+
+label {
+  display: grid;
+  gap: 0.25rem;
+}

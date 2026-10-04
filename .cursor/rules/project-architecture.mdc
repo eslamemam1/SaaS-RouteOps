@@ -1,0 +1,43 @@
+---
+description: Feature layout, layer imports, and the repository port
+globs: apps/**,libs/**,nx.json,**/project.json
+alwaysApply: false
+---
+
+# Architecture
+
+One Angular application lives under `apps/`. Each business feature is an Nx library under `libs/<feature>/` with folders `ui/`, `application/`, `domain/`, and `infrastructure/`.
+
+Tag that library `scope:<feature>` and `type:feature` in `project.json`. A feature may depend on libraries tagged `scope:shared`. It must not import another feature. Enforce this with `@nx/enforce-module-boundaries` (`depConstraints`, `sourceTag`, `onlyDependOnLibsWithTags`) when the workspace exists.
+
+Put code in `scope:shared` only after two features use it. Name directories by feature (`vehicles`, `drivers`), not by technical type (`components`, `services`, `models`).
+
+The app loads feature routes lazily. Keep one modular application. Do not add a microservice or a second deployable for a feature.
+
+## Import direction
+
+- `ui` imports `application` and `domain`.
+- `application` imports `domain` and calls a repository interface that lives in `application`.
+- `domain` holds business rules as pure functions. It imports no Angular, Supabase, generated database types, or hosting SDK.
+- `infrastructure` implements the repository. It is the only layer that may import `@supabase/supabase-js` or a hosting SDK. It maps generated database types to domain types inside the repository, selects the columns the caller needs, and pages or filters large lists in the query.
+- `ui`, `application`, and `domain` do not import `infrastructure`.
+
+```typescript
+export interface VehicleRepository {
+  // organizationId comes from the user's memberships.
+  list(organizationId: OrganizationId): Promise<Vehicle[]>;
+}
+```
+
+```typescript
+// Bad: the component reaches Supabase and skips the use case.
+this.supabase.from('vehicles').select('*');
+```
+
+## Repository port
+
+Introduce a repository interface only for persistence. A later HTTP implementation may replace the Supabase class behind that same interface. Do not add interfaces for auth, storage, notifications, or hosting.
+
+Split `ui`, `application`, `domain`, and `infrastructure` into separate Nx projects, tagged `type:ui`, `type:application`, `type:domain`, and `type:infrastructure`, only when one feature library is too large to keep this import direction readable.
+
+Delete unused code. Do not leave it commented out.

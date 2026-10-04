@@ -1,0 +1,25 @@
+---
+description: Business-critical tests and the Nx test runner
+globs: **/*.spec.ts,**/*e2e*/**,**/project.json
+alwaysApply: false
+---
+
+# Testing and quality
+
+Use the test runner the Nx Angular generator configures. In `project.json`, keep that generated test target. Do not register a second test runner.
+
+Place a unit spec beside the file it covers and name it `<name>.spec.ts`.
+
+Test behavior that can go wrong:
+
+- Domain rules, as pure functions, with no Angular, Supabase, HTTP, or network.
+- Repository mapping, and that the organization id passed into a query came from the caller's memberships.
+- Tenant isolation for a query or policy the change adds.
+- Authorization, once a permission model exists.
+- A financial calculation, once a money representation exists. Test the decided formula in one place. Do not invent the formula in the test.
+
+Do not add tests whose only purpose is to raise a coverage number.
+
+An end-to-end test covers one full user workflow. Do not repeat every domain case in the browser.
+
+Name a test after the behavior it checks.

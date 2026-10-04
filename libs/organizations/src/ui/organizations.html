@@ -1,0 +1,30 @@
+@if (status() === 'loading') {
+  <p>Loading organizations.</p>
+}
+@if (status() === 'error') {
+  <p>{{ message() }}</p>
+}
+@if (status() === 'empty') {
+  <p>No organization is assigned to this account.</p>
+}
+@if (status() === 'success') {
+  <h2>Organizations</h2>
+  @if (active(); as current) {
+    <p>Active organization: {{ current.name }}</p>
+  } @else {
+    <p>Choose an organization.</p>
+  }
+  <ul>
+    @for (organization of organizations(); track organization.id) {
+      <li>
+        <button type="button" (click)="choose(organization.id)">
+          {{ organization.name }}
+        </button>
+      </li>
+    }
+  </ul>
+}
+@if (operator()) {
+  <app-provision-company (created)="reload()" />
+}
+<button type="button" (click)="signOut()">Sign out</button>

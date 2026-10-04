@@ -1,0 +1,35 @@
+---
+description: Organization tenant isolation, row level security, and secrets
+globs: **/*.ts,**/*.sql,supabase/**
+alwaysApply: false
+---
+
+# Multi-tenancy and security
+
+`organization_id` is the tenant boundary for tenant-owned rows. Membership is defined in `AGENTS.md`.
+
+A value from a form, a query string, or browser storage does not grant access. Application code may pass an organization id only after loading it from the signed-in user's memberships.
+
+Until a backend exists, row level security is the enforcement point. Enable it on every table in an exposed schema. On a tenant-owned table, a policy allows the row only when `organization_id` is one of the caller's organizations. Restrict that policy to the `authenticated` role and call `(select auth.uid())`. Follow current Supabase guidance on grants for `anon` and `authenticated`: a policy does not remove a grant.
+
+```sql
+create policy "members read vehicles"
+on public.vehicles
+for select
+to authenticated
+using (
+  organization_id in (
+    select organization_id
+    from public.organization_memberships
+    where user_id = (select auth.uid())
+  )
+);
+```
+
+This shows the required policy shape. Create the membership table only when that feature is implemented, using the database naming rules. Write policies need both `using` and `with check`.
+
+Keep authorization in one application place and in the database. Do not repeat permission conditions in templates. Do not add role checks until `AGENTS.md` records a permission model.
+
+The browser may use the publishable key. The service-role key, database password, and private API keys stay in the host secret store. They must not appear in Git or in any file the Angular build ships, including `environment.ts`.
+
+Treat client input as untrusted. Errors returned to the client omit SQL, keys, and internal identifiers.
