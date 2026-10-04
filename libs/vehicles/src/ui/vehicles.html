@@ -1,0 +1,59 @@
+<a routerLink="/">{{ text().list.back }}</a>
+<h2>{{ text().list.title }}</h2>
+<p class="hint">{{ text().list.hint }}</p>
+@if (status() === 'loading') {
+  <p>{{ text().list.loading }}</p>
+}
+@if (status() === 'error') {
+  <p class="error">{{ text().problems[problem()] }}</p>
+}
+@if (status() === 'empty') {
+  <p>{{ text().list.empty }}</p>
+}
+@if (status() === 'success') {
+  <table>
+    <thead>
+      <tr>
+        <th>{{ text().list.plateNumber }}</th>
+        <th>{{ text().list.type }}</th>
+        <th>{{ text().list.model }}</th>
+        <th>{{ text().list.year }}</th>
+        <th>{{ text().list.seats }}</th>
+        <th>{{ text().list.licenseExpiry }}</th>
+        <th>{{ text().list.service }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (vehicle of vehicles(); track vehicle.id) {
+        <tr>
+          <td><bdi>{{ vehicle.plateNumber }}</bdi></td>
+          <td>{{ text().types[vehicle.type] }}</td>
+          <td>{{ vehicle.model }}</td>
+          <td><bdi>{{ vehicle.year }}</bdi></td>
+          <td><bdi>{{ vehicle.seats }}</bdi></td>
+          <td>
+            <bdi>{{ vehicle.licenseExpiry }}</bdi>
+            @if (expired(vehicle)) {
+              <span class="error">{{ text().list.expired }}</span>
+            }
+          </td>
+          <td>{{ vehicle.active ? text().list.inService : text().list.outOfService }}</td>
+          <td>
+            <button type="button" (click)="edit(vehicle)">{{ text().list.edit }}</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+@if (organization(); as current) {
+  @if (status() === 'success' || status() === 'empty') {
+    <app-vehicle-form
+      [organization]="current"
+      [vehicle]="editing()"
+      (saved)="onSaved($event)"
+      (cancelled)="stopEditing()"
+    />
+  }
+}

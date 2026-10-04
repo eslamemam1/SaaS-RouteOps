@@ -18,6 +18,8 @@ export interface OrganizationsText {
     readonly welcome: string;
     readonly customers: string;
     readonly customersHint: string;
+    readonly vehicles: string;
+    readonly vehiclesHint: string;
     readonly operatorTitle: string;
     readonly signOut: string;
   };
@@ -64,6 +66,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       welcome: 'مرحبًا،',
       customers: 'الشركات المتعاقدة',
       customersHint: 'الشركات والمصانع التي تنقل موظفيها.',
+      vehicles: 'المركبات',
+      vehiclesHint: 'الأتوبيسات والميكروباصات والسيارات التي تنقل بها الموظفين.',
       operatorTitle: 'لوحة مدير الموقع',
       signOut: 'تسجيل الخروج',
     },
@@ -111,6 +115,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       welcome: 'Welcome,',
       customers: 'Client companies',
       customersHint: 'The companies and factories whose staff you transport.',
+      vehicles: 'Vehicles',
+      vehiclesHint: 'The buses, microbuses, and cars you use to transport staff.',
       operatorTitle: 'Site manager panel',
       signOut: 'Sign out',
     },

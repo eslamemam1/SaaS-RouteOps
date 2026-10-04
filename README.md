@@ -8,6 +8,7 @@ Multi-tenant operations app for staff transportation companies.
 - `apps/routeops-e2e` is the Playwright project.
 - `libs/organizations` signs users in and creates companies.
 - `libs/customers` keeps each organization's customers.
+- `libs/vehicles` keeps each organization's vehicles.
 - `libs/shared/supabase` holds the single Supabase client and the signed-in route guard.
 - `libs/shared/i18n` holds the Arabic and English language switch.
 - Tag feature libraries `scope:<feature>` and `type:feature`.
