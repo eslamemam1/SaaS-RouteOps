@@ -4,6 +4,7 @@ import {
   copyForAnotherCustomer,
   customerError,
   daysError,
+  driverError,
   emptyTransportRouteDetails,
   memberOrganization,
   routeNameError,
@@ -32,6 +33,13 @@ describe('customerError', () => {
   it('requires a client company', () => {
     expect(customerError('')).toBe('customer');
     expect(customerError('customer-1')).toBeNull();
+  });
+});
+
+describe('driverError', () => {
+  it('requires a driver', () => {
+    expect(driverError('')).toBe('driver');
+    expect(driverError('driver-1')).toBeNull();
   });
 });
 

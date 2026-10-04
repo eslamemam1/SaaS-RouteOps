@@ -15,6 +15,7 @@ import {
   reasonError,
   shiftDate,
   sortByTime,
+  tripChangeError,
   tripConflicts,
   TripFilter,
   TripRecording,
@@ -283,7 +284,7 @@ describe('extra trips', () => {
     expect(withRoute(chosen, routes, '')).toEqual({ ...chosen, routeId: '' });
   });
 
-  it('needs a company and a time, but no route, vehicle, or driver', () => {
+  it('needs a company, a time, and a driver, but no route or vehicle', () => {
     expect(extraTripError(emptyExtraTrip)).toBe('customer');
     expect(extraTripError({ ...emptyExtraTrip, customerId: 'delta' })).toBe('time');
     expect(
@@ -291,7 +292,28 @@ describe('extra trips', () => {
     ).toBe('time');
     expect(
       extraTripError({ ...emptyExtraTrip, customerId: 'delta', departureTime: '21:30' }),
+    ).toBe('driver');
+    expect(
+      extraTripError({
+        ...emptyExtraTrip,
+        customerId: 'delta',
+        departureTime: '21:30',
+        driverId: 'ahmed',
+      }),
     ).toBeNull();
+  });
+
+  it('keeps a driver on every trip change', () => {
+    const change = {
+      vehicleId: '',
+      driverId: 'ahmed',
+      cancelled: false,
+      reason: 'driverAbsent' as const,
+      notes: '',
+    };
+    expect(tripChangeError(change)).toBeNull();
+    expect(tripChangeError({ ...change, driverId: '' })).toBe('driver');
+    expect(tripChangeError({ ...change, reason: '' })).toBe('reason');
   });
 });
 

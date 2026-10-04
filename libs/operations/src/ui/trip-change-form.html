@@ -16,12 +16,15 @@
   <label>
     {{ text().change.driver }}
     <select [formField]="changeForm.driverId">
-      <option value="">{{ text().change.notSet }}</option>
+      <option value="">{{ text().change.chooseDriver }}</option>
       @for (driver of drivers(); track driver.id) {
         <option [value]="driver.id">{{ driver.label }}</option>
       }
     </select>
   </label>
+  @if (changeForm.driverId().touched() && changeForm.driverId().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
   <label class="checkbox">
     <input type="checkbox" [formField]="changeForm.cancelled" />
     {{ text().change.cancelled }}

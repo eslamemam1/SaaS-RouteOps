@@ -168,7 +168,7 @@ export type Database = {
         Row: {
           created_at: string
           customer_id: string
-          driver_id: string | null
+          driver_id: string
           end_point: string
           id: string
           is_active: boolean
@@ -185,7 +185,7 @@ export type Database = {
         Insert: {
           created_at?: string
           customer_id: string
-          driver_id?: string | null
+          driver_id: string
           end_point: string
           id?: string
           is_active?: boolean
@@ -202,7 +202,7 @@ export type Database = {
         Update: {
           created_at?: string
           customer_id?: string
-          driver_id?: string | null
+          driver_id?: string
           end_point?: string
           id?: string
           is_active?: boolean

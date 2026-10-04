@@ -178,7 +178,7 @@ export class SupabaseOperationsGateway implements OperationsGateway {
         ...choice(row.id, row.name, row.is_active),
         customerId: row.customer_id,
         vehicleId: row.vehicle_id ?? '',
-        driverId: row.driver_id ?? '',
+        driverId: row.driver_id,
       })),
     };
   }
@@ -224,7 +224,7 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     }
     return this.saveTrip(organizationId, tripId, {
       vehicle_id: blankToNull(change.vehicleId),
-      driver_id: blankToNull(change.driverId),
+      driver_id: change.driverId,
       is_cancelled: change.cancelled,
       change_reason: reasonColumns[change.reason],
       notes: blankToNull(change.notes),
@@ -273,7 +273,7 @@ export class SupabaseOperationsGateway implements OperationsGateway {
         departure_time: details.departureTime,
         customer_id: details.customerId,
         vehicle_id: blankToNull(details.vehicleId),
-        driver_id: blankToNull(details.driverId),
+        driver_id: details.driverId,
         notes: blankToNull(details.notes),
         is_extra: true,
       })
@@ -339,7 +339,7 @@ function toTrip(row: TripRow): DailyTrip {
     departureTime: row.departure_time.slice(0, 5),
     customerId: row.customer_id,
     vehicleId: row.vehicle_id ?? '',
-    driverId: row.driver_id ?? '',
+    driverId: row.driver_id,
     cancelled: row.is_cancelled,
     reason: toReason(row.change_reason),
     notes: row.notes ?? '',

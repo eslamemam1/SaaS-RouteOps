@@ -9,6 +9,7 @@ import {
   OperationChoices,
   OperationsOrganization,
   TripChange,
+  tripChangeError,
   TripRecording,
 } from '../domain/daily-trip';
 import { OperationsGateway } from './operations-gateway';
@@ -55,11 +56,15 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     return this.gateway.saveTripRecording(organization.id, recording);
   }
 
-  changeTrip(
+  async changeTrip(
     organization: OperationsOrganization,
     tripId: string,
     change: TripChange,
   ): Promise<DailyTrip> {
+    const problem = tripChangeError(change);
+    if (problem) {
+      throw new OperationsAccessError(problem);
+    }
     return this.gateway.updateTrip(organization.id, tripId, change);
   }
 

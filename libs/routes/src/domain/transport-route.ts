@@ -59,6 +59,7 @@ export const routeProblems = [
   'name',
   'nameTaken',
   'customer',
+  'driver',
   'startPoint',
   'endPoint',
   'tooLong',
@@ -124,6 +125,10 @@ export function endPointError(value: string): RouteProblem | null {
 
 export function customerError(value: string): RouteProblem | null {
   return value.length === 0 ? 'customer' : null;
+}
+
+export function driverError(value: string): RouteProblem | null {
+  return value.length === 0 ? 'driver' : null;
 }
 
 export function optionalTextError(

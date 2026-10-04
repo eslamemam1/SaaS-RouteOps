@@ -3,6 +3,7 @@ import { schema, validate } from '@angular/forms/signals';
 import {
   customerError,
   daysError,
+  driverError,
   endPointError,
   optionalTextError,
   routeLimits,
@@ -29,6 +30,9 @@ export function routeDetailsSchema(problems: Problems) {
     );
     validate(path.customerId, ({ value }) =>
       fieldError(customerError(value()), problems),
+    );
+    validate(path.driverId, ({ value }) =>
+      fieldError(driverError(value()), problems),
     );
     validate(path.startPoint, ({ value }) =>
       fieldError(startPointError(value()), problems),

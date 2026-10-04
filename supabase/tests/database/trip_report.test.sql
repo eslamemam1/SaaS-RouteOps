@@ -31,9 +31,11 @@ select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-
 update public.daily_trips
 set is_cancelled = true, change_reason = 'holiday'
 where service_date = '2026-02-02' and direction = 'return';
-insert into public.daily_trips (organization_id, customer_id, vehicle_id, service_date, direction, departure_time, is_extra, notes) values
+insert into public.drivers (id, organization_id, full_name) values
+  ('13000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'Karim');
+insert into public.daily_trips (organization_id, customer_id, vehicle_id, driver_id, service_date, direction, departure_time, is_extra, notes) values
   ('10000000-0000-0000-0000-000000000001', '11000000-0000-0000-0000-000000000002', '12000000-0000-0000-0000-000000000001',
-   '2026-02-05', 'outbound', '21:00', true, 'Airport run');
+   '13000000-0000-0000-0000-000000000002', '2026-02-05', 'outbound', '21:00', true, 'Airport run');
 
 -- Signed in as the North login.
 set local role authenticated;
@@ -45,7 +47,7 @@ select results_eq(
     order by customer_id$$,
   $$values
     ('11000000-0000-0000-0000-000000000001'::uuid, '12000000-0000-0000-0000-000000000001'::uuid, '13000000-0000-0000-0000-000000000001'::uuid, 3, 0),
-    ('11000000-0000-0000-0000-000000000002'::uuid, '12000000-0000-0000-0000-000000000001'::uuid, null::uuid, 1, 1)$$,
+    ('11000000-0000-0000-0000-000000000002'::uuid, '12000000-0000-0000-0000-000000000001'::uuid, '13000000-0000-0000-0000-000000000002'::uuid, 1, 1)$$,
   'recording automatically, every trip that is not cancelled counts once its day has come'
 );
 select is(

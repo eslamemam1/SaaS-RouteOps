@@ -43,6 +43,7 @@ export interface RoutesText {
     readonly customersLink: string;
     readonly vehicle: string;
     readonly driver: string;
+    readonly chooseDriver: string;
     readonly assignLater: string;
     readonly notSet: string;
     readonly startPoint: string;
@@ -72,6 +73,7 @@ export const routesText: Record<Language, RoutesText> = {
       name: 'أدخل اسم الخط.',
       nameTaken: 'يوجد خط بنفس الاسم لهذه الشركة. اختر اسمًا آخر.',
       customer: 'اختر الشركة المتعاقدة.',
+      driver: 'اختر السائق.',
       startPoint: 'أدخل نقطة البداية.',
       endPoint: 'أدخل نقطة النهاية.',
       tooLong: 'النص أطول من المسموح.',
@@ -131,7 +133,8 @@ export const routesText: Record<Language, RoutesText> = {
       noCustomers: 'لا توجد شركات متعاقدة بعد. أضف شركة أولًا من صفحة',
       customersLink: 'الشركات المتعاقدة',
       vehicle: 'المركبة (اختياري)',
-      driver: 'السائق (اختياري)',
+      driver: 'السائق',
+      chooseDriver: 'اختر السائق',
       assignLater: 'يمكنك تحديده لاحقًا.',
       notSet: 'لم يُحدد بعد',
       startPoint: 'نقطة البداية',
@@ -159,6 +162,7 @@ export const routesText: Record<Language, RoutesText> = {
       name: 'Enter the route name.',
       nameTaken: 'This company already has a route with this name. Choose another name.',
       customer: 'Choose the client company.',
+      driver: 'Choose the driver.',
       startPoint: 'Enter the start point.',
       endPoint: 'Enter the end point.',
       tooLong: 'This text is too long.',
@@ -218,7 +222,8 @@ export const routesText: Record<Language, RoutesText> = {
       noCustomers: 'There are no client companies yet. First add one from',
       customersLink: 'Client companies',
       vehicle: 'Vehicle (optional)',
-      driver: 'Driver (optional)',
+      driver: 'Driver',
+      chooseDriver: 'Choose a driver',
       assignLater: 'You can set this later.',
       notSet: 'Not set yet',
       startPoint: 'Start point',

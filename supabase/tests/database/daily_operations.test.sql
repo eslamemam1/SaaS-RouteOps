@@ -63,30 +63,37 @@ set local request.jwt.claims = '{"sub": "a0000000-0000-0000-0000-000000000001", 
 -- Route names: unique per client company, shared across companies.
 -- These routes are inactive so they add no trips below.
 select lives_ok(
-  $$insert into public.routes (organization_id, name, customer_id, start_point, end_point, outbound_time, operating_days, is_active)
+  $$insert into public.routes (organization_id, name, customer_id, driver_id, start_point, end_point, outbound_time, operating_days, is_active)
     values ('10000000-0000-0000-0000-000000000001', 'Heliopolis', '11000000-0000-0000-0000-000000000001',
-            'A', 'B', '07:00', '{0}', false)$$,
+            '13000000-0000-0000-0000-000000000001', 'A', 'B', '07:00', '{0}', false)$$,
   'a member adds a route'
 );
 select lives_ok(
-  $$insert into public.routes (organization_id, name, customer_id, start_point, end_point, outbound_time, operating_days, is_active)
+  $$insert into public.routes (organization_id, name, customer_id, driver_id, start_point, end_point, outbound_time, operating_days, is_active)
     values ('10000000-0000-0000-0000-000000000001', 'Heliopolis', '11000000-0000-0000-0000-000000000002',
-            'C', 'D', '09:00', '{1}', false)$$,
+            '13000000-0000-0000-0000-000000000001', 'C', 'D', '09:00', '{1}', false)$$,
   'the same route name serves another client company with its own points, time, and days'
 );
 select throws_ok(
-  $$insert into public.routes (organization_id, name, customer_id, start_point, end_point, outbound_time, operating_days, is_active)
+  $$insert into public.routes (organization_id, name, customer_id, driver_id, start_point, end_point, outbound_time, operating_days, is_active)
     values ('10000000-0000-0000-0000-000000000001', 'Heliopolis', '11000000-0000-0000-0000-000000000001',
-            'E', 'F', '10:00', '{2}', false)$$,
+            '13000000-0000-0000-0000-000000000001', 'E', 'F', '10:00', '{2}', false)$$,
   '23505', null,
   'one client company cannot have two routes with the same name'
 );
 select throws_ok(
-  $$insert into public.routes (organization_id, name, customer_id, start_point, end_point, operating_days)
+  $$insert into public.routes (organization_id, name, customer_id, driver_id, start_point, end_point, operating_days)
     values ('10000000-0000-0000-0000-000000000001', 'No times', '11000000-0000-0000-0000-000000000001',
-            'A', 'B', '{0}')$$,
+            '13000000-0000-0000-0000-000000000001', 'A', 'B', '{0}')$$,
   '23514', null,
   'a route needs an outbound or a return time'
+);
+select throws_ok(
+  $$insert into public.routes (organization_id, name, customer_id, start_point, end_point, outbound_time, operating_days)
+    values ('10000000-0000-0000-0000-000000000001', 'No driver', '11000000-0000-0000-0000-000000000001',
+            'A', 'B', '07:00', '{0}')$$,
+  '23502', null,
+  'a route needs a driver'
 );
 
 -- A past day is prepared first, to check later that route changes leave it alone.
@@ -130,9 +137,9 @@ select results_eq(
   'a trip copies the time, vehicle, driver, and client company of its route'
 );
 select is_empty(
-  $$insert into public.daily_trips (organization_id, route_id, service_date, direction, departure_time, customer_id)
+  $$insert into public.daily_trips (organization_id, route_id, service_date, direction, departure_time, customer_id, driver_id)
     values ('10000000-0000-0000-0000-000000000001', '14000000-0000-0000-0000-000000000001', tests.sunday(2),
-            'outbound', '07:00', '11000000-0000-0000-0000-000000000001')
+            'outbound', '07:00', '11000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001')
     on conflict do nothing returning id$$,
   'a route keeps one planned trip per day and direction'
 );
@@ -296,10 +303,23 @@ select lives_ok(
   'a route can have several extra trips on a day next to its planned trip, with any vehicle and driver'
 );
 select throws_ok(
-  $$insert into public.daily_trips (organization_id, service_date, direction, departure_time, customer_id)
-    values ('10000000-0000-0000-0000-000000000001', tests.sunday(2), 'outbound', '21:00', '11000000-0000-0000-0000-000000000002')$$,
+  $$insert into public.daily_trips (organization_id, service_date, direction, departure_time, customer_id, driver_id)
+    values ('10000000-0000-0000-0000-000000000001', tests.sunday(2), 'outbound', '21:00', '11000000-0000-0000-0000-000000000002',
+            '13000000-0000-0000-0000-000000000001')$$,
   '23514', null,
   'a trip that is not extra needs a route'
+);
+select throws_ok(
+  $$insert into public.daily_trips (organization_id, service_date, direction, departure_time, customer_id, notes, is_extra)
+    values ('10000000-0000-0000-0000-000000000001', tests.sunday(2), 'outbound', '23:00', '11000000-0000-0000-0000-000000000002',
+            'No driver', true)$$,
+  '23502', null,
+  'an extra trip needs a driver'
+);
+select throws_ok(
+  $$update public.daily_trips set driver_id = null where notes = 'Airport run'$$,
+  '23502', null,
+  'a trip cannot lose its driver'
 );
 update public.routes set driver_id = '13000000-0000-0000-0000-000000000001', outbound_time = '06:45'
 where id = '14000000-0000-0000-0000-000000000001';

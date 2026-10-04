@@ -67,6 +67,7 @@ export interface OperationsText {
     readonly time: string;
     readonly vehicle: string;
     readonly driver: string;
+    readonly chooseDriver: string;
     readonly notSet: string;
     readonly notes: string;
     readonly save: string;
@@ -92,6 +93,7 @@ export interface OperationsText {
     readonly hint: string;
     readonly vehicle: string;
     readonly driver: string;
+    readonly chooseDriver: string;
     readonly notSet: string;
     readonly cancelled: string;
     readonly reason: string;
@@ -118,6 +120,7 @@ export const operationsText: Record<Language, OperationsText> = {
       tooLong: 'النص أطول من المسموح.',
       date: 'اختر تاريخًا صحيحًا.',
       customer: 'اختر الشركة المتعاقدة.',
+      driver: 'اختر السائق.',
       time: 'اكتب ميعاد الرحلة.',
       customers: 'اختر شركة واحدة على الأقل.',
       load: 'تعذّر تحميل رحلات اليوم. حاول مرة أخرى.',
@@ -207,7 +210,8 @@ export const operationsText: Record<Language, OperationsText> = {
       direction: 'الرحلة',
       time: 'الميعاد',
       vehicle: 'المركبة (اختياري)',
-      driver: 'السائق (اختياري)',
+      driver: 'السائق',
+      chooseDriver: 'اختر السائق',
       notSet: 'لم يُحدد',
       notes: 'ملاحظات (اختياري)',
       save: 'إضافة الرحلة',
@@ -233,6 +237,7 @@ export const operationsText: Record<Language, OperationsText> = {
       hint: 'هذا التغيير لهذا اليوم فقط. لتغيير دائم، مثل سائق جديد بدل سائق ترك العمل، عدّل الخط من صفحة الخطوط.',
       vehicle: 'المركبة في هذا اليوم',
       driver: 'السائق في هذا اليوم',
+      chooseDriver: 'اختر السائق',
       notSet: 'لم يُحدد',
       cancelled: 'أُلغيت هذه الرحلة',
       reason: 'السبب',
@@ -257,6 +262,7 @@ export const operationsText: Record<Language, OperationsText> = {
       tooLong: 'This text is too long.',
       date: 'Choose a valid date.',
       customer: 'Choose the client company.',
+      driver: 'Choose the driver.',
       time: 'Enter the trip time.',
       customers: 'Choose at least one company.',
       load: "Could not load the day's trips. Please try again.",
@@ -346,7 +352,8 @@ export const operationsText: Record<Language, OperationsText> = {
       direction: 'Trip',
       time: 'Time',
       vehicle: 'Vehicle (optional)',
-      driver: 'Driver (optional)',
+      driver: 'Driver',
+      chooseDriver: 'Choose a driver',
       notSet: 'Not set',
       notes: 'Notes (optional)',
       save: 'Add trip',
@@ -372,6 +379,7 @@ export const operationsText: Record<Language, OperationsText> = {
       hint: 'This change is for this day only. For a lasting change, such as a new driver replacing one who left, edit the route on the Routes page.',
       vehicle: 'Vehicle on this day',
       driver: 'Driver on this day',
+      chooseDriver: 'Choose a driver',
       notSet: 'Not set',
       cancelled: 'This trip was cancelled',
       reason: 'Reason',

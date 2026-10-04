@@ -1,6 +1,7 @@
 import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 import { RouteAccessError } from '../application/route-access-error';
 import {
+  driverError,
   RouteChoice,
   RouteChoices,
   RouteOrganization,
@@ -189,7 +190,7 @@ function toRoute(row: RouteRow): TransportRoute {
     name: row.name,
     customerId: row.customer_id,
     vehicleId: row.vehicle_id ?? '',
-    driverId: row.driver_id ?? '',
+    driverId: row.driver_id,
     startPoint: row.start_point,
     endPoint: row.end_point,
     outboundTime: toClock(row.outbound_time),
@@ -201,11 +202,15 @@ function toRoute(row: RouteRow): TransportRoute {
 }
 
 function toColumns(details: TransportRouteDetails) {
+  const missingDriver = driverError(details.driverId);
+  if (missingDriver) {
+    throw new RouteAccessError(missingDriver);
+  }
   return {
     name: details.name.trim(),
     customer_id: details.customerId,
     vehicle_id: blankToNull(details.vehicleId),
-    driver_id: blankToNull(details.driverId),
+    driver_id: details.driverId,
     start_point: details.startPoint.trim(),
     end_point: details.endPoint.trim(),
     outbound_time: blankToNull(details.outboundTime),

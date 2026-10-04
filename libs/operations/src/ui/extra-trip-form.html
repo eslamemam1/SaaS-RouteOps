@@ -55,12 +55,15 @@
   <label>
     {{ text().extra.driver }}
     <select [formField]="extraForm.driverId">
-      <option value="">{{ text().extra.notSet }}</option>
+      <option value="">{{ text().extra.chooseDriver }}</option>
       @for (driver of drivers(); track driver.id) {
         <option [value]="driver.id">{{ driver.label }}</option>
       }
     </select>
   </label>
+  @if (extraForm.driverId().touched() && extraForm.driverId().errors()[0]; as error) {
+    <p class="error">{{ error.message }}</p>
+  }
   <label>
     {{ text().extra.notes }}
     <textarea [formField]="extraForm.notes"></textarea>

@@ -1,6 +1,7 @@
 import { disabled, schema, validate } from '@angular/forms/signals';
 import {
   departureTimeError,
+  driverError,
   extraCustomerError,
   ExtraTripDetails,
   notesError,
@@ -16,6 +17,9 @@ export function extraTripSchema(problems: Problems) {
     );
     validate(path.departureTime, ({ value }) =>
       fieldError(departureTimeError(value()), problems),
+    );
+    validate(path.driverId, ({ value }) =>
+      fieldError(driverError(value()), problems),
     );
     validate(path.notes, ({ value }) =>
       fieldError(notesError(value(), ''), problems),

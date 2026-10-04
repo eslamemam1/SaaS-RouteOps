@@ -65,16 +65,16 @@ select throws_ok(
   'a member cannot add a client company to another organization'
 );
 select throws_ok(
-  $$insert into public.routes (organization_id, name, customer_id, vehicle_id, start_point, end_point, outbound_time, operating_days)
+  $$insert into public.routes (organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, operating_days)
     values ('10000000-0000-0000-0000-000000000001', 'Borrowed bus', '11000000-0000-0000-0000-000000000001',
-            '22000000-0000-0000-0000-000000000001', 'A', 'B', '07:00', '{0}')$$,
+            '22000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'A', 'B', '07:00', '{0}')$$,
   '23503', null,
   'a route cannot use a vehicle of another organization'
 );
 select throws_ok(
-  $$insert into public.routes (organization_id, name, customer_id, start_point, end_point, outbound_time, operating_days)
+  $$insert into public.routes (organization_id, name, customer_id, driver_id, start_point, end_point, outbound_time, operating_days)
     values ('10000000-0000-0000-0000-000000000001', 'Borrowed customer', '21000000-0000-0000-0000-000000000001',
-            'A', 'B', '07:00', '{0}')$$,
+            '13000000-0000-0000-0000-000000000001', 'A', 'B', '07:00', '{0}')$$,
   '23503', null,
   'a route cannot serve a client company of another organization'
 );
@@ -93,9 +93,9 @@ select throws_ok(
   'nobody deletes a route; it is marked inactive instead'
 );
 select throws_ok(
-  $$insert into public.daily_trips (organization_id, service_date, direction, departure_time, customer_id, is_extra)
+  $$insert into public.daily_trips (organization_id, service_date, direction, departure_time, customer_id, driver_id, is_extra)
     values ('20000000-0000-0000-0000-000000000001', tests.sunday(2), 'outbound', '21:00',
-            '21000000-0000-0000-0000-000000000001', true)$$,
+            '21000000-0000-0000-0000-000000000001', '23000000-0000-0000-0000-000000000001', true)$$,
   '42501', null,
   'a member cannot add an extra trip to another organization'
 );

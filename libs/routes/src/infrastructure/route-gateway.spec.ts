@@ -108,6 +108,7 @@ describe('SupabaseRouteGateway', () => {
       ...emptyTransportRouteDetails,
       name: 'Delta',
       customerId: 'customer-1',
+      driverId: 'driver-1',
       startPoint: 'A',
       endPoint: 'B',
       returnTime: '16:00',
@@ -117,6 +118,23 @@ describe('SupabaseRouteGateway', () => {
       ['id', 'route-1'],
       ['organization_id', 'org-north'],
     ]);
+  });
+
+  it('refuses a route without a driver before reaching the database', async () => {
+    const calls = recorder(() => ({ data: row, error: null }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+
+    await expect(
+      gateway.insertRoute('org-north', {
+        ...emptyTransportRouteDetails,
+        name: 'Delta',
+        customerId: 'customer-1',
+        startPoint: 'A',
+        endPoint: 'B',
+        outboundTime: '07:00',
+      }),
+    ).rejects.toEqual(new RouteAccessError('driver'));
+    expect(calls.filters).toEqual([]);
   });
 
   it('reports a route name the customer already uses', async () => {
@@ -131,6 +149,7 @@ describe('SupabaseRouteGateway', () => {
         ...emptyTransportRouteDetails,
         name: 'Nasr City',
         customerId: 'customer-1',
+        driverId: 'driver-1',
         startPoint: 'A',
         endPoint: 'B',
         outboundTime: '07:00',
@@ -150,6 +169,7 @@ describe('SupabaseRouteGateway', () => {
         ...emptyTransportRouteDetails,
         name: 'X',
         customerId: 'customer-of-another-organization',
+        driverId: 'driver-1',
         startPoint: 'A',
         endPoint: 'B',
         outboundTime: '07:00',

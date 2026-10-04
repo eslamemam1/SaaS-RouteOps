@@ -34,7 +34,7 @@ export type Database = {
           customer_id: string
           departure_time: string
           direction: string
-          driver_id: string | null
+          driver_id: string
           id: string
           is_cancelled: boolean
           is_done: boolean
@@ -52,7 +52,7 @@ export type Database = {
           customer_id: string
           departure_time: string
           direction: string
-          driver_id?: string | null
+          driver_id: string
           id?: string
           is_cancelled?: boolean
           is_done?: boolean
@@ -70,7 +70,7 @@ export type Database = {
           customer_id?: string
           departure_time?: string
           direction?: string
-          driver_id?: string | null
+          driver_id?: string
           id?: string
           is_cancelled?: boolean
           is_done?: boolean
@@ -148,7 +148,7 @@ export type Database = {
       }
       routes: ReadOnlyTable<{
         customer_id: string
-        driver_id: string | null
+        driver_id: string
         id: string
         is_active: boolean
         name: string

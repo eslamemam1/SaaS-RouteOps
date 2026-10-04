@@ -113,6 +113,7 @@ export const operationsProblems = [
   'tooLong',
   'date',
   'customer',
+  'driver',
   'time',
   'customers',
   'load',
@@ -207,13 +208,26 @@ export function departureTimeError(value: string): OperationsProblem | null {
   return timePattern.test(value) ? null : 'time';
 }
 
+export function driverError(driverId: string): OperationsProblem | null {
+  return driverId.length === 0 ? 'driver' : null;
+}
+
 export function extraTripError(
   details: ExtraTripDetails,
 ): OperationsProblem | null {
   return (
     extraCustomerError(details.customerId) ??
     departureTimeError(details.departureTime) ??
+    driverError(details.driverId) ??
     notesError(details.notes, '')
+  );
+}
+
+export function tripChangeError(change: TripChange): OperationsProblem | null {
+  return (
+    driverError(change.driverId) ??
+    reasonError(change.reason) ??
+    notesError(change.notes, change.reason)
   );
 }
 

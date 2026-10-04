@@ -74,6 +74,7 @@ describe('SupabaseOperationsRepository', () => {
       ...emptyExtraTrip,
       customerId: 'delta',
       departureTime: '21:00',
+      driverId: 'ahmed',
     };
 
     await repository.addExtraTrip(north, '2026-10-04', details);
@@ -83,6 +84,30 @@ describe('SupabaseOperationsRepository', () => {
       '2026-10-04',
       details,
     );
+  });
+
+  it('refuses an extra trip or a change without a driver', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseOperationsRepository(gateway);
+
+    await expect(
+      repository.addExtraTrip(north, '2026-10-04', {
+        ...emptyExtraTrip,
+        customerId: 'delta',
+        departureTime: '21:00',
+      }),
+    ).rejects.toEqual(new OperationsAccessError('driver'));
+    await expect(
+      repository.changeTrip(north, 'trip-1', {
+        vehicleId: '',
+        driverId: '',
+        cancelled: false,
+        reason: 'driverAbsent',
+        notes: '',
+      }),
+    ).rejects.toEqual(new OperationsAccessError('driver'));
+    expect(gateway.insertExtraTrip).not.toHaveBeenCalled();
+    expect(gateway.updateTrip).not.toHaveBeenCalled();
   });
 
   it('needs at least one customer to record a holiday', async () => {

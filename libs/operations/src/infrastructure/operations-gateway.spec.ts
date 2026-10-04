@@ -69,7 +69,7 @@ describe('SupabaseOperationsGateway', () => {
 
     await gateway.updateTrip('org-north', 'trip-1', {
       vehicleId: 'vehicle-2',
-      driverId: '',
+      driverId: 'driver-2',
       cancelled: false,
       reason: 'driverAbsent',
       notes: '  ',
@@ -77,7 +77,7 @@ describe('SupabaseOperationsGateway', () => {
 
     expect(calls.updated).toEqual({
       vehicle_id: 'vehicle-2',
-      driver_id: null,
+      driver_id: 'driver-2',
       is_cancelled: false,
       change_reason: 'driver_absent',
       notes: null,
@@ -167,7 +167,7 @@ describe('SupabaseOperationsGateway', () => {
       direction: 'return',
       departureTime: '21:00',
       vehicleId: 'vehicle-1',
-      driverId: '',
+      driverId: 'driver-1',
       notes: ' Airport ',
     });
 
@@ -179,7 +179,7 @@ describe('SupabaseOperationsGateway', () => {
       departure_time: '21:00',
       customer_id: 'customer-1',
       vehicle_id: 'vehicle-1',
-      driver_id: null,
+      driver_id: 'driver-1',
       notes: 'Airport',
       is_extra: true,
     });
