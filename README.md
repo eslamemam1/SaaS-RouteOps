@@ -16,6 +16,7 @@ Multi-tenant operations app for staff transportation companies.
 - `libs/shared/i18n` holds the Arabic and English language switch.
 - Tag feature libraries `scope:<feature>` and `type:feature`.
 - `supabase/migrations` is the database source of truth. Local Supabase needs Docker.
+- `supabase/tests/database` holds pgTAP tests for tenant isolation and daily operations. They run against the local database only.
 
 ## Tasks
 
@@ -24,4 +25,13 @@ npx nx serve routeops
 npx nx test routeops
 npx nx lint routeops
 npx nx build routeops
+npx nx run-many -t lint test build
+```
+
+Database tests, with Docker running:
+
+```sh
+npx supabase db start
+npx supabase test db
+npx supabase db stop
 ```
