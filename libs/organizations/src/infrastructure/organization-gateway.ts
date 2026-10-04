@@ -1,5 +1,8 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { companyAccountMessages } from '../domain/company-account';
+import {
+  CompanyAccountProblem,
+  isCompanyAccountProblem,
+} from '../domain/company-account';
 import { Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { ProvisionCompany } from '../application/organization-repository';
@@ -15,8 +18,6 @@ export interface OrganizationGateway {
   signOut(): Promise<void>;
   provision(input: ProvisionCompany): Promise<void>;
 }
-
-const safeMessages: readonly string[] = Object.values(companyAccountMessages);
 
 export class SupabaseOrganizationGateway implements OrganizationGateway {
   constructor(private readonly client: SupabaseClient<Database> | null) {}
@@ -39,7 +40,7 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       .select('organization_id')
       .eq('user_id', userId);
     if (error) {
-      throw new OrganizationAccessError(companyAccountMessages.load);
+      throw new OrganizationAccessError('load');
     }
     return (data ?? []).map((row) => row.organization_id);
   }
@@ -50,7 +51,7 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       .select('id, name')
       .in('id', [...ids]);
     if (error) {
-      throw new OrganizationAccessError(companyAccountMessages.load);
+      throw new OrganizationAccessError('load');
     }
     return (data ?? []).map((row) => ({ id: row.id, name: row.name }));
   }
@@ -62,7 +63,7 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       .eq('user_id', userId)
       .maybeSingle();
     if (error) {
-      throw new OrganizationAccessError(companyAccountMessages.load);
+      throw new OrganizationAccessError('load');
     }
     return data !== null;
   }
@@ -73,14 +74,14 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       password,
     });
     if (error) {
-      throw new OrganizationAccessError(companyAccountMessages.signIn);
+      throw new OrganizationAccessError('signIn');
     }
   }
 
   async signOut(): Promise<void> {
     const { error } = await this.requireClient().auth.signOut();
     if (error) {
-      throw new OrganizationAccessError(companyAccountMessages.signIn);
+      throw new OrganizationAccessError('signIn');
     }
   }
 
@@ -96,27 +97,29 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       },
     );
     if (error) {
-      throw new OrganizationAccessError(await safeFunctionMessage(error));
+      throw new OrganizationAccessError(await safeFunctionProblem(error));
     }
   }
 
   private requireClient(): SupabaseClient<Database> {
     if (!this.client) {
-      throw new OrganizationAccessError(companyAccountMessages.notConnected);
+      throw new OrganizationAccessError('notConnected');
     }
     return this.client;
   }
 }
 
-async function safeFunctionMessage(error: unknown): Promise<string> {
+async function safeFunctionProblem(
+  error: unknown,
+): Promise<CompanyAccountProblem> {
   const context = (error as { context?: Response }).context;
   if (context instanceof Response) {
     const body = (await context.json().catch(() => null)) as {
       error?: unknown;
     } | null;
-    if (typeof body?.error === 'string' && safeMessages.includes(body.error)) {
+    if (isCompanyAccountProblem(body?.error)) {
       return body.error;
     }
   }
-  return companyAccountMessages.create;
+  return 'create';
 }

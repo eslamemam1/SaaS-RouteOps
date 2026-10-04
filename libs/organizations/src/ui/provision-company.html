@@ -1,7 +1,8 @@
-<h2>إنشاء حساب شركة</h2>
+<h3>{{ text().provision.title }}</h3>
+<p class="hint">{{ text().provision.hint }}</p>
 <form (submit)="onSubmit($event)">
   <label>
-    اسم الشركة
+    {{ text().provision.name }}
     <input type="text" [formField]="companyForm.organizationName" />
   </label>
   @if (
@@ -9,10 +10,10 @@
     companyForm.organizationName().errors()[0];
     as error
   ) {
-    <p>{{ error.message }}</p>
+    <p class="error">{{ error.message }}</p>
   }
   <label>
-    البريد الإلكتروني
+    {{ text().provision.email }}
     <input
       type="email"
       dir="ltr"
@@ -21,10 +22,11 @@
     />
   </label>
   @if (companyForm.email().touched() && companyForm.email().errors()[0]; as error) {
-    <p>{{ error.message }}</p>
+    <p class="error">{{ error.message }}</p>
   }
   <label>
-    كلمة المرور
+    {{ text().provision.password }}
+    <span class="hint">{{ text().provision.passwordHint }}</span>
     <input
       type="password"
       dir="ltr"
@@ -36,10 +38,15 @@
     companyForm.password().touched() && companyForm.password().errors()[0];
     as error
   ) {
-    <p>{{ error.message }}</p>
+    <p class="error">{{ error.message }}</p>
   }
-  <button type="submit" [disabled]="submitting()">إنشاء الشركة</button>
+  <button type="submit" [disabled]="submitting()">
+    {{ text().provision.submit }}
+  </button>
 </form>
-@if (message()) {
-  <p>{{ message() }}</p>
+@if (succeeded()) {
+  <p>{{ text().provision.created }}</p>
+}
+@if (problem(); as current) {
+  <p class="error">{{ text().problems[current] }}</p>
 }

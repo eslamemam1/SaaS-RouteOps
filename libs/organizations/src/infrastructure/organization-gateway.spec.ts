@@ -1,5 +1,4 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { companyAccountMessages } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { Database } from './database';
 import { SupabaseOrganizationGateway } from './organization-gateway';
@@ -33,7 +32,7 @@ describe('SupabaseOrganizationGateway', () => {
     const gateway = new SupabaseOrganizationGateway(client);
 
     await expect(gateway.membershipOrganizationIds('user-1')).rejects.toEqual(
-      new OrganizationAccessError(companyAccountMessages.load),
+      new OrganizationAccessError('load'),
     );
   });
 

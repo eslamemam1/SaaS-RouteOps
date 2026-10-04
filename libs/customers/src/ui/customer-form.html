@@ -1,64 +1,70 @@
-<h3>{{ customer() ? 'تعديل بيانات العميل' : 'إضافة عميل' }}</h3>
+<h3>{{ customer() ? text().form.editTitle : text().form.addTitle }}</h3>
 <form (submit)="onSubmit($event)">
   <label>
-    اسم العميل
+    {{ text().form.name }}
+    <span class="hint">{{ text().form.nameHint }}</span>
     <input type="text" [formField]="customerForm.name" />
   </label>
   @if (customerForm.name().touched() && customerForm.name().errors()[0]; as error) {
-    <p>{{ error.message }}</p>
+    <p class="error">{{ error.message }}</p>
   }
   <label>
-    الشخص المسؤول
+    {{ text().form.contactName }}
+    <span class="hint">{{ text().form.contactNameHint }}</span>
     <input type="text" [formField]="customerForm.contactName" />
   </label>
   @if (
     customerForm.contactName().touched() && customerForm.contactName().errors()[0];
     as error
   ) {
-    <p>{{ error.message }}</p>
+    <p class="error">{{ error.message }}</p>
   }
   <label>
-    رقم الهاتف
+    {{ text().form.phone }}
     <input type="tel" dir="ltr" [formField]="customerForm.phone" />
   </label>
   @if (customerForm.phone().touched() && customerForm.phone().errors()[0]; as error) {
-    <p>{{ error.message }}</p>
+    <p class="error">{{ error.message }}</p>
   }
   <label>
-    البريد الإلكتروني
+    {{ text().form.email }}
     <input type="email" dir="ltr" [formField]="customerForm.email" />
   </label>
   @if (customerForm.email().touched() && customerForm.email().errors()[0]; as error) {
-    <p>{{ error.message }}</p>
+    <p class="error">{{ error.message }}</p>
   }
   <label>
-    العنوان
+    {{ text().form.address }}
     <input type="text" [formField]="customerForm.address" />
   </label>
   @if (
     customerForm.address().touched() && customerForm.address().errors()[0];
     as error
   ) {
-    <p>{{ error.message }}</p>
+    <p class="error">{{ error.message }}</p>
   }
   <label>
-    ملاحظات
+    {{ text().form.notes }}
+    <span class="hint">{{ text().form.notesHint }}</span>
     <textarea [formField]="customerForm.notes"></textarea>
   </label>
   @if (customerForm.notes().touched() && customerForm.notes().errors()[0]; as error) {
-    <p>{{ error.message }}</p>
+    <p class="error">{{ error.message }}</p>
   }
   <label class="checkbox">
     <input type="checkbox" [formField]="customerForm.active" />
-    نشط
+    {{ text().form.active }}
   </label>
   <button type="submit" [disabled]="submitting()">
-    {{ customer() ? 'حفظ التعديلات' : 'إضافة العميل' }}
+    {{ customer() ? text().form.save : text().form.add }}
   </button>
   @if (customer()) {
-    <button type="button" (click)="cancelled.emit()">إلغاء</button>
+    <button type="button" (click)="cancelled.emit()">{{ text().form.cancel }}</button>
   }
 </form>
-@if (message()) {
-  <p>{{ message() }}</p>
+@if (outcome(); as done) {
+  <p>{{ text().form[done] }}</p>
+}
+@if (problem(); as current) {
+  <p class="error">{{ text().problems[current] }}</p>
 }

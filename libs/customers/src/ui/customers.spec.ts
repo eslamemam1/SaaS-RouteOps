@@ -1,14 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { LanguageService } from '@routeops/shared/i18n';
 import { CustomerAccessError } from '../application/customer-access-error';
 import { CustomerRepository } from '../application/customer-repository';
-import {
-  Customer,
-  customerMessages,
-  CustomerOrganization,
-} from '../domain/customer';
+import { Customer, CustomerOrganization } from '../domain/customer';
 import { Customers } from './customers';
+import { customersText } from './customers-text';
 
 const north: CustomerOrganization = { id: 'org-north', name: 'North' };
 const delta: Customer = {
@@ -21,8 +19,11 @@ const delta: Customer = {
   notes: '',
   active: true,
 };
+const arabic = customersText.ar;
 
 describe('Customers', () => {
+  beforeEach(() => localStorage.clear());
+
   it('shows loading and then the organization customers', async () => {
     let resolveList: (customers: Customer[]) => void = () => undefined;
     const harness = await open({
@@ -33,21 +34,21 @@ describe('Customers', () => {
     });
     await settle(harness);
 
-    expect(text(harness)).toContain('جارٍ تحميل العملاء.');
+    expect(text(harness)).toContain(arabic.list.loading);
 
     resolveList([delta]);
     await settle(harness);
 
     expect(text(harness)).toContain('Delta Factory');
-    expect(text(harness)).toContain('الشركة: North');
+    expect(text(harness)).toContain(arabic.list.current);
   });
 
   it('shows an empty state and the add form when there are no customers', async () => {
     const harness = await open({ list: async () => [] });
     await settle(harness);
 
-    expect(text(harness)).toContain('لا يوجد عملاء بعد.');
-    expect(text(harness)).toContain('إضافة عميل');
+    expect(text(harness)).toContain(arabic.list.empty);
+    expect(text(harness)).toContain(arabic.form.addTitle);
   });
 
   it('refuses an organization outside the user memberships', async () => {
@@ -55,19 +56,30 @@ describe('Customers', () => {
     const harness = await open({ organization: async () => null, list });
     await settle(harness);
 
-    expect(text(harness)).toContain(customerMessages.organization);
+    expect(text(harness)).toContain(arabic.problems.organization);
     expect(list).not.toHaveBeenCalled();
   });
 
   it('shows a safe error when loading fails', async () => {
     const harness = await open({
       list: async () => {
-        throw new CustomerAccessError(customerMessages.load);
+        throw new CustomerAccessError('load');
       },
     });
     await settle(harness);
 
-    expect(text(harness)).toContain(customerMessages.load);
+    expect(text(harness)).toContain(arabic.problems.load);
+  });
+
+  it('shows the list in English after switching language', async () => {
+    const harness = await open({ list: async () => [delta] });
+    await settle(harness);
+
+    TestBed.inject(LanguageService).setLanguage('en');
+    await settle(harness);
+
+    expect(text(harness)).toContain(customersText.en.list.title);
+    expect(text(harness)).toContain(customersText.en.list.current);
   });
 });
 

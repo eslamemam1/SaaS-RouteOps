@@ -1,31 +1,40 @@
 @if (status() === 'loading') {
-  <p>جارٍ تحميل بيانات الشركة.</p>
+  <p>{{ text().home.loading }}</p>
 }
 @if (status() === 'error') {
-  <p>{{ message() }}</p>
+  <p class="error">{{ text().problems[problem()] }}</p>
 }
-@if (status() === 'empty') {
-  <p>هذا الحساب غير مرتبط بأي شركة.</p>
+@if (status() === 'empty' && !operator()) {
+  <p>{{ text().home.noCompany }}</p>
 }
 @if (status() === 'success') {
-  <h2>الشركات</h2>
-  @if (active(); as current) {
-    <p>الشركة الحالية: {{ current.name }}</p>
-    <a [routerLink]="['/organizations', current.id, 'customers']">العملاء</a>
-  } @else {
-    <p>اختر شركة.</p>
+  @if (organizations().length > 1) {
+    <h2>{{ text().home.chooseTitle }}</h2>
+    <p class="hint">{{ text().home.chooseHint }}</p>
+    <ul>
+      @for (organization of organizations(); track organization.id) {
+        <li>
+          <button type="button" (click)="choose(organization.id)">
+            {{ organization.name }}
+          </button>
+        </li>
+      }
+    </ul>
   }
-  <ul>
-    @for (organization of organizations(); track organization.id) {
+  @if (active(); as current) {
+    <h2>{{ text().home.welcome }} {{ current.name }}</h2>
+    <ul class="menu">
       <li>
-        <button type="button" (click)="choose(organization.id)">
-          {{ organization.name }}
-        </button>
+        <a [routerLink]="['/organizations', current.id, 'customers']">
+          {{ text().home.customers }}
+        </a>
+        <span class="hint">{{ text().home.customersHint }}</span>
       </li>
-    }
-  </ul>
+    </ul>
+  }
 }
 @if (operator()) {
+  <h2>{{ text().home.operatorTitle }}</h2>
   <app-provision-company (created)="reload()" />
 }
-<button type="button" (click)="signOut()">تسجيل الخروج</button>
+<button type="button" (click)="signOut()">{{ text().home.signOut }}</button>

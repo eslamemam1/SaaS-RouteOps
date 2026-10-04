@@ -1,5 +1,5 @@
 import { CustomerAccessError } from '../application/customer-access-error';
-import { CustomerOrganization, customerMessages } from '../domain/customer';
+import { CustomerOrganization } from '../domain/customer';
 import { CustomerGateway } from './customer-gateway';
 import { SupabaseCustomerRepository } from './supabase-customer-repository';
 
@@ -27,7 +27,7 @@ describe('SupabaseCustomerRepository', () => {
     const repository = new SupabaseCustomerRepository(gateway);
 
     await expect(repository.organization('org-north')).rejects.toEqual(
-      new CustomerAccessError(customerMessages.signedOut),
+      new CustomerAccessError('signedOut'),
     );
     expect(gateway.membershipOrganizations).not.toHaveBeenCalled();
   });

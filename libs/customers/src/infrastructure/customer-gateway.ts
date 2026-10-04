@@ -4,7 +4,6 @@ import {
   Customer,
   CustomerDetails,
   CustomerOrganization,
-  customerMessages,
 } from '../domain/customer';
 import { Database } from './database';
 
@@ -57,7 +56,7 @@ export class SupabaseCustomerGateway implements CustomerGateway {
       .select('organizations(id, name)')
       .eq('user_id', userId);
     if (error) {
-      throw new CustomerAccessError(customerMessages.load);
+      throw new CustomerAccessError('load');
     }
     return (data ?? []).flatMap((row) =>
       row.organizations
@@ -73,7 +72,7 @@ export class SupabaseCustomerGateway implements CustomerGateway {
       .eq('organization_id', organizationId)
       .order('name');
     if (error) {
-      throw new CustomerAccessError(customerMessages.load);
+      throw new CustomerAccessError('load');
     }
     return (data ?? []).map(toCustomer);
   }
@@ -88,7 +87,7 @@ export class SupabaseCustomerGateway implements CustomerGateway {
       .select(customerColumns)
       .single();
     if (error || !data) {
-      throw new CustomerAccessError(customerMessages.save);
+      throw new CustomerAccessError('save');
     }
     return toCustomer(data);
   }
@@ -106,14 +105,14 @@ export class SupabaseCustomerGateway implements CustomerGateway {
       .select(customerColumns)
       .single();
     if (error || !data) {
-      throw new CustomerAccessError(customerMessages.save);
+      throw new CustomerAccessError('save');
     }
     return toCustomer(data);
   }
 
   private requireClient(): SupabaseClient<Database> {
     if (!this.client) {
-      throw new CustomerAccessError(customerMessages.notConnected);
+      throw new CustomerAccessError('notConnected');
     }
     return this.client;
   }

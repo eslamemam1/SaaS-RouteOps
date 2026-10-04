@@ -1,7 +1,6 @@
 import {
   Customer,
   customerEmailError,
-  customerMessages,
   customerNameError,
   memberOrganization,
   optionalTextError,
@@ -10,11 +9,11 @@ import {
 
 describe('customerNameError', () => {
   it('requires a name', () => {
-    expect(customerNameError('   ')).toBe(customerMessages.name);
+    expect(customerNameError('   ')).toBe('name');
   });
 
   it('rejects a name longer than 200 characters', () => {
-    expect(customerNameError('a'.repeat(201))).toBe(customerMessages.tooLong);
+    expect(customerNameError('a'.repeat(201))).toBe('tooLong');
   });
 
   it('accepts a name with surrounding spaces', () => {
@@ -28,7 +27,7 @@ describe('customerEmailError', () => {
   });
 
   it('rejects an email without a domain', () => {
-    expect(customerEmailError('office@')).toBe(customerMessages.emailFormat);
+    expect(customerEmailError('office@')).toBe('emailFormat');
   });
 
   it('accepts a valid email', () => {
@@ -38,7 +37,7 @@ describe('customerEmailError', () => {
 
 describe('optionalTextError', () => {
   it('rejects text over the limit after trimming', () => {
-    expect(optionalTextError('a'.repeat(51), 50)).toBe(customerMessages.tooLong);
+    expect(optionalTextError('a'.repeat(51), 50)).toBe('tooLong');
     expect(optionalTextError(` ${'a'.repeat(50)} `, 50)).toBeNull();
   });
 });

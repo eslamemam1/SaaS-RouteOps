@@ -1,6 +1,5 @@
 import { Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
-import { companyAccountMessages } from '../domain/company-account';
 import {
   OrganizationRepository,
   ProvisionCompany,
@@ -27,7 +26,7 @@ export class SupabaseOrganizationRepository extends OrganizationRepository {
   async listMine(): Promise<Organization[]> {
     const userId = await this.gateway.sessionUserId();
     if (!userId) {
-      throw new OrganizationAccessError(companyAccountMessages.signedOut);
+      throw new OrganizationAccessError('signedOut');
     }
     const organizationIds =
       await this.gateway.membershipOrganizationIds(userId);

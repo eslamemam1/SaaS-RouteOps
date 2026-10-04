@@ -17,7 +17,8 @@
     "paths": {
       "@routeops/organizations": ["./libs/organizations/src/index.ts"],
       "@routeops/customers": ["./libs/customers/src/index.ts"],
-      "@routeops/shared/supabase": ["./libs/shared/supabase/src/index.ts"]
+      "@routeops/shared/supabase": ["./libs/shared/supabase/src/index.ts"],
+      "@routeops/shared/i18n": ["./libs/shared/i18n/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

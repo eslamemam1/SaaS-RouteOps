@@ -1,6 +1,8 @@
+import { CustomerProblem } from '../domain/customer';
+
 export class CustomerAccessError extends Error {
-  constructor(message: string) {
-    super(message);
+  constructor(readonly problem: CustomerProblem) {
+    super(problem);
     this.name = 'CustomerAccessError';
   }
 }

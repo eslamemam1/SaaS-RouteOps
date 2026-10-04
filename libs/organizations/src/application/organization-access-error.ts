@@ -1,6 +1,8 @@
+import { CompanyAccountProblem } from '../domain/company-account';
+
 export class OrganizationAccessError extends Error {
-  constructor(message: string) {
-    super(message);
+  constructor(readonly problem: CompanyAccountProblem) {
+    super(problem);
     this.name = 'OrganizationAccessError';
   }
 }

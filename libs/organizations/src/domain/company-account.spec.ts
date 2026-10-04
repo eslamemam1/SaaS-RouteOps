@@ -1,5 +1,4 @@
 import {
-  companyAccountMessages,
   emailError,
   organizationNameError,
   passwordError,
@@ -11,13 +10,11 @@ const south: Organization = { id: 'org-south', name: 'South' };
 
 describe('organization name', () => {
   it('rejects a blank name', () => {
-    expect(organizationNameError('   ')).toBe(companyAccountMessages.organizationName);
+    expect(organizationNameError('   ')).toBe('organizationName');
   });
 
   it('rejects a name longer than 200 characters', () => {
-    expect(organizationNameError('a'.repeat(201))).toBe(
-      companyAccountMessages.organizationNameLength,
-    );
+    expect(organizationNameError('a'.repeat(201))).toBe('organizationNameLength');
   });
 
   it('accepts a trimmed name', () => {
@@ -27,11 +24,11 @@ describe('organization name', () => {
 
 describe('email and password', () => {
   it('rejects an email without a domain', () => {
-    expect(emailError('owner@fleet')).toBe(companyAccountMessages.emailFormat);
+    expect(emailError('owner@fleet')).toBe('emailFormat');
   });
 
   it('rejects a password shorter than 6 characters', () => {
-    expect(passwordError('short')).toBe(companyAccountMessages.password);
+    expect(passwordError('short')).toBe('password');
   });
 });
 

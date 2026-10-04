@@ -1,14 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { companyAccountMessages } from '../domain/company-account';
+import { LanguageService } from '@routeops/shared/i18n';
 import { Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
 import { Organizations } from './organizations';
+import { organizationsText } from './organizations-text';
 
 const north: Organization = { id: 'org-north', name: 'North' };
+const arabic = organizationsText.ar;
 
 describe('Organizations', () => {
+  beforeEach(() => localStorage.clear());
+
   it('shows loading and then the assigned organization', async () => {
     let resolveList: (organizations: Organization[]) => void = () => undefined;
     const fixture = await render({
@@ -18,38 +22,42 @@ describe('Organizations', () => {
         }),
     });
 
-    expect(text(fixture)).toContain('جارٍ تحميل بيانات الشركة.');
+    expect(text(fixture)).toContain(arabic.home.loading);
 
     resolveList([north]);
-    await Promise.resolve();
-    await Promise.resolve();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await settle(fixture);
 
-    expect(text(fixture)).toContain('الشركة الحالية: North');
+    expect(text(fixture)).toContain(`${arabic.home.welcome} North`);
   });
 
   it('shows an empty state when the account has no organization', async () => {
-    const fixture = await render({
-      listMine: async () => [],
-    });
-    await fixture.whenStable();
-    fixture.detectChanges();
+    const fixture = await render({ listMine: async () => [] });
+    await settle(fixture);
 
-    expect(text(fixture)).toContain('هذا الحساب غير مرتبط بأي شركة.');
+    expect(text(fixture)).toContain(arabic.home.noCompany);
   });
 
   it('shows a safe error when loading fails', async () => {
     const fixture = await render({
       listMine: async () => {
-        throw new OrganizationAccessError(companyAccountMessages.load);
+        throw new OrganizationAccessError('load');
       },
     });
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await settle(fixture);
 
-    expect(text(fixture)).toContain(companyAccountMessages.load);
+    expect(text(fixture)).toContain(arabic.problems.load);
     expect(text(fixture)).not.toContain('select ');
+  });
+
+  it('shows the screen in English after switching language', async () => {
+    const fixture = await render({ listMine: async () => [north] });
+    await settle(fixture);
+
+    TestBed.inject(LanguageService).setLanguage('en');
+    await settle(fixture);
+
+    expect(text(fixture)).toContain('Welcome, North');
+    expect(text(fixture)).toContain(organizationsText.en.home.customers);
   });
 });
 
@@ -73,6 +81,13 @@ async function render(overrides: Partial<OrganizationRepository>) {
   const fixture = TestBed.createComponent(Organizations);
   fixture.detectChanges();
   return fixture;
+}
+
+async function settle(fixture: ComponentFixture<Organizations>): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+  await fixture.whenStable();
+  fixture.detectChanges();
 }
 
 function text(fixture: ComponentFixture<Organizations>): string {

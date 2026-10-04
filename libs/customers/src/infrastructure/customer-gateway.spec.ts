@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { CustomerAccessError } from '../application/customer-access-error';
-import { customerMessages, emptyCustomerDetails } from '../domain/customer';
+import { emptyCustomerDetails } from '../domain/customer';
 import { SupabaseCustomerGateway } from './customer-gateway';
 import { Database } from './database';
 
@@ -111,14 +111,14 @@ describe('SupabaseCustomerGateway', () => {
 
     await expect(
       gateway.insertCustomer('org-south', { ...emptyCustomerDetails, name: 'X' }),
-    ).rejects.toEqual(new CustomerAccessError(customerMessages.save));
+    ).rejects.toEqual(new CustomerAccessError('save'));
   });
 
   it('reports that the app is not connected when there is no client', async () => {
     const gateway = new SupabaseCustomerGateway(null);
 
     await expect(gateway.listCustomers('org-north')).rejects.toEqual(
-      new CustomerAccessError(customerMessages.notConnected),
+      new CustomerAccessError('notConnected'),
     );
   });
 });

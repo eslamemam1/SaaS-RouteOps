@@ -26,16 +26,18 @@ export const customerLimits = {
   notes: 2000,
 } as const;
 
-export const customerMessages = {
-  name: 'أدخل اسم العميل.',
-  tooLong: 'النص أطول من المسموح.',
-  emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا.',
-  load: 'تعذّر تحميل العملاء.',
-  save: 'تعذّر حفظ بيانات العميل.',
-  organization: 'هذه الشركة غير متاحة لحسابك.',
-  signedOut: 'سجّل الدخول للمتابعة.',
-  notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
-} as const;
+export const customerProblems = [
+  'name',
+  'tooLong',
+  'emailFormat',
+  'load',
+  'save',
+  'organization',
+  'signedOut',
+  'notConnected',
+] as const;
+
+export type CustomerProblem = (typeof customerProblems)[number];
 
 export const emptyCustomerDetails: CustomerDetails = {
   name: '',
@@ -49,27 +51,30 @@ export const emptyCustomerDetails: CustomerDetails = {
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function customerNameError(value: string): string | null {
+export function customerNameError(value: string): CustomerProblem | null {
   const name = value.trim();
   if (name.length === 0) {
-    return customerMessages.name;
+    return 'name';
   }
-  return name.length > customerLimits.name ? customerMessages.tooLong : null;
+  return name.length > customerLimits.name ? 'tooLong' : null;
 }
 
-export function optionalTextError(value: string, limit: number): string | null {
-  return value.trim().length > limit ? customerMessages.tooLong : null;
+export function optionalTextError(
+  value: string,
+  limit: number,
+): CustomerProblem | null {
+  return value.trim().length > limit ? 'tooLong' : null;
 }
 
-export function customerEmailError(value: string): string | null {
+export function customerEmailError(value: string): CustomerProblem | null {
   const email = value.trim();
   if (email.length === 0) {
     return null;
   }
   if (email.length > customerLimits.email) {
-    return customerMessages.tooLong;
+    return 'tooLong';
   }
-  return emailPattern.test(email) ? null : customerMessages.emailFormat;
+  return emailPattern.test(email) ? null : 'emailFormat';
 }
 
 export function memberOrganization(

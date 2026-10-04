@@ -1,27 +1,25 @@
-<a routerLink="/">العودة إلى الشركة</a>
-<h2>العملاء</h2>
-@if (organization(); as current) {
-  <p>الشركة: {{ current.name }}</p>
-}
+<a routerLink="/">{{ text().list.back }}</a>
+<h2>{{ text().list.title }}</h2>
+<p class="hint">{{ text().list.hint }}</p>
 @if (status() === 'loading') {
-  <p>جارٍ تحميل العملاء.</p>
+  <p>{{ text().list.loading }}</p>
 }
 @if (status() === 'error') {
-  <p>{{ message() }}</p>
+  <p class="error">{{ text().problems[problem()] }}</p>
 }
 @if (status() === 'empty') {
-  <p>لا يوجد عملاء بعد. أضف أول عميل من النموذج بالأسفل.</p>
+  <p>{{ text().list.empty }}</p>
 }
 @if (status() === 'success') {
   <table>
     <thead>
       <tr>
-        <th>الاسم</th>
-        <th>الشخص المسؤول</th>
-        <th>الهاتف</th>
-        <th>البريد الإلكتروني</th>
-        <th>العنوان</th>
-        <th>الحالة</th>
+        <th>{{ text().list.name }}</th>
+        <th>{{ text().list.contactName }}</th>
+        <th>{{ text().list.phone }}</th>
+        <th>{{ text().list.email }}</th>
+        <th>{{ text().list.address }}</th>
+        <th>{{ text().list.dealing }}</th>
         <th></th>
       </tr>
     </thead>
@@ -33,9 +31,9 @@
           <td><bdi>{{ customer.phone }}</bdi></td>
           <td><bdi>{{ customer.email }}</bdi></td>
           <td>{{ customer.address }}</td>
-          <td>{{ customer.active ? 'نشط' : 'متوقف' }}</td>
+          <td>{{ customer.active ? text().list.current : text().list.stopped }}</td>
           <td>
-            <button type="button" (click)="edit(customer)">تعديل</button>
+            <button type="button" (click)="edit(customer)">{{ text().list.edit }}</button>
           </td>
         </tr>
       }

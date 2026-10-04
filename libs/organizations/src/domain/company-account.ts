@@ -1,48 +1,61 @@
 export const minimumPasswordLength = 6;
 export const maximumOrganizationNameLength = 200;
 
-export const companyAccountMessages = {
-  organizationName: 'أدخل اسم الشركة.',
-  organizationNameLength: 'اسم الشركة أطول من المسموح.',
-  email: 'أدخل البريد الإلكتروني.',
-  emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا.',
-  password: 'يجب ألا تقل كلمة المرور عن 6 أحرف.',
-  emailTaken: 'يوجد حساب بهذا البريد الإلكتروني بالفعل.',
-  operatorOnly: 'إنشاء الشركات متاح لمدير الموقع فقط.',
-  signIn: 'تعذّر تسجيل الدخول. تأكد من البريد الإلكتروني وكلمة المرور.',
-  load: 'تعذّر تحميل بيانات الشركة.',
-  create: 'تعذّر إنشاء الشركة.',
-  signedOut: 'سجّل الدخول للمتابعة.',
-  notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
-} as const;
+export const companyAccountProblems = [
+  'organizationName',
+  'organizationNameLength',
+  'email',
+  'emailFormat',
+  'password',
+  'emailTaken',
+  'operatorOnly',
+  'signIn',
+  'load',
+  'create',
+  'signedOut',
+  'notConnected',
+] as const;
+
+export type CompanyAccountProblem = (typeof companyAccountProblems)[number];
+
+export function isCompanyAccountProblem(
+  value: unknown,
+): value is CompanyAccountProblem {
+  return (
+    typeof value === 'string' &&
+    (companyAccountProblems as readonly string[]).includes(value)
+  );
+}
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function organizationNameError(value: string): string | null {
+export function organizationNameError(
+  value: string,
+): CompanyAccountProblem | null {
   const name = value.trim();
   if (name.length === 0) {
-    return companyAccountMessages.organizationName;
+    return 'organizationName';
   }
   if (name.length > maximumOrganizationNameLength) {
-    return companyAccountMessages.organizationNameLength;
+    return 'organizationNameLength';
   }
   return null;
 }
 
-export function emailError(value: string): string | null {
+export function emailError(value: string): CompanyAccountProblem | null {
   const email = value.trim();
   if (email.length === 0) {
-    return companyAccountMessages.email;
+    return 'email';
   }
   if (!emailPattern.test(email)) {
-    return companyAccountMessages.emailFormat;
+    return 'emailFormat';
   }
   return null;
 }
 
-export function passwordError(value: string): string | null {
+export function passwordError(value: string): CompanyAccountProblem | null {
   if (value.length < minimumPasswordLength) {
-    return companyAccountMessages.password;
+    return 'password';
   }
   return null;
 }

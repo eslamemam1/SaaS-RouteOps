@@ -7,17 +7,18 @@ const headers = {
   'Content-Type': 'application/json',
 };
 
-const messages = {
-  organizationName: 'أدخل اسم الشركة.',
-  organizationNameLength: 'اسم الشركة أطول من المسموح.',
-  email: 'أدخل البريد الإلكتروني.',
-  emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا.',
-  password: 'يجب ألا تقل كلمة المرور عن 6 أحرف.',
-  emailTaken: 'يوجد حساب بهذا البريد الإلكتروني بالفعل.',
-  operatorOnly: 'إنشاء الشركات متاح لمدير الموقع فقط.',
-  signedOut: 'سجّل الدخول للمتابعة.',
-  create: 'تعذّر إنشاء الشركة.',
-} as const;
+// The app translates these codes. Keep them in sync with
+// CompanyAccountProblem in libs/organizations.
+type Problem =
+  | 'organizationName'
+  | 'organizationNameLength'
+  | 'email'
+  | 'emailFormat'
+  | 'password'
+  | 'emailTaken'
+  | 'operatorOnly'
+  | 'signedOut'
+  | 'create';
 
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') {
@@ -27,7 +28,7 @@ Deno.serve(async (request) => {
   try {
     return await provisionCompany(request);
   } catch {
-    return json({ error: messages.create }, 500);
+    return json({ error: 'create' }, 500);
   }
 });
 
@@ -38,7 +39,7 @@ async function provisionCompany(request: Request): Promise<Response> {
     Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!url || !publishableKey || !serviceRoleKey) {
-    return json({ error: messages.create }, 500);
+    return json({ error: 'create' }, 500);
   }
 
   const parsed = parseBody(await request.json().catch(() => null));
@@ -56,7 +57,7 @@ async function provisionCompany(request: Request): Promise<Response> {
   const { data: userData, error: userError } = await caller.auth.getUser();
   const userId = userData.user?.id;
   if (userError || !userId) {
-    return json({ error: messages.signedOut }, 401);
+    return json({ error: 'signedOut' }, 401);
   }
 
   const admin = createClient(url, serviceRoleKey);
@@ -66,7 +67,7 @@ async function provisionCompany(request: Request): Promise<Response> {
     .eq('user_id', userId)
     .maybeSingle();
   if (operatorError || !operator) {
-    return json({ error: messages.operatorOnly }, 403);
+    return json({ error: 'operatorOnly' }, 403);
   }
 
   const { data: created, error: createError } =
@@ -78,7 +79,7 @@ async function provisionCompany(request: Request): Promise<Response> {
   if (createError || !created.user) {
     const taken = createError?.message.toLowerCase().includes('already');
     return json(
-      { error: taken ? messages.emailTaken : messages.create },
+      { error: taken ? 'emailTaken' : 'create' },
       taken ? 400 : 500,
     );
   }
@@ -90,7 +91,7 @@ async function provisionCompany(request: Request): Promise<Response> {
     .single();
   if (organizationError || !organization) {
     await admin.auth.admin.deleteUser(created.user.id);
-    return json({ error: messages.create }, 500);
+    return json({ error: 'create' }, 500);
   }
 
   const { error: membershipError } = await admin
@@ -102,7 +103,7 @@ async function provisionCompany(request: Request): Promise<Response> {
   if (membershipError) {
     await admin.from('organizations').delete().eq('id', organization.id);
     await admin.auth.admin.deleteUser(created.user.id);
-    return json({ error: messages.create }, 500);
+    return json({ error: 'create' }, 500);
   }
 
   return json({ organizationName: organization.name }, 200);
@@ -110,9 +111,9 @@ async function provisionCompany(request: Request): Promise<Response> {
 
 function parseBody(
   body: unknown,
-): { organizationName: string; email: string; password: string } | { error: string } {
+): { organizationName: string; email: string; password: string } | { error: Problem } {
   if (typeof body !== 'object' || body === null) {
-    return { error: messages.create };
+    return { error: 'create' };
   }
   const record = body as Record<string, unknown>;
   const organizationName =
@@ -125,23 +126,26 @@ function parseBody(
     typeof record['password'] === 'string' ? record['password'] : '';
 
   if (organizationName.length === 0) {
-    return { error: messages.organizationName };
+    return { error: 'organizationName' };
   }
   if (organizationName.length > 200) {
-    return { error: messages.organizationNameLength };
+    return { error: 'organizationNameLength' };
   }
   if (email.length === 0) {
-    return { error: messages.email };
+    return { error: 'email' };
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { error: messages.emailFormat };
+    return { error: 'emailFormat' };
   }
   if (password.length < 6) {
-    return { error: messages.password };
+    return { error: 'password' };
   }
   return { organizationName, email, password };
 }
 
-function json(body: unknown, status: number): Response {
+function json(
+  body: { error: Problem } | { organizationName: string },
+  status: number,
+): Response {
   return new Response(JSON.stringify(body), { status, headers });
 }

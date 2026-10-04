@@ -1,9 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { companyAccountMessages } from '../domain/company-account';
+import { injectText } from '@routeops/shared/i18n';
+import { CompanyAccountProblem } from '../domain/company-account';
 import { activeOrganization, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
+import { organizationsText } from './organizations-text';
 import { ProvisionCompanyForm } from './provision-company';
 
 @Component({
@@ -15,10 +17,11 @@ export class Organizations {
   private readonly repository = inject(OrganizationRepository);
   private readonly router = inject(Router);
 
+  protected readonly text = injectText(organizationsText);
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
-  protected readonly message = signal('');
+  protected readonly problem = signal<CompanyAccountProblem>('load');
   protected readonly organizations = signal<Organization[]>([]);
   protected readonly active = signal<Organization | null>(null);
   protected readonly operator = signal(false);
@@ -49,10 +52,8 @@ export class Organizations {
       this.active.set(activeOrganization(organizations, null));
       this.status.set(organizations.length === 0 ? 'empty' : 'success');
     } catch (error) {
-      this.message.set(
-        error instanceof OrganizationAccessError
-          ? error.message
-          : companyAccountMessages.load,
+      this.problem.set(
+        error instanceof OrganizationAccessError ? error.problem : 'load',
       );
       this.status.set('error');
     }

@@ -1,14 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { injectText } from '@routeops/shared/i18n';
 import { CustomerAccessError } from '../application/customer-access-error';
 import { CustomerRepository } from '../application/customer-repository';
 import {
   Customer,
-  customerMessages,
   CustomerOrganization,
+  CustomerProblem,
   sortByName,
 } from '../domain/customer';
 import { CustomerForm } from './customer-form';
+import { customersText } from './customers-text';
 
 @Component({
   selector: 'app-customers',
@@ -19,10 +21,11 @@ export class Customers {
   private readonly repository = inject(CustomerRepository);
   private readonly route = inject(ActivatedRoute);
 
+  protected readonly text = injectText(customersText);
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
-  protected readonly message = signal('');
+  protected readonly problem = signal<CustomerProblem>('load');
   protected readonly organization = signal<CustomerOrganization | null>(null);
   protected readonly customers = signal<Customer[]>([]);
   protected readonly editing = signal<Customer | null>(null);
@@ -53,7 +56,7 @@ export class Customers {
         this.route.snapshot.paramMap.get('organizationId') ?? '';
       const organization = await this.repository.organization(requestedId);
       if (!organization) {
-        this.message.set(customerMessages.organization);
+        this.problem.set('organization');
         this.status.set('error');
         return;
       }
@@ -62,10 +65,8 @@ export class Customers {
       this.customers.set(customers);
       this.status.set(customers.length === 0 ? 'empty' : 'success');
     } catch (error) {
-      this.message.set(
-        error instanceof CustomerAccessError
-          ? error.message
-          : customerMessages.load,
+      this.problem.set(
+        error instanceof CustomerAccessError ? error.problem : 'load',
       );
       this.status.set('error');
     }

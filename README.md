@@ -9,6 +9,7 @@ Multi-tenant operations app for staff transportation companies.
 - `libs/organizations` signs users in and creates companies.
 - `libs/customers` keeps each organization's customers.
 - `libs/shared/supabase` holds the single Supabase client and the signed-in route guard.
+- `libs/shared/i18n` holds the Arabic and English language switch.
 - Tag feature libraries `scope:<feature>` and `type:feature`.
 - `supabase/migrations` is the database source of truth. Local Supabase needs Docker.
 

@@ -4,7 +4,6 @@ import {
   Customer,
   CustomerDetails,
   CustomerOrganization,
-  customerMessages,
   memberOrganization,
 } from '../domain/customer';
 import { CustomerGateway } from './customer-gateway';
@@ -17,7 +16,7 @@ export class SupabaseCustomerRepository extends CustomerRepository {
   async organization(requestedId: string): Promise<CustomerOrganization | null> {
     const userId = await this.gateway.sessionUserId();
     if (!userId) {
-      throw new CustomerAccessError(customerMessages.signedOut);
+      throw new CustomerAccessError('signedOut');
     }
     const memberships = await this.gateway.membershipOrganizations(userId);
     return memberOrganization(memberships, requestedId);
