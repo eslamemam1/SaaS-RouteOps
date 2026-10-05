@@ -1,5 +1,5 @@
 @if (showShell()) {
-  <div class="shell">
+  <div class="shell" [class.shell-sidebar-hidden]="sidebarHidden()">
     @if (menuOpen()) {
       <button
         type="button"
@@ -41,9 +41,10 @@
           type="button"
           class="shell-menu-button"
           aria-controls="shell-sidebar"
-          [attr.aria-expanded]="menuOpen()"
-          [attr.aria-label]="text().openMenu"
-          (click)="menuOpen.set(!menuOpen())"
+          [attr.aria-expanded]="sidebarVisible()"
+          [attr.aria-label]="sidebarVisible() ? text().closeMenu : text().openMenu"
+          [attr.title]="sidebarVisible() ? text().closeMenu : text().openMenu"
+          (click)="toggleSidebar()"
         >
           <ng-icon [svg]="menuIcon" aria-hidden="true" />
         </button>

@@ -1,6 +1,8 @@
+import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { App } from './app';
 import { shellText } from './shell-text';
 
@@ -8,7 +10,10 @@ import { shellText } from './shell-text';
 class Blank {}
 
 describe('App', () => {
+  let compact = false;
+
   beforeEach(async () => {
+    compact = false;
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [App],
@@ -18,6 +23,12 @@ describe('App', () => {
           { path: 'organizations/:organizationId/routes', component: Blank },
           { path: '', component: Blank },
         ]),
+        {
+          provide: BreakpointObserver,
+          useValue: {
+            observe: () => of<BreakpointState>({ matches: compact, breakpoints: {} }),
+          },
+        },
       ],
     }).compileComponents();
   });
@@ -40,20 +51,51 @@ describe('App', () => {
     expect(active?.getAttribute('href')).toBe('/organizations/org-north/routes');
   });
 
-  it('opens the sidebar from the menu button and closes it after moving to a page', async () => {
-    const fixture = TestBed.createComponent(App);
-    await TestBed.inject(Router).navigateByUrl('/organizations/org-north/routes');
-    await fixture.whenStable();
+  it('hides and shows the sidebar on a wide screen and remembers the choice', async () => {
+    const fixture = await openFixture('/organizations/org-north/routes');
     const element = fixture.nativeElement as HTMLElement;
-    const menu = element.querySelector<HTMLButtonElement>('.shell-menu-button');
-    if (!menu) {
-      throw new Error('The menu button is missing.');
-    }
+    const menu = menuButton(element);
+    expect(menu.getAttribute('aria-expanded')).toBe('true');
+
+    menu.click();
+    await fixture.whenStable();
+    expect(element.querySelector('.shell-sidebar-hidden')).toBeTruthy();
+    expect(menu.getAttribute('aria-expanded')).toBe('false');
+    expect(menu.getAttribute('aria-label')).toBe(shellText.ar.openMenu);
+    expect(localStorage.getItem('routeops.sidebar')).toBe('hidden');
+
+    await TestBed.inject(Router).navigateByUrl('/');
+    await fixture.whenStable();
+    expect(element.querySelector('.shell-sidebar-hidden')).toBeTruthy();
+
+    menu.click();
+    await fixture.whenStable();
+    expect(element.querySelector('.shell-sidebar-hidden')).toBeNull();
+    expect(menu.getAttribute('aria-label')).toBe(shellText.ar.closeMenu);
+    expect(localStorage.getItem('routeops.sidebar')).toBeNull();
+  });
+
+  it('starts with the sidebar hidden when that was the last choice', async () => {
+    localStorage.setItem('routeops.sidebar', 'hidden');
+
+    const element = await open('/');
+
+    expect(element.querySelector('.shell-sidebar-hidden')).toBeTruthy();
+    expect(menuButton(element).getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('opens the menu on a small screen and closes it after moving to a page', async () => {
+    compact = true;
+    const fixture = await openFixture('/organizations/org-north/routes');
+    const element = fixture.nativeElement as HTMLElement;
+    const menu = menuButton(element);
+    expect(menu.getAttribute('aria-expanded')).toBe('false');
 
     menu.click();
     await fixture.whenStable();
     expect(menu.getAttribute('aria-expanded')).toBe('true');
     expect(element.querySelector('.shell-sidebar-open')).toBeTruthy();
+    expect(element.querySelector('.shell-sidebar-hidden')).toBeNull();
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     await fixture.whenStable();
@@ -74,11 +116,23 @@ describe('App', () => {
   });
 });
 
-async function open(url: string): Promise<HTMLElement> {
+async function openFixture(url: string): Promise<ComponentFixture<App>> {
   const fixture = TestBed.createComponent(App);
   await TestBed.inject(Router).navigateByUrl(url);
   await fixture.whenStable();
-  return fixture.nativeElement as HTMLElement;
+  return fixture;
+}
+
+async function open(url: string): Promise<HTMLElement> {
+  return (await openFixture(url)).nativeElement as HTMLElement;
+}
+
+function menuButton(element: HTMLElement): HTMLButtonElement {
+  const menu = element.querySelector<HTMLButtonElement>('.shell-menu-button');
+  if (!menu) {
+    throw new Error('The menu button is missing.');
+  }
+  return menu;
 }
 
 function navLabels(element: HTMLElement): string[] {
