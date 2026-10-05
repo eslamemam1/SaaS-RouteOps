@@ -1,6 +1,8 @@
 .home-section {
   display: grid;
+  align-self: stretch;
   align-content: start;
+  min-block-size: var(--ro-section-card-min-height);
   gap: var(--ro-space-2);
   padding: var(--ro-space-5);
   color: var(--ro-text-primary);

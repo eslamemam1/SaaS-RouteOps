@@ -114,5 +114,6 @@
   --ro-drawer-width: 440px;
   --ro-card-min-width: 240px;
   --ro-filter-min-width: 180px;
+  --ro-section-card-min-height: 160px;
   --ro-form-max-width: 480px;
 }
