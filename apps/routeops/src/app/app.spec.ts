@@ -54,14 +54,16 @@ describe('App', () => {
   it('hides and shows the sidebar on a wide screen and remembers the choice', async () => {
     const fixture = await openFixture('/organizations/org-north/routes');
     const element = fixture.nativeElement as HTMLElement;
-    const menu = menuButton(element);
+    const menu = button(element, '.shell-menu-button');
+    const close = button(element, '.shell-sidebar-toggle');
     expect(menu.getAttribute('aria-expanded')).toBe('true');
+    expect(close.getAttribute('aria-label')).toBe(shellText.ar.closeMenu);
 
-    menu.click();
+    close.click();
     await fixture.whenStable();
     expect(element.querySelector('.shell-sidebar-hidden')).toBeTruthy();
     expect(menu.getAttribute('aria-expanded')).toBe('false');
-    expect(menu.getAttribute('aria-label')).toBe(shellText.ar.openMenu);
+    expect(document.activeElement).toBe(menu);
     expect(localStorage.getItem('routeops.sidebar')).toBe('hidden');
 
     await TestBed.inject(Router).navigateByUrl('/');
@@ -71,7 +73,7 @@ describe('App', () => {
     menu.click();
     await fixture.whenStable();
     expect(element.querySelector('.shell-sidebar-hidden')).toBeNull();
-    expect(menu.getAttribute('aria-label')).toBe(shellText.ar.closeMenu);
+    expect(document.activeElement).toBe(close);
     expect(localStorage.getItem('routeops.sidebar')).toBeNull();
   });
 
@@ -81,14 +83,15 @@ describe('App', () => {
     const element = await open('/');
 
     expect(element.querySelector('.shell-sidebar-hidden')).toBeTruthy();
-    expect(menuButton(element).getAttribute('aria-expanded')).toBe('false');
+    expect(button(element, '.shell-menu-button').getAttribute('aria-expanded')).toBe('false');
   });
 
   it('opens the menu on a small screen and closes it after moving to a page', async () => {
     compact = true;
     const fixture = await openFixture('/organizations/org-north/routes');
     const element = fixture.nativeElement as HTMLElement;
-    const menu = menuButton(element);
+    const menu = button(element, '.shell-menu-button');
+    const close = button(element, '.shell-sidebar-toggle');
     expect(menu.getAttribute('aria-expanded')).toBe('false');
 
     menu.click();
@@ -96,10 +99,20 @@ describe('App', () => {
     expect(menu.getAttribute('aria-expanded')).toBe('true');
     expect(element.querySelector('.shell-sidebar-open')).toBeTruthy();
     expect(element.querySelector('.shell-sidebar-hidden')).toBeNull();
+    expect(document.activeElement).toBe(close);
 
+    close.click();
+    await fixture.whenStable();
+    expect(element.querySelector('.shell-sidebar-open')).toBeNull();
+    expect(element.querySelector('.shell-sidebar-hidden')).toBeNull();
+    expect(document.activeElement).toBe(menu);
+
+    menu.click();
+    await fixture.whenStable();
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     await fixture.whenStable();
     expect(element.querySelector('.shell-sidebar-open')).toBeNull();
+    expect(document.activeElement).toBe(menu);
 
     menu.click();
     await fixture.whenStable();
@@ -127,12 +140,12 @@ async function open(url: string): Promise<HTMLElement> {
   return (await openFixture(url)).nativeElement as HTMLElement;
 }
 
-function menuButton(element: HTMLElement): HTMLButtonElement {
-  const menu = element.querySelector<HTMLButtonElement>('.shell-menu-button');
-  if (!menu) {
-    throw new Error('The menu button is missing.');
+function button(element: HTMLElement, selector: string): HTMLButtonElement {
+  const found = element.querySelector<HTMLButtonElement>(selector);
+  if (!found) {
+    throw new Error(`${selector} is missing.`);
   }
-  return menu;
+  return found;
 }
 
 function navLabels(element: HTMLElement): string[] {

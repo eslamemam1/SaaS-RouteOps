@@ -1,6 +1,17 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DOCUMENT } from '@angular/common';
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  Injector,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   ActivatedRouteSnapshot,
@@ -11,8 +22,8 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucideHouse, lucideMenu } from '@ng-icons/lucide';
-import { injectText } from '@routeops/shared/i18n';
+import { lucideChevronsLeft, lucideChevronsRight, lucideHouse, lucideMenu } from '@ng-icons/lucide';
+import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { LanguageSwitch } from '@routeops/shared/ui';
 import { filter, map } from 'rxjs';
 import { shellSections } from './shell-sections';
@@ -26,16 +37,23 @@ const sidebarStorageKey = 'routeops.sidebar';
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
-  host: { '(document:keydown.escape)': 'menuOpen.set(false)' },
+  host: { '(document:keydown.escape)': 'closeMenu()' },
 })
 export class App {
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
   private readonly storage = inject(DOCUMENT).defaultView?.localStorage;
+  private readonly direction = inject(LanguageService).direction;
+  private readonly menuToggle = viewChild<ElementRef<HTMLButtonElement>>('menuToggle');
+  private readonly sidebarToggle = viewChild<ElementRef<HTMLButtonElement>>('sidebarToggle');
 
   protected readonly text = injectText(shellText);
   protected readonly sections = shellSections;
   protected readonly homeIcon = lucideHouse;
   protected readonly menuIcon = lucideMenu;
+  protected readonly closeSidebarIcon = computed(() =>
+    this.direction() === 'rtl' ? lucideChevronsRight : lucideChevronsLeft,
+  );
   protected readonly menuOpen = signal(false);
   protected readonly sidebarHidden = signal(this.readSidebarHidden());
   private readonly compact = toSignal(
@@ -77,9 +95,30 @@ export class App {
   protected toggleSidebar(): void {
     if (this.compact()) {
       this.menuOpen.update((open) => !open);
-      return;
+    } else {
+      this.setSidebarHidden(!this.sidebarHidden());
     }
-    const hidden = !this.sidebarHidden();
+    this.focusToggle();
+  }
+
+  protected closeMenu(): void {
+    if (this.menuOpen()) {
+      this.menuOpen.set(false);
+      this.focusToggle();
+    }
+  }
+
+  private focusToggle(): void {
+    afterNextRender(
+      () => {
+        const target = this.sidebarVisible() ? this.sidebarToggle() : this.menuToggle();
+        target?.nativeElement.focus();
+      },
+      { injector: this.injector },
+    );
+  }
+
+  private setSidebarHidden(hidden: boolean): void {
     this.sidebarHidden.set(hidden);
     try {
       if (hidden) {

@@ -6,11 +6,25 @@
         class="shell-backdrop"
         tabindex="-1"
         [attr.aria-label]="text().closeMenu"
-        (click)="menuOpen.set(false)"
+        (click)="closeMenu()"
       ></button>
     }
     <aside id="shell-sidebar" class="shell-sidebar" [class.shell-sidebar-open]="menuOpen()">
-      <a class="shell-brand" routerLink="/">RouteOps</a>
+      <div class="shell-sidebar-header">
+        <a class="shell-brand" routerLink="/">RouteOps</a>
+        <button
+          #sidebarToggle
+          type="button"
+          class="shell-toggle shell-sidebar-toggle"
+          aria-controls="shell-sidebar"
+          aria-expanded="true"
+          [attr.aria-label]="text().closeMenu"
+          [attr.title]="text().closeMenu"
+          (click)="toggleSidebar()"
+        >
+          <ng-icon [svg]="closeSidebarIcon()" aria-hidden="true" />
+        </button>
+      </div>
       <nav class="shell-nav" [attr.aria-label]="text().navigation">
         <a
           class="shell-nav-item"
@@ -38,12 +52,13 @@
     <div class="shell-main">
       <header class="shell-topbar">
         <button
+          #menuToggle
           type="button"
-          class="shell-menu-button"
+          class="shell-toggle shell-menu-button"
           aria-controls="shell-sidebar"
           [attr.aria-expanded]="sidebarVisible()"
-          [attr.aria-label]="sidebarVisible() ? text().closeMenu : text().openMenu"
-          [attr.title]="sidebarVisible() ? text().closeMenu : text().openMenu"
+          [attr.aria-label]="text().openMenu"
+          [attr.title]="text().openMenu"
           (click)="toggleSidebar()"
         >
           <ng-icon [svg]="menuIcon" aria-hidden="true" />
