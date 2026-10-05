@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { injectText, productName } from '@routeops/shared/i18n';
-import { Alert, Button, Field, LanguageSwitch } from '@routeops/shared/ui';
+import { Alert, Button, Field, LanguageSwitch, Logo } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -11,7 +11,7 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-sign-in',
-  imports: [Alert, Button, Field, FormField, LanguageSwitch],
+  imports: [Alert, Button, Field, FormField, LanguageSwitch, Logo],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.css',
 })

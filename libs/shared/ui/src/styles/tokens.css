@@ -67,6 +67,9 @@
   --ro-focus-width: 2px;
   --ro-disabled-opacity: 0.6;
   --ro-icon-size: 16px;
+  --ro-logo-size-sm: 24px;
+  --ro-logo-size-md: 32px;
+  --ro-logo-size-lg: 56px;
   --ro-spinner-size: 24px;
   --ro-motion-fast: 150ms;
   --ro-motion-slow: 250ms;
@@ -117,7 +120,7 @@
   --ro-drawer-width: 440px;
   --ro-card-min-width: 240px;
   --ro-filter-min-width: 180px;
-  --ro-section-card-min-height: 160px;
+  --ro-card-min-height: 160px;
   --ro-table-label-width: 112px;
   --ro-form-max-width: 480px;
 }

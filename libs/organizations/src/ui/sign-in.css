@@ -21,6 +21,9 @@
 }
 
 .sign-in-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-3);
   color: var(--ro-text-brand);
   font-size: var(--ro-text-heading-lg);
   line-height: var(--ro-leading-heading-lg);

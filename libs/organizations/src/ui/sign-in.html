@@ -1,7 +1,10 @@
 <main class="sign-in">
   <div class="sign-in-language"><app-language-switch /></div>
   <section class="sign-in-card ro-card">
-    <h1 class="sign-in-brand">{{ brand() }}</h1>
+    <h1 class="sign-in-brand">
+      <app-logo size="lg" />
+      <span>{{ brand() }}</span>
+    </h1>
     <div class="sign-in-titles">
       <h2>{{ text().signIn.title }}</h2>
       <p class="hint">{{ text().signIn.hint }}</p>

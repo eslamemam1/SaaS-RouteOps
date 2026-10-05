@@ -3,6 +3,7 @@ export { Button, type ButtonSize, type ButtonVariant } from './button';
 export { Field, type FieldControl } from './field';
 export { FormDrawer } from './form-drawer';
 export { LanguageSwitch } from './language-switch';
+export { Logo, type LogoSize, type LogoVariant } from './logo';
 export { PageHeader } from './page-header';
 export { PageState, type PageStateKind } from './page-state';
 export { Tag, type Tone } from './tag';

@@ -1,0 +1,49 @@
+:host {
+  display: inline-flex;
+  flex: none;
+  inline-size: var(--ro-logo-size-md);
+  block-size: var(--ro-logo-size-md);
+}
+
+:host([data-size='sm']) {
+  inline-size: var(--ro-logo-size-sm);
+  block-size: var(--ro-logo-size-sm);
+}
+
+:host([data-size='lg']) {
+  inline-size: var(--ro-logo-size-lg);
+  block-size: var(--ro-logo-size-lg);
+}
+
+svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.app-logo-tile {
+  fill: var(--ro-bg-brand);
+}
+
+.app-logo-route,
+.app-logo-check {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.app-logo-route {
+  stroke: var(--ro-text-on-brand);
+}
+
+.app-logo-stop {
+  fill: var(--ro-bg-brand);
+  stroke: var(--ro-text-on-brand);
+}
+
+.app-logo-arrival {
+  fill: var(--ro-text-on-brand);
+}
+
+.app-logo-check {
+  stroke: var(--ro-bg-brand);
+}

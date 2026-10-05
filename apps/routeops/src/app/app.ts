@@ -24,7 +24,7 @@ import {
 import { NgIcon } from '@ng-icons/core';
 import { lucideChevronsLeft, lucideChevronsRight, lucideHouse, lucideMenu } from '@ng-icons/lucide';
 import { injectText, LanguageService, productName } from '@routeops/shared/i18n';
-import { LanguageSwitch } from '@routeops/shared/ui';
+import { LanguageSwitch, Logo } from '@routeops/shared/ui';
 import { filter, map } from 'rxjs';
 import { shellSections } from './shell-sections';
 import { shellText } from './shell-text';
@@ -33,7 +33,7 @@ export const compactShellQuery = '(max-width: 899.98px)';
 const sidebarStorageKey = 'routeops.sidebar';
 
 @Component({
-  imports: [LanguageSwitch, NgIcon, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [LanguageSwitch, Logo, NgIcon, RouterLink, RouterLinkActive, RouterOutlet],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',

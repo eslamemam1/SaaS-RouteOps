@@ -169,7 +169,10 @@ label.checkbox {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--ro-card-min-width), 1fr));
   gap: var(--ro-space-4);
-  align-items: start;
+}
+
+.ro-grid > .ro-card {
+  min-block-size: var(--ro-card-min-height);
 }
 
 .ro-form {
