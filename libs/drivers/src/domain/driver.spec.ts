@@ -2,6 +2,7 @@ import {
   dateError,
   Driver,
   driverNameError,
+  DriverOrganization,
   emptyDriverDetails,
   licenseExpired,
   memberOrganization,
@@ -68,7 +69,9 @@ describe('licenseExpired', () => {
 });
 
 describe('memberOrganization', () => {
-  const memberships = [{ id: 'org-north', name: 'North' }];
+  const memberships: DriverOrganization[] = [
+    { id: 'org-north', name: 'North', currency: 'EGP' },
+  ];
 
   it('returns the organization when it is one of the memberships', () => {
     expect(memberOrganization(memberships, 'org-north')).toEqual(memberships[0]);

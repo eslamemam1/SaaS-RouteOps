@@ -1,5 +1,6 @@
 import { Signal } from '@angular/core';
 import { schema, validate } from '@angular/forms/signals';
+import { Currency } from '@routeops/shared/money';
 import {
   dateError,
   DriverDetails,
@@ -8,6 +9,7 @@ import {
   DriverProblem,
   nationalIdError,
   optionalTextError,
+  payError,
 } from '../domain/driver';
 
 type Problems = Signal<Record<DriverProblem, string>>;
@@ -18,8 +20,17 @@ function fieldError(problem: DriverProblem | null, problems: Problems) {
     : { kind: problem, message: problems()[problem] };
 }
 
-export function driverDetailsSchema(problems: Problems) {
+export function driverDetailsSchema(
+  problems: Problems,
+  currency: Signal<Currency>,
+) {
   return schema<DriverDetails>((path) => {
+    validate(path.monthlySalary, ({ value }) =>
+      fieldError(payError(value(), currency()), problems),
+    );
+    validate(path.tripPay, ({ value }) =>
+      fieldError(payError(value(), currency()), problems),
+    );
     validate(path.fullName, ({ value }) =>
       fieldError(driverNameError(value()), problems),
     );

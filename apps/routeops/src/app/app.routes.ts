@@ -27,6 +27,11 @@ export const appRoutes: Route[] = [
       import('@routeops/operations').then((module) => module.operationsRoutes),
   },
   {
+    path: 'organizations/:organizationId/expenses',
+    loadChildren: () =>
+      import('@routeops/expenses').then((module) => module.expensesRoutes),
+  },
+  {
     path: 'organizations/:organizationId/reports',
     loadChildren: () =>
       import('@routeops/reports').then((module) => module.reportsRoutes),

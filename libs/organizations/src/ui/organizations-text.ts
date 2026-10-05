@@ -30,6 +30,8 @@ export interface OrganizationsText {
     readonly routesHint: string;
     readonly operations: string;
     readonly operationsHint: string;
+    readonly expenses: string;
+    readonly expensesHint: string;
     readonly reports: string;
     readonly reportsHint: string;
     readonly suspendedTitle: string;
@@ -129,8 +131,10 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       routesHint: 'اربط كل شركة متعاقدة بمركبة وسائق ومواعيد.',
       operations: 'التشغيل اليومي',
       operationsHint: 'رحلات كل يوم: غياب سائق، عطل مركبة، أو إجازة.',
+      expenses: 'المصاريف',
+      expensesHint: 'الوقود والصيانة والرواتب وإيجار المركبات وكل ما تصرفه الشركة.',
       reports: 'التقارير',
-      reportsHint: 'الرحلات التي تمّت كل شهر وإيرادها، لكل شركة متعاقدة ومركبة وسائق.',
+      reportsHint: 'الرحلات التي تمّت كل شهر وإيرادها ومصاريفها وصافي الربح.',
       suspendedTitle: 'حساب الشركة موقوف',
       suspended:
         'أُوقف حساب شركتك مؤقتًا لحين سداد الاشتراك الشهري. بياناتك محفوظة ولن يُحذف منها شيء. تواصل مع مدير الموقع لإعادة تفعيل الحساب.',
@@ -230,8 +234,10 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       routesHint: 'Link each client company to a vehicle, a driver, and times.',
       operations: 'Daily operations',
       operationsHint: "Each day's trips: an absent driver, a broken vehicle, or a holiday.",
+      expenses: 'Expenses',
+      expensesHint: 'Fuel, maintenance, salaries, vehicle rent, and everything else the company spends.',
       reports: 'Reports',
-      reportsHint: 'The trips done each month and their revenue, per client company, vehicle, and driver.',
+      reportsHint: 'The trips done each month, their revenue, the expenses, and net profit.',
       suspendedTitle: 'The company account is stopped',
       suspended:
         'Your company account is stopped until the monthly subscription is paid. Your data is kept and nothing is deleted. Contact the site manager to turn the account back on.',

@@ -65,6 +65,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expense_totals: {
+        Args: { p_organization_id: string; p_from: string; p_to: string }
+        Returns: {
+          category: string
+          vehicle_id: string | null
+          total: number
+        }[]
+      }
       trip_report: {
         Args: {
           p_organization_id: string

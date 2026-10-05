@@ -3,6 +3,7 @@ import { defaultCurrency, isCurrency } from '@routeops/shared/money';
 import { ReportsAccessError } from '../application/reports-access-error';
 import {
   DateRange,
+  ExpenseTotal,
   isVehicleOwnership,
   ReportChoices,
   ReportOrganization,
@@ -20,6 +21,10 @@ export interface ReportsGateway {
     today: string,
   ): Promise<TripCount[]>;
   unopenedDays(organizationId: string, range: DateRange): Promise<string[]>;
+  expenseTotals(
+    organizationId: string,
+    range: DateRange,
+  ): Promise<ExpenseTotal[]>;
 }
 
 export class SupabaseReportsGateway implements ReportsGateway {
@@ -139,6 +144,25 @@ export class SupabaseReportsGateway implements ReportsGateway {
       throw new ReportsAccessError('load');
     }
     return data ?? [];
+  }
+
+  async expenseTotals(
+    organizationId: string,
+    range: DateRange,
+  ): Promise<ExpenseTotal[]> {
+    const { data, error } = await this.requireClient().rpc('expense_totals', {
+      p_organization_id: organizationId,
+      p_from: range.from,
+      p_to: range.to,
+    });
+    if (error) {
+      throw new ReportsAccessError('load');
+    }
+    return (data ?? []).map((row) => ({
+      category: row.category,
+      vehicleId: row.vehicle_id ?? '',
+      total: Number(row.total),
+    }));
   }
 
   private requireClient(): SupabaseClient<Database> {

@@ -9,6 +9,9 @@ type Result = {
   error: { message: string; code?: string } | null;
 };
 
+const north = { id: 'org-north', name: 'North', currency: 'EGP' } as const;
+const south = { id: 'org-south', name: 'South', currency: 'EGP' } as const;
+
 const row = {
   id: 'driver-1',
   full_name: 'أحمد محمد',
@@ -16,6 +19,8 @@ const row = {
   national_id: null,
   license_number: null,
   license_expires_on: '2027-01-31',
+  monthly_salary: null,
+  trip_pay: null,
   notes: null,
   is_active: true,
 };
@@ -25,7 +30,7 @@ describe('SupabaseDriverGateway', () => {
     const calls = recorder({ data: [row], error: null });
     const gateway = new SupabaseDriverGateway(calls.client);
 
-    await expect(gateway.listDrivers('org-north')).resolves.toEqual([
+    await expect(gateway.listDrivers(north)).resolves.toEqual([
       {
         id: 'driver-1',
         fullName: 'أحمد محمد',
@@ -33,6 +38,8 @@ describe('SupabaseDriverGateway', () => {
         nationalId: '',
         licenseNumber: '',
         licenseExpiry: '2027-01-31',
+        monthlySalary: '',
+        tripPay: '',
         notes: '',
         active: true,
       },
@@ -44,7 +51,7 @@ describe('SupabaseDriverGateway', () => {
     const calls = recorder({ data: row, error: null });
     const gateway = new SupabaseDriverGateway(calls.client);
 
-    await gateway.insertDriver('org-north', {
+    await gateway.insertDriver(north, {
       ...emptyDriverDetails,
       fullName: '  أحمد محمد ',
       nationalId: '٢٩٠ ٠١٠١',
@@ -58,16 +65,50 @@ describe('SupabaseDriverGateway', () => {
       national_id: '2900101',
       license_number: null,
       license_expires_on: null,
+      monthly_salary: null,
+      trip_pay: null,
       notes: null,
       is_active: true,
     });
+  });
+
+  it('stores the pay in the smallest unit of the currency and shows it back as typed', async () => {
+    const calls = recorder({
+      data: { ...row, monthly_salary: 500050, trip_pay: 5000 },
+      error: null,
+    });
+    const gateway = new SupabaseDriverGateway(calls.client);
+
+    const saved = await gateway.insertDriver(north, {
+      ...emptyDriverDetails,
+      fullName: 'أحمد',
+      monthlySalary: '٥٠٠٠.٥',
+      tripPay: '50',
+    });
+
+    expect(calls.inserted).toMatchObject({ monthly_salary: 500050, trip_pay: 5000 });
+    expect(saved.monthlySalary).toBe('5000.50');
+    expect(saved.tripPay).toBe('50.00');
+  });
+
+  it('refuses a pay that is not an amount', async () => {
+    const calls = recorder({ data: row, error: null });
+    const gateway = new SupabaseDriverGateway(calls.client);
+
+    await expect(
+      gateway.insertDriver(north, {
+        ...emptyDriverDetails,
+        fullName: 'أحمد',
+        tripPay: '50.123',
+      }),
+    ).rejects.toEqual(new DriverAccessError('amount'));
   });
 
   it('scopes an update to the driver and its organization', async () => {
     const calls = recorder({ data: { ...row, is_active: false }, error: null });
     const gateway = new SupabaseDriverGateway(calls.client);
 
-    await gateway.updateDriver('org-north', 'driver-1', {
+    await gateway.updateDriver(north, 'driver-1', {
       ...emptyDriverDetails,
       fullName: 'أحمد محمد',
       active: false,
@@ -87,7 +128,7 @@ describe('SupabaseDriverGateway', () => {
     const gateway = new SupabaseDriverGateway(calls.client);
 
     await expect(
-      gateway.insertDriver('org-north', {
+      gateway.insertDriver(north, {
         ...emptyDriverDetails,
         fullName: 'أحمد',
         nationalId: '2900101',
@@ -103,14 +144,14 @@ describe('SupabaseDriverGateway', () => {
     const gateway = new SupabaseDriverGateway(calls.client);
 
     await expect(
-      gateway.insertDriver('org-south', { ...emptyDriverDetails, fullName: 'X' }),
+      gateway.insertDriver(south, { ...emptyDriverDetails, fullName: 'X' }),
     ).rejects.toEqual(new DriverAccessError('save'));
   });
 
   it('reports that the app is not connected when there is no client', async () => {
     const gateway = new SupabaseDriverGateway(null);
 
-    await expect(gateway.listDrivers('org-north')).rejects.toEqual(
+    await expect(gateway.listDrivers(north)).rejects.toEqual(
       new DriverAccessError('notConnected'),
     );
   });

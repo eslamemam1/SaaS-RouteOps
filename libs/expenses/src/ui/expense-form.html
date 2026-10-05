@@ -1,0 +1,66 @@
+<form class="ro-form" (submit)="onSubmit($event)">
+  <app-field [label]="text().form.spentOn" [control]="expenseForm.spentOn">
+    <input type="date" [formField]="expenseForm.spentOn" />
+  </app-field>
+  <app-field [label]="text().form.category" [control]="expenseForm.category">
+    <select [formField]="expenseForm.category">
+      <option value="">{{ text().form.chooseCategory }}</option>
+      @for (category of categories; track category) {
+        <option [value]="category">{{ text().categories[category] }}</option>
+      }
+    </select>
+  </app-field>
+  <app-field
+    [label]="text().form.amount"
+    [hint]="text().form.amountHint"
+    [control]="expenseForm.amount"
+  >
+    <input type="text" inputmode="decimal" dir="ltr" [formField]="expenseForm.amount" />
+    <bdi>{{ organization().currency }}</bdi>
+  </app-field>
+  <app-field [label]="text().form.vehicle" [hint]="text().form.vehicleHint" [optional]="true">
+    <select [formField]="expenseForm.vehicleId">
+      <option value="">{{ text().form.none }}</option>
+      @for (vehicle of vehicles(); track vehicle.id) {
+        <option [value]="vehicle.id">{{ vehicle.label }}</option>
+      }
+    </select>
+  </app-field>
+  <app-field [label]="text().form.driver" [hint]="text().form.driverHint" [optional]="true">
+    <select [formField]="expenseForm.driverId">
+      <option value="">{{ text().form.none }}</option>
+      @for (driver of drivers(); track driver.id) {
+        <option [value]="driver.id">{{ driver.label }}</option>
+      }
+    </select>
+  </app-field>
+  <app-field
+    [label]="text().form.description"
+    [hint]="text().form.descriptionHint"
+    [optional]="descriptionOptional()"
+    [control]="expenseForm.description"
+  >
+    <textarea [formField]="expenseForm.description"></textarea>
+  </app-field>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+  }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="busy()">
+      {{ expenseId() ? text().form.save : text().form.add }}
+    </button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().form.cancel }}
+    </button>
+    @if (expenseId()) {
+      <button
+        type="button"
+        [appButton]="confirmingRemove() ? 'danger' : 'text'"
+        [disabled]="busy()"
+        (click)="remove()"
+      >
+        {{ confirmingRemove() ? text().form.confirmRemove : text().form.remove }}
+      </button>
+    }
+  </div>
+</form>

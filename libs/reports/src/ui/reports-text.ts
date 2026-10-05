@@ -29,6 +29,14 @@ export interface ReportsText {
     readonly extra: string;
     readonly revenue: string;
     readonly revenueTotal: string;
+    readonly expensesTotal: string;
+    readonly profitTotal: string;
+    readonly profitHint: string;
+    readonly expensesLink: string;
+    readonly expenses: string;
+    readonly profit: string;
+    readonly loss: string;
+    readonly vehicleExpensesHint: string;
     readonly unpricedTitle: string;
     readonly unpricedHint: string;
     readonly unpricedTrips: string;
@@ -68,14 +76,14 @@ export const reportsText: Record<Language, ReportsText> = {
       driver: 'بدون سائق',
     },
     report: {
-      title: 'تقرير الرحلات الشهري',
-      hint: 'عدد الرحلات التي تمّت في الشهر وإيرادها، لكل شركة متعاقدة ومركبة وسائق. استخدمه في محاسبة الشركات والمركبات المؤجرة والمتعاقدين. الإيراد يُحسب من سعر الرحلة المسجّل لكل خط.',
+      title: 'التقرير الشهري',
+      hint: 'عدد الرحلات التي تمّت في الشهر وإيرادها ومصاريف الشهر وصافي الربح، لكل شركة متعاقدة ومركبة وسائق. استخدمه في محاسبة الشركات والمركبات المؤجرة والمتعاقدين. الإيراد يُحسب من سعر الرحلة المسجّل لكل خط.',
       month: 'الشهر',
       previous: 'الشهر السابق',
       next: 'الشهر التالي',
       thisMonth: 'هذا الشهر',
       loading: 'جارٍ التحميل...',
-      empty: 'لا توجد رحلات تمّت في هذا الشهر.',
+      empty: 'لا توجد رحلات تمّت ولا مصاريف في هذا الشهر.',
       doneTotal: 'رحلات تمّت',
       extraTotal: 'منها رحلات إضافية',
       countedHint: 'لا تُحسب الرحلات الملغاة ولا رحلات الأيام التي لم تأتِ بعد. وإذا كنت تسجّل الرحلات بنفسك، تُحسب فقط الرحلات التي سجّلتها "تمّت".',
@@ -85,6 +93,14 @@ export const reportsText: Record<Language, ReportsText> = {
       extra: 'منها إضافية',
       revenue: 'الإيراد',
       revenueTotal: 'إيراد الرحلات التي تمّت',
+      expensesTotal: 'مصاريف الشهر',
+      profitTotal: 'صافي الربح',
+      profitHint: 'صافي الربح = إيراد الرحلات التي تمّت − كل المصاريف المسجّلة لهذا الشهر في صفحة',
+      expensesLink: 'المصاريف',
+      expenses: 'المصاريف',
+      profit: 'الربح',
+      loss: 'خسارة',
+      vehicleExpensesHint: 'ربح المركبة = إيراد رحلاتها − المصاريف المسجّلة عليها. المصاريف التي لا تخص مركبة بعينها، مثل المصاريف الإدارية، تظهر في سطر "بدون مركبة".',
       unpricedTitle: 'رحلات بدون سعر',
       unpricedHint: 'لم تُحسب في الإيراد لأن خطها ليس له سعر. حدد سعر الرحلة لكل خط من صفحة',
       unpricedTrips: 'بدون سعر',
@@ -122,14 +138,14 @@ export const reportsText: Record<Language, ReportsText> = {
       driver: 'No driver',
     },
     report: {
-      title: 'Monthly trip report',
-      hint: 'How many trips were done in the month and their revenue, per client company, vehicle, and driver. Use it to settle with client companies, rented vehicles, and contractors. Revenue comes from the trip price set on each route.',
+      title: 'Monthly report',
+      hint: 'How many trips were done in the month, their revenue, the month’s expenses, and net profit, per client company, vehicle, and driver. Use it to settle with client companies, rented vehicles, and contractors. Revenue comes from the trip price set on each route.',
       month: 'Month',
       previous: 'Previous month',
       next: 'Next month',
       thisMonth: 'This month',
       loading: 'Loading...',
-      empty: 'No trips were done in this month.',
+      empty: 'No trips were done and no expenses were recorded in this month.',
       doneTotal: 'Trips done',
       extraTotal: 'of which extra trips',
       countedHint: 'Cancelled trips and trips on days still to come are not counted. If you record trips yourself, only trips you marked "Done" count.',
@@ -139,6 +155,14 @@ export const reportsText: Record<Language, ReportsText> = {
       extra: 'of which extra',
       revenue: 'Revenue',
       revenueTotal: 'Revenue of the trips done',
+      expensesTotal: 'Expenses this month',
+      profitTotal: 'Net profit',
+      profitHint: 'Net profit = revenue of the trips done − all expenses recorded for this month on the page',
+      expensesLink: 'Expenses',
+      expenses: 'Expenses',
+      profit: 'Profit',
+      loss: 'Loss',
+      vehicleExpensesHint: 'Vehicle profit = its trip revenue − the expenses recorded on it. Expenses that are not for one vehicle, such as office costs, are on the "No vehicle" line.',
       unpricedTitle: 'Trips without a price',
       unpricedHint: 'They are not in the revenue because their route has no price. Set the trip price of each route on the page',
       unpricedTrips: 'without a price',

@@ -176,6 +176,29 @@ label.checkbox {
   min-block-size: var(--ro-card-min-height);
 }
 
+.ro-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--ro-card-min-width), 1fr));
+  gap: var(--ro-space-4);
+}
+
+.ro-stat {
+  display: grid;
+  gap: var(--ro-space-2);
+  padding: var(--ro-space-5);
+}
+
+.ro-stat-label {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+}
+
+.ro-stat-value {
+  font-size: var(--ro-text-heading-xl);
+  line-height: var(--ro-leading-heading-xl);
+  font-weight: var(--ro-font-semibold);
+}
+
 .ro-form {
   display: grid;
   gap: var(--ro-space-5);

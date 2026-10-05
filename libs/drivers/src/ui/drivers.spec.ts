@@ -8,7 +8,7 @@ import { Driver, DriverOrganization } from '../domain/driver';
 import { Drivers } from './drivers';
 import { driversText } from './drivers-text';
 
-const north: DriverOrganization = { id: 'org-north', name: 'North' };
+const north: DriverOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 const ahmed: Driver = {
   id: 'driver-1',
   fullName: 'أحمد محمد',
@@ -16,6 +16,8 @@ const ahmed: Driver = {
   nationalId: '29001011234567',
   licenseNumber: 'L-55',
   licenseExpiry: '2000-01-01',
+  monthlySalary: '',
+  tripPay: '',
   notes: '',
   active: true,
 };

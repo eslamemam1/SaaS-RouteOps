@@ -8,6 +8,7 @@ import {
   lucideChartColumn,
   lucideIdCard,
   lucideRoute,
+  lucideWallet,
 } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
 import { Alert, Button, PageHeader, PageState } from '@routeops/shared/ui';
@@ -25,6 +26,7 @@ const sections = [
   { path: 'customers', hint: 'customersHint', icon: lucideBuilding2 },
   { path: 'vehicles', hint: 'vehiclesHint', icon: lucideBus },
   { path: 'drivers', hint: 'driversHint', icon: lucideIdCard },
+  { path: 'expenses', hint: 'expensesHint', icon: lucideWallet },
   { path: 'reports', hint: 'reportsHint', icon: lucideChartColumn },
 ] as const;
 

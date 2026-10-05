@@ -45,15 +45,21 @@
     <app-page-state kind="empty" [message]="text().report.empty" />
   }
   @if (status() === 'success') {
-    <div class="reports-stats">
+    <div class="ro-stats">
       @for (stat of stats(); track stat.label) {
-        <div class="reports-stat ro-card">
-          <span class="reports-stat-label">{{ stat.label }}</span>
-          <strong class="reports-stat-value ro-numeric"><bdi>{{ stat.value }}</bdi></strong>
+        <div class="ro-stat ro-card">
+          <span class="ro-stat-label">{{ stat.label }}</span>
+          <strong class="ro-stat-value ro-numeric"><bdi>{{ stat.value }}</bdi></strong>
         </div>
       }
     </div>
     <p class="hint">{{ text().report.countedHint }}</p>
+    @if (organization(); as current) {
+      <p class="hint">
+        {{ text().report.profitHint }}
+        <a [routerLink]="['/organizations', current.id, 'expenses']">{{ text().report.expensesLink }}</a>
+      </p>
+    }
     @if (total().unpriced > 0) {
       <app-alert tone="warning" [title]="unpricedTitle()">
         {{ text().report.unpricedHint }}
@@ -81,6 +87,11 @@
           }
         </div>
       </div>
+      @if (group() === 'vehicle') {
+        <div class="ro-card-body">
+          <p class="hint">{{ text().report.vehicleExpensesHint }}</p>
+        </div>
+      }
       <div class="ro-table-scroll">
         <table class="ro-table-stack">
           <thead>
@@ -92,6 +103,10 @@
               <th>{{ text().report.done }}</th>
               <th>{{ text().report.extra }}</th>
               <th>{{ text().report.revenue }}</th>
+              @if (group() === 'vehicle') {
+                <th>{{ text().report.expenses }}</th>
+                <th>{{ text().report.profit }}</th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -128,6 +143,17 @@
                     </app-tag>
                   }
                 </td>
+                @if (group() === 'vehicle') {
+                  <td class="ro-numeric" [attr.data-label]="text().report.expenses">
+                    <bdi>{{ money(line.expenses) }}</bdi>
+                  </td>
+                  <td class="ro-numeric" [attr.data-label]="text().report.profit">
+                    <bdi>{{ money(line.revenue - line.expenses) }}</bdi>
+                    @if (line.revenue < line.expenses) {
+                      <app-tag tone="danger">{{ text().report.loss }}</app-tag>
+                    }
+                  </td>
+                }
               </tr>
             }
           </tbody>

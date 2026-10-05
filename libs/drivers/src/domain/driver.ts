@@ -1,14 +1,22 @@
+import { amountError, Currency } from '@routeops/shared/money';
+
 export interface DriverOrganization {
   readonly id: string;
   readonly name: string;
+  readonly currency: Currency;
 }
 
+// monthlySalary and tripPay are typed amounts in the organization currency,
+// blank when the driver is not paid that way. The expenses screen suggests a
+// month's pay from them.
 export interface DriverDetails {
   readonly fullName: string;
   readonly phone: string;
   readonly nationalId: string;
   readonly licenseNumber: string;
   readonly licenseExpiry: string;
+  readonly monthlySalary: string;
+  readonly tripPay: string;
   readonly notes: string;
   readonly active: boolean;
 }
@@ -31,6 +39,7 @@ export const driverProblems = [
   'nationalId',
   'nationalIdTaken',
   'date',
+  'amount',
   'load',
   'save',
   'organization',
@@ -46,9 +55,15 @@ export const emptyDriverDetails: DriverDetails = {
   nationalId: '',
   licenseNumber: '',
   licenseExpiry: '',
+  monthlySalary: '',
+  tripPay: '',
   notes: '',
   active: true,
 };
+
+export function payError(value: string, currency: Currency): DriverProblem | null {
+  return amountError(value, currency) ? 'amount' : null;
+}
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 const nationalIdPattern = /^[0-9A-Za-z]+$/;

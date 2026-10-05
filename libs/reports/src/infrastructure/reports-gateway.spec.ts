@@ -68,6 +68,30 @@ describe('SupabaseReportsGateway', () => {
     ]);
   });
 
+  it('totals the month expenses per category and vehicle', async () => {
+    const calls = recorder(() => ({
+      data: [
+        { category: 'fuel', vehicle_id: 'bus-1', total: 80000 },
+        { category: 'office', vehicle_id: null, total: 15000 },
+      ],
+      error: null,
+    }));
+    const gateway = new SupabaseReportsGateway(calls.client);
+
+    await expect(
+      gateway.expenseTotals('org-north', { from: '2026-10-01', to: '2026-10-31' }),
+    ).resolves.toEqual([
+      { category: 'fuel', vehicleId: 'bus-1', total: 80000 },
+      { category: 'office', vehicleId: '', total: 15000 },
+    ]);
+    expect(calls.rpc).toEqual([
+      [
+        'expense_totals',
+        { p_organization_id: 'org-north', p_from: '2026-10-01', p_to: '2026-10-31' },
+      ],
+    ]);
+  });
+
   it('names vehicles with their ownership and keeps every record of the organization', async () => {
     const calls = recorder((table) => {
       if (table === 'vehicles') {

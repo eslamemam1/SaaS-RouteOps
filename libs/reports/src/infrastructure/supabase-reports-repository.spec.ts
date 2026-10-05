@@ -24,11 +24,21 @@ describe('SupabaseReportsRepository', () => {
   it('counts the whole month and checks missing days only up to today', async () => {
     const tripCounts = vi.fn(async () => []);
     const unopenedDays = vi.fn(async () => ['2026-10-02']);
-    const repository = new SupabaseReportsRepository(gateway({ tripCounts, unopenedDays }));
+    const expenseTotals = vi.fn(async () => [
+      { category: 'fuel', vehicleId: 'bus-1', total: 5000 },
+    ]);
+    const repository = new SupabaseReportsRepository(
+      gateway({ tripCounts, unopenedDays, expenseTotals }),
+    );
 
     await expect(repository.month(north, '2026-10', '2026-10-04')).resolves.toEqual({
       counts: [],
+      expenses: [{ category: 'fuel', vehicleId: 'bus-1', total: 5000 }],
       unopenedDays: ['2026-10-02'],
+    });
+    expect(expenseTotals).toHaveBeenCalledWith('org-north', {
+      from: '2026-10-01',
+      to: '2026-10-31',
     });
     expect(tripCounts).toHaveBeenCalledWith(
       'org-north',
@@ -58,6 +68,7 @@ function gateway(overrides: Partial<ReportsGateway>): ReportsGateway {
     listChoices: async () => ({ customers: [], vehicles: [], drivers: [] }),
     tripCounts: async () => [],
     unopenedDays: async () => [],
+    expenseTotals: async () => [],
     ...overrides,
   };
 }

@@ -32,6 +32,28 @@
   >
     <input type="date" [formField]="driverForm.licenseExpiry" />
   </app-field>
+  <fieldset>
+    <legend>{{ text().form.payTitle }}</legend>
+    <p class="hint">{{ text().form.payHint }}</p>
+    <app-field
+      [label]="text().form.monthlySalary"
+      [hint]="text().form.amountHint"
+      [optional]="true"
+      [control]="driverForm.monthlySalary"
+    >
+      <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.monthlySalary" />
+      <bdi>{{ organization().currency }}</bdi>
+    </app-field>
+    <app-field
+      [label]="text().form.tripPay"
+      [hint]="text().form.tripPayHint"
+      [optional]="true"
+      [control]="driverForm.tripPay"
+    >
+      <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.tripPay" />
+      <bdi>{{ organization().currency }}</bdi>
+    </app-field>
+  </fieldset>
   <app-field
     [label]="text().form.notes"
     [hint]="text().form.notesHint"

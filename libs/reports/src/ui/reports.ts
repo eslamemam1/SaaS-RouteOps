@@ -6,6 +6,7 @@ import { Alert, Button, Field, PageHeader, PageState, Tag } from '@routeops/shar
 import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
 import {
+  expenseSum,
   isReportMonth,
   MonthReport,
   monthOf,
@@ -23,7 +24,7 @@ import {
 import { reportsText } from './reports-text';
 
 const noChoices: ReportChoices = { customers: [], vehicles: [], drivers: [] };
-const noReport: MonthReport = { counts: [], unopenedDays: [] };
+const noReport: MonthReport = { counts: [], expenses: [], unopenedDays: [] };
 
 @Component({
   selector: 'app-reports',
@@ -50,8 +51,15 @@ export class Reports {
   protected readonly groups = reportGroups;
   protected readonly group = signal<ReportGroup>('customer');
   protected readonly total = computed(() => reportTotal(this.report().counts));
+  protected readonly expenses = computed(() => expenseSum(this.report().expenses));
+  protected readonly profit = computed(() => this.total().revenue - this.expenses());
   protected readonly lines = computed(() =>
-    reportLines(this.report().counts, this.group(), this.choices()),
+    reportLines(
+      this.report().counts,
+      this.group(),
+      this.choices(),
+      this.report().expenses,
+    ),
   );
   protected readonly unopenedTitle = computed(
     () => `${this.text().report.unopenedTitle} (${this.report().unopenedDays.length})`,
@@ -64,6 +72,8 @@ export class Reports {
     const total = this.total();
     return [
       { label: text.revenueTotal, value: this.money(total.revenue) },
+      { label: text.expensesTotal, value: this.money(this.expenses()) },
+      { label: text.profitTotal, value: this.money(this.profit()) },
       { label: text.doneTotal, value: String(total.done) },
       { label: text.extraTotal, value: String(total.extra) },
     ];
@@ -127,7 +137,11 @@ export class Reports {
         return;
       }
       this.report.set(report);
-      this.status.set(report.counts.length === 0 ? 'empty' : 'success');
+      this.status.set(
+        report.counts.length === 0 && report.expenses.length === 0
+          ? 'empty'
+          : 'success',
+      );
     } catch (error) {
       this.fail(error);
     }

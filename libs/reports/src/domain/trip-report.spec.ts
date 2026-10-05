@@ -1,5 +1,7 @@
 import {
   daysSoFar,
+  ExpenseTotal,
+  expenseSum,
   isReportMonth,
   memberOrganization,
   monthDays,
@@ -63,22 +65,42 @@ describe('report lines', () => {
 
   it('adds up the trips of each client company, most trips first', () => {
     expect(reportLines(counts, 'customer', choices)).toEqual([
-      { id: 'delta', label: 'Delta Factory', done: 40, extra: 0, revenue: 400000, unpriced: 0 },
-      { id: 'nour', label: 'Nour Company', done: 32, extra: 3, revenue: 360000, unpriced: 1 },
+      { id: 'delta', label: 'Delta Factory', done: 40, extra: 0, revenue: 400000, unpriced: 0, expenses: 0 },
+      { id: 'nour', label: 'Nour Company', done: 32, extra: 3, revenue: 360000, unpriced: 1, expenses: 0 },
     ]);
   });
 
   it('adds up the trips of each vehicle', () => {
     expect(reportLines(counts, 'vehicle', choices)).toEqual([
-      { id: 'bus-1', label: 'أ ب ج 1234', done: 50, extra: 2, revenue: 550000, unpriced: 0 },
-      { id: 'van-2', label: 'د هـ و 5678', done: 22, extra: 1, revenue: 210000, unpriced: 1 },
+      { id: 'bus-1', label: 'أ ب ج 1234', done: 50, extra: 2, revenue: 550000, unpriced: 0, expenses: 0 },
+      { id: 'van-2', label: 'د هـ و 5678', done: 22, extra: 1, revenue: 210000, unpriced: 1, expenses: 0 },
     ]);
+  });
+
+  it('subtracts the expenses of each vehicle, including one without trips', () => {
+    const expenses: ExpenseTotal[] = [
+      { category: 'fuel', vehicleId: 'bus-1', total: 80000 },
+      { category: 'maintenance', vehicleId: 'bus-1', total: 20000 },
+      { category: 'rent', vehicleId: 'van-3', total: 300000 },
+      { category: 'office', vehicleId: '', total: 15000 },
+    ];
+
+    expect(
+      reportLines(counts, 'vehicle', choices, expenses).map((line) => [line.id, line.expenses]),
+    ).toEqual([
+      ['bus-1', 100000],
+      ['van-2', 0],
+      ['van-3', 300000],
+      ['', 15000],
+    ]);
+    expect(reportLines(counts, 'customer', choices, expenses)).toHaveLength(2);
+    expect(expenseSum(expenses)).toBe(415000);
   });
 
   it('keeps trips without a driver on their own line', () => {
     expect(reportLines(counts, 'driver', choices)).toEqual([
-      { id: 'ahmed', label: 'أحمد علي', done: 50, extra: 2, revenue: 550000, unpriced: 0 },
-      { id: '', label: '', done: 22, extra: 1, revenue: 210000, unpriced: 1 },
+      { id: 'ahmed', label: 'أحمد علي', done: 50, extra: 2, revenue: 550000, unpriced: 0, expenses: 0 },
+      { id: '', label: '', done: 22, extra: 1, revenue: 210000, unpriced: 1, expenses: 0 },
     ]);
   });
 

@@ -1,0 +1,232 @@
+<div class="ro-stack">
+  <app-page-header [title]="text().list.title" [hint]="text().list.hint">
+    @if (organization()) {
+      <div class="ro-toolbar ro-date-nav">
+        <button appButton="secondary" type="button" (click)="moveMonth(-1)">
+          {{ text().list.previous }}
+        </button>
+        <app-field [label]="text().list.month">
+          <input
+            type="month"
+            dir="ltr"
+            [value]="month()"
+            (change)="chooseMonth($any($event.target).value)"
+          />
+        </app-field>
+        <button appButton="secondary" type="button" (click)="moveMonth(1)">
+          {{ text().list.next }}
+        </button>
+        @if (month() !== thisMonth) {
+          <button appButton="text" type="button" (click)="chooseMonth(thisMonth)">
+            {{ text().list.thisMonth }}
+          </button>
+        }
+      </div>
+    }
+    @if (status() === 'success' || status() === 'empty') {
+      <button appButton type="button" (click)="add()">
+        <ng-icon [svg]="addIcon" aria-hidden="true" />
+        {{ text().list.add }}
+      </button>
+    }
+  </app-page-header>
+
+  @if (outcome(); as done) {
+    <app-alert tone="success" [dismissible]="true" (dismissed)="outcome.set(null)">
+      {{ text().form[done] }}
+    </app-alert>
+  }
+
+  @switch (status()) {
+    @case ('loading') {
+      <app-page-state kind="loading" [message]="text().list.loading" />
+    }
+    @case ('error') {
+      <app-page-state kind="error" [message]="text().problems[problem()]" />
+    }
+    @case ('empty') {
+      <app-page-state kind="empty" [message]="text().list.empty">
+        <button appButton type="button" (click)="add()">
+          <ng-icon [svg]="addIcon" aria-hidden="true" />
+          {{ text().list.add }}
+        </button>
+      </app-page-state>
+      @if (organization(); as current) {
+        <p class="hint">
+          {{ text().pay.none }}
+          <a [routerLink]="['/organizations', current.id, 'drivers']">{{ text().pay.driversLink }}</a>
+        </p>
+      }
+    }
+    @case ('success') {
+      <div class="ro-stats">
+        @for (stat of stats(); track stat.label) {
+          <div class="ro-stat ro-card">
+            <span class="ro-stat-label">{{ stat.label }}</span>
+            <strong class="ro-stat-value ro-numeric"><bdi>{{ stat.value }}</bdi></strong>
+          </div>
+        }
+      </div>
+
+      <section class="ro-card">
+        <div class="ro-card-header">
+          <h2 class="ro-card-title">{{ text().pay.title }}</h2>
+          <p class="hint">{{ text().pay.hint }}</p>
+        </div>
+        @if (data().pay.length === 0) {
+          <div class="ro-card-body">
+            @if (organization(); as current) {
+              <p class="hint">
+                {{ text().pay.none }}
+                <a [routerLink]="['/organizations', current.id, 'drivers']">{{ text().pay.driversLink }}</a>
+              </p>
+            }
+          </div>
+        } @else {
+          <div class="ro-table-scroll">
+            <table class="ro-table-stack">
+              <thead>
+                <tr>
+                  <th>{{ text().pay.driver }}</th>
+                  <th>{{ text().pay.trips }}</th>
+                  <th>{{ text().pay.suggested }}</th>
+                  <th>{{ text().pay.recorded }}</th>
+                  <th>{{ text().pay.remaining }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (pay of data().pay; track pay.driverId) {
+                  <tr>
+                    <td [attr.data-label]="text().pay.driver">
+                      <bdi>{{ driverName(pay.driverId) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().pay.trips">
+                      <bdi>{{ pay.doneTrips }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().pay.suggested">
+                      <bdi>{{ money(suggested(pay)) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().pay.recorded">
+                      <bdi>{{ money(pay.recorded) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().pay.remaining">
+                      <bdi>{{ money(remaining(pay)) }}</bdi>
+                    </td>
+                    <td class="ro-actions">
+                      @if (remaining(pay) > 0) {
+                        <button appButton="secondary" size="sm" type="button" (click)="recordSalary(pay)">
+                          {{ text().pay.record }}
+                        </button>
+                      } @else {
+                        <app-tag tone="success">{{ text().pay.done }}</app-tag>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+
+      @if (categories().length > 0) {
+        <section class="ro-card">
+          <div class="ro-card-header">
+            <h2 class="ro-card-title">{{ text().list.byCategory }}</h2>
+          </div>
+          <div class="ro-table-scroll">
+            <table class="ro-table-stack">
+              <thead>
+                <tr>
+                  <th>{{ text().list.category }}</th>
+                  <th>{{ text().list.amount }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of categories(); track line.category) {
+                  <tr>
+                    <td [attr.data-label]="text().list.category">
+                      {{ text().categories[line.category] }}
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().list.amount">
+                      <bdi>{{ money(line.total) }}</bdi>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <section class="ro-card">
+        <div class="ro-card-header">
+          <h2 class="ro-card-title">{{ text().list.expensesTitle }}</h2>
+        </div>
+        @if (data().expenses.length === 0) {
+          <div class="ro-card-body">
+            <p class="hint">{{ text().list.noExpenses }}</p>
+          </div>
+        } @else {
+          <div class="ro-table-scroll">
+            <table class="ro-table-stack">
+              <thead>
+                <tr>
+                  <th>{{ text().list.date }}</th>
+                  <th>{{ text().list.category }}</th>
+                  <th>{{ text().list.description }}</th>
+                  <th>{{ text().list.vehicle }}</th>
+                  <th>{{ text().list.driver }}</th>
+                  <th>{{ text().list.amount }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (expense of data().expenses; track expense.id) {
+                  <tr>
+                    <td class="ro-numeric" [attr.data-label]="text().list.date">
+                      <bdi>{{ expense.spentOn }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().list.category">
+                      <app-tag>{{ text().categories[expense.category] }}</app-tag>
+                    </td>
+                    <td [attr.data-label]="text().list.description">{{ expense.description }}</td>
+                    <td [attr.data-label]="text().list.vehicle">
+                      <bdi>{{ vehicleName(expense.vehicleId) }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().list.driver">
+                      <bdi>{{ driverName(expense.driverId) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().list.amount">
+                      <bdi>{{ money(expense.amount) }}</bdi>
+                    </td>
+                    <td class="ro-actions">
+                      <button appButton="text" size="sm" type="button" (click)="edit(expense)">
+                        {{ text().list.edit }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+  }
+</div>
+
+@if (organization(); as current) {
+  <app-form-drawer [title]="formTitle()" [open]="formOpen()" (openChange)="onDrawer($event)">
+    <app-expense-form
+      [organization]="current"
+      [choices]="choices()"
+      [details]="formDetails()"
+      [expenseId]="editingId()"
+      (saved)="onSaved()"
+      (removed)="onRemoved()"
+      (cancelled)="close()"
+    />
+  </app-form-drawer>
+}

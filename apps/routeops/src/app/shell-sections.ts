@@ -5,6 +5,7 @@ import {
   lucideChartColumn,
   lucideIdCard,
   lucideRoute,
+  lucideWallet,
 } from '@ng-icons/lucide';
 
 export const shellSections = [
@@ -13,6 +14,7 @@ export const shellSections = [
   { path: 'customers', icon: lucideBuilding2 },
   { path: 'vehicles', icon: lucideBus },
   { path: 'drivers', icon: lucideIdCard },
+  { path: 'expenses', icon: lucideWallet },
   { path: 'reports', icon: lucideChartColumn },
 ] as const;
 

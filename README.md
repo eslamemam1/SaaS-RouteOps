@@ -12,7 +12,8 @@ Multi-tenant operations app for staff transportation companies.
 - `libs/drivers` keeps each organization's drivers.
 - `libs/routes` keeps each organization's routes: the customer, vehicle, driver, trip times, working days, and trip price.
 - `libs/operations` keeps each day's trips as they happened: swapped vehicles or drivers, cancellations, holidays, and priced extra trips.
-- `libs/reports` counts the trips done each month and their revenue per client company, vehicle, and driver, and lists the days nobody opened.
+- `libs/expenses` records what each organization spends and suggests each driver's monthly pay from their salary and done trips.
+- `libs/reports` counts the trips done each month and their revenue per client company, vehicle, and driver, subtracts the month's expenses to show net profit and each vehicle's profit, and lists the days nobody opened.
 - `libs/shared/supabase` holds the single Supabase client and the signed-in route guard.
 - `libs/shared/i18n` holds the current language and `injectText`.
 - `libs/shared/ui` is the design system: tokens from the Figma file, base styles, and the shared field, button, tag, alert, page states, form drawer, and language switch. Run `npm run lint:styles` to check that styles use the tokens.

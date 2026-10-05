@@ -23,11 +23,11 @@ export class SupabaseDriverRepository extends DriverRepository {
   }
 
   list(organization: DriverOrganization): Promise<Driver[]> {
-    return this.gateway.listDrivers(organization.id);
+    return this.gateway.listDrivers(organization);
   }
 
   add(organization: DriverOrganization, details: DriverDetails): Promise<Driver> {
-    return this.gateway.insertDriver(organization.id, details);
+    return this.gateway.insertDriver(organization, details);
   }
 
   update(
@@ -35,6 +35,6 @@ export class SupabaseDriverRepository extends DriverRepository {
     driverId: string,
     details: DriverDetails,
   ): Promise<Driver> {
-    return this.gateway.updateDriver(organization.id, driverId, details);
+    return this.gateway.updateDriver(organization, driverId, details);
   }
 }

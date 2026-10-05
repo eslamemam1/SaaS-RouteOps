@@ -3,7 +3,7 @@ import { DriverOrganization } from '../domain/driver';
 import { DriverGateway } from './driver-gateway';
 import { SupabaseDriverRepository } from './supabase-driver-repository';
 
-const north: DriverOrganization = { id: 'org-north', name: 'North' };
+const north: DriverOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 
 describe('SupabaseDriverRepository', () => {
   it('resolves the organization from the signed-in user memberships', async () => {
@@ -39,7 +39,7 @@ describe('SupabaseDriverRepository', () => {
     const organization = await repository.organization('org-north');
     await repository.list(organization ?? north);
 
-    expect(gateway.listDrivers).toHaveBeenCalledWith('org-north');
+    expect(gateway.listDrivers).toHaveBeenCalledWith(north);
   });
 });
 

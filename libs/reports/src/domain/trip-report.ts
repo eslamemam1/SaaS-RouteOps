@@ -49,10 +49,19 @@ export interface TripCount {
   readonly unpriced: number;
 }
 
+// Expenses of one category spent on one vehicle, in the smallest unit of the
+// organization currency. vehicleId is empty for expenses that name no vehicle.
+export interface ExpenseTotal {
+  readonly category: string;
+  readonly vehicleId: string;
+  readonly total: number;
+}
+
 // unopenedDays are working days nobody opened on the daily screen, so their
 // trips were never recorded and are missing from the counts.
 export interface MonthReport {
   readonly counts: readonly TripCount[];
+  readonly expenses: readonly ExpenseTotal[];
   readonly unopenedDays: readonly string[];
 }
 
@@ -60,6 +69,7 @@ export const reportGroups = ['customer', 'vehicle', 'driver'] as const;
 
 export type ReportGroup = (typeof reportGroups)[number];
 
+// expenses are counted only for vehicle lines; customer and driver lines have 0.
 export interface ReportLine {
   readonly id: string;
   readonly label: string;
@@ -67,6 +77,7 @@ export interface ReportLine {
   readonly extra: number;
   readonly revenue: number;
   readonly unpriced: number;
+  readonly expenses: number;
 }
 
 export interface ReportTotal {
@@ -116,15 +127,25 @@ export function daysSoFar(month: string, today: string): DateRange | null {
   return { from, to: to < today ? to : today };
 }
 
+// A vehicle with expenses but no done trips still gets a line, so its cost
+// shows.
 export function reportLines(
   counts: readonly TripCount[],
   group: ReportGroup,
   choices: ReportChoices,
+  expenses: readonly ExpenseTotal[] = [],
 ): ReportLine[] {
   const totals = new Map<string, ReportTotal>();
   for (const count of counts) {
     const id = groupId(count, group);
     totals.set(id, addCount(totals.get(id) ?? emptyTotal, count));
+  }
+  const spent = new Map<string, number>();
+  if (group === 'vehicle') {
+    for (const expense of expenses) {
+      spent.set(expense.vehicleId, (spent.get(expense.vehicleId) ?? 0) + expense.total);
+      totals.set(expense.vehicleId, totals.get(expense.vehicleId) ?? emptyTotal);
+    }
   }
   const names = groupChoices(group, choices);
   return [...totals]
@@ -132,6 +153,7 @@ export function reportLines(
       id,
       label: names.find((choice) => choice.id === id)?.label ?? '',
       ...total,
+      expenses: spent.get(id) ?? 0,
     }))
     .sort(
       (first, second) =>
@@ -141,6 +163,10 @@ export function reportLines(
 
 export function reportTotal(counts: readonly TripCount[]): ReportTotal {
   return counts.reduce(addCount, emptyTotal);
+}
+
+export function expenseSum(expenses: readonly ExpenseTotal[]): number {
+  return expenses.reduce((total, expense) => total + expense.total, 0);
 }
 
 const emptyTotal: ReportTotal = { done: 0, extra: 0, revenue: 0, unpriced: 0 };

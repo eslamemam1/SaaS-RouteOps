@@ -22,10 +22,12 @@ export type Database = {
           is_active: boolean
           license_expires_on: string | null
           license_number: string | null
+          monthly_salary: number | null
           national_id: string | null
           notes: string | null
           organization_id: string
           phone: string | null
+          trip_pay: number | null
           updated_at: string
         }
         Insert: {
@@ -35,10 +37,12 @@ export type Database = {
           is_active?: boolean
           license_expires_on?: string | null
           license_number?: string | null
+          monthly_salary?: number | null
           national_id?: string | null
           notes?: string | null
           organization_id: string
           phone?: string | null
+          trip_pay?: number | null
           updated_at?: string
         }
         Update: {
@@ -48,10 +52,12 @@ export type Database = {
           is_active?: boolean
           license_expires_on?: string | null
           license_number?: string | null
+          monthly_salary?: number | null
           national_id?: string | null
           notes?: string | null
           organization_id?: string
           phone?: string | null
+          trip_pay?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -96,6 +102,7 @@ export type Database = {
       organizations: {
         Row: {
           created_at: string
+          currency: string
           id: string
           name: string
           updated_at: string

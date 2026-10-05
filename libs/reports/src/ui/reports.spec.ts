@@ -26,6 +26,7 @@ const october: MonthReport = {
     { customerId: 'delta', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, revenue: 600000, unpriced: 0 },
     { customerId: 'nour', vehicleId: 'van-2', driverId: '', done: 22, extra: 3, revenue: 0, unpriced: 0 },
   ],
+  expenses: [],
   unopenedDays: [],
 };
 const arabic = reportsText.ar;
@@ -76,6 +77,44 @@ describe('Reports', () => {
     expect(text(harness)).not.toContain(arabic.report.unpricedTitle);
   });
 
+  it('subtracts the month expenses from the revenue, overall and per vehicle', async () => {
+    const harness = await open({
+      month: async () => ({
+        ...october,
+        expenses: [
+          { category: 'fuel', vehicleId: 'bus-1', total: 100000 },
+          { category: 'office', vehicleId: '', total: 50000 },
+        ],
+      }),
+    });
+    await settle(harness);
+
+    expect(text(harness)).toContain(formatMoney(150000, 'EGP', 'ar'));
+    expect(text(harness)).toContain(formatMoney(450000, 'EGP', 'ar'));
+
+    button(harness, arabic.groups.vehicle)?.click();
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.report.vehicleExpensesHint);
+    expect(rows(harness)[0].textContent).toContain(formatMoney(500000, 'EGP', 'ar'));
+    expect(rows(harness)[2].textContent).toContain(arabic.missing.vehicle);
+    expect(rows(harness)[2].textContent).toContain(arabic.report.loss);
+  });
+
+  it('shows a month with expenses but no trips', async () => {
+    const harness = await open({
+      month: async () => ({
+        counts: [],
+        expenses: [{ category: 'rent', vehicleId: 'van-2', total: 300000 }],
+        unopenedDays: [],
+      }),
+    });
+    await settle(harness);
+
+    expect(text(harness)).not.toContain(arabic.report.empty);
+    expect(text(harness)).toContain(formatMoney(-300000, 'EGP', 'ar'));
+  });
+
   it('warns about done trips without a price', async () => {
     const harness = await open({
       month: async () => ({
@@ -115,7 +154,7 @@ describe('Reports', () => {
   });
 
   it('shows an empty state for a month without trips', async () => {
-    const harness = await open({ month: async () => ({ counts: [], unopenedDays: [] }) });
+    const harness = await open({ month: async () => ({ counts: [], expenses: [], unopenedDays: [] }) });
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.report.empty);

@@ -34,10 +34,12 @@ export class SupabaseReportsRepository extends ReportsRepository {
     today: string,
   ): Promise<MonthReport> {
     const soFar = daysSoFar(month, today);
-    const [counts, unopenedDays] = await Promise.all([
-      this.gateway.tripCounts(organization.id, monthDays(month), today),
+    const range = monthDays(month);
+    const [counts, expenses, unopenedDays] = await Promise.all([
+      this.gateway.tripCounts(organization.id, range, today),
+      this.gateway.expenseTotals(organization.id, range),
       soFar ? this.gateway.unopenedDays(organization.id, soFar) : [],
     ]);
-    return { counts, unopenedDays };
+    return { counts, expenses, unopenedDays };
   }
 }

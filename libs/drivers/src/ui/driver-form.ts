@@ -43,7 +43,13 @@ export class DriverForm {
   protected readonly problem = signal<DriverProblem | null>(null);
   protected readonly model = signal<DriverDetails>(emptyDriverDetails);
   protected readonly driverForm = form(this.model, (field) => {
-    apply(field, driverDetailsSchema(this.problems));
+    apply(
+      field,
+      driverDetailsSchema(
+        this.problems,
+        computed(() => this.organization().currency),
+      ),
+    );
   });
 
   constructor() {
@@ -95,6 +101,8 @@ function detailsOf(driver: Driver | null): DriverDetails {
     nationalId: driver.nationalId,
     licenseNumber: driver.licenseNumber,
     licenseExpiry: driver.licenseExpiry,
+    monthlySalary: driver.monthlySalary,
+    tripPay: driver.tripPay,
     notes: driver.notes,
     active: driver.active,
   };
