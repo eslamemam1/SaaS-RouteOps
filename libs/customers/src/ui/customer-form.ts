@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
+import { Alert, Button, Field } from '@routeops/shared/ui';
 import { CustomerAccessError } from '../application/customer-access-error';
 import { CustomerRepository } from '../application/customer-repository';
 import {
@@ -24,7 +25,7 @@ import { customersText } from './customers-text';
 
 @Component({
   selector: 'app-customer-form',
-  imports: [FormField],
+  imports: [Alert, Button, Field, FormField],
   templateUrl: './customer-form.html',
 })
 export class CustomerForm {
@@ -39,7 +40,6 @@ export class CustomerForm {
   private readonly problems = computed(() => this.text().problems);
 
   protected readonly submitting = signal(false);
-  protected readonly outcome = signal<'added' | 'saved' | null>(null);
   protected readonly problem = signal<CustomerProblem | null>(null);
   protected readonly model = signal<CustomerDetails>(emptyCustomerDetails);
   protected readonly customerForm = form(this.model, (field) => {
@@ -51,7 +51,6 @@ export class CustomerForm {
       const details = detailsOf(this.customer());
       untracked(() => {
         this.customerForm().reset(details);
-        this.outcome.set(null);
         this.problem.set(null);
       });
     });
@@ -72,7 +71,6 @@ export class CustomerForm {
             )
           : await this.repository.add(this.organization(), this.model());
         this.customerForm().reset(emptyCustomerDetails);
-        this.outcome.set(existing ? 'saved' : 'added');
         this.saved.emit(saved);
         return undefined;
       } catch (error) {

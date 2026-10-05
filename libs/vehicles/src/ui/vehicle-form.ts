@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
+import { Alert, Button, Field } from '@routeops/shared/ui';
 import { VehicleAccessError } from '../application/vehicle-access-error';
 import { VehicleRepository } from '../application/vehicle-repository';
 import {
@@ -26,7 +27,7 @@ import { vehiclesText } from './vehicles-text';
 
 @Component({
   selector: 'app-vehicle-form',
-  imports: [FormField],
+  imports: [Alert, Button, Field, FormField],
   templateUrl: './vehicle-form.html',
 })
 export class VehicleForm {
@@ -43,7 +44,6 @@ export class VehicleForm {
   protected readonly types = vehicleTypes;
   protected readonly ownerships = vehicleOwnerships;
   protected readonly submitting = signal(false);
-  protected readonly outcome = signal<'added' | 'saved' | null>(null);
   protected readonly problem = signal<VehicleProblem | null>(null);
   protected readonly model = signal<VehicleDetails>(emptyVehicleDetails);
   protected readonly vehicleForm = form(this.model, (field) => {
@@ -58,7 +58,6 @@ export class VehicleForm {
       const details = detailsOf(this.vehicle());
       untracked(() => {
         this.vehicleForm().reset(details);
-        this.outcome.set(null);
         this.problem.set(null);
       });
     });
@@ -79,7 +78,6 @@ export class VehicleForm {
             )
           : await this.repository.add(this.organization(), this.model());
         this.vehicleForm().reset(emptyVehicleDetails);
-        this.outcome.set(existing ? 'saved' : 'added');
         this.saved.emit(saved);
         return undefined;
       } catch (error) {

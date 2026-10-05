@@ -1,70 +1,45 @@
-<h3>{{ customer() ? text().form.editTitle : text().form.addTitle }}</h3>
-<form (submit)="onSubmit($event)">
-  <label>
-    {{ text().form.name }}
-    <span class="hint">{{ text().form.nameHint }}</span>
+<form class="ro-form" (submit)="onSubmit($event)">
+  <app-field [label]="text().form.name" [hint]="text().form.nameHint" [control]="customerForm.name">
     <input type="text" [formField]="customerForm.name" />
-  </label>
-  @if (customerForm.name().touched() && customerForm.name().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.contactName }}
-    <span class="hint">{{ text().form.contactNameHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.contactName"
+    [hint]="text().form.contactNameHint"
+    [optional]="true"
+    [control]="customerForm.contactName"
+  >
     <input type="text" [formField]="customerForm.contactName" />
-  </label>
-  @if (
-    customerForm.contactName().touched() && customerForm.contactName().errors()[0];
-    as error
-  ) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.phone }}
+  </app-field>
+  <app-field [label]="text().form.phone" [optional]="true" [control]="customerForm.phone">
     <input type="tel" dir="ltr" [formField]="customerForm.phone" />
-  </label>
-  @if (customerForm.phone().touched() && customerForm.phone().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.email }}
+  </app-field>
+  <app-field [label]="text().form.email" [optional]="true" [control]="customerForm.email">
     <input type="email" dir="ltr" [formField]="customerForm.email" />
-  </label>
-  @if (customerForm.email().touched() && customerForm.email().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.address }}
+  </app-field>
+  <app-field [label]="text().form.address" [optional]="true" [control]="customerForm.address">
     <input type="text" [formField]="customerForm.address" />
-  </label>
-  @if (
-    customerForm.address().touched() && customerForm.address().errors()[0];
-    as error
-  ) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.notes }}
-    <span class="hint">{{ text().form.notesHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.notes"
+    [hint]="text().form.notesHint"
+    [optional]="true"
+    [control]="customerForm.notes"
+  >
     <textarea [formField]="customerForm.notes"></textarea>
-  </label>
-  @if (customerForm.notes().touched() && customerForm.notes().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
+  </app-field>
   <label class="checkbox">
     <input type="checkbox" [formField]="customerForm.active" />
     {{ text().form.active }}
   </label>
-  <button type="submit" [disabled]="submitting()">
-    {{ customer() ? text().form.save : text().form.add }}
-  </button>
-  @if (customer()) {
-    <button type="button" (click)="cancelled.emit()">{{ text().form.cancel }}</button>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="submitting()">
+      {{ customer() ? text().form.save : text().form.add }}
+    </button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().form.cancel }}
+    </button>
+  </div>
 </form>
-@if (outcome(); as done) {
-  <p>{{ text().form[done] }}</p>
-}
-@if (problem(); as current) {
-  <p class="error">{{ text().problems[current] }}</p>
-}

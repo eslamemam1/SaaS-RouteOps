@@ -49,7 +49,6 @@ const noChoices: RouteChoices = { customers: [], vehicles: [], drivers: [] };
     Tag,
   ],
   templateUrl: './transport-routes.html',
-  styleUrl: './transport-routes.css',
 })
 export class TransportRoutes {
   private readonly repository = inject(RouteRepository);

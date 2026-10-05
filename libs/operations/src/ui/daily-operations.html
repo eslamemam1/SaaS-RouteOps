@@ -1,54 +1,287 @@
-<a routerLink="/">{{ text().day.back }}</a>
-<h2>{{ text().day.title }}</h2>
-<p class="hint">{{ text().day.hint }}</p>
-@if (organization()) {
-  <div class="day-picker">
-    <button type="button" (click)="moveDay(-1)">{{ text().day.previous }}</button>
-    <label>
-      {{ text().day.date }}
-      <input
-        type="date"
-        [value]="serviceDate()"
-        (change)="chooseDate($any($event.target).value)"
-      />
-    </label>
-    <button type="button" (click)="moveDay(1)">{{ text().day.next }}</button>
-    @if (serviceDate() !== today) {
-      <button type="button" (click)="chooseDate(today)">{{ text().day.today }}</button>
-    }
-  </div>
-  <fieldset>
-    <legend>{{ text().recording.title }}</legend>
-    <p class="hint">{{ text().recording.hint }}</p>
-    <div class="toggle">
-      @for (mode of recordings; track mode) {
-        <button
-          type="button"
-          [attr.aria-pressed]="recording() === mode"
-          [disabled]="savingRecording()"
-          (click)="chooseRecording(mode)"
-        >
-          {{ text().recording.modes[mode] }}
+<div class="ro-stack">
+  <app-page-header [title]="text().day.title" [hint]="text().day.hint">
+    @if (organization()) {
+      <div class="ro-toolbar">
+        <button appButton="secondary" type="button" (click)="moveDay(-1)">
+          {{ text().day.previous }}
         </button>
+        <app-field [label]="text().day.date">
+          <input
+            type="date"
+            [value]="serviceDate()"
+            (change)="chooseDate($any($event.target).value)"
+          />
+        </app-field>
+        <button appButton="secondary" type="button" (click)="moveDay(1)">
+          {{ text().day.next }}
+        </button>
+        @if (serviceDate() !== today) {
+          <button appButton="text" type="button" (click)="chooseDate(today)">
+            {{ text().day.today }}
+          </button>
+        }
+        @if (status() === 'success' || status() === 'empty') {
+          <button appButton type="button" (click)="startExtra()">
+            <ng-icon [svg]="addIcon" aria-hidden="true" />
+            {{ text().day.addExtra }}
+          </button>
+        }
+      </div>
+    }
+  </app-page-header>
+
+  @if (actionProblem(); as current) {
+    <app-alert tone="danger" [dismissible]="true" (dismissed)="actionProblem.set(null)">
+      {{ text().problems[current] }}
+    </app-alert>
+  }
+
+  @switch (status()) {
+    @case ('loading') {
+      <app-page-state kind="loading" [message]="text().day.loading" />
+    }
+    @case ('error') {
+      <app-page-state kind="error" [message]="text().problems[problem()]" />
+    }
+    @case ('empty') {
+      <app-page-state kind="empty" [message]="text().day.empty" />
+    }
+    @case ('success') {
+      @if (conflicts().size > 0) {
+        <app-alert tone="warning">
+          {{ text().conflict.count }} <bdi>{{ conflicts().size }}</bdi>
+        </app-alert>
+      }
+      <section class="ro-card">
+        <div class="ro-card-body">
+          <div class="operations-filters">
+            <app-field [label]="text().filter.customer">
+              <select (change)="filterBy({ customerId: $any($event.target).value })">
+                <option value="" [selected]="filter().customerId === ''">
+                  {{ text().filter.allCustomers }}
+                </option>
+                @for (customer of dayCustomers(); track customer.id) {
+                  <option [value]="customer.id" [selected]="filter().customerId === customer.id">
+                    {{ customer.label }}
+                  </option>
+                }
+              </select>
+            </app-field>
+            <app-field [label]="text().filter.direction">
+              <select (change)="filterBy({ direction: $any($event.target).value })">
+                <option value="" [selected]="filter().direction === ''">
+                  {{ text().filter.allDirections }}
+                </option>
+                @for (direction of directions; track direction) {
+                  <option [value]="direction" [selected]="filter().direction === direction">
+                    {{ text().directions[direction] }}
+                  </option>
+                }
+              </select>
+            </app-field>
+            <app-field [label]="text().filter.status">
+              <select (change)="filterBy({ status: $any($event.target).value })">
+                <option value="" [selected]="filter().status === ''">
+                  {{ text().filter.allStatuses }} ({{ trips().length }})
+                </option>
+                @for (tripStatus of statusChoices(); track tripStatus) {
+                  <option [value]="tripStatus" [selected]="filter().status === tripStatus">
+                    {{ text().statuses[tripStatus] }} ({{ counts()[tripStatus] }})
+                  </option>
+                }
+              </select>
+            </app-field>
+            <app-field [label]="text().filter.search">
+              <input
+                type="search"
+                [value]="filter().search"
+                [placeholder]="text().filter.searchHint"
+                (input)="filterBy({ search: $any($event.target).value })"
+              />
+            </app-field>
+            @if (hasOtherOwnerships() || filter().ownership) {
+              <app-field [label]="text().filter.ownership">
+                <select (change)="filterBy({ ownership: $any($event.target).value })">
+                  <option value="" [selected]="filter().ownership === ''">
+                    {{ text().filter.allOwnerships }}
+                  </option>
+                  @for (ownership of ownerships; track ownership) {
+                    <option [value]="ownership" [selected]="filter().ownership === ownership">
+                      {{ text().ownerships[ownership] }}
+                    </option>
+                  }
+                </select>
+              </app-field>
+            }
+          </div>
+          <div class="ro-toolbar operations-filter-actions">
+            <span class="hint">
+              {{ text().filter.showing }}
+              <bdi class="ro-numeric">{{ visibleTrips().length }} / {{ trips().length }}</bdi>
+            </span>
+            @if (conflicts().size > 0 || filter().conflictsOnly) {
+              <label class="checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="filter().conflictsOnly"
+                  (change)="filterBy({ conflictsOnly: $any($event.target).checked })"
+                />
+                {{ text().conflict.filter }}
+              </label>
+            }
+            @if (filtered()) {
+              <button appButton="text" size="sm" type="button" (click)="clearFilter()">
+                {{ text().filter.clear }}
+              </button>
+            }
+          </div>
+        </div>
+        @if (visibleTrips().length === 0) {
+          <app-page-state kind="empty" [message]="text().filter.noMatch" />
+        } @else {
+          <div class="ro-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ text().day.time }}</th>
+                  <th>{{ text().day.route }}</th>
+                  <th>{{ text().day.customer }}</th>
+                  <th>{{ text().day.direction }}</th>
+                  <th>{{ text().day.vehicle }}</th>
+                  <th>{{ text().day.driver }}</th>
+                  <th>{{ text().day.status }}</th>
+                  <th>{{ text().day.reason }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (trip of visibleTrips(); track trip.id) {
+                  <tr>
+                    <td class="ro-numeric"><bdi>{{ trip.departureTime }}</bdi></td>
+                    <td>
+                      <div class="ro-cell-stack">
+                        <span>
+                          {{ trip.routeId ? label(choices().routes, trip.routeId) : text().day.noRoute }}
+                        </span>
+                        @if (trip.extra) {
+                          <app-tag tone="info">{{ text().day.extra }}</app-tag>
+                        }
+                      </div>
+                    </td>
+                    <td>{{ label(choices().customers, trip.customerId) }}</td>
+                    <td>{{ text().directions[trip.direction] }}</td>
+                    <td>
+                      <div class="ro-cell-stack">
+                        <bdi>{{ label(choices().vehicles, trip.vehicleId) }}</bdi>
+                        @if (ownershipOf(trip); as ownership) {
+                          @if (ownership !== 'owned') {
+                            <app-tag>{{ text().ownerships[ownership] }}</app-tag>
+                          }
+                        }
+                      </div>
+                    </td>
+                    <td>{{ label(choices().drivers, trip.driverId) }}</td>
+                    <td>
+                      <div class="ro-cell-stack">
+                        <app-tag [tone]="statusTone(trip)">{{ text().statuses[statusOf(trip)] }}</app-tag>
+                        <app-conflict-list [conflicts]="conflictsOf(trip)" [choices]="choices()" />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="ro-cell-stack">
+                        @if (trip.reason) {
+                          <span>{{ text().reasons[trip.reason] }}</span>
+                        }
+                        @if (trip.notes) {
+                          <span class="hint">{{ trip.notes }}</span>
+                        }
+                      </div>
+                    </td>
+                    <td class="ro-actions">
+                      @if (canMarkDone(trip)) {
+                        <button
+                          appButton="text"
+                          size="sm"
+                          type="button"
+                          [disabled]="markingTripId() === trip.id"
+                          (click)="markDone(trip, !trip.done)"
+                        >
+                          {{ trip.done ? text().day.undoDone : text().day.markDone }}
+                        </button>
+                      }
+                      <button appButton="text" size="sm" type="button" (click)="edit(trip)">
+                        {{ text().day.change }}
+                      </button>
+                      @if (trip.extra) {
+                        <button
+                          size="sm"
+                          type="button"
+                          [appButton]="confirmingRemoveId() === trip.id ? 'danger' : 'text'"
+                          [disabled]="markingTripId() === trip.id"
+                          (click)="remove(trip)"
+                        >
+                          {{
+                            confirmingRemoveId() === trip.id
+                              ? text().day.confirmRemove
+                              : text().day.remove
+                          }}
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+  }
+
+  @if (organization(); as current) {
+    <div class="ro-grid">
+      <section class="ro-card">
+        <div class="ro-card-header">
+          <h2 class="ro-card-title">{{ text().recording.title }}</h2>
+          <p class="hint">{{ text().recording.hint }}</p>
+        </div>
+        <div class="ro-card-body">
+          <div class="ro-toolbar" role="group" [attr.aria-label]="text().recording.title">
+            @for (mode of recordings; track mode) {
+              <button
+                size="sm"
+                type="button"
+                [appButton]="recording() === mode ? 'primary' : 'secondary'"
+                [attr.aria-pressed]="recording() === mode"
+                [disabled]="savingRecording()"
+                (click)="chooseRecording(mode)"
+              >
+                {{ text().recording.modes[mode] }}
+              </button>
+            }
+          </div>
+          <p class="hint">{{ text().recording.modeHints[recording()] }}</p>
+        </div>
+      </section>
+      @if (status() === 'success') {
+        <app-holiday-panel
+          [organization]="current"
+          [serviceDate]="serviceDate()"
+          [trips]="trips()"
+          [choices]="choices()"
+          (recorded)="onHolidayRecorded($event)"
+        />
       }
     </div>
-    <p class="hint">{{ text().recording.modeHints[recording()] }}</p>
-  </fieldset>
-}
-@if (actionProblem(); as current) {
-  <p class="error">{{ text().problems[current] }}</p>
-}
-@if (status() === 'loading') {
-  <p>{{ text().day.loading }}</p>
-}
-@if (status() === 'error') {
-  <p class="error">{{ text().problems[problem()] }}</p>
-}
-@if (status() === 'empty') {
-  <p>{{ text().day.empty }}</p>
-}
+  }
+</div>
+
 @if (organization(); as current) {
-  @if (status() === 'success' || status() === 'empty') {
+  <app-form-drawer
+    [title]="text().extra.title"
+    [open]="addingExtra()"
+    (openChange)="onExtraDrawer($event)"
+  >
     @if (addingExtra()) {
       <app-extra-trip-form
         [organization]="current"
@@ -58,193 +291,22 @@
         (added)="onExtraAdded($event)"
         (cancelled)="addingExtra.set(false)"
       />
-    } @else {
-      <p><button type="button" (click)="startExtra()">{{ text().day.addExtra }}</button></p>
     }
-  }
-}
-@if (status() === 'success') {
-  <div class="day-picker">
-    <label>
-      {{ text().filter.customer }}
-      <select (change)="filterBy({ customerId: $any($event.target).value })">
-        <option value="" [selected]="filter().customerId === ''">
-          {{ text().filter.allCustomers }}
-        </option>
-        @for (customer of dayCustomers(); track customer.id) {
-          <option [value]="customer.id" [selected]="filter().customerId === customer.id">
-            {{ customer.label }}
-          </option>
-        }
-      </select>
-    </label>
-    <label>
-      {{ text().filter.direction }}
-      <select (change)="filterBy({ direction: $any($event.target).value })">
-        <option value="" [selected]="filter().direction === ''">
-          {{ text().filter.allDirections }}
-        </option>
-        @for (direction of directions; track direction) {
-          <option [value]="direction" [selected]="filter().direction === direction">
-            {{ text().directions[direction] }}
-          </option>
-        }
-      </select>
-    </label>
-    <label>
-      {{ text().filter.status }}
-      <select (change)="filterBy({ status: $any($event.target).value })">
-        <option value="" [selected]="filter().status === ''">
-          {{ text().filter.allStatuses }} ({{ trips().length }})
-        </option>
-        @for (tripStatus of statusChoices(); track tripStatus) {
-          <option [value]="tripStatus" [selected]="filter().status === tripStatus">
-            {{ text().statuses[tripStatus] }} ({{ counts()[tripStatus] }})
-          </option>
-        }
-      </select>
-    </label>
-    <label>
-      {{ text().filter.search }}
-      <input
-        type="search"
-        [value]="filter().search"
-        [placeholder]="text().filter.searchHint"
-        (input)="filterBy({ search: $any($event.target).value })"
+  </app-form-drawer>
+  <app-form-drawer
+    [title]="text().change.title"
+    [open]="editing() !== null"
+    (openChange)="onChangeDrawer($event)"
+  >
+    @if (editing(); as trip) {
+      <app-trip-change-form
+        [organization]="current"
+        [trip]="trip"
+        [choices]="choices()"
+        [trips]="trips()"
+        (saved)="onTripSaved($event)"
+        (cancelled)="stopEditing()"
       />
-    </label>
-    @if (hasOtherOwnerships() || filter().ownership) {
-      <label>
-        {{ text().filter.ownership }}
-        <select (change)="filterBy({ ownership: $any($event.target).value })">
-          <option value="" [selected]="filter().ownership === ''">
-            {{ text().filter.allOwnerships }}
-          </option>
-          @for (ownership of ownerships; track ownership) {
-            <option [value]="ownership" [selected]="filter().ownership === ownership">
-              {{ text().ownerships[ownership] }}
-            </option>
-          }
-        </select>
-      </label>
     }
-    @if (conflicts().size > 0 || filter().conflictsOnly) {
-      <label class="checkbox">
-        <input
-          type="checkbox"
-          [checked]="filter().conflictsOnly"
-          (change)="filterBy({ conflictsOnly: $any($event.target).checked })"
-        />
-        {{ text().conflict.filter }}
-      </label>
-    }
-    @if (filtered()) {
-      <button type="button" (click)="clearFilter()">{{ text().filter.clear }}</button>
-    }
-  </div>
-  <p class="hint">
-    {{ text().filter.showing }} <bdi>{{ visibleTrips().length }}</bdi> / <bdi>{{ trips().length }}</bdi>
-  </p>
-  @if (conflicts().size > 0) {
-    <p class="error">{{ text().conflict.count }} <bdi>{{ conflicts().size }}</bdi></p>
-  }
-}
-@if (status() === 'success' && visibleTrips().length === 0) {
-  <p>{{ text().filter.noMatch }}</p>
-}
-@if (status() === 'success' && visibleTrips().length > 0) {
-  <table>
-    <thead>
-      <tr>
-        <th>{{ text().day.time }}</th>
-        <th>{{ text().day.route }}</th>
-        <th>{{ text().day.customer }}</th>
-        <th>{{ text().day.direction }}</th>
-        <th>{{ text().day.vehicle }}</th>
-        <th>{{ text().day.driver }}</th>
-        <th>{{ text().day.status }}</th>
-        <th>{{ text().day.reason }}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (trip of visibleTrips(); track trip.id) {
-        <tr>
-          <td><bdi>{{ trip.departureTime }}</bdi></td>
-          <td>
-            {{ trip.routeId ? label(choices().routes, trip.routeId) : text().day.noRoute }}
-            @if (trip.extra) {
-              <span class="hint">{{ text().day.extra }}</span>
-            }
-          </td>
-          <td>{{ label(choices().customers, trip.customerId) }}</td>
-          <td>{{ text().directions[trip.direction] }}</td>
-          <td>
-            <bdi>{{ label(choices().vehicles, trip.vehicleId) }}</bdi>
-            @if (ownershipOf(trip); as ownership) {
-              @if (ownership !== 'owned') {
-                <span class="hint">{{ text().ownerships[ownership] }}</span>
-              }
-            }
-          </td>
-          <td>{{ label(choices().drivers, trip.driverId) }}</td>
-          <td>
-            <span [class.error]="trip.cancelled">{{ text().statuses[statusOf(trip)] }}</span>
-            <app-conflict-list [conflicts]="conflictsOf(trip)" [choices]="choices()" />
-          </td>
-          <td>
-            @if (trip.reason) {
-              {{ text().reasons[trip.reason] }}
-            }
-            @if (trip.notes) {
-              <span class="hint">{{ trip.notes }}</span>
-            }
-          </td>
-          <td>
-            @if (canMarkDone(trip)) {
-              <button
-                type="button"
-                [disabled]="markingTripId() === trip.id"
-                (click)="markDone(trip, !trip.done)"
-              >
-                {{ trip.done ? text().day.undoDone : text().day.markDone }}
-              </button>
-            }
-            <button type="button" (click)="edit(trip)">{{ text().day.change }}</button>
-            @if (trip.extra) {
-              <button
-                type="button"
-                class="error"
-                [disabled]="markingTripId() === trip.id"
-                (click)="remove(trip)"
-              >
-                {{ confirmingRemoveId() === trip.id ? text().day.confirmRemove : text().day.remove }}
-              </button>
-            }
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-}
-@if (organization(); as current) {
-  @if (editing(); as trip) {
-    <app-trip-change-form
-      [organization]="current"
-      [trip]="trip"
-      [choices]="choices()"
-      [trips]="trips()"
-      (saved)="onTripSaved($event)"
-      (cancelled)="stopEditing()"
-    />
-  }
-  @if (status() === 'success') {
-    <app-holiday-panel
-      [organization]="current"
-      [serviceDate]="serviceDate()"
-      [trips]="trips()"
-      [choices]="choices()"
-      (recorded)="onHolidayRecorded($event)"
-    />
-  }
+  </app-form-drawer>
 }

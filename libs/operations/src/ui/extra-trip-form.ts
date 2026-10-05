@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
+import { Alert, Button, Field } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -22,7 +23,7 @@ import { operationsText } from './operations-text';
 
 @Component({
   selector: 'app-extra-trip-form',
-  imports: [ConflictList, FormField],
+  imports: [Alert, Button, ConflictList, Field, FormField],
   templateUrl: './extra-trip-form.html',
 })
 export class ExtraTripForm {

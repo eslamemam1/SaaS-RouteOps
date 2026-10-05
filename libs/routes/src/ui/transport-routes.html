@@ -43,7 +43,7 @@
     @case ('success') {
       <section class="ro-card">
         <div class="ro-card-header ro-toolbar">
-          <app-field class="routes-filter" [label]="text().list.filter">
+          <app-field class="ro-filter" [label]="text().list.filter">
             <select [value]="customerFilter()" (change)="filterBy($any($event.target).value)">
               <option value="">{{ text().list.allCustomers }}</option>
               @for (customer of choices().customers; track customer.id) {
@@ -93,7 +93,7 @@
                         {{ route.active ? text().list.working : text().list.stopped }}
                       </app-tag>
                     </td>
-                    <td class="routes-actions">
+                    <td class="ro-actions">
                       <button appButton="text" size="sm" type="button" (click)="edit(route)">
                         {{ text().list.edit }}
                       </button>

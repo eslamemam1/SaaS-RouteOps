@@ -1,6 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { NgIcon } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
+import {
+  Alert,
+  Button,
+  FormDrawer,
+  PageHeader,
+  PageState,
+  Tag,
+} from '@routeops/shared/ui';
 import { DriverAccessError } from '../application/driver-access-error';
 import { DriverRepository } from '../application/driver-repository';
 import {
@@ -15,7 +25,16 @@ import { driversText } from './drivers-text';
 
 @Component({
   selector: 'app-drivers',
-  imports: [DriverForm, RouterLink],
+  imports: [
+    Alert,
+    Button,
+    DriverForm,
+    FormDrawer,
+    NgIcon,
+    PageHeader,
+    PageState,
+    Tag,
+  ],
   templateUrl: './drivers.html',
 })
 export class Drivers {
@@ -24,6 +43,7 @@ export class Drivers {
   private readonly today = localDate(new Date());
 
   protected readonly text = injectText(driversText);
+  protected readonly addIcon = lucidePlus;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -31,6 +51,11 @@ export class Drivers {
   protected readonly organization = signal<DriverOrganization | null>(null);
   protected readonly drivers = signal<Driver[]>([]);
   protected readonly editing = signal<Driver | null>(null);
+  protected readonly formOpen = signal(false);
+  protected readonly outcome = signal<'added' | 'saved' | null>(null);
+  protected readonly formTitle = computed(() =>
+    this.editing() ? this.text().form.editTitle : this.text().form.addTitle,
+  );
 
   constructor() {
     void this.load();
@@ -40,19 +65,37 @@ export class Drivers {
     return licenseExpired(driver.licenseExpiry, this.today);
   }
 
+  protected add(): void {
+    this.open(null);
+  }
+
   protected edit(driver: Driver): void {
-    this.editing.set(driver);
+    this.open(driver);
+  }
+
+  protected onDrawer(open: boolean): void {
+    if (!open) {
+      this.stopEditing();
+    }
   }
 
   protected stopEditing(): void {
+    this.formOpen.set(false);
     this.editing.set(null);
   }
 
   protected onSaved(driver: Driver): void {
     const others = this.drivers().filter((item) => item.id !== driver.id);
     this.drivers.set(sortByName([...others, driver]));
-    this.editing.set(null);
+    this.outcome.set(this.editing() ? 'saved' : 'added');
+    this.stopEditing();
     this.status.set('success');
+  }
+
+  private open(driver: Driver | null): void {
+    this.outcome.set(null);
+    this.editing.set(driver);
+    this.formOpen.set(true);
   }
 
   private async load(): Promise<void> {

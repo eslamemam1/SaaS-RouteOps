@@ -110,6 +110,11 @@ label.checkbox {
   gap: var(--ro-space-2);
 }
 
+.ro-checklist {
+  display: grid;
+  gap: var(--ro-space-2);
+}
+
 .hint {
   color: var(--ro-text-secondary);
   font-size: var(--ro-text-body-sm);
@@ -118,6 +123,8 @@ label.checkbox {
 
 .error {
   color: var(--ro-text-danger);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
 }
 
 .ro-card {
@@ -134,10 +141,33 @@ label.checkbox {
   padding-inline: var(--ro-space-5);
 }
 
+.ro-card-title {
+  font-size: var(--ro-text-heading-md);
+  line-height: var(--ro-leading-heading-md);
+}
+
+.ro-card-body {
+  display: grid;
+  gap: var(--ro-space-4);
+  padding-block: var(--ro-space-4) var(--ro-space-5);
+  padding-inline: var(--ro-space-5);
+}
+
+.ro-card-header + .ro-card-body {
+  padding-block-start: 0;
+}
+
 .ro-stack {
   display: grid;
   gap: var(--ro-space-6);
   align-content: start;
+}
+
+.ro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--ro-card-min-width), 1fr));
+  gap: var(--ro-space-4);
+  align-items: start;
 }
 
 .ro-form {
@@ -150,6 +180,10 @@ label.checkbox {
   flex-wrap: wrap;
   align-items: end;
   gap: var(--ro-space-3);
+}
+
+.ro-filter {
+  flex: 0 1 var(--ro-form-max-width);
 }
 
 .ro-table-scroll {
@@ -185,43 +219,12 @@ tbody tr:last-child td {
   font-variant-numeric: tabular-nums;
 }
 
-/* Legacy layouts used by pages not yet moved to the shared components. */
-form {
-  display: grid;
-  gap: var(--ro-space-3);
-  max-inline-size: var(--ro-form-max-width);
+.ro-actions {
+  white-space: nowrap;
 }
 
-label {
+.ro-cell-stack {
   display: grid;
+  justify-items: start;
   gap: var(--ro-space-1);
-}
-
-.menu {
-  display: grid;
-  gap: var(--ro-space-3);
-  padding: 0;
-  list-style: none;
-}
-
-.menu li {
-  display: grid;
-  gap: var(--ro-space-1);
-}
-
-.day-picker {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: var(--ro-space-3);
-}
-
-.toggle {
-  display: flex;
-  gap: var(--ro-space-1);
-}
-
-.toggle button[aria-pressed='true'] {
-  background: var(--ro-bg-brand);
-  color: var(--ro-text-on-brand);
 }

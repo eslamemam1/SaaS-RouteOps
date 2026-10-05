@@ -1,6 +1,18 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { NgIcon } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
+import {
+  Alert,
+  Button,
+  Field,
+  FormDrawer,
+  PageHeader,
+  PageState,
+  Tag,
+  Tone,
+} from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -24,6 +36,7 @@ import {
   TripFilter,
   TripRecording,
   tripRecordings,
+  TripStatus,
   tripStatus,
   tripStatuses,
   VehicleOwnership,
@@ -43,16 +56,38 @@ const noChoices: OperationChoices = {
   routes: [],
 };
 
+const statusTones: Record<TripStatus, Tone> = {
+  done: 'success',
+  planned: 'info',
+  cancelled: 'danger',
+  unrecorded: 'warning',
+};
+
 @Component({
   selector: 'app-daily-operations',
-  imports: [ConflictList, ExtraTripForm, HolidayPanel, RouterLink, TripChangeForm],
+  imports: [
+    Alert,
+    Button,
+    ConflictList,
+    ExtraTripForm,
+    Field,
+    FormDrawer,
+    HolidayPanel,
+    NgIcon,
+    PageHeader,
+    PageState,
+    Tag,
+    TripChangeForm,
+  ],
   templateUrl: './daily-operations.html',
+  styleUrl: './daily-operations.css',
 })
 export class DailyOperations {
   private readonly repository = inject(OperationsRepository);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected readonly text = injectText(operationsText);
+  protected readonly addIcon = lucidePlus;
   protected readonly today = localDate(new Date());
   protected readonly serviceDate = signal(this.today);
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
@@ -125,8 +160,12 @@ export class DailyOperations {
     return vehicleOwnership(this.choices().vehicles, trip.vehicleId);
   }
 
-  protected statusOf(trip: DailyTrip) {
+  protected statusOf(trip: DailyTrip): TripStatus {
     return tripStatus(trip, this.today, this.recording());
+  }
+
+  protected statusTone(trip: DailyTrip): Tone {
+    return statusTones[this.statusOf(trip)];
   }
 
   protected conflictsOf(trip: DailyTrip): TripConflict[] {
@@ -201,6 +240,18 @@ export class DailyOperations {
 
   protected stopEditing(): void {
     this.editing.set(null);
+  }
+
+  protected onChangeDrawer(open: boolean): void {
+    if (!open) {
+      this.stopEditing();
+    }
+  }
+
+  protected onExtraDrawer(open: boolean): void {
+    if (!open) {
+      this.addingExtra.set(false);
+    }
   }
 
   protected onTripSaved(trip: DailyTrip): void {

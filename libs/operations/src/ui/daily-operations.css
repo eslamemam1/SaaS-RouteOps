@@ -1,0 +1,9 @@
+.operations-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--ro-filter-min-width), 1fr));
+  gap: var(--ro-space-3);
+}
+
+.operations-filter-actions {
+  align-items: center;
+}

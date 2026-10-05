@@ -4,8 +4,8 @@ import { DriverProblem } from '../domain/driver';
 export interface DriversText {
   readonly problems: Record<DriverProblem, string>;
   readonly list: {
-    readonly back: string;
     readonly title: string;
+    readonly add: string;
     readonly hint: string;
     readonly loading: string;
     readonly empty: string;
@@ -57,11 +57,11 @@ export const driversText: Record<Language, DriversText> = {
       notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
     },
     list: {
-      back: 'الرجوع إلى الصفحة الرئيسية',
       title: 'السائقون',
+      add: 'إضافة سائق',
       hint: 'السائقون الذين يعملون معك في نقل الموظفين.',
       loading: 'جارٍ التحميل...',
-      empty: 'لم تضف أي سائق بعد. ابدأ بإضافة أول سائق من النموذج بالأسفل.',
+      empty: 'لم تضف أي سائق بعد. ابدأ بإضافة أول سائق.',
       fullName: 'الاسم',
       phone: 'رقم الموبايل',
       nationalId: 'الرقم القومي',
@@ -78,13 +78,13 @@ export const driversText: Record<Language, DriversText> = {
       editTitle: 'تعديل بيانات السائق',
       fullName: 'اسم السائق',
       fullNameHint: 'الاسم كما في البطاقة، مثل: أحمد محمد علي.',
-      phone: 'رقم الموبايل (اختياري)',
-      nationalId: 'الرقم القومي (اختياري)',
+      phone: 'رقم الموبايل',
+      nationalId: 'الرقم القومي',
       nationalIdHint: 'الرقم المكتوب في بطاقة الهوية.',
-      licenseNumber: 'رقم رخصة القيادة (اختياري)',
-      licenseExpiry: 'تاريخ انتهاء رخصة القيادة (اختياري)',
+      licenseNumber: 'رقم رخصة القيادة',
+      licenseExpiry: 'تاريخ انتهاء رخصة القيادة',
       licenseExpiryHint: 'تظهر كلمة "منتهية" في القائمة بعد هذا التاريخ.',
-      notes: 'ملاحظات (اختياري)',
+      notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذا السائق.',
       active: 'السائق يعمل حاليًا',
       add: 'إضافة السائق',
@@ -108,11 +108,11 @@ export const driversText: Record<Language, DriversText> = {
       notConnected: 'The app is not connected to the database.',
     },
     list: {
-      back: 'Back to home',
       title: 'Drivers',
+      add: 'Add driver',
       hint: 'The drivers who work with you transporting staff.',
       loading: 'Loading...',
-      empty: 'You have not added any driver yet. Add the first one using the form below.',
+      empty: 'You have not added any driver yet. Start by adding the first one.',
       fullName: 'Name',
       phone: 'Mobile',
       nationalId: 'National ID',
@@ -129,13 +129,13 @@ export const driversText: Record<Language, DriversText> = {
       editTitle: 'Edit driver details',
       fullName: 'Driver name',
       fullNameHint: 'The name as written on the ID card.',
-      phone: 'Mobile number (optional)',
-      nationalId: 'National ID (optional)',
+      phone: 'Mobile number',
+      nationalId: 'National ID',
       nationalIdHint: 'The number written on the ID card.',
-      licenseNumber: 'Driving license number (optional)',
-      licenseExpiry: 'Driving license expiry date (optional)',
+      licenseNumber: 'Driving license number',
+      licenseExpiry: 'Driving license expiry date',
       licenseExpiryHint: 'The list shows "Expired" after this date.',
-      notes: 'Notes (optional)',
+      notes: 'Notes',
       notesHint: 'Anything you want to remember about this driver.',
       active: 'This driver is currently working',
       add: 'Add driver',

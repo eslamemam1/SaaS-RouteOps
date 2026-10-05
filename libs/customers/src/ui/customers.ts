@@ -1,6 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { NgIcon } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
+import {
+  Alert,
+  Button,
+  FormDrawer,
+  PageHeader,
+  PageState,
+  Tag,
+} from '@routeops/shared/ui';
 import { CustomerAccessError } from '../application/customer-access-error';
 import { CustomerRepository } from '../application/customer-repository';
 import {
@@ -14,7 +24,16 @@ import { customersText } from './customers-text';
 
 @Component({
   selector: 'app-customers',
-  imports: [CustomerForm, RouterLink],
+  imports: [
+    Alert,
+    Button,
+    CustomerForm,
+    FormDrawer,
+    NgIcon,
+    PageHeader,
+    PageState,
+    Tag,
+  ],
   templateUrl: './customers.html',
 })
 export class Customers {
@@ -22,6 +41,7 @@ export class Customers {
   private readonly route = inject(ActivatedRoute);
 
   protected readonly text = injectText(customersText);
+  protected readonly addIcon = lucidePlus;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -29,24 +49,47 @@ export class Customers {
   protected readonly organization = signal<CustomerOrganization | null>(null);
   protected readonly customers = signal<Customer[]>([]);
   protected readonly editing = signal<Customer | null>(null);
+  protected readonly formOpen = signal(false);
+  protected readonly outcome = signal<'added' | 'saved' | null>(null);
+  protected readonly formTitle = computed(() =>
+    this.editing() ? this.text().form.editTitle : this.text().form.addTitle,
+  );
 
   constructor() {
     void this.load();
   }
 
+  protected add(): void {
+    this.open(null);
+  }
+
   protected edit(customer: Customer): void {
-    this.editing.set(customer);
+    this.open(customer);
+  }
+
+  protected onDrawer(open: boolean): void {
+    if (!open) {
+      this.stopEditing();
+    }
   }
 
   protected stopEditing(): void {
+    this.formOpen.set(false);
     this.editing.set(null);
   }
 
   protected onSaved(customer: Customer): void {
     const others = this.customers().filter((item) => item.id !== customer.id);
     this.customers.set(sortByName([...others, customer]));
-    this.editing.set(null);
+    this.outcome.set(this.editing() ? 'saved' : 'added');
+    this.stopEditing();
     this.status.set('success');
+  }
+
+  private open(customer: Customer | null): void {
+    this.outcome.set(null);
+    this.editing.set(customer);
+    this.formOpen.set(true);
   }
 
   private async load(): Promise<void> {

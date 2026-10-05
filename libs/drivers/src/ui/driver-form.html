@@ -1,74 +1,58 @@
-<h3>{{ driver() ? text().form.editTitle : text().form.addTitle }}</h3>
-<form (submit)="onSubmit($event)">
-  <label>
-    {{ text().form.fullName }}
-    <span class="hint">{{ text().form.fullNameHint }}</span>
+<form class="ro-form" (submit)="onSubmit($event)">
+  <app-field
+    [label]="text().form.fullName"
+    [hint]="text().form.fullNameHint"
+    [control]="driverForm.fullName"
+  >
     <input type="text" [formField]="driverForm.fullName" />
-  </label>
-  @if (driverForm.fullName().touched() && driverForm.fullName().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.phone }}
+  </app-field>
+  <app-field [label]="text().form.phone" [optional]="true" [control]="driverForm.phone">
     <input type="tel" dir="ltr" [formField]="driverForm.phone" />
-  </label>
-  @if (driverForm.phone().touched() && driverForm.phone().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.nationalId }}
-    <span class="hint">{{ text().form.nationalIdHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.nationalId"
+    [hint]="text().form.nationalIdHint"
+    [optional]="true"
+    [control]="driverForm.nationalId"
+  >
     <input type="text" inputmode="numeric" dir="ltr" [formField]="driverForm.nationalId" />
-  </label>
-  @if (
-    driverForm.nationalId().touched() && driverForm.nationalId().errors()[0];
-    as error
-  ) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.licenseNumber }}
+  </app-field>
+  <app-field
+    [label]="text().form.licenseNumber"
+    [optional]="true"
+    [control]="driverForm.licenseNumber"
+  >
     <input type="text" dir="ltr" [formField]="driverForm.licenseNumber" />
-  </label>
-  @if (
-    driverForm.licenseNumber().touched() && driverForm.licenseNumber().errors()[0];
-    as error
-  ) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.licenseExpiry }}
-    <span class="hint">{{ text().form.licenseExpiryHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.licenseExpiry"
+    [hint]="text().form.licenseExpiryHint"
+    [optional]="true"
+    [control]="driverForm.licenseExpiry"
+  >
     <input type="date" [formField]="driverForm.licenseExpiry" />
-  </label>
-  @if (
-    driverForm.licenseExpiry().touched() && driverForm.licenseExpiry().errors()[0];
-    as error
-  ) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.notes }}
-    <span class="hint">{{ text().form.notesHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.notes"
+    [hint]="text().form.notesHint"
+    [optional]="true"
+    [control]="driverForm.notes"
+  >
     <textarea [formField]="driverForm.notes"></textarea>
-  </label>
-  @if (driverForm.notes().touched() && driverForm.notes().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
+  </app-field>
   <label class="checkbox">
     <input type="checkbox" [formField]="driverForm.active" />
     {{ text().form.active }}
   </label>
-  <button type="submit" [disabled]="submitting()">
-    {{ driver() ? text().form.save : text().form.add }}
-  </button>
-  @if (driver()) {
-    <button type="button" (click)="cancelled.emit()">{{ text().form.cancel }}</button>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="submitting()">
+      {{ driver() ? text().form.save : text().form.add }}
+    </button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().form.cancel }}
+    </button>
+  </div>
 </form>
-@if (outcome(); as done) {
-  <p>{{ text().form[done] }}</p>
-}
-@if (problem(); as current) {
-  <p class="error">{{ text().problems[current] }}</p>
-}

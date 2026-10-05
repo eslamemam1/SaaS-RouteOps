@@ -1,0 +1,18 @@
+:host {
+  display: grid;
+  gap: var(--ro-space-1);
+}
+
+.conflict {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ro-space-1);
+  color: var(--ro-text-warning);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+}
+
+.conflict ng-icon {
+  flex: none;
+  font-size: var(--ro-icon-size);
+}

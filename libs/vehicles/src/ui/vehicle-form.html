@@ -1,116 +1,90 @@
-<h3>{{ vehicle() ? text().form.editTitle : text().form.addTitle }}</h3>
-<form (submit)="onSubmit($event)">
-  <label>
-    {{ text().form.plateNumber }}
-    <span class="hint">{{ text().form.plateNumberHint }}</span>
+<form class="ro-form" (submit)="onSubmit($event)">
+  <app-field
+    [label]="text().form.plateNumber"
+    [hint]="text().form.plateNumberHint"
+    [control]="vehicleForm.plateNumber"
+  >
     <input type="text" [formField]="vehicleForm.plateNumber" />
-  </label>
-  @if (
-    vehicleForm.plateNumber().touched() && vehicleForm.plateNumber().errors()[0];
-    as error
-  ) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.type }}
+  </app-field>
+  <app-field [label]="text().form.type" [control]="vehicleForm.type">
     <select [formField]="vehicleForm.type">
       <option value="">{{ text().form.chooseType }}</option>
       @for (type of types; track type) {
         <option [value]="type">{{ text().types[type] }}</option>
       }
     </select>
-  </label>
-  @if (vehicleForm.type().touched() && vehicleForm.type().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.model }}
-    <span class="hint">{{ text().form.modelHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.model"
+    [hint]="text().form.modelHint"
+    [optional]="true"
+    [control]="vehicleForm.model"
+  >
     <input type="text" [formField]="vehicleForm.model" />
-  </label>
-  @if (vehicleForm.model().touched() && vehicleForm.model().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.year }}
+  </app-field>
+  <app-field [label]="text().form.year" [optional]="true" [control]="vehicleForm.year">
     <input type="text" inputmode="numeric" dir="ltr" [formField]="vehicleForm.year" />
-  </label>
-  @if (vehicleForm.year().touched() && vehicleForm.year().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.seats }}
-    <span class="hint">{{ text().form.seatsHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.seats"
+    [hint]="text().form.seatsHint"
+    [optional]="true"
+    [control]="vehicleForm.seats"
+  >
     <input type="text" inputmode="numeric" dir="ltr" [formField]="vehicleForm.seats" />
-  </label>
-  @if (vehicleForm.seats().touched() && vehicleForm.seats().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.licenseExpiry }}
-    <span class="hint">{{ text().form.licenseExpiryHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.licenseExpiry"
+    [hint]="text().form.licenseExpiryHint"
+    [optional]="true"
+    [control]="vehicleForm.licenseExpiry"
+  >
     <input type="date" [formField]="vehicleForm.licenseExpiry" />
-  </label>
-  @if (
-    vehicleForm.licenseExpiry().touched() && vehicleForm.licenseExpiry().errors()[0];
-    as error
-  ) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.ownership }}
-    <span class="hint">{{ text().form.ownershipHint }}</span>
+  </app-field>
+  <app-field [label]="text().form.ownership" [hint]="text().form.ownershipHint">
     <select [formField]="vehicleForm.ownership">
       @for (ownership of ownerships; track ownership) {
         <option [value]="ownership">{{ text().ownerships[ownership] }}</option>
       }
     </select>
-  </label>
+  </app-field>
   @if (model().ownership !== 'owned') {
-    <label>
-      {{ text().form.ownerName }}
-      <span class="hint">{{ text().form.ownerNameHint }}</span>
+    <app-field
+      [label]="text().form.ownerName"
+      [hint]="text().form.ownerNameHint"
+      [control]="vehicleForm.ownerName"
+    >
       <input type="text" [formField]="vehicleForm.ownerName" />
-    </label>
-    @if (
-      vehicleForm.ownerName().touched() && vehicleForm.ownerName().errors()[0];
-      as error
-    ) {
-      <p class="error">{{ error.message }}</p>
-    }
-    <label>
-      {{ text().form.ownerPhone }}
+    </app-field>
+    <app-field
+      [label]="text().form.ownerPhone"
+      [optional]="true"
+      [control]="vehicleForm.ownerPhone"
+    >
       <input type="tel" dir="ltr" [formField]="vehicleForm.ownerPhone" />
-    </label>
-    @if (
-      vehicleForm.ownerPhone().touched() && vehicleForm.ownerPhone().errors()[0];
-      as error
-    ) {
-      <p class="error">{{ error.message }}</p>
-    }
+    </app-field>
   }
-  <label>
-    {{ text().form.notes }}
-    <span class="hint">{{ text().form.notesHint }}</span>
+  <app-field
+    [label]="text().form.notes"
+    [hint]="text().form.notesHint"
+    [optional]="true"
+    [control]="vehicleForm.notes"
+  >
     <textarea [formField]="vehicleForm.notes"></textarea>
-  </label>
-  @if (vehicleForm.notes().touched() && vehicleForm.notes().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
+  </app-field>
   <label class="checkbox">
     <input type="checkbox" [formField]="vehicleForm.active" />
     {{ text().form.active }}
   </label>
-  <button type="submit" [disabled]="submitting()">
-    {{ vehicle() ? text().form.save : text().form.add }}
-  </button>
-  @if (vehicle()) {
-    <button type="button" (click)="cancelled.emit()">{{ text().form.cancel }}</button>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="submitting()">
+      {{ vehicle() ? text().form.save : text().form.add }}
+    </button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().form.cancel }}
+    </button>
+  </div>
 </form>
-@if (outcome(); as done) {
-  <p>{{ text().form[done] }}</p>
-}
-@if (problem(); as current) {
-  <p class="error">{{ text().problems[current] }}</p>
-}

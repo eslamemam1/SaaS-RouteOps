@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
+import { Alert, Button, Field } from '@routeops/shared/ui';
 import { DriverAccessError } from '../application/driver-access-error';
 import { DriverRepository } from '../application/driver-repository';
 import {
@@ -24,7 +25,7 @@ import { driversText } from './drivers-text';
 
 @Component({
   selector: 'app-driver-form',
-  imports: [FormField],
+  imports: [Alert, Button, Field, FormField],
   templateUrl: './driver-form.html',
 })
 export class DriverForm {
@@ -39,7 +40,6 @@ export class DriverForm {
   private readonly problems = computed(() => this.text().problems);
 
   protected readonly submitting = signal(false);
-  protected readonly outcome = signal<'added' | 'saved' | null>(null);
   protected readonly problem = signal<DriverProblem | null>(null);
   protected readonly model = signal<DriverDetails>(emptyDriverDetails);
   protected readonly driverForm = form(this.model, (field) => {
@@ -51,7 +51,6 @@ export class DriverForm {
       const details = detailsOf(this.driver());
       untracked(() => {
         this.driverForm().reset(details);
-        this.outcome.set(null);
         this.problem.set(null);
       });
     });
@@ -72,7 +71,6 @@ export class DriverForm {
             )
           : await this.repository.add(this.organization(), this.model());
         this.driverForm().reset(emptyDriverDetails);
-        this.outcome.set(existing ? 'saved' : 'added');
         this.saved.emit(saved);
         return undefined;
       } catch (error) {

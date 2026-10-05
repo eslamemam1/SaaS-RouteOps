@@ -250,7 +250,7 @@ describe('DailyOperations', () => {
     expect(rows(harness)[2].textContent).not.toContain(arabic.conflict.vehicle);
 
     const conflictsOnly = harness.routeNativeElement!.querySelector<HTMLInputElement>(
-      '.day-picker input[type="checkbox"]',
+      '.operations-filter-actions input[type="checkbox"]',
     )!;
     conflictsOnly.click();
     await settle(harness);
@@ -344,6 +344,36 @@ describe('DailyOperations', () => {
     await settle(harness);
     expect(removeExtraTrip).toHaveBeenCalledWith(north, 'trip-9');
     expect(rows(harness)).toHaveLength(1);
+  });
+
+  it('changes a trip for one day from its form and closes the form', async () => {
+    const changeTrip = vi.fn(async () => ({
+      ...outbound,
+      cancelled: true,
+      reason: 'driverAbsent' as const,
+    }));
+    const harness = await open({ day: async () => [outbound], changeTrip });
+    await settle(harness);
+
+    button(harness, arabic.day.change)?.click();
+    await settle(harness);
+    const form = harness.routeNativeElement!.querySelector('app-trip-change-form')!;
+    expect(form.textContent).toContain('Delta - Nasr City');
+
+    form.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click();
+    const reason = form.querySelectorAll('select')[2];
+    reason.value = 'driverAbsent';
+    reason.dispatchEvent(new Event('input'));
+    form.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(harness);
+
+    expect(changeTrip).toHaveBeenCalledWith(
+      north,
+      'trip-1',
+      expect.objectContaining({ cancelled: true, reason: 'driverAbsent' }),
+    );
+    expect(harness.routeNativeElement!.querySelector('app-trip-change-form')).toBeFalsy();
+    expect(rows(harness)[0].textContent).toContain(arabic.statuses.cancelled);
   });
 
   it('offers the companies with running trips for a holiday', async () => {
@@ -464,7 +494,7 @@ function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
 function pressed(harness: RouterTestingHarness): string {
   return (
     harness.routeNativeElement
-      ?.querySelector('.toggle button[aria-pressed="true"]')
+      ?.querySelector('[role="group"] button[aria-pressed="true"]')
       ?.textContent?.trim() ?? ''
   );
 }

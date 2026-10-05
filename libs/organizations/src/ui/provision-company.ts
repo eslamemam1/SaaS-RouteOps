@@ -2,6 +2,7 @@ import { Component, computed, inject, output, signal } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
 import { currencies, Currency, defaultCurrency } from '@routeops/shared/money';
+import { Alert, Button, Field } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -14,7 +15,7 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-provision-company',
-  imports: [FormField],
+  imports: [Alert, Button, Field, FormField],
   templateUrl: './provision-company.html',
 })
 export class ProvisionCompanyForm {

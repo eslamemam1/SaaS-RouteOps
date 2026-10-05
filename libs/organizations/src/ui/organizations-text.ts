@@ -13,6 +13,8 @@ export interface OrganizationsText {
     readonly submit: string;
   };
   readonly home: {
+    readonly title: string;
+    readonly hint: string;
     readonly loading: string;
     readonly noCompany: string;
     readonly chooseTitle: string;
@@ -30,7 +32,6 @@ export interface OrganizationsText {
     readonly operationsHint: string;
     readonly reports: string;
     readonly reportsHint: string;
-    readonly operatorTitle: string;
     readonly signOut: string;
   };
   readonly provision: {
@@ -82,6 +83,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       submit: 'دخول',
     },
     home: {
+      title: 'الرئيسية',
+      hint: 'اختر القسم الذي تريد العمل عليه.',
       loading: 'جارٍ التحميل...',
       noCompany: 'هذا الحساب غير مرتبط بأي شركة نقل. تواصل مع مدير الموقع.',
       chooseTitle: 'اختر شركتك',
@@ -99,7 +102,6 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operationsHint: 'رحلات كل يوم: غياب سائق، عطل مركبة، أو إجازة.',
       reports: 'التقارير',
       reportsHint: 'الرحلات التي تمّت كل شهر وإيرادها، لكل شركة متعاقدة ومركبة وسائق.',
-      operatorTitle: 'لوحة مدير الموقع',
       signOut: 'تسجيل الخروج',
     },
     provision: {
@@ -150,6 +152,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       submit: 'Sign in',
     },
     home: {
+      title: 'Home',
+      hint: 'Choose the section you want to work on.',
       loading: 'Loading...',
       noCompany:
         'This account is not linked to a transport company. Contact the site manager.',
@@ -169,7 +173,6 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operationsHint: "Each day's trips: an absent driver, a broken vehicle, or a holiday.",
       reports: 'Reports',
       reportsHint: 'The trips done each month and their revenue, per client company, vehicle, and driver.',
-      operatorTitle: 'Site manager panel',
       signOut: 'Sign out',
     },
     provision: {

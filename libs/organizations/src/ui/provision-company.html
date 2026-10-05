@@ -1,61 +1,38 @@
-<h3>{{ text().provision.title }}</h3>
-<p class="hint">{{ text().provision.hint }}</p>
-<form (submit)="onSubmit($event)">
-  <label>
-    {{ text().provision.name }}
+<form class="ro-form" (submit)="onSubmit($event)">
+  <app-field [label]="text().provision.name" [control]="companyForm.organizationName">
     <input type="text" [formField]="companyForm.organizationName" />
-  </label>
-  @if (
-    companyForm.organizationName().touched() &&
-    companyForm.organizationName().errors()[0];
-    as error
-  ) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().provision.email }}
-    <input
-      type="email"
-      dir="ltr"
-      autocomplete="off"
-      [formField]="companyForm.email"
-    />
-  </label>
-  @if (companyForm.email().touched() && companyForm.email().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().provision.password }}
-    <span class="hint">{{ text().provision.passwordHint }}</span>
+  </app-field>
+  <app-field [label]="text().provision.email" [control]="companyForm.email">
+    <input type="email" dir="ltr" autocomplete="off" [formField]="companyForm.email" />
+  </app-field>
+  <app-field
+    [label]="text().provision.password"
+    [hint]="text().provision.passwordHint"
+    [control]="companyForm.password"
+  >
     <input
       type="password"
       dir="ltr"
       autocomplete="new-password"
       [formField]="companyForm.password"
     />
-  </label>
-  @if (
-    companyForm.password().touched() && companyForm.password().errors()[0];
-    as error
-  ) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().provision.currency }}
-    <span class="hint">{{ text().provision.currencyHint }}</span>
+  </app-field>
+  <app-field [label]="text().provision.currency" [hint]="text().provision.currencyHint">
     <select [formField]="companyForm.currency">
       @for (currency of currencies; track currency) {
         <option [value]="currency">{{ text().currencies[currency] }}</option>
       }
     </select>
-  </label>
-  <button type="submit" [disabled]="submitting()">
-    {{ text().provision.submit }}
-  </button>
+  </app-field>
+  @if (succeeded()) {
+    <app-alert tone="success">{{ text().provision.created }}</app-alert>
+  }
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+  }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="submitting()">
+      {{ text().provision.submit }}
+    </button>
+  </div>
 </form>
-@if (succeeded()) {
-  <p>{{ text().provision.created }}</p>
-}
-@if (problem(); as current) {
-  <p class="error">{{ text().problems[current] }}</p>
-}

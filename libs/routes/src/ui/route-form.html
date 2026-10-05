@@ -67,7 +67,7 @@
       </label>
     }
     @if (routeForm.days().touched() && routeForm.days().errors()[0]; as error) {
-      <p class="error">{{ error.message }}</p>
+      <p class="error" role="alert">{{ error.message }}</p>
     }
   </fieldset>
   <app-field

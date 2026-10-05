@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { injectText } from '@routeops/shared/i18n';
+import { Alert, Button, Field, LanguageSwitch } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -10,8 +11,9 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-sign-in',
-  imports: [FormField],
+  imports: [Alert, Button, Field, FormField, LanguageSwitch],
   templateUrl: './sign-in.html',
+  styleUrl: './sign-in.css',
 })
 export class SignIn {
   private readonly repository = inject(OrganizationRepository);

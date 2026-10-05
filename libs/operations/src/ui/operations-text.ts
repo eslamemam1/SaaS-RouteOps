@@ -27,7 +27,6 @@ export interface OperationsText {
     readonly formHint: string;
   };
   readonly day: {
-    readonly back: string;
     readonly title: string;
     readonly hint: string;
     readonly date: string;
@@ -175,7 +174,6 @@ export const operationsText: Record<Language, OperationsText> = {
       formHint: 'تنبيه: يفصل بين هذه الرحلة والرحلات التالية أقل من ساعة. يمكنك الحفظ رغم ذلك.',
     },
     day: {
-      back: 'الرجوع إلى الصفحة الرئيسية',
       title: 'التشغيل اليومي',
       hint: 'رحلات كل يوم كما حدثت فعلًا. التغيير هنا ليوم واحد فقط ولا يغيّر الخط.',
       date: 'اليوم',
@@ -205,7 +203,7 @@ export const operationsText: Record<Language, OperationsText> = {
     extra: {
       title: 'إضافة رحلة إضافية',
       hint: 'رحلة زيادة على رحلات الخطوط في هذا اليوم فقط، مثل رحلة بالليل أو مشوار لمرة واحدة. تُحسب مثل باقي الرحلات.',
-      route: 'الخط (اختياري)',
+      route: 'الخط',
       routeHint: 'عند اختيار خط تُملأ الشركة والمركبة والسائق منه، ويمكنك تغيير المركبة والسائق.',
       noRoute: 'بدون خط',
       customer: 'الشركة المتعاقدة',
@@ -213,14 +211,14 @@ export const operationsText: Record<Language, OperationsText> = {
       chooseCustomer: 'اختر الشركة',
       direction: 'الرحلة',
       time: 'الميعاد',
-      vehicle: 'المركبة (اختياري)',
+      vehicle: 'المركبة',
       driver: 'السائق',
       chooseDriver: 'اختر السائق',
       notSet: 'لم يُحدد',
-      tripPrice: 'سعر الرحلة (اختياري)',
+      tripPrice: 'سعر الرحلة',
       tripPriceHint: 'المبلغ الذي تدفعه الشركة المتعاقدة عن هذه الرحلة. اتركه فارغًا إن لم يكن لها سعر.',
       tripPriceRouteHint: 'اتركه فارغًا لتُحسب الرحلة بسعر الخط المختار.',
-      notes: 'ملاحظات (اختياري)',
+      notes: 'ملاحظات',
       save: 'إضافة الرحلة',
       cancel: 'إلغاء',
     },
@@ -321,7 +319,6 @@ export const operationsText: Record<Language, OperationsText> = {
       formHint: 'Warning: these trips leave less than an hour from this one. You can still save.',
     },
     day: {
-      back: 'Back to home',
       title: 'Daily operations',
       hint: 'Each day\'s trips as they actually happened. Changes here are for one day only and do not change the route.',
       date: 'Day',
@@ -351,7 +348,7 @@ export const operationsText: Record<Language, OperationsText> = {
     extra: {
       title: 'Add an extra trip',
       hint: 'A trip on top of the route trips, on this day only, such as an evening trip or a one-off run. It counts like any other trip.',
-      route: 'Route (optional)',
+      route: 'Route',
       routeHint: 'Choosing a route fills in its company, vehicle, and driver. You can still change the vehicle and driver.',
       noRoute: 'No route',
       customer: 'Client company',
@@ -359,14 +356,14 @@ export const operationsText: Record<Language, OperationsText> = {
       chooseCustomer: 'Choose a company',
       direction: 'Trip',
       time: 'Time',
-      vehicle: 'Vehicle (optional)',
+      vehicle: 'Vehicle',
       driver: 'Driver',
       chooseDriver: 'Choose a driver',
       notSet: 'Not set',
-      tripPrice: 'Trip price (optional)',
+      tripPrice: 'Trip price',
       tripPriceHint: 'What the client company pays for this trip. Leave it empty if it has no price.',
       tripPriceRouteHint: "Leave it empty to count the trip at the chosen route's price.",
-      notes: 'Notes (optional)',
+      notes: 'Notes',
       save: 'Add trip',
       cancel: 'Cancel',
     },

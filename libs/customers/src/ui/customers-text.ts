@@ -4,8 +4,8 @@ import { CustomerProblem } from '../domain/customer';
 export interface CustomersText {
   readonly problems: Record<CustomerProblem, string>;
   readonly list: {
-    readonly back: string;
     readonly title: string;
+    readonly add: string;
     readonly hint: string;
     readonly loading: string;
     readonly empty: string;
@@ -53,11 +53,11 @@ export const customersText: Record<Language, CustomersText> = {
       notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
     },
     list: {
-      back: 'الرجوع إلى الصفحة الرئيسية',
       title: 'الشركات المتعاقدة',
+      add: 'إضافة شركة',
       hint: 'الشركات والمصانع التي تنقل موظفيها. سجّل هنا كل شركة تتعامل معها.',
       loading: 'جارٍ التحميل...',
-      empty: 'لم تضف أي شركة بعد. ابدأ بإضافة أول شركة من النموذج بالأسفل.',
+      empty: 'لم تضف أي شركة بعد. ابدأ بإضافة أول شركة.',
       name: 'الشركة أو المصنع',
       contactName: 'المسؤول عندهم',
       phone: 'رقم الهاتف',
@@ -73,13 +73,13 @@ export const customersText: Record<Language, CustomersText> = {
       editTitle: 'تعديل بيانات الشركة',
       name: 'اسم الشركة أو المصنع',
       nameHint: 'الشركة التي تنقل موظفيها، مثل: مصنع الدلتا للنسيج.',
-      contactName: 'اسم المسؤول عندهم (اختياري)',
+      contactName: 'اسم المسؤول عندهم',
       contactNameHint:
         'الشخص الذي تتواصل معه في هذه الشركة، مثل مدير شؤون الموظفين.',
-      phone: 'رقم هاتف المسؤول (اختياري)',
-      email: 'البريد الإلكتروني للمسؤول (اختياري)',
-      address: 'عنوان الشركة أو المصنع (اختياري)',
-      notes: 'ملاحظات (اختياري)',
+      phone: 'رقم هاتف المسؤول',
+      email: 'البريد الإلكتروني للمسؤول',
+      address: 'عنوان الشركة أو المصنع',
+      notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذه الشركة.',
       active: 'ما زلنا نتعامل مع هذه الشركة',
       add: 'إضافة الشركة',
@@ -101,11 +101,11 @@ export const customersText: Record<Language, CustomersText> = {
       notConnected: 'The app is not connected to the database.',
     },
     list: {
-      back: 'Back to home',
       title: 'Client companies',
+      add: 'Add company',
       hint: 'The companies and factories whose staff you transport. Add every company you work with here.',
       loading: 'Loading...',
-      empty: 'You have not added any company yet. Add the first one using the form below.',
+      empty: 'You have not added any company yet. Start by adding the first one.',
       name: 'Company or factory',
       contactName: 'Their contact person',
       phone: 'Phone',
@@ -121,13 +121,13 @@ export const customersText: Record<Language, CustomersText> = {
       editTitle: 'Edit company details',
       name: 'Company or factory name',
       nameHint: 'The company whose staff you transport, e.g. Delta Textile Factory.',
-      contactName: 'Their contact person (optional)',
+      contactName: 'Their contact person',
       contactNameHint:
         'The person you deal with at this company, e.g. the HR manager.',
-      phone: 'Contact phone (optional)',
-      email: 'Contact email (optional)',
-      address: 'Company or factory address (optional)',
-      notes: 'Notes (optional)',
+      phone: 'Contact phone',
+      email: 'Contact email',
+      address: 'Company or factory address',
+      notes: 'Notes',
       notesHint: 'Anything you want to remember about this company.',
       active: 'We still work with this company',
       add: 'Add company',

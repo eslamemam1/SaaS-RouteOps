@@ -1,0 +1,36 @@
+.sign-in {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-block-size: 100vh;
+  padding: var(--ro-space-6);
+}
+
+.sign-in-language {
+  position: absolute;
+  inset-block-start: var(--ro-space-4);
+  inset-inline-end: var(--ro-space-4);
+}
+
+.sign-in-card {
+  display: grid;
+  gap: var(--ro-space-6);
+  inline-size: 100%;
+  max-inline-size: var(--ro-form-max-width);
+  padding: var(--ro-space-8);
+}
+
+.sign-in-brand {
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-heading-lg);
+  line-height: var(--ro-leading-heading-lg);
+}
+
+.sign-in-titles {
+  display: grid;
+  gap: var(--ro-space-1);
+}
+
+.sign-in-submit {
+  inline-size: 100%;
+}

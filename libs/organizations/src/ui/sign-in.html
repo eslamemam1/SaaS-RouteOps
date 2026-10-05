@@ -1,32 +1,29 @@
-<h2>{{ text().signIn.title }}</h2>
-<p class="hint">{{ text().signIn.hint }}</p>
-<form (submit)="onSubmit($event)">
-  <label>
-    {{ text().signIn.email }}
-    <input
-      type="email"
-      dir="ltr"
-      autocomplete="username"
-      [formField]="signInForm.email"
-    />
-  </label>
-  @if (signInForm.email().touched() && signInForm.email().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().signIn.password }}
-    <input
-      type="password"
-      dir="ltr"
-      autocomplete="current-password"
-      [formField]="signInForm.password"
-    />
-  </label>
-  @if (signInForm.password().touched() && signInForm.password().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <button type="submit" [disabled]="submitting()">{{ text().signIn.submit }}</button>
-</form>
-@if (problem(); as current) {
-  <p class="error">{{ text().problems[current] }}</p>
-}
+<main class="sign-in">
+  <div class="sign-in-language"><app-language-switch /></div>
+  <section class="sign-in-card ro-card">
+    <h1 class="sign-in-brand">RouteOps</h1>
+    <div class="sign-in-titles">
+      <h2>{{ text().signIn.title }}</h2>
+      <p class="hint">{{ text().signIn.hint }}</p>
+    </div>
+    <form class="ro-form" (submit)="onSubmit($event)">
+      <app-field [label]="text().signIn.email" [control]="signInForm.email">
+        <input type="email" dir="ltr" autocomplete="username" [formField]="signInForm.email" />
+      </app-field>
+      <app-field [label]="text().signIn.password" [control]="signInForm.password">
+        <input
+          type="password"
+          dir="ltr"
+          autocomplete="current-password"
+          [formField]="signInForm.password"
+        />
+      </app-field>
+      @if (problem(); as current) {
+        <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+      }
+      <button appButton class="sign-in-submit" type="submit" [disabled]="submitting()">
+        {{ text().signIn.submit }}
+      </button>
+    </form>
+  </section>
+</main>

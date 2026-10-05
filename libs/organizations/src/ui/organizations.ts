@@ -1,6 +1,17 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { NgIcon } from '@ng-icons/core';
+import {
+  lucideBuilding2,
+  lucideBus,
+  lucideCalendarDays,
+  lucideChartColumn,
+  lucideIdCard,
+  lucideLogOut,
+  lucideRoute,
+} from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
+import { Button, PageHeader, PageState } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { activeOrganization, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
@@ -8,16 +19,35 @@ import { OrganizationRepository } from '../application/organization-repository';
 import { organizationsText } from './organizations-text';
 import { ProvisionCompanyForm } from './provision-company';
 
+const sections = [
+  { path: 'operations', hint: 'operationsHint', icon: lucideCalendarDays },
+  { path: 'routes', hint: 'routesHint', icon: lucideRoute },
+  { path: 'customers', hint: 'customersHint', icon: lucideBuilding2 },
+  { path: 'vehicles', hint: 'vehiclesHint', icon: lucideBus },
+  { path: 'drivers', hint: 'driversHint', icon: lucideIdCard },
+  { path: 'reports', hint: 'reportsHint', icon: lucideChartColumn },
+] as const;
+
 @Component({
   selector: 'app-organizations',
-  imports: [ProvisionCompanyForm, RouterLink],
+  imports: [
+    Button,
+    NgIcon,
+    PageHeader,
+    PageState,
+    ProvisionCompanyForm,
+    RouterLink,
+  ],
   templateUrl: './organizations.html',
+  styleUrl: './organizations.css',
 })
 export class Organizations {
   private readonly repository = inject(OrganizationRepository);
   private readonly router = inject(Router);
 
   protected readonly text = injectText(organizationsText);
+  protected readonly sections = sections;
+  protected readonly signOutIcon = lucideLogOut;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -25,6 +55,11 @@ export class Organizations {
   protected readonly organizations = signal<Organization[]>([]);
   protected readonly active = signal<Organization | null>(null);
   protected readonly operator = signal(false);
+  protected readonly headerTitle = computed(() => {
+    const active = this.active();
+    const home = this.text().home;
+    return active ? `${home.welcome} ${active.name}` : home.title;
+  });
 
   constructor() {
     void this.load();

@@ -50,12 +50,32 @@ describe('Drivers', () => {
     expect(text(harness)).toContain(arabic.list.expired);
   });
 
-  it('shows an empty state and the add form when there are no drivers', async () => {
+  it('shows an empty state that opens the add form', async () => {
     const harness = await open({ list: async () => [] });
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.list.empty);
+    expect(harness.routeNativeElement?.querySelector('form')).toBeFalsy();
+
+    button(harness, arabic.list.add)?.click();
+    await settle(harness);
+
     expect(text(harness)).toContain(arabic.form.addTitle);
+    expect(harness.routeNativeElement?.querySelector('form')).toBeTruthy();
+  });
+
+  it('opens the form with the driver details to edit', async () => {
+    const harness = await open({ list: async () => [ahmed] });
+    await settle(harness);
+
+    button(harness, arabic.list.edit)?.click();
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.form.editTitle);
+    const name = harness.routeNativeElement!.querySelector<HTMLInputElement>(
+      'form input[type="text"]',
+    );
+    expect(name?.value).toBe('أحمد محمد');
   });
 
   it('refuses an organization outside the user memberships', async () => {
@@ -116,6 +136,15 @@ async function settle(harness: RouterTestingHarness): Promise<void> {
   await Promise.resolve();
   await harness.fixture.whenStable();
   harness.detectChanges();
+}
+
+function button(
+  harness: RouterTestingHarness,
+  label: string,
+): HTMLButtonElement | undefined {
+  return [
+    ...(harness.routeNativeElement?.querySelectorAll<HTMLButtonElement>('button') ?? []),
+  ].find((item) => item.textContent?.trim() === label);
 }
 
 function text(harness: RouterTestingHarness): string {

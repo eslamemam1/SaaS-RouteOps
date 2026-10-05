@@ -91,6 +91,8 @@ describe('Vehicles', () => {
     const add = vi.fn(async () => rentedBus);
     const harness = await open({ list: async () => [], add });
     await settle(harness);
+    button(harness, arabic.list.add)?.click();
+    await settle(harness);
 
     const [plate] = all<HTMLInputElement>(harness, 'form input[type="text"]');
     const [type, ownership] = all<HTMLSelectElement>(harness, 'form select');
@@ -121,14 +123,22 @@ describe('Vehicles', () => {
         ownerPhone: '01001234567',
       }),
     );
+    expect(harness.routeNativeElement?.querySelector('form')).toBeFalsy();
+    expect(text(harness)).toContain(arabic.form.added);
   });
 
-  it('shows an empty state and the add form when there are no vehicles', async () => {
+  it('shows an empty state that opens the add form', async () => {
     const harness = await open({ list: async () => [] });
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.list.empty);
+    expect(harness.routeNativeElement?.querySelector('form')).toBeFalsy();
+
+    button(harness, arabic.list.add)?.click();
+    await settle(harness);
+
     expect(text(harness)).toContain(arabic.form.addTitle);
+    expect(harness.routeNativeElement?.querySelector('form')).toBeTruthy();
   });
 
   it('refuses an organization outside the user memberships', async () => {
@@ -193,6 +203,15 @@ async function settle(harness: RouterTestingHarness): Promise<void> {
 
 function text(harness: RouterTestingHarness): string {
   return harness.routeNativeElement?.textContent ?? '';
+}
+
+function button(
+  harness: RouterTestingHarness,
+  label: string,
+): HTMLButtonElement | undefined {
+  return all<HTMLButtonElement>(harness, 'button').find(
+    (item) => item.textContent?.trim() === label,
+  );
 }
 
 function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {

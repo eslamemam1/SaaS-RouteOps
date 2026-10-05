@@ -1,6 +1,17 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { NgIcon } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
+import {
+  Alert,
+  Button,
+  Field,
+  FormDrawer,
+  PageHeader,
+  PageState,
+  Tag,
+} from '@routeops/shared/ui';
 import { VehicleAccessError } from '../application/vehicle-access-error';
 import { VehicleRepository } from '../application/vehicle-repository';
 import {
@@ -19,7 +30,17 @@ import { vehiclesText } from './vehicles-text';
 
 @Component({
   selector: 'app-vehicles',
-  imports: [RouterLink, VehicleForm],
+  imports: [
+    Alert,
+    Button,
+    Field,
+    FormDrawer,
+    NgIcon,
+    PageHeader,
+    PageState,
+    Tag,
+    VehicleForm,
+  ],
   templateUrl: './vehicles.html',
 })
 export class Vehicles {
@@ -28,6 +49,7 @@ export class Vehicles {
   private readonly today = localDate(new Date());
 
   protected readonly text = injectText(vehiclesText);
+  protected readonly addIcon = lucidePlus;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -35,6 +57,11 @@ export class Vehicles {
   protected readonly organization = signal<VehicleOrganization | null>(null);
   protected readonly vehicles = signal<Vehicle[]>([]);
   protected readonly editing = signal<Vehicle | null>(null);
+  protected readonly formOpen = signal(false);
+  protected readonly outcome = signal<'added' | 'saved' | null>(null);
+  protected readonly formTitle = computed(() =>
+    this.editing() ? this.text().form.editTitle : this.text().form.addTitle,
+  );
   protected readonly ownerships = vehicleOwnerships;
   protected readonly ownershipFilter = signal<VehicleOwnership | ''>('');
   protected readonly visibleVehicles = computed(() =>
@@ -53,19 +80,37 @@ export class Vehicles {
     return licenseExpired(vehicle.licenseExpiry, this.today);
   }
 
+  protected add(): void {
+    this.open(null);
+  }
+
   protected edit(vehicle: Vehicle): void {
-    this.editing.set(vehicle);
+    this.open(vehicle);
+  }
+
+  protected onDrawer(open: boolean): void {
+    if (!open) {
+      this.stopEditing();
+    }
   }
 
   protected stopEditing(): void {
+    this.formOpen.set(false);
     this.editing.set(null);
   }
 
   protected onSaved(vehicle: Vehicle): void {
     const others = this.vehicles().filter((item) => item.id !== vehicle.id);
     this.vehicles.set(sortByPlate([...others, vehicle]));
-    this.editing.set(null);
+    this.outcome.set(this.editing() ? 'saved' : 'added');
+    this.stopEditing();
     this.status.set('success');
+  }
+
+  private open(vehicle: Vehicle | null): void {
+    this.outcome.set(null);
+    this.editing.set(vehicle);
+    this.formOpen.set(true);
   }
 
   private async load(): Promise<void> {

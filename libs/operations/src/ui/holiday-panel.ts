@@ -9,6 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { injectText } from '@routeops/shared/i18n';
+import { Alert, Button } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -23,7 +24,9 @@ import { operationsText } from './operations-text';
 
 @Component({
   selector: 'app-holiday-panel',
+  imports: [Alert, Button],
   templateUrl: './holiday-panel.html',
+  host: { class: 'ro-card' },
 })
 export class HolidayPanel {
   private readonly repository = inject(OperationsRepository);

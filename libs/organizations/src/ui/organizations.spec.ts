@@ -30,6 +30,24 @@ describe('Organizations', () => {
     expect(text(fixture)).toContain(`${arabic.home.welcome} North`);
   });
 
+  it('lets a member of two companies choose which one to open', async () => {
+    const south: Organization = { id: 'org-south', name: 'South' };
+    const fixture = await render({ listMine: async () => [north, south] });
+    await settle(fixture);
+
+    expect(text(fixture)).toContain(arabic.home.chooseTitle);
+    const element: HTMLElement = fixture.nativeElement;
+    const southButton = [...element.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === 'South',
+    )!;
+    southButton.click();
+    await settle(fixture);
+
+    expect(text(fixture)).toContain(`${arabic.home.welcome} South`);
+    expect(southButton.getAttribute('aria-pressed')).toBe('true');
+    expect(element.querySelector('a[href="/organizations/org-south/routes"]')).toBeTruthy();
+  });
+
   it('shows an empty state when the account has no organization', async () => {
     const fixture = await render({ listMine: async () => [] });
     await settle(fixture);

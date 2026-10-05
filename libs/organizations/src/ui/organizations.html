@@ -1,70 +1,72 @@
-@if (status() === 'loading') {
-  <p>{{ text().home.loading }}</p>
-}
-@if (status() === 'error') {
-  <p class="error">{{ text().problems[problem()] }}</p>
-}
-@if (status() === 'empty' && !operator()) {
-  <p>{{ text().home.noCompany }}</p>
-}
-@if (status() === 'success') {
-  @if (organizations().length > 1) {
-    <h2>{{ text().home.chooseTitle }}</h2>
-    <p class="hint">{{ text().home.chooseHint }}</p>
-    <ul>
-      @for (organization of organizations(); track organization.id) {
-        <li>
-          <button type="button" (click)="choose(organization.id)">
-            {{ organization.name }}
-          </button>
-        </li>
+<div class="ro-stack">
+  <app-page-header [title]="headerTitle()" [hint]="active() ? text().home.hint : ''">
+    <button appButton="secondary" type="button" (click)="signOut()">
+      <ng-icon [svg]="signOutIcon" aria-hidden="true" />
+      {{ text().home.signOut }}
+    </button>
+  </app-page-header>
+
+  @switch (status()) {
+    @case ('loading') {
+      <app-page-state kind="loading" [message]="text().home.loading" />
+    }
+    @case ('error') {
+      <app-page-state kind="error" [message]="text().problems[problem()]" />
+    }
+    @case ('empty') {
+      @if (!operator()) {
+        <app-page-state kind="empty" [message]="text().home.noCompany" />
       }
-    </ul>
+    }
+    @case ('success') {
+      @if (organizations().length > 1) {
+        <section class="ro-card">
+          <div class="ro-card-header">
+            <h2 class="ro-card-title">{{ text().home.chooseTitle }}</h2>
+            <p class="hint">{{ text().home.chooseHint }}</p>
+          </div>
+          <div class="ro-card-body">
+            <div class="ro-toolbar" role="group" [attr.aria-label]="text().home.chooseTitle">
+              @for (organization of organizations(); track organization.id) {
+                <button
+                  type="button"
+                  [appButton]="active()?.id === organization.id ? 'primary' : 'secondary'"
+                  [attr.aria-pressed]="active()?.id === organization.id"
+                  (click)="choose(organization.id)"
+                >
+                  {{ organization.name }}
+                </button>
+              }
+            </div>
+          </div>
+        </section>
+      }
+      @if (active(); as current) {
+        <div class="ro-grid">
+          @for (section of sections; track section.path) {
+            <a
+              class="home-section ro-card"
+              [routerLink]="['/organizations', current.id, section.path]"
+            >
+              <span class="home-section-icon"><ng-icon [svg]="section.icon" aria-hidden="true" /></span>
+              <strong>{{ text().home[section.path] }}</strong>
+              <span class="hint">{{ text().home[section.hint] }}</span>
+            </a>
+          }
+        </div>
+      }
+    }
   }
-  @if (active(); as current) {
-    <h2>{{ text().home.welcome }} {{ current.name }}</h2>
-    <ul class="menu">
-      <li>
-        <a [routerLink]="['/organizations', current.id, 'customers']">
-          {{ text().home.customers }}
-        </a>
-        <span class="hint">{{ text().home.customersHint }}</span>
-      </li>
-      <li>
-        <a [routerLink]="['/organizations', current.id, 'vehicles']">
-          {{ text().home.vehicles }}
-        </a>
-        <span class="hint">{{ text().home.vehiclesHint }}</span>
-      </li>
-      <li>
-        <a [routerLink]="['/organizations', current.id, 'drivers']">
-          {{ text().home.drivers }}
-        </a>
-        <span class="hint">{{ text().home.driversHint }}</span>
-      </li>
-      <li>
-        <a [routerLink]="['/organizations', current.id, 'routes']">
-          {{ text().home.routes }}
-        </a>
-        <span class="hint">{{ text().home.routesHint }}</span>
-      </li>
-      <li>
-        <a [routerLink]="['/organizations', current.id, 'operations']">
-          {{ text().home.operations }}
-        </a>
-        <span class="hint">{{ text().home.operationsHint }}</span>
-      </li>
-      <li>
-        <a [routerLink]="['/organizations', current.id, 'reports']">
-          {{ text().home.reports }}
-        </a>
-        <span class="hint">{{ text().home.reportsHint }}</span>
-      </li>
-    </ul>
+
+  @if (operator()) {
+    <section class="ro-card">
+      <div class="ro-card-header">
+        <h2 class="ro-card-title">{{ text().provision.title }}</h2>
+        <p class="hint">{{ text().provision.hint }}</p>
+      </div>
+      <div class="ro-card-body">
+        <app-provision-company (created)="reload()" />
+      </div>
+    </section>
   }
-}
-@if (operator()) {
-  <h2>{{ text().home.operatorTitle }}</h2>
-  <app-provision-company (created)="reload()" />
-}
-<button type="button" (click)="signOut()">{{ text().home.signOut }}</button>
+</div>

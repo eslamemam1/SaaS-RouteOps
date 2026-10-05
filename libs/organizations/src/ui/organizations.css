@@ -1,0 +1,28 @@
+.home-section {
+  display: grid;
+  align-content: start;
+  gap: var(--ro-space-2);
+  padding: var(--ro-space-5);
+  color: var(--ro-text-primary);
+  text-decoration: none;
+  transition: border-color var(--ro-motion-fast) ease-out;
+}
+
+.home-section:hover {
+  border-color: var(--ro-border-focus);
+}
+
+.home-section:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-border-focus);
+  outline-offset: var(--ro-focus-width);
+}
+
+.home-section-icon {
+  display: inline-flex;
+  justify-self: start;
+  padding: var(--ro-space-2);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-heading-lg);
+}

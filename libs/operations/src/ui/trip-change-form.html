@@ -1,63 +1,59 @@
-<h3>
-  {{ text().change.title }}: {{ routeName() }} ({{ customerName() }}) -
-  {{ text().directions[trip().direction] }} <bdi>{{ trip().departureTime }}</bdi>
-</h3>
-<p class="hint">{{ text().change.hint }}</p>
-<form (submit)="onSubmit($event)">
-  <label>
-    {{ text().change.vehicle }}
+<form class="ro-form" (submit)="onSubmit($event)">
+  <div class="ro-cell-stack">
+    <strong>{{ routeName() }} ({{ customerName() }})</strong>
+    <span class="hint">
+      {{ text().directions[trip().direction] }} <bdi class="ro-numeric">{{ trip().departureTime }}</bdi>
+    </span>
+  </div>
+  <p class="hint">{{ text().change.hint }}</p>
+  <app-field [label]="text().change.vehicle" [optional]="true">
     <select [formField]="changeForm.vehicleId">
       <option value="">{{ text().change.notSet }}</option>
       @for (vehicle of vehicles(); track vehicle.id) {
         <option [value]="vehicle.id">{{ vehicle.label }}</option>
       }
     </select>
-  </label>
-  <label>
-    {{ text().change.driver }}
+  </app-field>
+  <app-field [label]="text().change.driver" [control]="changeForm.driverId">
     <select [formField]="changeForm.driverId">
       <option value="">{{ text().change.chooseDriver }}</option>
       @for (driver of drivers(); track driver.id) {
         <option [value]="driver.id">{{ driver.label }}</option>
       }
     </select>
-  </label>
-  @if (changeForm.driverId().touched() && changeForm.driverId().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
+  </app-field>
   <label class="checkbox">
     <input type="checkbox" [formField]="changeForm.cancelled" />
     {{ text().change.cancelled }}
   </label>
-  <label>
-    {{ text().change.reason }}
+  <app-field [label]="text().change.reason" [control]="changeForm.reason">
     <select [formField]="changeForm.reason">
       <option value="">{{ text().change.chooseReason }}</option>
       @for (reason of reasons; track reason) {
         <option [value]="reason">{{ text().reasons[reason] }}</option>
       }
     </select>
-  </label>
-  @if (changeForm.reason().touched() && changeForm.reason().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().change.notes }}
-    <span class="hint">{{ text().change.notesHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().change.notes"
+    [hint]="text().change.notesHint"
+    [control]="changeForm.notes"
+  >
     <textarea [formField]="changeForm.notes"></textarea>
-  </label>
-  @if (changeForm.notes().touched() && changeForm.notes().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
+  </app-field>
   @if (conflicts().length > 0) {
-    <div>
-      <p class="hint">{{ text().conflict.formHint }}</p>
+    <app-alert tone="warning">
+      <p>{{ text().conflict.formHint }}</p>
       <app-conflict-list [conflicts]="conflicts()" [choices]="choices()" />
-    </div>
+    </app-alert>
   }
-  <button type="submit" [disabled]="submitting()">{{ text().change.save }}</button>
-  <button type="button" (click)="cancelled.emit()">{{ text().change.cancel }}</button>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+  }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="submitting()">{{ text().change.save }}</button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().change.cancel }}
+    </button>
+  </div>
 </form>
-@if (problem(); as current) {
-  <p class="error">{{ text().problems[current] }}</p>
-}
