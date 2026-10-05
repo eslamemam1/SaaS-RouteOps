@@ -36,7 +36,7 @@ describe('App', () => {
   it('shows the product name and home link on the home page', async () => {
     const element = await open('/');
 
-    expect(element.querySelector('.shell-brand')?.textContent).toContain('RouteOps');
+    expect(element.querySelector('.shell-brand')?.textContent).toContain('حركة');
     expect(navLabels(element)).toEqual([shellText.ar.home]);
   });
 

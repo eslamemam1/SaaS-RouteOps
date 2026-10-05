@@ -11,7 +11,7 @@
     }
     <aside id="shell-sidebar" class="shell-sidebar" [class.shell-sidebar-open]="menuOpen()">
       <div class="shell-sidebar-header">
-        <a class="shell-brand" routerLink="/">RouteOps</a>
+        <a class="shell-brand" routerLink="/">{{ brand() }}</a>
         <button
           #sidebarToggle
           type="button"
@@ -63,7 +63,7 @@
         >
           <ng-icon [svg]="openSidebarIcon()" aria-hidden="true" />
         </button>
-        <span class="shell-topbar-brand">RouteOps</span>
+        <span class="shell-topbar-brand">{{ brand() }}</span>
         <app-language-switch />
       </header>
       <main class="shell-content">

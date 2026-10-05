@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { Router } from '@angular/router';
-import { injectText } from '@routeops/shared/i18n';
+import { injectText, productName } from '@routeops/shared/i18n';
 import { Alert, Button, Field, LanguageSwitch } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
@@ -20,6 +20,7 @@ export class SignIn {
   private readonly router = inject(Router);
 
   protected readonly text = injectText(organizationsText);
+  protected readonly brand = injectText(productName);
   private readonly problems = computed(() => this.text().problems);
 
   protected readonly submitting = signal(false);

@@ -11,6 +11,7 @@ describe('LanguageService', () => {
 
     expect(root.lang).toBe('ar');
     expect(root.dir).toBe('rtl');
+    expect(TestBed.inject(DOCUMENT).title).toBe('حركة');
   });
 
   it('switches the page to English, left to right, and remembers the choice', () => {
@@ -19,6 +20,7 @@ describe('LanguageService', () => {
 
     expect(root.lang).toBe('en');
     expect(root.dir).toBe('ltr');
+    expect(TestBed.inject(DOCUMENT).title).toBe('Haraka');
     expect(localStorage.getItem('routeops.language')).toBe('en');
   });
 

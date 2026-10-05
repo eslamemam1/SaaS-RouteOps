@@ -23,7 +23,7 @@ import {
 } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import { lucideChevronsLeft, lucideChevronsRight, lucideHouse, lucideMenu } from '@ng-icons/lucide';
-import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { injectText, LanguageService, productName } from '@routeops/shared/i18n';
 import { LanguageSwitch } from '@routeops/shared/ui';
 import { filter, map } from 'rxjs';
 import { shellSections } from './shell-sections';
@@ -48,6 +48,7 @@ export class App {
   private readonly sidebarToggle = viewChild<ElementRef<HTMLButtonElement>>('sidebarToggle');
 
   protected readonly text = injectText(shellText);
+  protected readonly brand = injectText(productName);
   protected readonly sections = shellSections;
   protected readonly homeIcon = lucideHouse;
   protected readonly closeSidebarIcon = computed(() =>

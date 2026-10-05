@@ -11,6 +11,8 @@ export type Language = 'ar' | 'en';
 
 export const defaultLanguage: Language = 'ar';
 
+export const productName: Record<Language, string> = { ar: 'حركة', en: 'Haraka' };
+
 const storageKey = 'routeops.language';
 
 @Service()
@@ -39,6 +41,7 @@ export class LanguageService {
     const root = this.document.documentElement;
     root.lang = language;
     root.dir = directionOf(language);
+    this.document.title = productName[language];
   }
 }
 
