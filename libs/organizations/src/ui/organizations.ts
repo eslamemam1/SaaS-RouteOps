@@ -10,7 +10,7 @@ import {
   lucideRoute,
 } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
-import { Button, PageHeader, PageState } from '@routeops/shared/ui';
+import { Alert, Button, PageHeader, PageState } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { activeOrganization, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
@@ -31,6 +31,7 @@ const sections = [
 @Component({
   selector: 'app-organizations',
   imports: [
+    Alert,
     Button,
     CompanyAccounts,
     NgIcon,

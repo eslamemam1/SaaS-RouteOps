@@ -37,18 +37,24 @@
         </section>
       }
       @if (active(); as current) {
-        <div class="ro-grid">
-          @for (section of sections; track section.path) {
-            <a
-              class="home-section ro-card"
-              [routerLink]="['/organizations', current.id, section.path]"
-            >
-              <span class="home-section-icon"><ng-icon [svg]="section.icon" aria-hidden="true" /></span>
-              <strong>{{ text().home[section.path] }}</strong>
-              <span class="hint">{{ text().home[section.hint] }}</span>
-            </a>
-          }
-        </div>
+        @if (!current.isActive) {
+          <app-alert tone="warning" [title]="text().home.suspendedTitle">
+            {{ text().home.suspended }}
+          </app-alert>
+        } @else {
+          <div class="ro-grid">
+            @for (section of sections; track section.path) {
+              <a
+                class="home-section ro-card"
+                [routerLink]="['/organizations', current.id, section.path]"
+              >
+                <span class="home-section-icon"><ng-icon [svg]="section.icon" aria-hidden="true" /></span>
+                <strong>{{ text().home[section.path] }}</strong>
+                <span class="hint">{{ text().home[section.hint] }}</span>
+              </a>
+            }
+          </div>
+        }
       }
     }
   }

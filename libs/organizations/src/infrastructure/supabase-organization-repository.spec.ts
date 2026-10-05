@@ -2,7 +2,7 @@ import { Organization } from '../domain/organization';
 import { OrganizationGateway } from './organization-gateway';
 import { SupabaseOrganizationRepository } from './supabase-organization-repository';
 
-const north: Organization = { id: 'org-north', name: 'North' };
+const north: Organization = { id: 'org-north', name: 'North', isActive: true };
 
 describe('SupabaseOrganizationRepository', () => {
   it('loads organizations using ids from the signed-in user memberships', async () => {
@@ -47,6 +47,7 @@ function fakeGateway(options: {
     organizationsByIds: vi.fn(async () => options.organizations),
     isOperator: vi.fn(async () => false),
     companyAccounts: vi.fn(async () => []),
+    setOrganizationActive: vi.fn(async () => undefined),
     signIn: vi.fn(async () => undefined),
     signOut: vi.fn(async () => undefined),
     provision: vi.fn(async () => undefined),

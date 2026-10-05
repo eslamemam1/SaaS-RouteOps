@@ -51,6 +51,7 @@ async function render(signOut: () => Promise<void>) {
     listMine: async () => [],
     currentUserIsOperator: async () => false,
     listCompanyAccounts: async () => [],
+    setCompanyActive: async () => undefined,
     provisionCompany: async () => undefined,
   };
   await TestBed.configureTestingModule({

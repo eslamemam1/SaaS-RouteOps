@@ -17,5 +17,9 @@ export abstract class OrganizationRepository {
   abstract listMine(): Promise<Organization[]>;
   abstract currentUserIsOperator(): Promise<boolean>;
   abstract listCompanyAccounts(): Promise<CompanyAccount[]>;
+  abstract setCompanyActive(
+    organizationId: string,
+    isActive: boolean,
+  ): Promise<void>;
   abstract provisionCompany(input: ProvisionCompany): Promise<void>;
 }

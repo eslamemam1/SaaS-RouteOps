@@ -40,7 +40,7 @@ describe('SupabaseOrganizationGateway', () => {
     const client = fakeClient({
       onIn() {
         return {
-          data: [{ id: 'org-north', name: 'North', extra: 'hidden' }],
+          data: [{ id: 'org-north', name: 'North', is_active: false, extra: 'hidden' }],
           error: null,
         };
       },
@@ -48,7 +48,7 @@ describe('SupabaseOrganizationGateway', () => {
     const gateway = new SupabaseOrganizationGateway(client);
 
     await expect(gateway.organizationsByIds(['org-north'])).resolves.toEqual([
-      { id: 'org-north', name: 'North' },
+      { id: 'org-north', name: 'North', isActive: false },
     ]);
   });
 
@@ -63,6 +63,7 @@ describe('SupabaseOrganizationGateway', () => {
               organization_id: 'org-gulf',
               organization_name: 'Gulf',
               currency: 'SAR',
+              is_active: true,
               created_at: '2026-10-01T09:00:00Z',
               login_emails: ['gulf@example.com'],
               last_sign_in_at: null,
@@ -71,6 +72,7 @@ describe('SupabaseOrganizationGateway', () => {
               organization_id: 'org-old',
               organization_name: 'Old',
               currency: 'XYZ',
+              is_active: false,
               created_at: '2026-01-01T09:00:00Z',
               login_emails: [],
               last_sign_in_at: '2026-02-01T09:00:00Z',
@@ -87,6 +89,7 @@ describe('SupabaseOrganizationGateway', () => {
         id: 'org-gulf',
         name: 'Gulf',
         currency: 'SAR',
+        isActive: true,
         logins: ['gulf@example.com'],
         createdAt: '2026-10-01T09:00:00Z',
         lastSignInAt: null,
@@ -95,12 +98,49 @@ describe('SupabaseOrganizationGateway', () => {
         id: 'org-old',
         name: 'Old',
         currency: 'EGP',
+        isActive: false,
         logins: [],
         createdAt: '2026-01-01T09:00:00Z',
         lastSignInAt: '2026-02-01T09:00:00Z',
       },
     ]);
     expect(calls).toEqual(['operator_accounts']);
+  });
+
+  it('asks the database to stop or turn on one account', async () => {
+    const calls: { name: string; args?: Record<string, unknown> }[] = [];
+    const client = fakeClient({
+      onRpc(name, args) {
+        calls.push({ name, args });
+        return { data: null, error: null };
+      },
+    });
+    const gateway = new SupabaseOrganizationGateway(client);
+
+    await gateway.setOrganizationActive('org-gulf', false);
+
+    expect(calls).toEqual([
+      {
+        name: 'set_organization_active',
+        args: { p_organization_id: 'org-gulf', p_is_active: false },
+      },
+    ]);
+  });
+
+  it('replaces an error changing an account with a safe message', async () => {
+    const client = fakeClient({
+      onRpc() {
+        return {
+          data: null,
+          error: { message: 'only the site operator can change an account' },
+        };
+      },
+    });
+    const gateway = new SupabaseOrganizationGateway(client);
+
+    await expect(gateway.setOrganizationActive('org-gulf', true)).rejects.toEqual(
+      new OrganizationAccessError('accountStatus'),
+    );
   });
 
   it('replaces an error listing the accounts with a safe message', async () => {
@@ -126,7 +166,10 @@ function fakeClient(handlers: {
     column: string,
     value: readonly string[],
   ) => { data: unknown; error: { message: string } | null };
-  onRpc?: (name: string) => { data: unknown; error: { message: string } | null };
+  onRpc?: (
+    name: string,
+    args?: Record<string, unknown>,
+  ) => { data: unknown; error: { message: string } | null };
 }): SupabaseClient<Database> {
   const query = {
     select() {
@@ -147,9 +190,9 @@ function fakeClient(handlers: {
     from() {
       return query;
     },
-    rpc(name: string) {
+    rpc(name: string, args?: Record<string, unknown>) {
       return Promise.resolve(
-        handlers.onRpc?.(name) ?? { data: [], error: null },
+        handlers.onRpc?.(name, args) ?? { data: [], error: null },
       );
     },
   } as unknown as SupabaseClient<Database>;

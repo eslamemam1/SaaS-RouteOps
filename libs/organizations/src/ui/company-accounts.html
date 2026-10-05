@@ -26,15 +26,30 @@
       </div>
     }
     @case ('success') {
+      @if (changed() || changeProblem()) {
+        <div class="ro-card-body">
+          @if (changed(); as change) {
+            <app-alert tone="success" [dismissible]="true" (dismissed)="changed.set(null)">
+              {{ change.isActive ? text().accounts.activated : text().accounts.deactivated }}
+              <bdi>{{ change.name }}</bdi>
+            </app-alert>
+          }
+          @if (changeProblem(); as problem) {
+            <app-alert tone="danger">{{ text().problems[problem] }}</app-alert>
+          }
+        </div>
+      }
       <div class="ro-table-scroll">
         <table class="ro-table-stack">
           <thead>
             <tr>
               <th>{{ text().accounts.company }}</th>
+              <th>{{ text().accounts.status }}</th>
               <th>{{ text().accounts.logins }}</th>
               <th>{{ text().accounts.currency }}</th>
               <th>{{ text().accounts.createdAt }}</th>
               <th>{{ text().accounts.lastSignIn }}</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -42,6 +57,11 @@
               <tr>
                 <td [attr.data-label]="text().accounts.company">
                   <strong><bdi>{{ account.name }}</bdi></strong>
+                </td>
+                <td [attr.data-label]="text().accounts.status">
+                  <app-tag [tone]="account.isActive ? 'success' : 'danger'">
+                    {{ account.isActive ? text().accounts.active : text().accounts.inactive }}
+                  </app-tag>
                 </td>
                 <td [attr.data-label]="text().accounts.logins">
                   @for (login of account.logins; track login) {
@@ -62,6 +82,17 @@
                   } @else {
                     <span class="hint">{{ text().accounts.neverSignedIn }}</span>
                   }
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    size="sm"
+                    [appButton]="account.isActive ? 'danger' : 'primary'"
+                    [disabled]="saving() !== null"
+                    (click)="toggle(account)"
+                  >
+                    {{ account.isActive ? text().accounts.deactivate : text().accounts.activate }}
+                  </button>
                 </td>
               </tr>
             }

@@ -1,8 +1,11 @@
 import { Currency } from '@routeops/shared/money';
 
+// The site operator stops an account whose monthly subscription is unpaid; its
+// members then cannot use the company's records until it is turned back on.
 export interface Organization {
   readonly id: string;
   readonly name: string;
+  readonly isActive: boolean;
 }
 
 // What the site operator sees of each company it provisioned.
@@ -10,6 +13,7 @@ export interface CompanyAccount {
   readonly id: string;
   readonly name: string;
   readonly currency: Currency;
+  readonly isActive: boolean;
   readonly logins: readonly string[];
   readonly createdAt: string;
   readonly lastSignInAt: string | null;

@@ -48,6 +48,10 @@ export class SupabaseOrganizationRepository extends OrganizationRepository {
     return this.gateway.companyAccounts();
   }
 
+  setCompanyActive(organizationId: string, isActive: boolean): Promise<void> {
+    return this.gateway.setOrganizationActive(organizationId, isActive);
+  }
+
   provisionCompany(input: ProvisionCompany): Promise<void> {
     return this.gateway.provision(input);
   }

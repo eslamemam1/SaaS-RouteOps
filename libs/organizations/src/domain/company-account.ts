@@ -12,6 +12,7 @@ export const companyAccountProblems = [
   'operatorOnly',
   'signIn',
   'signOut',
+  'accountStatus',
   'load',
   'create',
   'signedOut',

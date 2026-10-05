@@ -16,6 +16,7 @@ export interface OrganizationGateway {
   organizationsByIds(ids: readonly string[]): Promise<Organization[]>;
   isOperator(userId: string): Promise<boolean>;
   companyAccounts(): Promise<CompanyAccount[]>;
+  setOrganizationActive(organizationId: string, isActive: boolean): Promise<void>;
   signIn(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
   provision(input: ProvisionCompany): Promise<void>;
@@ -50,12 +51,16 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
   async organizationsByIds(ids: readonly string[]): Promise<Organization[]> {
     const { data, error } = await this.requireClient()
       .from('organizations')
-      .select('id, name')
+      .select('id, name, is_active')
       .in('id', [...ids]);
     if (error) {
       throw new OrganizationAccessError('load');
     }
-    return (data ?? []).map((row) => ({ id: row.id, name: row.name }));
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      name: row.name,
+      isActive: row.is_active,
+    }));
   }
 
   async isOperator(userId: string): Promise<boolean> {
@@ -79,10 +84,24 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       id: row.organization_id,
       name: row.organization_name,
       currency: isCurrency(row.currency) ? row.currency : defaultCurrency,
+      isActive: row.is_active,
       logins: row.login_emails ?? [],
       createdAt: row.created_at,
       lastSignInAt: row.last_sign_in_at,
     }));
+  }
+
+  async setOrganizationActive(
+    organizationId: string,
+    isActive: boolean,
+  ): Promise<void> {
+    const { error } = await this.requireClient().rpc('set_organization_active', {
+      p_organization_id: organizationId,
+      p_is_active: isActive,
+    });
+    if (error) {
+      throw new OrganizationAccessError('accountStatus');
+    }
   }
 
   async signIn(email: string, password: string): Promise<void> {

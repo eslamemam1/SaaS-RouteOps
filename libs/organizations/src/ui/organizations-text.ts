@@ -32,10 +32,19 @@ export interface OrganizationsText {
     readonly operationsHint: string;
     readonly reports: string;
     readonly reportsHint: string;
+    readonly suspendedTitle: string;
+    readonly suspended: string;
   };
   readonly accounts: {
     readonly title: string;
     readonly hint: string;
+    readonly status: string;
+    readonly active: string;
+    readonly inactive: string;
+    readonly activate: string;
+    readonly deactivate: string;
+    readonly activated: string;
+    readonly deactivated: string;
     readonly loading: string;
     readonly empty: string;
     readonly retry: string;
@@ -79,6 +88,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operatorOnly: 'إنشاء الشركات متاح لمدير الموقع فقط.',
       signIn: 'تعذّر تسجيل الدخول. تأكد من البريد الإلكتروني وكلمة المرور.',
       signOut: 'تعذّر تسجيل الخروج. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.',
+      accountStatus: 'تعذّر تغيير حالة الحساب. حاول مرة أخرى.',
       load: 'تعذّر تحميل بيانات الشركة. حاول مرة أخرى.',
       create: 'تعذّر إنشاء الشركة. حاول مرة أخرى.',
       signedOut: 'سجّل الدخول للمتابعة.',
@@ -121,10 +131,20 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operationsHint: 'رحلات كل يوم: غياب سائق، عطل مركبة، أو إجازة.',
       reports: 'التقارير',
       reportsHint: 'الرحلات التي تمّت كل شهر وإيرادها، لكل شركة متعاقدة ومركبة وسائق.',
+      suspendedTitle: 'حساب الشركة موقوف',
+      suspended:
+        'أُوقف حساب شركتك مؤقتًا لحين سداد الاشتراك الشهري. بياناتك محفوظة ولن يُحذف منها شيء. تواصل مع مدير الموقع لإعادة تفعيل الحساب.',
     },
     accounts: {
       title: 'حسابات الشركات',
-      hint: 'كل شركات النقل التي لها حساب على الموقع، والبريد الإلكتروني الذي تدخل به كل شركة، وآخر مرة دخلت فيها.',
+      hint: 'كل شركات النقل التي لها حساب على الموقع. أوقف حساب الشركة إذا لم تدفع الاشتراك الشهري، وفعّله مرة أخرى بعد الدفع. الشركة الموقوفة لا تستطيع استخدام بياناتها، ولا يُحذف منها شيء.',
+      status: 'الحالة',
+      active: 'نشط',
+      inactive: 'موقوف',
+      activate: 'تفعيل الحساب',
+      deactivate: 'إيقاف الحساب',
+      activated: 'تم تفعيل حساب',
+      deactivated: 'تم إيقاف حساب',
       loading: 'جارٍ تحميل حسابات الشركات...',
       empty: 'لا توجد شركات بعد. أنشئ أول حساب من النموذج أدناه.',
       retry: 'حاول مرة أخرى',
@@ -167,6 +187,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operatorOnly: 'Only the site manager can create companies.',
       signIn: 'Could not sign in. Check the email and password.',
       signOut: 'Could not sign out. Check your internet connection and try again.',
+      accountStatus: 'Could not change the account status. Please try again.',
       load: 'Could not load your company. Please try again.',
       create: 'Could not create the company. Please try again.',
       signedOut: 'Sign in to continue.',
@@ -211,10 +232,20 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operationsHint: "Each day's trips: an absent driver, a broken vehicle, or a holiday.",
       reports: 'Reports',
       reportsHint: 'The trips done each month and their revenue, per client company, vehicle, and driver.',
+      suspendedTitle: 'The company account is stopped',
+      suspended:
+        'Your company account is stopped until the monthly subscription is paid. Your data is kept and nothing is deleted. Contact the site manager to turn the account back on.',
     },
     accounts: {
       title: 'Company accounts',
-      hint: 'Every transport company with an account on the site, the email each one signs in with, and when it last signed in.',
+      hint: "Every transport company with an account on the site. Stop a company's account if it has not paid the monthly subscription, and turn it back on after it pays. A stopped company cannot use its data, and nothing is deleted.",
+      status: 'Status',
+      active: 'Active',
+      inactive: 'Stopped',
+      activate: 'Turn on account',
+      deactivate: 'Stop account',
+      activated: 'Account turned on:',
+      deactivated: 'Account stopped:',
       loading: 'Loading company accounts...',
       empty: 'There are no companies yet. Create the first account with the form below.',
       retry: 'Try again',

@@ -7,11 +7,12 @@ import { OrganizationRepository } from '../application/organization-repository';
 import { Organizations } from './organizations';
 import { organizationsText } from './organizations-text';
 
-const north: Organization = { id: 'org-north', name: 'North' };
+const north: Organization = { id: 'org-north', name: 'North', isActive: true };
 const gulf: CompanyAccount = {
   id: 'org-gulf',
   name: 'Gulf Transport',
   currency: 'SAR',
+  isActive: true,
   logins: ['gulf@example.com'],
   createdAt: '2026-10-01T09:00:00Z',
   lastSignInAt: null,
@@ -20,6 +21,7 @@ const quiet: CompanyAccount = {
   id: 'org-quiet',
   name: 'Quiet Transport',
   currency: 'EGP',
+  isActive: false,
   logins: [],
   createdAt: '2026-09-01T09:00:00Z',
   lastSignInAt: '2026-09-02T09:00:00Z',
@@ -47,7 +49,7 @@ describe('Organizations', () => {
   });
 
   it('lets a member of two companies choose which one to open', async () => {
-    const south: Organization = { id: 'org-south', name: 'South' };
+    const south: Organization = { id: 'org-south', name: 'South', isActive: true };
     const fixture = await render({ listMine: async () => [north, south] });
     await settle(fixture);
 
@@ -187,6 +189,61 @@ describe('Organizations', () => {
     expect(accountRows(fixture)[0]).toContain('Gulf Transport');
   });
 
+  it('lets the operator stop an unpaid account and turn it back on', async () => {
+    const setCompanyActive = vi.fn<OrganizationRepository['setCompanyActive']>(
+      async () => undefined,
+    );
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      listCompanyAccounts: async () => [gulf],
+      setCompanyActive,
+    });
+    await settle(fixture);
+    expect(accountRows(fixture)[0]).toContain(arabic.accounts.active);
+
+    accountButton(fixture, arabic.accounts.deactivate).click();
+    await settle(fixture);
+
+    expect(setCompanyActive).toHaveBeenCalledWith('org-gulf', false);
+    expect(accountRows(fixture)[0]).toContain(arabic.accounts.inactive);
+    expect(text(fixture)).toContain(arabic.accounts.deactivated);
+
+    accountButton(fixture, arabic.accounts.activate).click();
+    await settle(fixture);
+
+    expect(setCompanyActive).toHaveBeenLastCalledWith('org-gulf', true);
+    expect(accountRows(fixture)[0]).toContain(arabic.accounts.active);
+  });
+
+  it('keeps the account status and explains when it cannot change', async () => {
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      listCompanyAccounts: async () => [gulf],
+      setCompanyActive: async () => {
+        throw new OrganizationAccessError('accountStatus');
+      },
+    });
+    await settle(fixture);
+
+    accountButton(fixture, arabic.accounts.deactivate).click();
+    await settle(fixture);
+
+    expect(text(fixture)).toContain(arabic.problems.accountStatus);
+    expect(accountRows(fixture)[0]).toContain(arabic.accounts.active);
+  });
+
+  it('tells a stopped company to contact the site manager instead of opening its sections', async () => {
+    const fixture = await render({
+      listMine: async () => [{ ...north, isActive: false }],
+    });
+    await settle(fixture);
+
+    const element: HTMLElement = fixture.nativeElement;
+    expect(text(fixture)).toContain(arabic.home.suspendedTitle);
+    expect(text(fixture)).toContain(arabic.home.suspended);
+    expect(element.querySelector('a[href="/organizations/org-north/routes"]')).toBeNull();
+  });
+
   it('does not list company accounts for a company login', async () => {
     const listCompanyAccounts = vi.fn(async () => [gulf]);
     const fixture = await render({ listMine: async () => [north], listCompanyAccounts });
@@ -220,6 +277,7 @@ async function render(overrides: Partial<OrganizationRepository>) {
     listMine: async () => [],
     currentUserIsOperator: async () => false,
     listCompanyAccounts: async () => [],
+    setCompanyActive: async () => undefined,
     provisionCompany: async () => undefined,
     ...overrides,
   };
@@ -249,6 +307,16 @@ function fill(input: HTMLInputElement, value: string): void {
 
 function text(fixture: ComponentFixture<Organizations>): string {
   return fixture.nativeElement.textContent;
+}
+
+function accountButton(
+  fixture: ComponentFixture<Organizations>,
+  label: string,
+): HTMLButtonElement {
+  const element: HTMLElement = fixture.nativeElement;
+  return [
+    ...element.querySelectorAll<HTMLButtonElement>('app-company-accounts tbody button'),
+  ].find((button) => button.textContent?.trim() === label)!;
 }
 
 function accountRows(fixture: ComponentFixture<Organizations>): string[] {

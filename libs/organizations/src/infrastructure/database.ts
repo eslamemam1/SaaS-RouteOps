@@ -2,7 +2,7 @@ export interface Database {
   public: {
     Tables: {
       organizations: {
-        Row: { id: string; name: string };
+        Row: { id: string; name: string; is_active: boolean };
         Insert: { name: string };
         Update: { name?: string };
         Relationships: [];
@@ -28,10 +28,15 @@ export interface Database {
           organization_id: string;
           organization_name: string;
           currency: string;
+          is_active: boolean;
           created_at: string;
           login_emails: string[];
           last_sign_in_at: string | null;
         }[];
+      };
+      set_organization_active: {
+        Args: { p_organization_id: string; p_is_active: boolean };
+        Returns: undefined;
       };
     };
     Enums: Record<string, never>;
