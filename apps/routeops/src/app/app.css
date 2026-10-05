@@ -123,8 +123,7 @@
 }
 
 .shell-content {
-  inline-size: 100%;
-  max-inline-size: var(--ro-content-max-width);
+  min-inline-size: 0;
   padding: var(--ro-space-8);
 }
 

@@ -113,7 +113,7 @@
   --ro-control-height: 40px;
   --ro-sidebar-width: 248px;
   --ro-topbar-height: 56px;
-  --ro-content-max-width: 1280px;
+  --ro-readable-width: 70ch;
   --ro-drawer-width: 440px;
   --ro-card-min-width: 240px;
   --ro-filter-min-width: 180px;

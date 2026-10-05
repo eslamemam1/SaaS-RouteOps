@@ -117,6 +117,7 @@ label.checkbox {
 }
 
 .hint {
+  max-inline-size: var(--ro-readable-width);
   color: var(--ro-text-secondary);
   font-size: var(--ro-text-body-sm);
   line-height: var(--ro-leading-body-sm);

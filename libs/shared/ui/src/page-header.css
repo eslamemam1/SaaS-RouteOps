@@ -9,10 +9,10 @@
 .app-page-header-titles {
   display: grid;
   gap: var(--ro-space-1);
-  max-inline-size: var(--ro-content-max-width);
 }
 
 .app-page-header-hint {
+  max-inline-size: var(--ro-readable-width);
   color: var(--ro-text-secondary);
   font-size: var(--ro-text-body-sm);
   line-height: var(--ro-leading-body-sm);
