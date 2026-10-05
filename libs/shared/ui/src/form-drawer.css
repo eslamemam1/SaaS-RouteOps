@@ -60,6 +60,17 @@
   padding: var(--ro-space-6);
 }
 
+@media (width < 640px) {
+  .header {
+    padding-block: var(--ro-space-3);
+    padding-inline: var(--ro-space-4);
+  }
+
+  .content {
+    padding: var(--ro-space-4);
+  }
+}
+
 @keyframes ro-fade-in {
   from {
     opacity: 0;

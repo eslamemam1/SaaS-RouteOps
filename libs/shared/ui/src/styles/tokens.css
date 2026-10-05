@@ -71,7 +71,10 @@
   --ro-motion-fast: 150ms;
   --ro-motion-slow: 250ms;
   --ro-motion-spin: 800ms;
+  --ro-z-sticky: 10;
   --ro-z-overlay: 1000;
+  --ro-touch-target: 44px;
+  --ro-text-control-touch: 16px;
 
   --ro-space-1: 4px;
   --ro-space-2: 8px;
@@ -115,5 +118,6 @@
   --ro-card-min-width: 240px;
   --ro-filter-min-width: 180px;
   --ro-section-card-min-height: 160px;
+  --ro-table-label-width: 112px;
   --ro-form-max-width: 480px;
 }

@@ -56,7 +56,7 @@
           <app-page-state kind="empty" [message]="text().list.noMatch" />
         } @else {
           <div class="ro-table-scroll">
-            <table>
+            <table class="ro-table-stack">
               <thead>
                 <tr>
                   <th>{{ text().list.name }}</th>
@@ -74,21 +74,31 @@
               <tbody>
                 @for (route of visibleRoutes(); track route.id) {
                   <tr>
-                    <td>{{ route.name }}</td>
-                    <td>{{ label(choices().customers, route.customerId) }}</td>
-                    <td>{{ label(choices().drivers, route.driverId) }}</td>
-                    <td><bdi>{{ label(choices().vehicles, route.vehicleId) }}</bdi></td>
-                    <td class="ro-numeric"><bdi>{{ route.outboundTime }}</bdi></td>
-                    <td class="ro-numeric"><bdi>{{ route.returnTime }}</bdi></td>
-                    <td>{{ daysLabel(route) }}</td>
-                    <td class="ro-numeric">
+                    <td [attr.data-label]="text().list.name">{{ route.name }}</td>
+                    <td [attr.data-label]="text().list.customer">
+                      {{ label(choices().customers, route.customerId) }}
+                    </td>
+                    <td [attr.data-label]="text().list.driver">
+                      {{ label(choices().drivers, route.driverId) }}
+                    </td>
+                    <td [attr.data-label]="text().list.vehicle">
+                      <bdi>{{ label(choices().vehicles, route.vehicleId) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().list.outboundTime">
+                      <bdi>{{ route.outboundTime }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().list.returnTime">
+                      <bdi>{{ route.returnTime }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().list.days">{{ daysLabel(route) }}</td>
+                    <td class="ro-numeric" [attr.data-label]="text().list.tripPrice">
                       @if (priceLabel(route); as price) {
                         <bdi>{{ price }}</bdi>
                       } @else {
                         <app-tag tone="warning">{{ text().list.notSet }}</app-tag>
                       }
                     </td>
-                    <td>
+                    <td [attr.data-label]="text().list.work">
                       <app-tag [tone]="route.active ? 'success' : 'neutral'">
                         {{ route.active ? text().list.working : text().list.stopped }}
                       </app-tag>

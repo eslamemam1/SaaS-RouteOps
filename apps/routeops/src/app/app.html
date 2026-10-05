@@ -1,6 +1,15 @@
 @if (showShell()) {
   <div class="shell">
-    <aside class="shell-sidebar">
+    @if (menuOpen()) {
+      <button
+        type="button"
+        class="shell-backdrop"
+        tabindex="-1"
+        [attr.aria-label]="text().closeMenu"
+        (click)="menuOpen.set(false)"
+      ></button>
+    }
+    <aside id="shell-sidebar" class="shell-sidebar" [class.shell-sidebar-open]="menuOpen()">
       <a class="shell-brand" routerLink="/">RouteOps</a>
       <nav class="shell-nav" [attr.aria-label]="text().navigation">
         <a
@@ -28,6 +37,17 @@
     </aside>
     <div class="shell-main">
       <header class="shell-topbar">
+        <button
+          type="button"
+          class="shell-menu-button"
+          aria-controls="shell-sidebar"
+          [attr.aria-expanded]="menuOpen()"
+          [attr.aria-label]="text().openMenu"
+          (click)="menuOpen.set(!menuOpen())"
+        >
+          <ng-icon [svg]="menuIcon" aria-hidden="true" />
+        </button>
+        <span class="shell-topbar-brand">RouteOps</span>
         <app-language-switch />
       </header>
       <main class="shell-content">

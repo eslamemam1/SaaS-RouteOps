@@ -32,7 +32,7 @@
     @case ('success') {
       <section class="ro-card">
         <div class="ro-table-scroll">
-          <table>
+          <table class="ro-table-stack">
             <thead>
               <tr>
                 <th>{{ text().list.fullName }}</th>
@@ -47,11 +47,17 @@
             <tbody>
               @for (driver of drivers(); track driver.id) {
                 <tr>
-                  <td>{{ driver.fullName }}</td>
-                  <td class="ro-numeric"><bdi>{{ driver.phone }}</bdi></td>
-                  <td class="ro-numeric"><bdi>{{ driver.nationalId }}</bdi></td>
-                  <td><bdi>{{ driver.licenseNumber }}</bdi></td>
-                  <td>
+                  <td [attr.data-label]="text().list.fullName">{{ driver.fullName }}</td>
+                  <td class="ro-numeric" [attr.data-label]="text().list.phone">
+                    <bdi>{{ driver.phone }}</bdi>
+                  </td>
+                  <td class="ro-numeric" [attr.data-label]="text().list.nationalId">
+                    <bdi>{{ driver.nationalId }}</bdi>
+                  </td>
+                  <td [attr.data-label]="text().list.licenseNumber">
+                    <bdi>{{ driver.licenseNumber }}</bdi>
+                  </td>
+                  <td [attr.data-label]="text().list.licenseExpiry">
                     <div class="ro-cell-stack">
                       <bdi class="ro-numeric">{{ driver.licenseExpiry }}</bdi>
                       @if (expired(driver)) {
@@ -59,7 +65,7 @@
                       }
                     </div>
                   </td>
-                  <td>
+                  <td [attr.data-label]="text().list.work">
                     <app-tag [tone]="driver.active ? 'success' : 'neutral'">
                       {{ driver.active ? text().list.working : text().list.stopped }}
                     </app-tag>

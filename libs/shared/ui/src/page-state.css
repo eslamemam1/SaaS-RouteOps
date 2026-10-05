@@ -6,6 +6,13 @@
   text-align: center;
 }
 
+@media (width < 640px) {
+  .app-page-state {
+    padding-block: var(--ro-space-8);
+    padding-inline: var(--ro-space-4);
+  }
+}
+
 .app-page-state-spinner {
   inline-size: var(--ro-spinner-size);
   block-size: var(--ro-spinner-size);

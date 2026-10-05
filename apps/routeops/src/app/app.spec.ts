@@ -40,6 +40,33 @@ describe('App', () => {
     expect(active?.getAttribute('href')).toBe('/organizations/org-north/routes');
   });
 
+  it('opens the sidebar from the menu button and closes it after moving to a page', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/organizations/org-north/routes');
+    await fixture.whenStable();
+    const element = fixture.nativeElement as HTMLElement;
+    const menu = element.querySelector<HTMLButtonElement>('.shell-menu-button');
+    if (!menu) {
+      throw new Error('The menu button is missing.');
+    }
+
+    menu.click();
+    await fixture.whenStable();
+    expect(menu.getAttribute('aria-expanded')).toBe('true');
+    expect(element.querySelector('.shell-sidebar-open')).toBeTruthy();
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await fixture.whenStable();
+    expect(element.querySelector('.shell-sidebar-open')).toBeNull();
+
+    menu.click();
+    await fixture.whenStable();
+    await TestBed.inject(Router).navigateByUrl('/');
+    await fixture.whenStable();
+    expect(menu.getAttribute('aria-expanded')).toBe('false');
+    expect(element.querySelector('.shell-sidebar-open')).toBeNull();
+  });
+
   it('leaves the sign-in page without the sidebar', async () => {
     const element = await open('/sign-in');
 

@@ -7,3 +7,13 @@
 .operations-filter-actions {
   align-items: center;
 }
+
+@media (width < 640px) {
+  .operations-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .operations-no-reason {
+    display: none;
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   ActivatedRouteSnapshot,
@@ -9,7 +9,7 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucideHouse } from '@ng-icons/lucide';
+import { lucideHouse, lucideMenu } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
 import { LanguageSwitch } from '@routeops/shared/ui';
 import { filter, map } from 'rxjs';
@@ -21,6 +21,7 @@ import { shellText } from './shell-text';
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
+  host: { '(document:keydown.escape)': 'menuOpen.set(false)' },
 })
 export class App {
   private readonly router = inject(Router);
@@ -28,6 +29,8 @@ export class App {
   protected readonly text = injectText(shellText);
   protected readonly sections = shellSections;
   protected readonly homeIcon = lucideHouse;
+  protected readonly menuIcon = lucideMenu;
+  protected readonly menuOpen = signal(false);
   private readonly page = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
@@ -47,6 +50,13 @@ export class App {
     const route = routeChain(page).find((item) => item.paramMap.has('organizationId'));
     return route?.paramMap.get('organizationId') ?? null;
   });
+
+  constructor() {
+    effect(() => {
+      this.page();
+      untracked(() => this.menuOpen.set(false));
+    });
+  }
 }
 
 function routeChain(root: ActivatedRouteSnapshot): ActivatedRouteSnapshot[] {

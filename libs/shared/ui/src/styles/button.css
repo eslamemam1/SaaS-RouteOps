@@ -32,6 +32,13 @@
   padding-inline: var(--ro-space-3);
 }
 
+@media (pointer: coarse) {
+  .app-button,
+  .app-button[data-size='sm'] {
+    min-block-size: var(--ro-touch-target);
+  }
+}
+
 .app-button[data-variant='primary'] {
   background: var(--ro-bg-brand);
   color: var(--ro-text-on-brand);

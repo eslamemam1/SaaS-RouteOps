@@ -58,6 +58,7 @@ input:not([type='checkbox'], [type='radio']),
 select,
 textarea {
   inline-size: 100%;
+  min-inline-size: 0;
   min-block-size: var(--ro-control-height);
   padding-block: var(--ro-space-2);
   padding-inline: var(--ro-space-3);
@@ -221,6 +222,104 @@ tbody tr:last-child td {
 
 .ro-actions {
   white-space: nowrap;
+}
+
+@media (width < 640px) {
+  .ro-date-nav {
+    display: grid;
+    flex: 1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ro-date-nav > :nth-child(2) {
+    order: -1;
+  }
+
+  .ro-date-nav > :is(:nth-child(2), :nth-child(n + 4)) {
+    grid-column: 1 / -1;
+  }
+
+  h1 {
+    font-size: var(--ro-text-heading-lg);
+    line-height: var(--ro-leading-heading-lg);
+  }
+
+  .ro-stack {
+    gap: var(--ro-space-4);
+  }
+
+  .ro-card-header,
+  .ro-card-body {
+    padding-inline: var(--ro-space-4);
+  }
+
+  /* Each row of a .ro-table-stack becomes a card; every cell shows its column from data-label. */
+  .ro-table-stack thead {
+    display: none;
+  }
+
+  .ro-table-stack,
+  .ro-table-stack tbody,
+  .ro-table-stack tr {
+    display: block;
+  }
+
+  .ro-table-stack tr {
+    padding-block: var(--ro-space-3);
+    padding-inline: var(--ro-space-4);
+    border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+  }
+
+  .ro-table-stack tbody tr:last-child {
+    border-block-end: 0;
+  }
+
+  .ro-table-stack td {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--ro-space-1) var(--ro-space-3);
+    padding-block: var(--ro-space-1);
+    padding-inline: 0;
+    border-block-end: 0;
+  }
+
+  .ro-table-stack td:empty,
+  .ro-table-stack td:has(> bdi:only-child:empty) {
+    display: none;
+  }
+
+  .ro-table-stack td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 var(--ro-table-label-width);
+    color: var(--ro-text-secondary);
+    font-size: var(--ro-text-caption);
+    line-height: var(--ro-leading-caption);
+    font-weight: var(--ro-font-medium);
+  }
+
+  .ro-table-stack td.ro-actions {
+    flex-wrap: wrap;
+    padding-block-start: var(--ro-space-2);
+    white-space: normal;
+  }
+}
+
+@media (pointer: coarse) {
+  input:not([type='checkbox'], [type='radio']),
+  select,
+  textarea {
+    font-size: var(--ro-text-control-touch);
+  }
+
+  input[type='checkbox'] {
+    inline-size: var(--ro-space-5);
+    block-size: var(--ro-space-5);
+  }
+
+  label.checkbox {
+    min-block-size: var(--ro-touch-target);
+  }
 }
 
 .ro-cell-stack {

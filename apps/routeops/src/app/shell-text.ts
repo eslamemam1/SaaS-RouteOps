@@ -3,6 +3,8 @@ import { ShellSection } from './shell-sections';
 
 export interface ShellText {
   readonly navigation: string;
+  readonly openMenu: string;
+  readonly closeMenu: string;
   readonly home: string;
   readonly sections: Record<ShellSection, string>;
 }
@@ -10,6 +12,8 @@ export interface ShellText {
 export const shellText: Record<Language, ShellText> = {
   ar: {
     navigation: 'القائمة الرئيسية',
+    openMenu: 'فتح القائمة',
+    closeMenu: 'إغلاق القائمة',
     home: 'الرئيسية',
     sections: {
       operations: 'التشغيل اليومي',
@@ -22,6 +26,8 @@ export const shellText: Record<Language, ShellText> = {
   },
   en: {
     navigation: 'Main menu',
+    openMenu: 'Open menu',
+    closeMenu: 'Close menu',
     home: 'Home',
     sections: {
       operations: 'Daily operations',

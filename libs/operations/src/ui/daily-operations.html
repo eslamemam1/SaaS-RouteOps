@@ -1,7 +1,7 @@
 <div class="ro-stack">
   <app-page-header [title]="text().day.title" [hint]="text().day.hint">
     @if (organization()) {
-      <div class="ro-toolbar">
+      <div class="ro-toolbar ro-date-nav">
         <button appButton="secondary" type="button" (click)="moveDay(-1)">
           {{ text().day.previous }}
         </button>
@@ -140,7 +140,7 @@
           <app-page-state kind="empty" [message]="text().filter.noMatch" />
         } @else {
           <div class="ro-table-scroll">
-            <table>
+            <table class="ro-table-stack">
               <thead>
                 <tr>
                   <th>{{ text().day.time }}</th>
@@ -157,8 +157,10 @@
               <tbody>
                 @for (trip of visibleTrips(); track trip.id) {
                   <tr>
-                    <td class="ro-numeric"><bdi>{{ trip.departureTime }}</bdi></td>
-                    <td>
+                    <td class="ro-numeric" [attr.data-label]="text().day.time">
+                      <bdi>{{ trip.departureTime }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().day.route">
                       <div class="ro-cell-stack">
                         <span>
                           {{ trip.routeId ? label(choices().routes, trip.routeId) : text().day.noRoute }}
@@ -168,9 +170,13 @@
                         }
                       </div>
                     </td>
-                    <td>{{ label(choices().customers, trip.customerId) }}</td>
-                    <td>{{ text().directions[trip.direction] }}</td>
-                    <td>
+                    <td [attr.data-label]="text().day.customer">
+                      {{ label(choices().customers, trip.customerId) }}
+                    </td>
+                    <td [attr.data-label]="text().day.direction">
+                      {{ text().directions[trip.direction] }}
+                    </td>
+                    <td [attr.data-label]="text().day.vehicle">
                       <div class="ro-cell-stack">
                         <bdi>{{ label(choices().vehicles, trip.vehicleId) }}</bdi>
                         @if (ownershipOf(trip); as ownership) {
@@ -180,14 +186,19 @@
                         }
                       </div>
                     </td>
-                    <td>{{ label(choices().drivers, trip.driverId) }}</td>
-                    <td>
+                    <td [attr.data-label]="text().day.driver">
+                      {{ label(choices().drivers, trip.driverId) }}
+                    </td>
+                    <td [attr.data-label]="text().day.status">
                       <div class="ro-cell-stack">
                         <app-tag [tone]="statusTone(trip)">{{ text().statuses[statusOf(trip)] }}</app-tag>
                         <app-conflict-list [conflicts]="conflictsOf(trip)" [choices]="choices()" />
                       </div>
                     </td>
-                    <td>
+                    <td
+                      [attr.data-label]="text().day.reason"
+                      [class.operations-no-reason]="!trip.reason && !trip.notes"
+                    >
                       <div class="ro-cell-stack">
                         @if (trip.reason) {
                           <span>{{ text().reasons[trip.reason] }}</span>

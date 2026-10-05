@@ -32,7 +32,7 @@
     @case ('success') {
       <section class="ro-card">
         <div class="ro-table-scroll">
-          <table>
+          <table class="ro-table-stack">
             <thead>
               <tr>
                 <th>{{ text().list.name }}</th>
@@ -47,12 +47,14 @@
             <tbody>
               @for (customer of customers(); track customer.id) {
                 <tr>
-                  <td>{{ customer.name }}</td>
-                  <td>{{ customer.contactName }}</td>
-                  <td class="ro-numeric"><bdi>{{ customer.phone }}</bdi></td>
-                  <td><bdi>{{ customer.email }}</bdi></td>
-                  <td>{{ customer.address }}</td>
-                  <td>
+                  <td [attr.data-label]="text().list.name">{{ customer.name }}</td>
+                  <td [attr.data-label]="text().list.contactName">{{ customer.contactName }}</td>
+                  <td class="ro-numeric" [attr.data-label]="text().list.phone">
+                    <bdi>{{ customer.phone }}</bdi>
+                  </td>
+                  <td [attr.data-label]="text().list.email"><bdi>{{ customer.email }}</bdi></td>
+                  <td [attr.data-label]="text().list.address">{{ customer.address }}</td>
+                  <td [attr.data-label]="text().list.dealing">
                     <app-tag [tone]="customer.active ? 'success' : 'neutral'">
                       {{ customer.active ? text().list.current : text().list.stopped }}
                     </app-tag>

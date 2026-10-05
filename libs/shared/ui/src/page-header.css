@@ -24,3 +24,17 @@
   align-items: flex-end;
   gap: var(--ro-space-2);
 }
+
+.app-page-header-actions:empty {
+  display: none;
+}
+
+@media (width < 640px) {
+  .app-page-header-actions {
+    inline-size: 100%;
+  }
+
+  .app-page-header-actions > .app-button {
+    flex: 1;
+  }
+}

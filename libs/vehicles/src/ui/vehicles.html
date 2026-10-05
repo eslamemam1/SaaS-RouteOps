@@ -45,7 +45,7 @@
           <app-page-state kind="empty" [message]="text().list.noMatch" />
         } @else {
           <div class="ro-table-scroll">
-            <table>
+            <table class="ro-table-stack">
               <thead>
                 <tr>
                   <th>{{ text().list.plateNumber }}</th>
@@ -62,9 +62,11 @@
               <tbody>
                 @for (vehicle of visibleVehicles(); track vehicle.id) {
                   <tr>
-                    <td><bdi>{{ vehicle.plateNumber }}</bdi></td>
-                    <td>{{ text().types[vehicle.type] }}</td>
-                    <td>
+                    <td [attr.data-label]="text().list.plateNumber">
+                      <bdi>{{ vehicle.plateNumber }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().list.type">{{ text().types[vehicle.type] }}</td>
+                    <td [attr.data-label]="text().list.ownership">
                       <div class="ro-cell-stack">
                         <app-tag>{{ text().ownerships[vehicle.ownership] }}</app-tag>
                         @if (vehicle.ownerName) {
@@ -75,10 +77,14 @@
                         }
                       </div>
                     </td>
-                    <td>{{ vehicle.model }}</td>
-                    <td class="ro-numeric"><bdi>{{ vehicle.year }}</bdi></td>
-                    <td class="ro-numeric"><bdi>{{ vehicle.seats }}</bdi></td>
-                    <td>
+                    <td [attr.data-label]="text().list.model">{{ vehicle.model }}</td>
+                    <td class="ro-numeric" [attr.data-label]="text().list.year">
+                      <bdi>{{ vehicle.year }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().list.seats">
+                      <bdi>{{ vehicle.seats }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().list.licenseExpiry">
                       <div class="ro-cell-stack">
                         <bdi class="ro-numeric">{{ vehicle.licenseExpiry }}</bdi>
                         @if (expired(vehicle)) {
@@ -86,7 +92,7 @@
                         }
                       </div>
                     </td>
-                    <td>
+                    <td [attr.data-label]="text().list.service">
                       <app-tag [tone]="vehicle.active ? 'success' : 'neutral'">
                         {{ vehicle.active ? text().list.inService : text().list.outOfService }}
                       </app-tag>
