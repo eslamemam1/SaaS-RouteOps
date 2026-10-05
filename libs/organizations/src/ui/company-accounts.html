@@ -1,0 +1,73 @@
+<section class="ro-card">
+  <div class="ro-card-header">
+    <h2 class="ro-card-title">{{ text().accounts.title }}</h2>
+    <p class="hint">{{ text().accounts.hint }}</p>
+  </div>
+
+  @switch (status()) {
+    @case ('loading') {
+      <div class="ro-card-body">
+        <p class="hint" role="status">{{ text().accounts.loading }}</p>
+      </div>
+    }
+    @case ('error') {
+      <div class="ro-card-body">
+        <app-alert tone="danger">{{ text().problems[problem()] }}</app-alert>
+        <div class="ro-toolbar">
+          <button appButton="secondary" type="button" (click)="reload()">
+            {{ text().accounts.retry }}
+          </button>
+        </div>
+      </div>
+    }
+    @case ('empty') {
+      <div class="ro-card-body">
+        <p class="hint">{{ text().accounts.empty }}</p>
+      </div>
+    }
+    @case ('success') {
+      <div class="ro-table-scroll">
+        <table class="ro-table-stack">
+          <thead>
+            <tr>
+              <th>{{ text().accounts.company }}</th>
+              <th>{{ text().accounts.logins }}</th>
+              <th>{{ text().accounts.currency }}</th>
+              <th>{{ text().accounts.createdAt }}</th>
+              <th>{{ text().accounts.lastSignIn }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (account of accounts(); track account.id) {
+              <tr>
+                <td [attr.data-label]="text().accounts.company">
+                  <strong><bdi>{{ account.name }}</bdi></strong>
+                </td>
+                <td [attr.data-label]="text().accounts.logins">
+                  @for (login of account.logins; track login) {
+                    <div><bdi>{{ login }}</bdi></div>
+                  } @empty {
+                    <span class="hint">{{ text().accounts.noLogin }}</span>
+                  }
+                </td>
+                <td [attr.data-label]="text().accounts.currency">
+                  {{ text().currencies[account.currency] }}
+                </td>
+                <td [attr.data-label]="text().accounts.createdAt">
+                  {{ date(account.createdAt) }}
+                </td>
+                <td [attr.data-label]="text().accounts.lastSignIn">
+                  @if (account.lastSignInAt; as lastSignIn) {
+                    {{ date(lastSignIn) }}
+                  } @else {
+                    <span class="hint">{{ text().accounts.neverSignedIn }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>

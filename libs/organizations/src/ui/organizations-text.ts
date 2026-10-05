@@ -33,6 +33,20 @@ export interface OrganizationsText {
     readonly reports: string;
     readonly reportsHint: string;
   };
+  readonly accounts: {
+    readonly title: string;
+    readonly hint: string;
+    readonly loading: string;
+    readonly empty: string;
+    readonly retry: string;
+    readonly company: string;
+    readonly logins: string;
+    readonly currency: string;
+    readonly createdAt: string;
+    readonly lastSignIn: string;
+    readonly noLogin: string;
+    readonly neverSignedIn: string;
+  };
   readonly signOut: {
     readonly busy: string;
     readonly retry: string;
@@ -107,6 +121,20 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operationsHint: 'رحلات كل يوم: غياب سائق، عطل مركبة، أو إجازة.',
       reports: 'التقارير',
       reportsHint: 'الرحلات التي تمّت كل شهر وإيرادها، لكل شركة متعاقدة ومركبة وسائق.',
+    },
+    accounts: {
+      title: 'حسابات الشركات',
+      hint: 'كل شركات النقل التي لها حساب على الموقع، والبريد الإلكتروني الذي تدخل به كل شركة، وآخر مرة دخلت فيها.',
+      loading: 'جارٍ تحميل حسابات الشركات...',
+      empty: 'لا توجد شركات بعد. أنشئ أول حساب من النموذج أدناه.',
+      retry: 'حاول مرة أخرى',
+      company: 'شركة النقل',
+      logins: 'البريد الإلكتروني للدخول',
+      currency: 'العملة',
+      createdAt: 'تاريخ الإنشاء',
+      lastSignIn: 'آخر دخول',
+      noLogin: 'لا يوجد حساب دخول',
+      neverSignedIn: 'لم تدخل بعد',
     },
     signOut: {
       busy: 'جارٍ تسجيل الخروج...',
@@ -183,6 +211,20 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operationsHint: "Each day's trips: an absent driver, a broken vehicle, or a holiday.",
       reports: 'Reports',
       reportsHint: 'The trips done each month and their revenue, per client company, vehicle, and driver.',
+    },
+    accounts: {
+      title: 'Company accounts',
+      hint: 'Every transport company with an account on the site, the email each one signs in with, and when it last signed in.',
+      loading: 'Loading company accounts...',
+      empty: 'There are no companies yet. Create the first account with the form below.',
+      retry: 'Try again',
+      company: 'Transport company',
+      logins: 'Sign-in email',
+      currency: 'Currency',
+      createdAt: 'Created',
+      lastSignIn: 'Last sign-in',
+      noLogin: 'No sign-in account',
+      neverSignedIn: 'Not signed in yet',
     },
     signOut: {
       busy: 'Signing out...',

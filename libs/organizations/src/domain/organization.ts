@@ -1,6 +1,18 @@
+import { Currency } from '@routeops/shared/money';
+
 export interface Organization {
   readonly id: string;
   readonly name: string;
+}
+
+// What the site operator sees of each company it provisioned.
+export interface CompanyAccount {
+  readonly id: string;
+  readonly name: string;
+  readonly currency: Currency;
+  readonly logins: readonly string[];
+  readonly createdAt: string;
+  readonly lastSignInAt: string | null;
 }
 
 export function activeOrganization(

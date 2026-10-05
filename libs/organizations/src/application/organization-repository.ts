@@ -1,5 +1,5 @@
 import { Currency } from '@routeops/shared/money';
-import { Organization } from '../domain/organization';
+import { CompanyAccount, Organization } from '../domain/organization';
 
 export interface ProvisionCompany {
   readonly organizationName: string;
@@ -16,5 +16,6 @@ export abstract class OrganizationRepository {
   abstract signOut(): Promise<void>;
   abstract listMine(): Promise<Organization[]>;
   abstract currentUserIsOperator(): Promise<boolean>;
+  abstract listCompanyAccounts(): Promise<CompanyAccount[]>;
   abstract provisionCompany(input: ProvisionCompany): Promise<void>;
 }

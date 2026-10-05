@@ -1,4 +1,4 @@
-import { Organization } from '../domain/organization';
+import { CompanyAccount, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import {
   OrganizationRepository,
@@ -42,6 +42,10 @@ export class SupabaseOrganizationRepository extends OrganizationRepository {
       return false;
     }
     return this.gateway.isOperator(userId);
+  }
+
+  listCompanyAccounts(): Promise<CompanyAccount[]> {
+    return this.gateway.companyAccounts();
   }
 
   provisionCompany(input: ProvisionCompany): Promise<void> {

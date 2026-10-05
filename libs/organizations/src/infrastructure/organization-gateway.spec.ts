@@ -51,6 +51,70 @@ describe('SupabaseOrganizationGateway', () => {
       { id: 'org-north', name: 'North' },
     ]);
   });
+
+  it('lists the company accounts the database returns to the operator', async () => {
+    const calls: string[] = [];
+    const client = fakeClient({
+      onRpc(name) {
+        calls.push(name);
+        return {
+          data: [
+            {
+              organization_id: 'org-gulf',
+              organization_name: 'Gulf',
+              currency: 'SAR',
+              created_at: '2026-10-01T09:00:00Z',
+              login_emails: ['gulf@example.com'],
+              last_sign_in_at: null,
+            },
+            {
+              organization_id: 'org-old',
+              organization_name: 'Old',
+              currency: 'XYZ',
+              created_at: '2026-01-01T09:00:00Z',
+              login_emails: [],
+              last_sign_in_at: '2026-02-01T09:00:00Z',
+            },
+          ],
+          error: null,
+        };
+      },
+    });
+    const gateway = new SupabaseOrganizationGateway(client);
+
+    await expect(gateway.companyAccounts()).resolves.toEqual([
+      {
+        id: 'org-gulf',
+        name: 'Gulf',
+        currency: 'SAR',
+        logins: ['gulf@example.com'],
+        createdAt: '2026-10-01T09:00:00Z',
+        lastSignInAt: null,
+      },
+      {
+        id: 'org-old',
+        name: 'Old',
+        currency: 'EGP',
+        logins: [],
+        createdAt: '2026-01-01T09:00:00Z',
+        lastSignInAt: '2026-02-01T09:00:00Z',
+      },
+    ]);
+    expect(calls).toEqual(['operator_accounts']);
+  });
+
+  it('replaces an error listing the accounts with a safe message', async () => {
+    const client = fakeClient({
+      onRpc() {
+        return { data: null, error: { message: 'permission denied' } };
+      },
+    });
+    const gateway = new SupabaseOrganizationGateway(client);
+
+    await expect(gateway.companyAccounts()).rejects.toEqual(
+      new OrganizationAccessError('load'),
+    );
+  });
 });
 
 function fakeClient(handlers: {
@@ -62,6 +126,7 @@ function fakeClient(handlers: {
     column: string,
     value: readonly string[],
   ) => { data: unknown; error: { message: string } | null };
+  onRpc?: (name: string) => { data: unknown; error: { message: string } | null };
 }): SupabaseClient<Database> {
   const query = {
     select() {
@@ -81,6 +146,11 @@ function fakeClient(handlers: {
   return {
     from() {
       return query;
+    },
+    rpc(name: string) {
+      return Promise.resolve(
+        handlers.onRpc?.(name) ?? { data: [], error: null },
+      );
     },
   } as unknown as SupabaseClient<Database>;
 }

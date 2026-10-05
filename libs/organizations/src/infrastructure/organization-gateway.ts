@@ -3,7 +3,8 @@ import {
   CompanyAccountProblem,
   isCompanyAccountProblem,
 } from '../domain/company-account';
-import { Organization } from '../domain/organization';
+import { defaultCurrency, isCurrency } from '@routeops/shared/money';
+import { CompanyAccount, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { ProvisionCompany } from '../application/organization-repository';
 import { Database } from './database';
@@ -14,6 +15,7 @@ export interface OrganizationGateway {
   membershipOrganizationIds(userId: string): Promise<string[]>;
   organizationsByIds(ids: readonly string[]): Promise<Organization[]>;
   isOperator(userId: string): Promise<boolean>;
+  companyAccounts(): Promise<CompanyAccount[]>;
   signIn(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
   provision(input: ProvisionCompany): Promise<void>;
@@ -66,6 +68,21 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       throw new OrganizationAccessError('load');
     }
     return data !== null;
+  }
+
+  async companyAccounts(): Promise<CompanyAccount[]> {
+    const { data, error } = await this.requireClient().rpc('operator_accounts');
+    if (error) {
+      throw new OrganizationAccessError('load');
+    }
+    return (data ?? []).map((row) => ({
+      id: row.organization_id,
+      name: row.organization_name,
+      currency: isCurrency(row.currency) ? row.currency : defaultCurrency,
+      logins: row.login_emails ?? [],
+      createdAt: row.created_at,
+      lastSignInAt: row.last_sign_in_at,
+    }));
   }
 
   async signIn(email: string, password: string): Promise<void> {

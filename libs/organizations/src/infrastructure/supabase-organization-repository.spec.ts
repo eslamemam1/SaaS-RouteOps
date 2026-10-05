@@ -46,6 +46,7 @@ function fakeGateway(options: {
     membershipOrganizationIds: vi.fn(async () => options.membershipIds),
     organizationsByIds: vi.fn(async () => options.organizations),
     isOperator: vi.fn(async () => false),
+    companyAccounts: vi.fn(async () => []),
     signIn: vi.fn(async () => undefined),
     signOut: vi.fn(async () => undefined),
     provision: vi.fn(async () => undefined),

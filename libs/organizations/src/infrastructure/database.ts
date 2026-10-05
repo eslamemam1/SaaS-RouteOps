@@ -21,7 +21,19 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      operator_accounts: {
+        Args: Record<string, never>;
+        Returns: {
+          organization_id: string;
+          organization_name: string;
+          currency: string;
+          created_at: string;
+          login_emails: string[];
+          last_sign_in_at: string | null;
+        }[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

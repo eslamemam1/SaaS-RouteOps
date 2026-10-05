@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import {
@@ -15,6 +15,7 @@ import { CompanyAccountProblem } from '../domain/company-account';
 import { activeOrganization, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
+import { CompanyAccounts } from './company-accounts';
 import { organizationsText } from './organizations-text';
 import { ProvisionCompanyForm } from './provision-company';
 
@@ -31,6 +32,7 @@ const sections = [
   selector: 'app-organizations',
   imports: [
     Button,
+    CompanyAccounts,
     NgIcon,
     PageHeader,
     PageState,
@@ -51,6 +53,7 @@ export class Organizations {
   protected readonly organizations = signal<Organization[]>([]);
   protected readonly active = signal<Organization | null>(null);
   protected readonly operator = signal(false);
+  private readonly accounts = viewChild(CompanyAccounts);
   protected readonly headerTitle = computed(() => {
     const active = this.active();
     const home = this.text().home;
@@ -66,7 +69,7 @@ export class Organizations {
   }
 
   protected async reload(): Promise<void> {
-    await this.load();
+    await Promise.all([this.load(), this.accounts()?.reload()]);
   }
 
   private async load(): Promise<void> {

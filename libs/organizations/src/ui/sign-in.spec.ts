@@ -55,6 +55,7 @@ async function render(overrides: Partial<OrganizationRepository>) {
     signOut: async () => undefined,
     listMine: async () => [],
     currentUserIsOperator: async () => false,
+    listCompanyAccounts: async () => [],
     provisionCompany: async () => undefined,
     ...overrides,
   };
