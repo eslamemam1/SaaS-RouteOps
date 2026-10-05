@@ -1,149 +1,105 @@
-@if (route()) {
-  <h3>{{ text().form.editTitle }}</h3>
-} @else if (draft()) {
-  <h3>{{ text().form.copyTitle }}</h3>
-  <p class="hint">{{ text().form.copyHint }}</p>
-} @else {
-  <h3>{{ text().form.addTitle }}</h3>
-}
-@if (choices().customers.length === 0) {
-  <p class="hint">
-    {{ text().form.noCustomers }}
-    <a [routerLink]="['/organizations', organization().id, 'customers']">
-      {{ text().form.customersLink }}
-    </a>
-  </p>
-}
-<form (submit)="onSubmit($event)">
-  <label>
-    {{ text().form.name }}
-    <span class="hint">{{ text().form.nameHint }}</span>
-    <input type="text" [formField]="routeForm.name" />
-  </label>
-  @if (routeForm.name().touched() && routeForm.name().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
+<form class="ro-form" (submit)="onSubmit($event)">
+  @if (draft()) {
+    <p class="hint">{{ text().form.copyHint }}</p>
   }
-  <label>
-    {{ text().form.customer }}
-    <span class="hint">{{ text().form.customerHint }}</span>
+  <app-field [label]="text().form.name" [hint]="text().form.nameHint" [control]="routeForm.name">
+    <input type="text" [formField]="routeForm.name" />
+  </app-field>
+  <app-field
+    [label]="text().form.customer"
+    [hint]="text().form.customerHint"
+    [control]="routeForm.customerId"
+  >
     <select [formField]="routeForm.customerId">
       <option value="">{{ text().form.chooseCustomer }}</option>
       @for (customer of customers(); track customer.id) {
         <option [value]="customer.id">{{ customer.label }}</option>
       }
     </select>
-  </label>
-  @if (routeForm.customerId().touched() && routeForm.customerId().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.vehicle }}
-    <span class="hint">{{ text().form.assignLater }}</span>
-    <select [formField]="routeForm.vehicleId">
-      <option value="">{{ text().form.notSet }}</option>
-      @for (vehicle of vehicles(); track vehicle.id) {
-        <option [value]="vehicle.id">{{ vehicle.label }}</option>
-      }
-    </select>
-  </label>
-  <label>
-    {{ text().form.driver }}
+  </app-field>
+  <app-field [label]="text().form.driver" [control]="routeForm.driverId">
     <select [formField]="routeForm.driverId">
       <option value="">{{ text().form.chooseDriver }}</option>
       @for (driver of drivers(); track driver.id) {
         <option [value]="driver.id">{{ driver.label }}</option>
       }
     </select>
-  </label>
-  @if (routeForm.driverId().touched() && routeForm.driverId().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.startPoint }}
-    <span class="hint">{{ text().form.startPointHint }}</span>
+  </app-field>
+  <app-field [label]="text().form.vehicle" [hint]="text().form.assignLater" [optional]="true">
+    <select [formField]="routeForm.vehicleId">
+      <option value="">{{ text().form.notSet }}</option>
+      @for (vehicle of vehicles(); track vehicle.id) {
+        <option [value]="vehicle.id">{{ vehicle.label }}</option>
+      }
+    </select>
+  </app-field>
+  <app-field
+    [label]="text().form.startPoint"
+    [hint]="text().form.startPointHint"
+    [control]="routeForm.startPoint"
+  >
     <input type="text" [formField]="routeForm.startPoint" />
-  </label>
-  @if (routeForm.startPoint().touched() && routeForm.startPoint().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.endPoint }}
-    <span class="hint">{{ text().form.endPointHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.endPoint"
+    [hint]="text().form.endPointHint"
+    [control]="routeForm.endPoint"
+  >
     <input type="text" [formField]="routeForm.endPoint" />
-  </label>
-  @if (routeForm.endPoint().touched() && routeForm.endPoint().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
+  </app-field>
   <fieldset>
     <legend>{{ text().form.tripsTitle }}</legend>
-    <span class="hint">{{ text().form.tripsHint }}</span>
-    <label>
-      {{ text().form.outboundTime }}
+    <p class="hint">{{ text().form.tripsHint }}</p>
+    <app-field [label]="text().form.outboundTime" [control]="routeForm.outboundTime">
       <input type="time" [formField]="routeForm.outboundTime" />
-    </label>
-    @if (
-      routeForm.outboundTime().touched() && routeForm.outboundTime().errors()[0];
-      as error
-    ) {
-      <p class="error">{{ error.message }}</p>
-    }
-    <label>
-      {{ text().form.returnTime }}
+    </app-field>
+    <app-field [label]="text().form.returnTime" [control]="routeForm.returnTime">
       <input type="time" [formField]="routeForm.returnTime" />
-    </label>
-    @if (routeForm.returnTime().touched() && routeForm.returnTime().errors()[0]; as error) {
-      <p class="error">{{ error.message }}</p>
-    }
+    </app-field>
   </fieldset>
   <fieldset>
     <legend>{{ text().form.days }}</legend>
-    <span class="hint">{{ text().form.daysHint }}</span>
+    <p class="hint">{{ text().form.daysHint }}</p>
     @for (day of weekdays; track day) {
       <label class="checkbox">
         <input type="checkbox" [formField]="routeForm.days[day]" />
         {{ text().weekdays[day] }}
       </label>
     }
+    @if (routeForm.days().touched() && routeForm.days().errors()[0]; as error) {
+      <p class="error">{{ error.message }}</p>
+    }
   </fieldset>
-  @if (routeForm.days().touched() && routeForm.days().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.tripPrice }}
-    <span class="hint">{{ text().form.tripPriceHint }}</span>
-    <input
-      type="text"
-      inputmode="decimal"
-      dir="ltr"
-      [formField]="routeForm.tripPrice"
-    />
+  <app-field
+    [label]="text().form.tripPrice"
+    [hint]="text().form.tripPriceHint"
+    [optional]="true"
+    [control]="routeForm.tripPrice"
+  >
+    <input type="text" inputmode="decimal" dir="ltr" [formField]="routeForm.tripPrice" />
     <bdi>{{ organization().currency }}</bdi>
-  </label>
-  @if (routeForm.tripPrice().touched() && routeForm.tripPrice().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
-  <label>
-    {{ text().form.notes }}
-    <span class="hint">{{ text().form.notesHint }}</span>
+  </app-field>
+  <app-field
+    [label]="text().form.notes"
+    [hint]="text().form.notesHint"
+    [optional]="true"
+    [control]="routeForm.notes"
+  >
     <textarea [formField]="routeForm.notes"></textarea>
-  </label>
-  @if (routeForm.notes().touched() && routeForm.notes().errors()[0]; as error) {
-    <p class="error">{{ error.message }}</p>
-  }
+  </app-field>
   <label class="checkbox">
     <input type="checkbox" [formField]="routeForm.active" />
     {{ text().form.active }}
   </label>
-  <button type="submit" [disabled]="submitting()">
-    {{ route() ? text().form.save : text().form.add }}
-  </button>
-  @if (route() || draft()) {
-    <button type="button" (click)="cancelled.emit()">{{ text().form.cancel }}</button>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="submitting()">
+      {{ route() ? text().form.save : text().form.add }}
+    </button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().form.cancel }}
+    </button>
+  </div>
 </form>
-@if (outcome(); as done) {
-  <p>{{ text().form[done] }}</p>
-}
-@if (problem(); as current) {
-  <p class="error">{{ text().problems[current] }}</p>
-}

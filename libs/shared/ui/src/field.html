@@ -1,0 +1,17 @@
+<!-- The control is projected, so the linter cannot see it inside the label. -->
+<!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+<label class="app-field-body">
+  <span class="app-field-label">
+    {{ label() }}
+    @if (optional()) {
+      <span class="app-field-optional">{{ text().optional }}</span>
+    }
+  </span>
+  @if (hint()) {
+    <span class="app-field-hint">{{ hint() }}</span>
+  }
+  <span class="app-field-control"><ng-content /></span>
+</label>
+@if (error(); as message) {
+  <p class="app-field-error" role="alert">{{ message }}</p>
+}

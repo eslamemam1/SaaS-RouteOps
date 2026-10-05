@@ -1,0 +1,48 @@
+.app-field {
+  display: grid;
+  gap: var(--ro-space-1);
+}
+
+.app-field-body {
+  display: grid;
+  gap: var(--ro-space-1);
+}
+
+.app-field-label {
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+  font-weight: var(--ro-font-medium);
+}
+
+.app-field-optional {
+  color: var(--ro-text-muted);
+  font-size: var(--ro-text-caption);
+  font-weight: var(--ro-font-regular);
+}
+
+.app-field-hint {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+}
+
+.app-field-control {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+}
+
+.app-field-control bdi {
+  color: var(--ro-text-muted);
+  font-size: var(--ro-text-body-sm);
+}
+
+.app-field-invalid .app-field-control :is(input, select, textarea) {
+  border-color: var(--ro-border-danger);
+}
+
+.app-field-error {
+  color: var(--ro-text-danger);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+}

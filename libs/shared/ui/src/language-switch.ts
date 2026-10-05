@@ -1,10 +1,18 @@
 import { Component, computed, inject } from '@angular/core';
-import { LanguageService } from './language';
+import { LanguageService } from '@routeops/shared/i18n';
+import { Button } from './button';
 
 @Component({
   selector: 'app-language-switch',
+  imports: [Button],
   template: `
-    <button type="button" [attr.lang]="otherLanguage()" (click)="toggle()">
+    <button
+      appButton="secondary"
+      size="sm"
+      type="button"
+      [attr.lang]="otherLanguage()"
+      (click)="toggle()"
+    >
       {{ label() }}
     </button>
   `,

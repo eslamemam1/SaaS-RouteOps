@@ -9,8 +9,8 @@ import {
   untracked,
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
-import { RouterLink } from '@angular/router';
 import { injectText } from '@routeops/shared/i18n';
+import { Alert, Button, Field } from '@routeops/shared/ui';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
 import {
@@ -28,7 +28,7 @@ import { routesText } from './routes-text';
 
 @Component({
   selector: 'app-route-form',
-  imports: [FormField, RouterLink],
+  imports: [Alert, Button, Field, FormField],
   templateUrl: './route-form.html',
 })
 export class RouteForm {
@@ -46,7 +46,6 @@ export class RouteForm {
 
   protected readonly weekdays = weekdays;
   protected readonly submitting = signal(false);
-  protected readonly outcome = signal<'added' | 'saved' | null>(null);
   protected readonly problem = signal<RouteProblem | null>(null);
   protected readonly model = signal<TransportRouteDetails>(
     emptyTransportRouteDetails,
@@ -79,7 +78,6 @@ export class RouteForm {
         : (this.draft() ?? emptyTransportRouteDetails);
       untracked(() => {
         this.routeForm().reset(details);
-        this.outcome.set(null);
         this.problem.set(null);
       });
     });
@@ -100,7 +98,6 @@ export class RouteForm {
             )
           : await this.repository.add(this.organization(), this.model());
         this.routeForm().reset(emptyTransportRouteDetails);
-        this.outcome.set(existing ? 'saved' : 'added');
         this.saved.emit(saved);
         return undefined;
       } catch (error) {

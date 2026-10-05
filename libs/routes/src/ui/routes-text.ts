@@ -5,8 +5,8 @@ export interface RoutesText {
   readonly problems: Record<RouteProblem, string>;
   readonly weekdays: Record<Weekday, string>;
   readonly list: {
-    readonly back: string;
     readonly title: string;
+    readonly add: string;
     readonly hint: string;
     readonly loading: string;
     readonly empty: string;
@@ -100,11 +100,11 @@ export const routesText: Record<Language, RoutesText> = {
       friday: 'الجمعة',
     },
     list: {
-      back: 'الرجوع إلى الصفحة الرئيسية',
       title: 'الخطوط',
+      add: 'إضافة خط',
       hint: 'كل خط يحدد أي مركبة وأي سائق ينقلان موظفي أي شركة متعاقدة، وفي أي مواعيد وأيام.',
       loading: 'جارٍ التحميل...',
-      empty: 'لم تضف أي خط بعد. ابدأ بإضافة أول خط من النموذج بالأسفل.',
+      empty: 'لم تضف أي خط بعد. ابدأ بإضافة أول خط.',
       filter: 'عرض خطوط',
       allCustomers: 'كل الشركات',
       noMatch: 'لا توجد خطوط لهذه الشركة بعد.',
@@ -137,7 +137,7 @@ export const routesText: Record<Language, RoutesText> = {
       chooseCustomer: 'اختر الشركة',
       noCustomers: 'لا توجد شركات متعاقدة بعد. أضف شركة أولًا من صفحة',
       customersLink: 'الشركات المتعاقدة',
-      vehicle: 'المركبة (اختياري)',
+      vehicle: 'المركبة',
       driver: 'السائق',
       chooseDriver: 'اختر السائق',
       assignLater: 'يمكنك تحديده لاحقًا.',
@@ -152,10 +152,10 @@ export const routesText: Record<Language, RoutesText> = {
       returnTime: 'ميعاد رحلة العودة (رجوع الموظفين من العمل)',
       days: 'أيام العمل',
       daysHint: 'الأيام التي يعمل فيها هذا الخط كل أسبوع.',
-      tripPrice: 'سعر الرحلة (اختياري)',
+      tripPrice: 'سعر الرحلة',
       tripPriceHint:
         'المبلغ الذي تدفعه الشركة المتعاقدة عن كل رحلة ذهاب أو عودة. يُستخدم لحساب الإيراد في التقارير. تغيير السعر لا يغيّر الرحلات التي مضت.',
-      notes: 'ملاحظات (اختياري)',
+      notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذا الخط.',
       active: 'الخط يعمل حاليًا',
       add: 'إضافة الخط',
@@ -194,11 +194,11 @@ export const routesText: Record<Language, RoutesText> = {
       friday: 'Friday',
     },
     list: {
-      back: 'Back to home',
       title: 'Routes',
+      add: 'Add route',
       hint: 'Each route sets which vehicle and driver carry which client company staff, at which times and on which days.',
       loading: 'Loading...',
-      empty: 'You have not added any route yet. Add the first one using the form below.',
+      empty: 'You have not added any route yet. Start by adding the first one.',
       filter: 'Show routes of',
       allCustomers: 'All companies',
       noMatch: 'This company has no routes yet.',
@@ -231,7 +231,7 @@ export const routesText: Record<Language, RoutesText> = {
       chooseCustomer: 'Choose a company',
       noCustomers: 'There are no client companies yet. First add one from',
       customersLink: 'Client companies',
-      vehicle: 'Vehicle (optional)',
+      vehicle: 'Vehicle',
       driver: 'Driver',
       chooseDriver: 'Choose a driver',
       assignLater: 'You can set this later.',
@@ -246,10 +246,10 @@ export const routesText: Record<Language, RoutesText> = {
       returnTime: 'Return trip time (taking staff home)',
       days: 'Working days',
       daysHint: 'The days this route runs every week.',
-      tripPrice: 'Trip price (optional)',
+      tripPrice: 'Trip price',
       tripPriceHint:
         'What the client company pays for each outbound or return trip. Reports use it to work out revenue. Changing it does not change past trips.',
-      notes: 'Notes (optional)',
+      notes: 'Notes',
       notesHint: 'Anything you want to remember about this route.',
       active: 'This route is currently running',
       add: 'Add route',

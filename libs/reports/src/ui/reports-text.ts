@@ -12,7 +12,6 @@ export interface ReportsText {
   readonly groupHeadings: Record<ReportGroup, string>;
   readonly missing: Record<ReportGroup, string>;
   readonly report: {
-    readonly back: string;
     readonly title: string;
     readonly hint: string;
     readonly month: string;
@@ -69,7 +68,6 @@ export const reportsText: Record<Language, ReportsText> = {
       driver: 'بدون سائق',
     },
     report: {
-      back: 'الرجوع إلى الصفحة الرئيسية',
       title: 'تقرير الرحلات الشهري',
       hint: 'عدد الرحلات التي تمّت في الشهر وإيرادها، لكل شركة متعاقدة ومركبة وسائق. استخدمه في محاسبة الشركات والمركبات المؤجرة والمتعاقدين. الإيراد يُحسب من سعر الرحلة المسجّل لكل خط.',
       month: 'الشهر',
@@ -124,7 +122,6 @@ export const reportsText: Record<Language, ReportsText> = {
       driver: 'No driver',
     },
     report: {
-      back: 'Back to home',
       title: 'Monthly trip report',
       hint: 'How many trips were done in the month and their revenue, per client company, vehicle, and driver. Use it to settle with client companies, rented vehicles, and contractors. Revenue comes from the trip price set on each route.',
       month: 'Month',

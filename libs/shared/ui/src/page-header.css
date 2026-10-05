@@ -1,0 +1,26 @@
+.app-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ro-space-4);
+}
+
+.app-page-header-titles {
+  display: grid;
+  gap: var(--ro-space-1);
+  max-inline-size: var(--ro-content-max-width);
+}
+
+.app-page-header-hint {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}
+
+.app-page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ro-space-2);
+}

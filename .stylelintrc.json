@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "color-no-hex": true,
+    "color-named": "never",
+    "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
+    "unit-disallowed-list": [
+      ["px", "rem", "em"],
+      { "ignoreMediaFeatureNames": { "px": ["width"] } }
+    ],
+    "declaration-property-value-allowed-list": {
+      "/^(margin|padding|gap|row-gap|column-gap)/": ["/var\\(--ro-/", "0", "auto"],
+      "/^(font-family|font-size|font-weight|line-height|border-radius|box-shadow)$/": [
+        "/var\\(--ro-/",
+        "inherit"
+      ]
+    }
+  },
+  "overrides": [
+    {
+      "files": ["libs/shared/ui/src/styles/tokens.css"],
+      "rules": {
+        "color-no-hex": null,
+        "function-disallowed-list": null,
+        "unit-disallowed-list": null,
+        "declaration-property-value-allowed-list": null
+      }
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
+import { Alert, Button, Field, PageHeader, PageState, Tag } from '@routeops/shared/ui';
 import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
 import {
@@ -26,8 +27,9 @@ const noReport: MonthReport = { counts: [], unopenedDays: [] };
 
 @Component({
   selector: 'app-reports',
-  imports: [RouterLink],
+  imports: [Alert, Button, Field, PageHeader, PageState, RouterLink, Tag],
   templateUrl: './reports.html',
+  styleUrl: './reports.css',
 })
 export class Reports {
   private readonly repository = inject(ReportsRepository);
@@ -51,6 +53,21 @@ export class Reports {
   protected readonly lines = computed(() =>
     reportLines(this.report().counts, this.group(), this.choices()),
   );
+  protected readonly unopenedTitle = computed(
+    () => `${this.text().report.unopenedTitle} (${this.report().unopenedDays.length})`,
+  );
+  protected readonly unpricedTitle = computed(
+    () => `${this.text().report.unpricedTitle} (${this.total().unpriced})`,
+  );
+  protected readonly stats = computed(() => {
+    const text = this.text().report;
+    const total = this.total();
+    return [
+      { label: text.revenueTotal, value: this.money(total.revenue) },
+      { label: text.doneTotal, value: String(total.done) },
+      { label: text.extraTotal, value: String(total.extra) },
+    ];
+  });
 
   constructor() {
     void this.load();

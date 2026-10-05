@@ -1,0 +1,108 @@
+.shell {
+  display: grid;
+  grid-template-columns: var(--ro-sidebar-width) minmax(0, 1fr);
+  min-block-size: 100vh;
+}
+
+.shell-sidebar {
+  position: sticky;
+  inset-block-start: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--ro-space-4);
+  block-size: 100vh;
+  padding-block: var(--ro-space-5);
+  padding-inline: var(--ro-space-3);
+  background: var(--ro-bg-surface);
+  border-inline-end: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+.shell-brand {
+  padding-inline: var(--ro-space-3);
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-heading-lg);
+  line-height: var(--ro-leading-heading-lg);
+  font-weight: var(--ro-font-semibold);
+  text-decoration: none;
+}
+
+.shell-nav {
+  display: grid;
+  gap: var(--ro-space-1);
+}
+
+.shell-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  min-block-size: var(--ro-control-height);
+  padding-inline: var(--ro-space-3);
+  border-radius: var(--ro-radius-md);
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  text-decoration: none;
+}
+
+.shell-nav-item ng-icon {
+  font-size: var(--ro-icon-size);
+}
+
+.shell-nav-item:hover {
+  background: var(--ro-bg-subtle);
+  color: var(--ro-text-primary);
+}
+
+.shell-nav-item-active,
+.shell-nav-item-active:hover {
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-weight: var(--ro-font-medium);
+}
+
+.shell-main {
+  display: grid;
+  grid-template-rows: var(--ro-topbar-height) 1fr;
+  min-inline-size: 0;
+}
+
+.shell-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ro-space-2);
+  padding-inline: var(--ro-space-6);
+  background: var(--ro-bg-surface);
+  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+.shell-content {
+  inline-size: 100%;
+  max-inline-size: var(--ro-content-max-width);
+  padding: var(--ro-space-8);
+}
+
+@media (width < 900px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shell-sidebar {
+    position: static;
+    block-size: auto;
+    border-inline-end: 0;
+    border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+  }
+
+  .shell-nav {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .shell-nav-item {
+    flex: none;
+  }
+
+  .shell-content {
+    padding: var(--ro-space-4);
+  }
+}

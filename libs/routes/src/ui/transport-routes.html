@@ -1,70 +1,119 @@
-<a routerLink="/">{{ text().list.back }}</a>
-<h2>{{ text().list.title }}</h2>
-<p class="hint">{{ text().list.hint }}</p>
-@if (status() === 'loading') {
-  <p>{{ text().list.loading }}</p>
-}
-@if (status() === 'error') {
-  <p class="error">{{ text().problems[problem()] }}</p>
-}
-@if (status() === 'empty') {
-  <p>{{ text().list.empty }}</p>
-}
-@if (status() === 'success') {
-  <label>
-    {{ text().list.filter }}
-    <select
-      [value]="customerFilter()"
-      (change)="filterBy($any($event.target).value)"
-    >
-      <option value="">{{ text().list.allCustomers }}</option>
-      @for (customer of choices().customers; track customer.id) {
-        <option [value]="customer.id">{{ customer.label }}</option>
-      }
-    </select>
-  </label>
-  @if (visibleRoutes().length === 0) {
-    <p>{{ text().list.noMatch }}</p>
-  } @else {
-    <table>
-      <thead>
-        <tr>
-          <th>{{ text().list.customer }}</th>
-          <th>{{ text().list.name }}</th>
-          <th>{{ text().list.vehicle }}</th>
-          <th>{{ text().list.driver }}</th>
-          <th>{{ text().list.outboundTime }}</th>
-          <th>{{ text().list.returnTime }}</th>
-          <th>{{ text().list.days }}</th>
-          <th>{{ text().list.tripPrice }}</th>
-          <th>{{ text().list.work }}</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (route of visibleRoutes(); track route.id) {
-          <tr>
-            <td>{{ label(choices().customers, route.customerId) }}</td>
-            <td>{{ route.name }}</td>
-            <td><bdi>{{ label(choices().vehicles, route.vehicleId) }}</bdi></td>
-            <td>{{ label(choices().drivers, route.driverId) }}</td>
-            <td><bdi>{{ route.outboundTime }}</bdi></td>
-            <td><bdi>{{ route.returnTime }}</bdi></td>
-            <td>{{ daysLabel(route) }}</td>
-            <td><bdi>{{ priceLabel(route) }}</bdi></td>
-            <td>{{ route.active ? text().list.working : text().list.stopped }}</td>
-            <td>
-              <button type="button" (click)="edit(route)">{{ text().list.edit }}</button>
-              <button type="button" (click)="copy(route)">{{ text().list.copy }}</button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+<div class="ro-stack">
+  <app-page-header [title]="text().list.title" [hint]="text().list.hint">
+    @if (status() === 'success' || status() === 'empty') {
+      <button appButton type="button" (click)="add()">
+        <ng-icon [svg]="addIcon" aria-hidden="true" />
+        {{ text().list.add }}
+      </button>
+    }
+  </app-page-header>
+
+  @if (outcome(); as done) {
+    <app-alert tone="success" [dismissible]="true" (dismissed)="outcome.set(null)">
+      {{ text().form[done] }}
+    </app-alert>
   }
-}
+
+  @if (organization(); as current) {
+    @if (status() !== 'loading' && choices().customers.length === 0) {
+      <app-alert tone="warning">
+        {{ text().form.noCustomers }}
+        <a [routerLink]="['/organizations', current.id, 'customers']">
+          {{ text().form.customersLink }}
+        </a>
+      </app-alert>
+    }
+  }
+
+  @switch (status()) {
+    @case ('loading') {
+      <app-page-state kind="loading" [message]="text().list.loading" />
+    }
+    @case ('error') {
+      <app-page-state kind="error" [message]="text().problems[problem()]" />
+    }
+    @case ('empty') {
+      <app-page-state kind="empty" [message]="text().list.empty">
+        <button appButton type="button" (click)="add()">
+          <ng-icon [svg]="addIcon" aria-hidden="true" />
+          {{ text().list.add }}
+        </button>
+      </app-page-state>
+    }
+    @case ('success') {
+      <section class="ro-card">
+        <div class="ro-card-header ro-toolbar">
+          <app-field class="routes-filter" [label]="text().list.filter">
+            <select [value]="customerFilter()" (change)="filterBy($any($event.target).value)">
+              <option value="">{{ text().list.allCustomers }}</option>
+              @for (customer of choices().customers; track customer.id) {
+                <option [value]="customer.id">{{ customer.label }}</option>
+              }
+            </select>
+          </app-field>
+        </div>
+        @if (visibleRoutes().length === 0) {
+          <app-page-state kind="empty" [message]="text().list.noMatch" />
+        } @else {
+          <div class="ro-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ text().list.name }}</th>
+                  <th>{{ text().list.customer }}</th>
+                  <th>{{ text().list.driver }}</th>
+                  <th>{{ text().list.vehicle }}</th>
+                  <th>{{ text().list.outboundTime }}</th>
+                  <th>{{ text().list.returnTime }}</th>
+                  <th>{{ text().list.days }}</th>
+                  <th>{{ text().list.tripPrice }}</th>
+                  <th>{{ text().list.work }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (route of visibleRoutes(); track route.id) {
+                  <tr>
+                    <td>{{ route.name }}</td>
+                    <td>{{ label(choices().customers, route.customerId) }}</td>
+                    <td>{{ label(choices().drivers, route.driverId) }}</td>
+                    <td><bdi>{{ label(choices().vehicles, route.vehicleId) }}</bdi></td>
+                    <td class="ro-numeric"><bdi>{{ route.outboundTime }}</bdi></td>
+                    <td class="ro-numeric"><bdi>{{ route.returnTime }}</bdi></td>
+                    <td>{{ daysLabel(route) }}</td>
+                    <td class="ro-numeric">
+                      @if (priceLabel(route); as price) {
+                        <bdi>{{ price }}</bdi>
+                      } @else {
+                        <app-tag tone="warning">{{ text().list.notSet }}</app-tag>
+                      }
+                    </td>
+                    <td>
+                      <app-tag [tone]="route.active ? 'success' : 'neutral'">
+                        {{ route.active ? text().list.working : text().list.stopped }}
+                      </app-tag>
+                    </td>
+                    <td class="routes-actions">
+                      <button appButton="text" size="sm" type="button" (click)="edit(route)">
+                        {{ text().list.edit }}
+                      </button>
+                      <button appButton="text" size="sm" type="button" (click)="copy(route)">
+                        {{ text().list.copy }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+  }
+</div>
+
 @if (organization(); as current) {
-  @if (status() === 'success' || status() === 'empty') {
+  <app-form-drawer [title]="formTitle()" [open]="formOpen()" (openChange)="onDrawer($event)">
     <app-route-form
       [organization]="current"
       [choices]="choices()"
@@ -73,5 +122,5 @@
       (saved)="onSaved($event)"
       (cancelled)="stopEditing()"
     />
-  }
+  </app-form-drawer>
 }

@@ -1,0 +1,117 @@
+/*
+ * Design tokens, mirrored one to one from the Figma file "RouteOps Design System".
+ * This is the only file allowed to hold raw colors and sizes; everything else uses var(--ro-*).
+ */
+:root {
+  --ro-blue-50: #eff6ff;
+  --ro-blue-100: #dbeafe;
+  --ro-blue-200: #bfdbfe;
+  --ro-blue-300: #93c5fd;
+  --ro-blue-400: #60a5fa;
+  --ro-blue-500: #3b82f6;
+  --ro-blue-600: #2563eb;
+  --ro-blue-700: #1d4ed8;
+  --ro-blue-800: #1e40af;
+  --ro-blue-900: #1e3a8a;
+  --ro-blue-950: #172554;
+
+  --ro-slate-0: #ffffff;
+  --ro-slate-50: #f8fafc;
+  --ro-slate-100: #f1f5f9;
+  --ro-slate-200: #e2e8f0;
+  --ro-slate-300: #cbd5e1;
+  --ro-slate-400: #94a3b8;
+  --ro-slate-500: #64748b;
+  --ro-slate-600: #475569;
+  --ro-slate-700: #334155;
+  --ro-slate-800: #1e293b;
+  --ro-slate-900: #0f172a;
+  --ro-slate-950: #020617;
+
+  --ro-green-50: #f0fdf4;
+  --ro-green-600: #16a34a;
+  --ro-green-700: #15803d;
+  --ro-red-50: #fef2f2;
+  --ro-red-600: #dc2626;
+  --ro-red-700: #b91c1c;
+  --ro-amber-50: #fffbeb;
+  --ro-amber-600: #d97706;
+  --ro-amber-700: #b45309;
+
+  --ro-bg-canvas: var(--ro-slate-50);
+  --ro-bg-surface: var(--ro-slate-0);
+  --ro-bg-subtle: var(--ro-slate-100);
+  --ro-bg-brand: var(--ro-blue-600);
+  --ro-bg-brand-hover: var(--ro-blue-700);
+  --ro-bg-brand-subtle: var(--ro-blue-50);
+  --ro-bg-success-subtle: var(--ro-green-50);
+  --ro-bg-danger-subtle: var(--ro-red-50);
+  --ro-bg-warning-subtle: var(--ro-amber-50);
+  --ro-bg-danger: var(--ro-red-600);
+  --ro-bg-scrim: rgb(15 23 42 / 40%);
+
+  --ro-text-primary: var(--ro-slate-900);
+  --ro-text-secondary: var(--ro-slate-600);
+  --ro-text-muted: var(--ro-slate-500);
+  --ro-text-on-brand: var(--ro-slate-0);
+  --ro-text-brand: var(--ro-blue-700);
+  --ro-text-success: var(--ro-green-700);
+  --ro-text-danger: var(--ro-red-700);
+  --ro-text-warning: var(--ro-amber-700);
+
+  --ro-border-default: var(--ro-slate-200);
+  --ro-border-strong: var(--ro-slate-300);
+  --ro-border-focus: var(--ro-blue-600);
+  --ro-border-danger: var(--ro-red-600);
+  --ro-border-width: 1px;
+  --ro-focus-width: 2px;
+  --ro-disabled-opacity: 0.6;
+  --ro-icon-size: 16px;
+  --ro-spinner-size: 24px;
+  --ro-motion-fast: 150ms;
+  --ro-motion-slow: 250ms;
+  --ro-motion-spin: 800ms;
+  --ro-z-overlay: 1000;
+
+  --ro-space-1: 4px;
+  --ro-space-2: 8px;
+  --ro-space-3: 12px;
+  --ro-space-4: 16px;
+  --ro-space-5: 20px;
+  --ro-space-6: 24px;
+  --ro-space-8: 32px;
+  --ro-space-10: 40px;
+
+  --ro-radius-sm: 4px;
+  --ro-radius-md: 8px;
+  --ro-radius-lg: 12px;
+  --ro-radius-full: 9999px;
+
+  --ro-font-family: 'Readex Pro', system-ui, 'Segoe UI', Tahoma, sans-serif;
+  --ro-font-regular: 400;
+  --ro-font-medium: 500;
+  --ro-font-semibold: 600;
+  --ro-text-heading-xl: 28px;
+  --ro-leading-heading-xl: 36px;
+  --ro-text-heading-lg: 20px;
+  --ro-leading-heading-lg: 28px;
+  --ro-text-heading-md: 16px;
+  --ro-leading-heading-md: 24px;
+  --ro-text-body-md: 14px;
+  --ro-leading-body-md: 22px;
+  --ro-text-body-sm: 13px;
+  --ro-leading-body-sm: 20px;
+  --ro-text-caption: 12px;
+  --ro-leading-caption: 16px;
+
+  --ro-shadow-card: 0 1px 2px rgb(15 23 42 / 6%), 0 1px 3px rgb(15 23 42 / 10%);
+  --ro-shadow-overlay: 0 12px 32px rgb(15 23 42 / 16%);
+
+  --ro-control-height: 40px;
+  --ro-sidebar-width: 248px;
+  --ro-topbar-height: 56px;
+  --ro-content-max-width: 1280px;
+  --ro-drawer-width: 440px;
+  --ro-card-min-width: 240px;
+  --ro-form-max-width: 480px;
+}

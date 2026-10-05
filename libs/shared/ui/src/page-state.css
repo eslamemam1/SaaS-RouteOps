@@ -1,0 +1,37 @@
+.app-page-state {
+  display: grid;
+  justify-items: center;
+  gap: var(--ro-space-2);
+  padding: var(--ro-space-10);
+  text-align: center;
+}
+
+.app-page-state-spinner {
+  inline-size: var(--ro-spinner-size);
+  block-size: var(--ro-spinner-size);
+  border: var(--ro-focus-width) solid var(--ro-border-default);
+  border-block-start-color: var(--ro-bg-brand);
+  border-radius: var(--ro-radius-full);
+  animation: app-page-state-spin var(--ro-motion-spin) linear infinite;
+}
+
+@keyframes app-page-state-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.app-page-state-title {
+  font-size: var(--ro-text-heading-md);
+  line-height: var(--ro-leading-heading-md);
+}
+
+.app-page-state-error .app-page-state-title {
+  color: var(--ro-text-danger);
+}
+
+.app-page-state-message {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}

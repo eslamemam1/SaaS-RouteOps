@@ -1,5 +1,40 @@
-<header class="app-header">
-  <h1>RouteOps</h1>
-  <app-language-switch />
-</header>
-<router-outlet></router-outlet>
+@if (showShell()) {
+  <div class="shell">
+    <aside class="shell-sidebar">
+      <a class="shell-brand" routerLink="/">RouteOps</a>
+      <nav class="shell-nav" [attr.aria-label]="text().navigation">
+        <a
+          class="shell-nav-item"
+          routerLink="/"
+          routerLinkActive="shell-nav-item-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <ng-icon [svg]="homeIcon" aria-hidden="true" />
+          <span>{{ text().home }}</span>
+        </a>
+        @if (organizationId(); as organizationId) {
+          @for (section of sections; track section.path) {
+            <a
+              class="shell-nav-item"
+              routerLinkActive="shell-nav-item-active"
+              [routerLink]="['/organizations', organizationId, section.path]"
+            >
+              <ng-icon [svg]="section.icon" aria-hidden="true" />
+              <span>{{ text().sections[section.path] }}</span>
+            </a>
+          }
+        }
+      </nav>
+    </aside>
+    <div class="shell-main">
+      <header class="shell-topbar">
+        <app-language-switch />
+      </header>
+      <main class="shell-content">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+} @else {
+  <router-outlet />
+}

@@ -1,0 +1,227 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.app-scroll-locked {
+  overflow: hidden;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--ro-bg-canvas);
+  color: var(--ro-text-primary);
+  font-family: var(--ro-font-family);
+  font-size: var(--ro-text-body-md);
+  line-height: var(--ro-leading-body-md);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--ro-text-heading-xl);
+  line-height: var(--ro-leading-heading-xl);
+  font-weight: var(--ro-font-semibold);
+}
+
+h2 {
+  font-size: var(--ro-text-heading-lg);
+  line-height: var(--ro-leading-heading-lg);
+  font-weight: var(--ro-font-semibold);
+}
+
+h3 {
+  font-size: var(--ro-text-heading-md);
+  line-height: var(--ro-leading-heading-md);
+  font-weight: var(--ro-font-semibold);
+}
+
+a {
+  color: var(--ro-text-brand);
+}
+
+input:not([type='checkbox'], [type='radio']),
+select,
+textarea {
+  inline-size: 100%;
+  min-block-size: var(--ro-control-height);
+  padding-block: var(--ro-space-2);
+  padding-inline: var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-surface);
+  color: var(--ro-text-primary);
+}
+
+input:not([type='checkbox'], [type='radio']):focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-border-focus);
+  outline-offset: calc(var(--ro-border-width) * -1);
+}
+
+input[aria-invalid='true'],
+select[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: var(--ro-border-danger);
+}
+
+input[type='checkbox'] {
+  accent-color: var(--ro-bg-brand);
+  inline-size: var(--ro-space-4);
+  block-size: var(--ro-space-4);
+}
+
+textarea {
+  resize: vertical;
+}
+
+fieldset {
+  display: grid;
+  gap: var(--ro-space-3);
+  margin: 0;
+  padding: var(--ro-space-4);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+}
+
+legend {
+  padding-inline: var(--ro-space-1);
+  font-weight: var(--ro-font-medium);
+}
+
+label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+}
+
+.hint {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}
+
+.error {
+  color: var(--ro-text-danger);
+}
+
+.ro-card {
+  background: var(--ro-bg-surface);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-lg);
+  box-shadow: var(--ro-shadow-card);
+}
+
+.ro-card-header {
+  display: grid;
+  gap: var(--ro-space-1);
+  padding-block: var(--ro-space-4);
+  padding-inline: var(--ro-space-5);
+}
+
+.ro-stack {
+  display: grid;
+  gap: var(--ro-space-6);
+  align-content: start;
+}
+
+.ro-form {
+  display: grid;
+  gap: var(--ro-space-5);
+}
+
+.ro-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--ro-space-3);
+}
+
+.ro-table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  inline-size: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding-block: var(--ro-space-3);
+  padding-inline: var(--ro-space-4);
+  text-align: start;
+  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+th {
+  background: var(--ro-bg-subtle);
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+  font-weight: var(--ro-font-medium);
+}
+
+tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.ro-numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Legacy layouts used by pages not yet moved to the shared components. */
+form {
+  display: grid;
+  gap: var(--ro-space-3);
+  max-inline-size: var(--ro-form-max-width);
+}
+
+label {
+  display: grid;
+  gap: var(--ro-space-1);
+}
+
+.menu {
+  display: grid;
+  gap: var(--ro-space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.menu li {
+  display: grid;
+  gap: var(--ro-space-1);
+}
+
+.day-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--ro-space-3);
+}
+
+.toggle {
+  display: flex;
+  gap: var(--ro-space-1);
+}
+
+.toggle button[aria-pressed='true'] {
+  background: var(--ro-bg-brand);
+  color: var(--ro-text-on-brand);
+}

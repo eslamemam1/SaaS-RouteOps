@@ -1,0 +1,54 @@
+:host {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ro-space-3);
+  padding-block: var(--ro-space-3);
+  padding-inline: var(--ro-space-4);
+  border-radius: var(--ro-radius-md);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+  color: var(--ro-text-primary);
+}
+
+:host([data-tone='info']),
+:host([data-tone='neutral']) {
+  background: var(--ro-bg-brand-subtle);
+  --alert-accent: var(--ro-text-brand);
+}
+
+:host([data-tone='success']) {
+  background: var(--ro-bg-success-subtle);
+  --alert-accent: var(--ro-text-success);
+}
+
+:host([data-tone='warning']) {
+  background: var(--ro-bg-warning-subtle);
+  --alert-accent: var(--ro-text-warning);
+}
+
+:host([data-tone='danger']) {
+  background: var(--ro-bg-danger-subtle);
+  --alert-accent: var(--ro-text-danger);
+}
+
+.body {
+  display: grid;
+  flex: 1;
+  gap: var(--ro-space-1);
+}
+
+.title {
+  color: var(--alert-accent);
+  font-weight: var(--ro-font-medium);
+}
+
+.close {
+  display: inline-flex;
+  padding: var(--ro-space-1);
+  border: 0;
+  border-radius: var(--ro-radius-sm);
+  background: transparent;
+  color: var(--alert-accent);
+  cursor: pointer;
+  font-size: var(--ro-icon-size);
+}

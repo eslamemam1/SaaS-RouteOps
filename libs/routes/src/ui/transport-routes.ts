@@ -2,6 +2,17 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney, toMinorUnits } from '@routeops/shared/money';
+import { NgIcon } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
+import {
+  Alert,
+  Button,
+  Field,
+  FormDrawer,
+  PageHeader,
+  PageState,
+  Tag,
+} from '@routeops/shared/ui';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
 import {
@@ -25,14 +36,27 @@ const noChoices: RouteChoices = { customers: [], vehicles: [], drivers: [] };
 
 @Component({
   selector: 'app-transport-routes',
-  imports: [RouteForm, RouterLink],
+  imports: [
+    Alert,
+    Button,
+    Field,
+    FormDrawer,
+    NgIcon,
+    PageHeader,
+    PageState,
+    RouteForm,
+    RouterLink,
+    Tag,
+  ],
   templateUrl: './transport-routes.html',
+  styleUrl: './transport-routes.css',
 })
 export class TransportRoutes {
   private readonly repository = inject(RouteRepository);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected readonly text = injectText(routesText);
+  protected readonly addIcon = lucidePlus;
   private readonly language = inject(LanguageService).language;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
@@ -43,10 +67,19 @@ export class TransportRoutes {
   protected readonly choices = signal<RouteChoices>(noChoices);
   protected readonly editing = signal<TransportRoute | null>(null);
   protected readonly draft = signal<TransportRouteDetails | null>(null);
+  protected readonly formOpen = signal(false);
+  protected readonly outcome = signal<'added' | 'saved' | null>(null);
   protected readonly customerFilter = signal('');
   protected readonly visibleRoutes = computed(() =>
     routesOfCustomer(this.routes(), this.customerFilter()),
   );
+  protected readonly formTitle = computed(() => {
+    const form = this.text().form;
+    if (this.editing()) {
+      return form.editTitle;
+    }
+    return this.draft() ? form.copyTitle : form.addTitle;
+  });
 
   constructor() {
     void this.load();
@@ -61,7 +94,7 @@ export class TransportRoutes {
     const minor = currency ? toMinorUnits(route.tripPrice, currency) : null;
     return currency && typeof minor === 'number'
       ? formatMoney(minor, currency, this.language())
-      : this.text().list.notSet;
+      : '';
   }
 
   protected daysLabel(route: TransportRoute): string {
@@ -77,17 +110,26 @@ export class TransportRoutes {
     this.customerFilter.set(customerId);
   }
 
+  protected add(): void {
+    this.open(null, null);
+  }
+
   protected edit(route: TransportRoute): void {
-    this.draft.set(null);
-    this.editing.set(route);
+    this.open(route, null);
   }
 
   protected copy(route: TransportRoute): void {
-    this.editing.set(null);
-    this.draft.set(copyForAnotherCustomer(route));
+    this.open(null, copyForAnotherCustomer(route));
+  }
+
+  protected onDrawer(open: boolean): void {
+    if (!open) {
+      this.stopEditing();
+    }
   }
 
   protected stopEditing(): void {
+    this.formOpen.set(false);
     this.editing.set(null);
     this.draft.set(null);
   }
@@ -97,8 +139,19 @@ export class TransportRoutes {
     this.routes.set(
       sortByCustomerAndName([...others, route], this.choices().customers),
     );
+    this.outcome.set(this.editing() ? 'saved' : 'added');
     this.stopEditing();
     this.status.set('success');
+  }
+
+  private open(
+    route: TransportRoute | null,
+    draft: TransportRouteDetails | null,
+  ): void {
+    this.outcome.set(null);
+    this.editing.set(route);
+    this.draft.set(draft);
+    this.formOpen.set(true);
   }
 
   private async load(): Promise<void> {

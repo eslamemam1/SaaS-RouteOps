@@ -1,0 +1,7 @@
+.routes-filter {
+  flex: 0 1 var(--ro-form-max-width);
+}
+
+.routes-actions {
+  white-space: nowrap;
+}

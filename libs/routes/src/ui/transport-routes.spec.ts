@@ -81,12 +81,18 @@ describe('TransportRoutes', () => {
     expect(price?.value).toBe('');
   });
 
-  it('shows an empty state and the add form when there are no routes', async () => {
+  it('shows an empty state that opens the add form', async () => {
     const harness = await open({ list: async () => [] });
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.list.empty);
+    expect(harness.routeNativeElement?.querySelector('form')).toBeFalsy();
+
+    button(harness, arabic.list.add)?.click();
+    await settle(harness);
+
     expect(text(harness)).toContain(arabic.form.addTitle);
+    expect(harness.routeNativeElement?.querySelector('form')).toBeTruthy();
   });
 
   it('filters routes with the same name by company', async () => {
@@ -206,6 +212,15 @@ function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
       'tbody tr',
     ) ?? []),
   ];
+}
+
+function button(
+  harness: RouterTestingHarness,
+  label: string,
+): HTMLButtonElement | undefined {
+  return [
+    ...(harness.routeNativeElement?.querySelectorAll<HTMLButtonElement>('button') ?? []),
+  ].find((item) => item.textContent?.trim() === label);
 }
 
 function text(harness: RouterTestingHarness): string {

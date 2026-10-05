@@ -9,7 +9,7 @@ export const organizationsRoutes: Route[] = [
     path: '',
     providers: [provideOrganizations()],
     children: [
-      { path: 'sign-in', component: SignIn },
+      { path: 'sign-in', component: SignIn, data: { shell: false } },
       { path: '', component: Organizations, canActivate: [requireSession] },
     ],
   },

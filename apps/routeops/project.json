@@ -20,7 +20,11 @@
             "input": "apps/routeops/public"
           }
         ],
-        "styles": ["apps/routeops/src/styles.css"]
+        "styles": [
+          "libs/shared/ui/src/styles/tokens.css",
+          "libs/shared/ui/src/styles/base.css",
+          "libs/shared/ui/src/styles/button.css"
+        ]
       },
       "configurations": {
         "production": {
