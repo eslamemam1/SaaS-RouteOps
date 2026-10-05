@@ -50,7 +50,6 @@ export class App {
   protected readonly text = injectText(shellText);
   protected readonly sections = shellSections;
   protected readonly homeIcon = lucideHouse;
-  protected readonly menuIcon = lucideMenu;
   protected readonly closeSidebarIcon = computed(() =>
     this.direction() === 'rtl' ? lucideChevronsRight : lucideChevronsLeft,
   );
@@ -65,6 +64,12 @@ export class App {
   protected readonly sidebarVisible = computed(() =>
     this.compact() ? this.menuOpen() : !this.sidebarHidden(),
   );
+  protected readonly openSidebarIcon = computed(() => {
+    if (this.compact()) {
+      return lucideMenu;
+    }
+    return this.direction() === 'rtl' ? lucideChevronsLeft : lucideChevronsRight;
+  });
   private readonly page = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
