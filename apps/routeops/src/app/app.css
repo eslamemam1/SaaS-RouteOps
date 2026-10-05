@@ -226,6 +226,10 @@
     padding-block: var(--ro-space-4) var(--ro-space-8);
     padding-inline: var(--ro-space-4);
   }
+
+  .shell-sign-out-label {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

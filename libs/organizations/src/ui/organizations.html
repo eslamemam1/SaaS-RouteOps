@@ -1,10 +1,5 @@
 <div class="ro-stack">
-  <app-page-header [title]="headerTitle()" [hint]="active() ? text().home.hint : ''">
-    <button appButton="secondary" type="button" (click)="signOut()">
-      <ng-icon [svg]="signOutIcon" aria-hidden="true" />
-      {{ text().home.signOut }}
-    </button>
-  </app-page-header>
+  <app-page-header [title]="headerTitle()" [hint]="active() ? text().home.hint : ''" />
 
   @switch (status()) {
     @case ('loading') {

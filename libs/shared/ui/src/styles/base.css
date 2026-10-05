@@ -161,6 +161,7 @@ label.checkbox {
 
 .ro-stack {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--ro-space-6);
   align-content: start;
 }

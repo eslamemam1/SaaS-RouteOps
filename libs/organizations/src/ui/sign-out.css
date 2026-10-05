@@ -1,0 +1,11 @@
+:host {
+  display: grid;
+  place-items: center;
+  min-block-size: 100dvh;
+  padding: var(--ro-space-4);
+}
+
+app-page-state {
+  inline-size: 100%;
+  max-inline-size: var(--ro-form-max-width);
+}

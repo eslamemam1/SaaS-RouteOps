@@ -32,7 +32,11 @@ export interface OrganizationsText {
     readonly operationsHint: string;
     readonly reports: string;
     readonly reportsHint: string;
-    readonly signOut: string;
+  };
+  readonly signOut: {
+    readonly busy: string;
+    readonly retry: string;
+    readonly backHome: string;
   };
   readonly provision: {
     readonly title: string;
@@ -60,6 +64,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       emailTaken: 'يوجد حساب بهذا البريد الإلكتروني بالفعل.',
       operatorOnly: 'إنشاء الشركات متاح لمدير الموقع فقط.',
       signIn: 'تعذّر تسجيل الدخول. تأكد من البريد الإلكتروني وكلمة المرور.',
+      signOut: 'تعذّر تسجيل الخروج. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.',
       load: 'تعذّر تحميل بيانات الشركة. حاول مرة أخرى.',
       create: 'تعذّر إنشاء الشركة. حاول مرة أخرى.',
       signedOut: 'سجّل الدخول للمتابعة.',
@@ -102,7 +107,11 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operationsHint: 'رحلات كل يوم: غياب سائق، عطل مركبة، أو إجازة.',
       reports: 'التقارير',
       reportsHint: 'الرحلات التي تمّت كل شهر وإيرادها، لكل شركة متعاقدة ومركبة وسائق.',
-      signOut: 'تسجيل الخروج',
+    },
+    signOut: {
+      busy: 'جارٍ تسجيل الخروج...',
+      retry: 'حاول مرة أخرى',
+      backHome: 'العودة إلى الرئيسية',
     },
     provision: {
       title: 'إنشاء حساب لشركة نقل جديدة',
@@ -129,6 +138,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       emailTaken: 'An account with this email already exists.',
       operatorOnly: 'Only the site manager can create companies.',
       signIn: 'Could not sign in. Check the email and password.',
+      signOut: 'Could not sign out. Check your internet connection and try again.',
       load: 'Could not load your company. Please try again.',
       create: 'Could not create the company. Please try again.',
       signedOut: 'Sign in to continue.',
@@ -173,7 +183,11 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operationsHint: "Each day's trips: an absent driver, a broken vehicle, or a holiday.",
       reports: 'Reports',
       reportsHint: 'The trips done each month and their revenue, per client company, vehicle, and driver.',
-      signOut: 'Sign out',
+    },
+    signOut: {
+      busy: 'Signing out...',
+      retry: 'Try again',
+      backHome: 'Back to home',
     },
     provision: {
       title: 'Create an account for a new transport company',

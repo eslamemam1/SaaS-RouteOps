@@ -20,6 +20,7 @@ describe('App', () => {
       providers: [
         provideRouter([
           { path: 'sign-in', component: Blank, data: { shell: false } },
+          { path: 'sign-out', component: Blank, data: { shell: false } },
           { path: 'organizations/:organizationId/routes', component: Blank },
           { path: '', component: Blank },
         ]),
@@ -120,6 +121,17 @@ describe('App', () => {
     await fixture.whenStable();
     expect(menu.getAttribute('aria-expanded')).toBe('false');
     expect(element.querySelector('.shell-sidebar-open')).toBeNull();
+  });
+
+  it('signs out from the top bar of any page', async () => {
+    const fixture = await openFixture('/organizations/org-north/routes');
+    const element = fixture.nativeElement as HTMLElement;
+
+    button(element, '.shell-sign-out').click();
+    await fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/sign-out');
+    expect(element.querySelector('.shell-sidebar')).toBeNull();
   });
 
   it('leaves the sign-in page without the sidebar', async () => {

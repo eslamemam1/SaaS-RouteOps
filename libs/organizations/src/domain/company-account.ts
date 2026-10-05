@@ -11,6 +11,7 @@ export const companyAccountProblems = [
   'emailTaken',
   'operatorOnly',
   'signIn',
+  'signOut',
   'load',
   'create',
   'signedOut',

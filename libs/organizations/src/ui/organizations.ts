@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import {
   lucideBuilding2,
@@ -7,7 +7,6 @@ import {
   lucideCalendarDays,
   lucideChartColumn,
   lucideIdCard,
-  lucideLogOut,
   lucideRoute,
 } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
@@ -43,11 +42,8 @@ const sections = [
 })
 export class Organizations {
   private readonly repository = inject(OrganizationRepository);
-  private readonly router = inject(Router);
-
   protected readonly text = injectText(organizationsText);
   protected readonly sections = sections;
-  protected readonly signOutIcon = lucideLogOut;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -67,11 +63,6 @@ export class Organizations {
 
   protected choose(organizationId: string): void {
     this.active.set(activeOrganization(this.organizations(), organizationId));
-  }
-
-  protected async signOut(): Promise<void> {
-    await this.repository.signOut();
-    await this.router.navigateByUrl('/sign-in');
   }
 
   protected async reload(): Promise<void> {

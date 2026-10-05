@@ -81,7 +81,7 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
   async signOut(): Promise<void> {
     const { error } = await this.requireClient().auth.signOut();
     if (error) {
-      throw new OrganizationAccessError('signIn');
+      throw new OrganizationAccessError('signOut');
     }
   }
 

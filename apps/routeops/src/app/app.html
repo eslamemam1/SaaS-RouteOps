@@ -71,6 +71,18 @@
           <span>{{ brand() }}</span>
         </span>
         <app-language-switch />
+        <button
+          appButton="secondary"
+          size="sm"
+          type="button"
+          class="shell-sign-out"
+          [attr.aria-label]="text().signOut"
+          [attr.title]="text().signOut"
+          (click)="signOut()"
+        >
+          <ng-icon [svg]="signOutIcon" aria-hidden="true" />
+          <span class="shell-sign-out-label">{{ text().signOut }}</span>
+        </button>
       </header>
       <main class="shell-content">
         <router-outlet />

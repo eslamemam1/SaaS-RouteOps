@@ -22,9 +22,15 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucideChevronsLeft, lucideChevronsRight, lucideHouse, lucideMenu } from '@ng-icons/lucide';
+import {
+  lucideChevronsLeft,
+  lucideChevronsRight,
+  lucideHouse,
+  lucideLogOut,
+  lucideMenu,
+} from '@ng-icons/lucide';
 import { injectText, LanguageService, productName } from '@routeops/shared/i18n';
-import { LanguageSwitch, Logo } from '@routeops/shared/ui';
+import { Button, LanguageSwitch, Logo } from '@routeops/shared/ui';
 import { filter, map } from 'rxjs';
 import { shellSections } from './shell-sections';
 import { shellText } from './shell-text';
@@ -33,7 +39,7 @@ export const compactShellQuery = '(max-width: 899.98px)';
 const sidebarStorageKey = 'routeops.sidebar';
 
 @Component({
-  imports: [LanguageSwitch, Logo, NgIcon, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [Button, LanguageSwitch, Logo, NgIcon, RouterLink, RouterLinkActive, RouterOutlet],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -51,6 +57,7 @@ export class App {
   protected readonly brand = injectText(productName);
   protected readonly sections = shellSections;
   protected readonly homeIcon = lucideHouse;
+  protected readonly signOutIcon = lucideLogOut;
   protected readonly closeSidebarIcon = computed(() =>
     this.direction() === 'rtl' ? lucideChevronsRight : lucideChevronsLeft,
   );
@@ -105,6 +112,10 @@ export class App {
       this.setSidebarHidden(!this.sidebarHidden());
     }
     this.focusToggle();
+  }
+
+  protected signOut(): void {
+    void this.router.navigateByUrl('/sign-out');
   }
 
   protected closeMenu(): void {
