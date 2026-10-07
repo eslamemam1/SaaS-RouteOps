@@ -171,6 +171,71 @@
         }
       </section>
 
+      <section class="ro-card">
+        <div class="ro-card-header">
+          <h2 class="ro-card-title">{{ text().rent.title }}</h2>
+          <p class="hint">{{ text().rent.hint }}</p>
+        </div>
+        @if (data().rent.length === 0) {
+          <div class="ro-card-body">
+            @if (organization(); as current) {
+              <p class="hint">
+                {{ text().rent.none }}
+                <a [routerLink]="['/organizations', current.id, 'vehicles']">{{ text().rent.vehiclesLink }}</a>
+              </p>
+            }
+          </div>
+        } @else {
+          <div class="ro-table-scroll">
+            <table class="ro-table-stack">
+              <thead>
+                <tr>
+                  <th>{{ text().rent.vehicle }}</th>
+                  <th>{{ text().rent.trips }}</th>
+                  <th>{{ text().rent.suggested }}</th>
+                  <th>{{ text().rent.recorded }}</th>
+                  <th>{{ text().rent.remaining }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (rent of data().rent; track rent.vehicleId) {
+                  <tr>
+                    <td [attr.data-label]="text().rent.vehicle">
+                      <div class="ro-cell-stack">
+                        <bdi>{{ vehicleName(rent.vehicleId) }}</bdi>
+                        <app-tag>{{ text().rent.rentTypes[rent.rentType] }}</app-tag>
+                      </div>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().rent.trips">
+                      <bdi>{{ trips(rent.done) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().rent.suggested">
+                      <bdi>{{ money(suggestedRent(rent)) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().rent.recorded">
+                      <bdi>{{ money(rent.recorded) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().rent.remaining">
+                      <bdi>{{ money(remainingRent(rent)) }}</bdi>
+                    </td>
+                    <td class="ro-actions">
+                      @if (remainingRent(rent) > 0) {
+                        <button appButton="secondary" size="sm" type="button" (click)="recordRent(rent)">
+                          {{ text().rent.record }}
+                        </button>
+                      } @else {
+                        <app-tag tone="success">{{ text().rent.done }}</app-tag>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+
       @if (categories().length > 0) {
         <section class="ro-card">
           <div class="ro-card-header">

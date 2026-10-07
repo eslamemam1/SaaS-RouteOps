@@ -3,7 +3,7 @@ import { VehicleOrganization } from '../domain/vehicle';
 import { SupabaseVehicleRepository } from './supabase-vehicle-repository';
 import { VehicleGateway } from './vehicle-gateway';
 
-const north: VehicleOrganization = { id: 'org-north', name: 'North' };
+const north: VehicleOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 
 describe('SupabaseVehicleRepository', () => {
   it('resolves the organization from the signed-in user memberships', async () => {
@@ -39,7 +39,7 @@ describe('SupabaseVehicleRepository', () => {
     const organization = await repository.organization('org-north');
     await repository.list(organization ?? north);
 
-    expect(gateway.listVehicles).toHaveBeenCalledWith('org-north');
+    expect(gateway.listVehicles).toHaveBeenCalledWith(north);
   });
 });
 

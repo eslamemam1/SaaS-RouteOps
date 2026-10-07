@@ -25,17 +25,24 @@ describe('SupabaseReportsRepository', () => {
     const tripCounts = vi.fn(async () => []);
     const unopenedDays = vi.fn(async () => ['2026-10-02']);
     const expenseTotals = vi.fn(async () => [
-      { category: 'fuel', vehicleId: 'bus-1', total: 5000 },
+      { category: 'fuel', vehicleId: 'bus-1', driverId: '', total: 5000 },
     ]);
+    const unrecordedPay = vi.fn(async () => ({ drivers: 1, vehicles: 0 }));
     const repository = new SupabaseReportsRepository(
-      gateway({ tripCounts, unopenedDays, expenseTotals }),
+      gateway({ tripCounts, unopenedDays, expenseTotals, unrecordedPay }),
     );
 
     await expect(repository.month(north, '2026-10', '2026-10-04')).resolves.toEqual({
       counts: [],
-      expenses: [{ category: 'fuel', vehicleId: 'bus-1', total: 5000 }],
+      expenses: [{ category: 'fuel', vehicleId: 'bus-1', driverId: '', total: 5000 }],
       unopenedDays: ['2026-10-02'],
+      unrecorded: { drivers: 1, vehicles: 0 },
     });
+    expect(unrecordedPay).toHaveBeenCalledWith(
+      'org-north',
+      { from: '2026-10-01', to: '2026-10-31' },
+      '2026-10-04',
+    );
     expect(expenseTotals).toHaveBeenCalledWith('org-north', {
       from: '2026-10-01',
       to: '2026-10-31',
@@ -65,10 +72,11 @@ function gateway(overrides: Partial<ReportsGateway>): ReportsGateway {
   return {
     sessionUserId: async () => 'user-1',
     membershipOrganizations: async () => [north],
-    listChoices: async () => ({ customers: [], vehicles: [], drivers: [] }),
+    listChoices: async () => ({ customers: [], routes: [], vehicles: [], drivers: [] }),
     tripCounts: async () => [],
     unopenedDays: async () => [],
     expenseTotals: async () => [],
+    unrecordedPay: async () => ({ drivers: 0, vehicles: 0 }),
     ...overrides,
   };
 }

@@ -95,9 +95,29 @@ export interface PayBreakdown {
   readonly total: number;
 }
 
+// How the owner of a rented or contractor vehicle is paid: a fixed monthly
+// rent, or an amount for each done outbound and return trip of the vehicle.
+export const rentTypes = ['monthly', 'perTrip'] as const;
+
+export type RentType = (typeof rentTypes)[number];
+
+// A vehicle's rent terms and done trips for a month, and the rent or
+// contractor pay already recorded for it as expenses. Amounts are in the
+// smallest currency unit.
+export interface VehiclePay {
+  readonly vehicleId: string;
+  readonly contractor: boolean;
+  readonly rentType: RentType;
+  readonly monthlyRent: number | null;
+  readonly tripRent: PerDirection | null;
+  readonly done: PerDirection;
+  readonly recorded: number;
+}
+
 export interface ExpenseMonth {
   readonly expenses: readonly Expense[];
   readonly pay: readonly DriverPay[];
+  readonly rent: readonly VehiclePay[];
 }
 
 export interface CategoryTotal {
@@ -168,6 +188,22 @@ export function salaryDetails(
     category: 'salaries',
     amount: toAmountText(remainingPay(pay), currency),
     driverId: pay.driverId,
+    description: description.slice(0, expenseLimits.description),
+  };
+}
+
+// A rent or contractor expense for what is left of a vehicle's suggested pay.
+export function rentDetails(
+  rent: VehiclePay,
+  spentOn: string,
+  currency: Currency,
+  description: string,
+): ExpenseDetails {
+  return {
+    ...emptyExpenseDetails(spentOn),
+    category: rent.contractor ? 'contractors' : 'rent',
+    amount: toAmountText(remainingRent(rent), currency),
+    vehicleId: rent.vehicleId,
     description: description.slice(0, expenseLimits.description),
   };
 }
@@ -272,6 +308,17 @@ function priced(trips: PerDirection, rates: PerDirection): number {
 
 export function remainingPay(pay: DriverPay): number {
   return Math.max(0, suggestedPay(pay) - pay.recorded);
+}
+
+export function suggestedRent(rent: VehiclePay): number {
+  if (rent.rentType === 'monthly') {
+    return rent.monthlyRent ?? 0;
+  }
+  return rent.tripRent ? priced(rent.done, rent.tripRent) : 0;
+}
+
+export function remainingRent(rent: VehiclePay): number {
+  return Math.max(0, suggestedRent(rent) - rent.recorded);
 }
 
 export function expenseTotal(expenses: readonly Expense[]): number {

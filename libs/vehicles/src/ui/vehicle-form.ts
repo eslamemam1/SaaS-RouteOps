@@ -15,6 +15,7 @@ import { VehicleAccessError } from '../application/vehicle-access-error';
 import { VehicleRepository } from '../application/vehicle-repository';
 import {
   emptyVehicleDetails,
+  rentTypes,
   Vehicle,
   VehicleDetails,
   VehicleOrganization,
@@ -43,13 +44,18 @@ export class VehicleForm {
 
   protected readonly types = vehicleTypes;
   protected readonly ownerships = vehicleOwnerships;
+  protected readonly rentTypes = rentTypes;
   protected readonly submitting = signal(false);
   protected readonly problem = signal<VehicleProblem | null>(null);
   protected readonly model = signal<VehicleDetails>(emptyVehicleDetails);
   protected readonly vehicleForm = form(this.model, (field) => {
     apply(
       field,
-      vehicleDetailsSchema(this.problems, new Date().getFullYear()),
+      vehicleDetailsSchema(
+        this.problems,
+        computed(() => this.organization().currency),
+        new Date().getFullYear(),
+      ),
     );
   });
 
@@ -106,6 +112,10 @@ function detailsOf(vehicle: Vehicle | null): VehicleDetails {
     ownership: vehicle.ownership,
     ownerName: vehicle.ownerName,
     ownerPhone: vehicle.ownerPhone,
+    rentType: vehicle.rentType,
+    monthlyRent: vehicle.monthlyRent,
+    outboundRent: vehicle.outboundRent,
+    returnRent: vehicle.returnRent,
     notes: vehicle.notes,
     active: vehicle.active,
   };

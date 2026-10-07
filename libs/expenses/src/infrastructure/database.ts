@@ -121,6 +121,25 @@ export type Database = {
           recorded: number
         }[]
       }
+      vehicle_pay: {
+        Args: {
+          p_organization_id: string
+          p_from: string
+          p_to: string
+          p_today: string
+        }
+        Returns: {
+          vehicle_id: string
+          ownership: string
+          rent_type: string
+          monthly_rent: number | null
+          outbound_rent: number | null
+          return_rent: number | null
+          done_outbound: number
+          done_return: number
+          recorded: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

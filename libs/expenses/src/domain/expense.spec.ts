@@ -11,13 +11,17 @@ import {
   ExpenseOrganization,
   expenseTotal,
   memberOrganization,
-  payBreakdown,
   monthDays,
+  payBreakdown,
   remainingPay,
+  remainingRent,
+  rentDetails,
   salaryDetails,
   shiftMonth,
   spentOnError,
   suggestedPay,
+  suggestedRent,
+  VehiclePay,
 } from './expense';
 
 const fuel: Expense = {
@@ -160,6 +164,51 @@ describe('driver pay', () => {
       driverId: 'driver-1',
       description: 'راتب أكتوبر',
     });
+  });
+});
+
+describe('vehicle pay', () => {
+  const rented: VehiclePay = {
+    vehicleId: 'vehicle-1',
+    contractor: false,
+    rentType: 'monthly',
+    monthlyRent: 1200000,
+    tripRent: null,
+    done: { outbound: 20, return: 18 },
+    recorded: 0,
+  };
+  const contractor: VehiclePay = {
+    ...rented,
+    vehicleId: 'vehicle-2',
+    contractor: true,
+    rentType: 'perTrip',
+    monthlyRent: null,
+    tripRent: { outbound: 30000, return: 25000 },
+  };
+
+  it('suggests the monthly rent whatever the trips', () => {
+    expect(suggestedRent(rented)).toBe(1200000);
+  });
+
+  it('pays a vehicle paid per trip for each trip at its direction amount', () => {
+    expect(suggestedRent(contractor)).toBe(20 * 30000 + 18 * 25000);
+  });
+
+  it('leaves what is not recorded yet, never below zero', () => {
+    expect(remainingRent({ ...rented, recorded: 200000 })).toBe(1000000);
+    expect(remainingRent({ ...rented, recorded: 2000000 })).toBe(0);
+  });
+
+  it('records a rented vehicle as rent and a contractor as contractors', () => {
+    expect(rentDetails(rented, '2026-10-05', 'EGP', 'أجرة')).toEqual({
+      spentOn: '2026-10-05',
+      category: 'rent',
+      amount: '12000.00',
+      vehicleId: 'vehicle-1',
+      driverId: '',
+      description: 'أجرة',
+    });
+    expect(rentDetails(contractor, '2026-10-05', 'EGP', '').category).toBe('contractors');
   });
 });
 

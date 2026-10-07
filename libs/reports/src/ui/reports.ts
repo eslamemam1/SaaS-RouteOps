@@ -6,6 +6,7 @@ import { Alert, Button, Field, PageHeader, PageState, Tag } from '@routeops/shar
 import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
 import {
+  costShares,
   expenseSum,
   isReportMonth,
   MonthReport,
@@ -23,8 +24,13 @@ import {
 } from '../domain/trip-report';
 import { reportsText } from './reports-text';
 
-const noChoices: ReportChoices = { customers: [], vehicles: [], drivers: [] };
-const noReport: MonthReport = { counts: [], expenses: [], unopenedDays: [] };
+const noChoices: ReportChoices = { customers: [], routes: [], vehicles: [], drivers: [] };
+const noReport: MonthReport = {
+  counts: [],
+  expenses: [],
+  unopenedDays: [],
+  unrecorded: { drivers: 0, vehicles: 0 },
+};
 
 @Component({
   selector: 'app-reports',
@@ -61,6 +67,13 @@ export class Reports {
       this.report().expenses,
     ),
   );
+  protected readonly otherCosts = computed(
+    () => costShares(this.report().counts, this.report().expenses).other,
+  );
+  protected readonly unrecorded = computed(() => {
+    const { drivers, vehicles } = this.report().unrecorded;
+    return drivers + vehicles > 0 ? { drivers, vehicles } : null;
+  });
   protected readonly unopenedTitle = computed(
     () => `${this.text().report.unopenedTitle} (${this.report().unopenedDays.length})`,
   );
@@ -92,6 +105,17 @@ export class Reports {
 
   protected vehicleOf(line: ReportLine): ReportVehicle | undefined {
     return this.choices().vehicles.find((vehicle) => vehicle.id === line.id);
+  }
+
+  protected routeCustomer(line: ReportLine): string {
+    const route = this.choices().routes.find((choice) => choice.id === line.id);
+    return route
+      ? (this.choices().customers.find((customer) => customer.id === route.customerId)?.label ?? '')
+      : '';
+  }
+
+  protected companyShare(line: ReportLine): number {
+    return line.revenue - line.driverCost - line.vehicleCost;
   }
 
   protected chooseMonth(value: string): void {

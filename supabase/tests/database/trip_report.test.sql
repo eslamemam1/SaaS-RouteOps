@@ -51,6 +51,16 @@ select results_eq(
     ('11000000-0000-0000-0000-000000000002'::uuid, '12000000-0000-0000-0000-000000000001'::uuid, '13000000-0000-0000-0000-000000000002'::uuid, 1, 1)$$,
   'recording automatically, every trip that is not cancelled counts once its day has come'
 );
+select results_eq(
+  $$select route_id, sum(done_trips)::integer
+    from public.trip_report('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-28', '2026-03-15')
+    group by route_id
+    order by route_id nulls last$$,
+  $$values
+    ('14000000-0000-0000-0000-000000000001'::uuid, 3),
+    (null::uuid, 1)$$,
+  'trips are counted per route, and an extra trip without a route on its own'
+);
 select is(
   (select sum(done_trips)::integer
    from public.trip_report('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-28', '2026-02-01')),

@@ -11,6 +11,7 @@ describe('SupabaseReportsGateway', () => {
       data: [
         {
           customer_id: 'delta',
+          route_id: null,
           vehicle_id: 'bus-1',
           driver_id: null,
           done_trips: 22,
@@ -32,6 +33,7 @@ describe('SupabaseReportsGateway', () => {
     ).resolves.toEqual([
       {
         customerId: 'delta',
+        routeId: '',
         vehicleId: 'bus-1',
         driverId: '',
         done: 22,
@@ -68,11 +70,11 @@ describe('SupabaseReportsGateway', () => {
     ]);
   });
 
-  it('totals the month expenses per category and vehicle', async () => {
+  it('totals the month expenses per category, vehicle, and driver', async () => {
     const calls = recorder(() => ({
       data: [
-        { category: 'fuel', vehicle_id: 'bus-1', total: 80000 },
-        { category: 'office', vehicle_id: null, total: 15000 },
+        { category: 'fuel', vehicle_id: 'bus-1', driver_id: null, total: 80000 },
+        { category: 'salaries', vehicle_id: null, driver_id: 'ahmed', total: 500000 },
       ],
       error: null,
     }));
@@ -81,8 +83,8 @@ describe('SupabaseReportsGateway', () => {
     await expect(
       gateway.expenseTotals('org-north', { from: '2026-10-01', to: '2026-10-31' }),
     ).resolves.toEqual([
-      { category: 'fuel', vehicleId: 'bus-1', total: 80000 },
-      { category: 'office', vehicleId: '', total: 15000 },
+      { category: 'fuel', vehicleId: 'bus-1', driverId: '', total: 80000 },
+      { category: 'salaries', vehicleId: '', driverId: 'ahmed', total: 500000 },
     ]);
     expect(calls.rpc).toEqual([
       [
@@ -105,12 +107,16 @@ describe('SupabaseReportsGateway', () => {
       if (table === 'customers') {
         return { data: [{ id: 'delta', name: 'Delta Factory' }], error: null };
       }
+      if (table === 'routes') {
+        return { data: [{ id: 'route-1', name: 'Line 1', customer_id: 'delta' }], error: null };
+      }
       return { data: [{ id: 'ahmed', full_name: 'Ahmed' }], error: null };
     });
     const gateway = new SupabaseReportsGateway(calls.client);
 
     await expect(gateway.listChoices('org-north')).resolves.toEqual({
       customers: [{ id: 'delta', label: 'Delta Factory' }],
+      routes: [{ id: 'route-1', label: 'Line 1', customerId: 'delta' }],
       vehicles: [
         { id: 'van-2', label: 'X 2', ownership: 'rented', ownerName: 'مكتب النور' },
       ],
@@ -120,7 +126,36 @@ describe('SupabaseReportsGateway', () => {
       ['organization_id', 'org-north'],
       ['organization_id', 'org-north'],
       ['organization_id', 'org-north'],
+      ['organization_id', 'org-north'],
     ]);
+  });
+
+  it('counts the drivers and vehicles with pay due and nothing recorded', async () => {
+    const calls = recorder((name) =>
+      name === 'driver_pay'
+        ? {
+            data: [
+              { driver_id: 'ahmed', pay_type: 'salary', done_outbound: 0, done_return: 0, recorded: 0 },
+              { driver_id: 'karim', pay_type: 'per_trip', done_outbound: 0, done_return: 0, recorded: 0 },
+              { driver_id: 'samy', pay_type: 'per_trip', done_outbound: 3, done_return: 0, recorded: 0 },
+              { driver_id: 'omar', pay_type: 'salary', done_outbound: 20, done_return: 20, recorded: 500000 },
+            ],
+            error: null,
+          }
+        : {
+            data: [
+              { vehicle_id: 'van-2', rent_type: 'monthly', done_outbound: 0, done_return: 0, recorded: 0 },
+              { vehicle_id: 'van-3', rent_type: 'per_trip', done_outbound: 0, done_return: 0, recorded: 0 },
+            ],
+            error: null,
+          },
+    );
+    const gateway = new SupabaseReportsGateway(calls.client);
+
+    await expect(
+      gateway.unrecordedPay('org-north', { from: '2026-10-01', to: '2026-10-31' }, '2026-10-04'),
+    ).resolves.toEqual({ drivers: 2, vehicles: 1 });
+    expect(calls.rpc.map(([name]) => name)).toEqual(['driver_pay', 'vehicle_pay']);
   });
 
   it('replaces a database error with a safe code', async () => {

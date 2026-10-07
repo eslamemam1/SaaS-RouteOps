@@ -183,6 +183,68 @@ describe('SupabaseExpenseGateway', () => {
     });
   });
 
+  it('reads the vehicles pay for a month', async () => {
+    const rpc = vi.fn(async () => ({
+      data: [
+        {
+          vehicle_id: 'vehicle-1',
+          ownership: 'rented',
+          rent_type: 'monthly',
+          monthly_rent: 1200000,
+          outbound_rent: null,
+          return_rent: null,
+          done_outbound: 20,
+          done_return: 20,
+          recorded: 0,
+        },
+        {
+          vehicle_id: 'vehicle-2',
+          ownership: 'contractor',
+          rent_type: 'per_trip',
+          monthly_rent: null,
+          outbound_rent: 30000,
+          return_rent: 25000,
+          done_outbound: 2,
+          done_return: 1,
+          recorded: 10000,
+        },
+      ],
+      error: null,
+    }));
+    const gateway = new SupabaseExpenseGateway({
+      rpc,
+    } as unknown as SupabaseClient<Database>);
+
+    await expect(
+      gateway.vehiclePay('org-north', { from: '2026-10-01', to: '2026-10-31' }, '2026-10-05'),
+    ).resolves.toEqual([
+      {
+        vehicleId: 'vehicle-1',
+        contractor: false,
+        rentType: 'monthly',
+        monthlyRent: 1200000,
+        tripRent: null,
+        done: { outbound: 20, return: 20 },
+        recorded: 0,
+      },
+      {
+        vehicleId: 'vehicle-2',
+        contractor: true,
+        rentType: 'perTrip',
+        monthlyRent: null,
+        tripRent: { outbound: 30000, return: 25000 },
+        done: { outbound: 2, return: 1 },
+        recorded: 10000,
+      },
+    ]);
+    expect(rpc).toHaveBeenCalledWith('vehicle_pay', {
+      p_organization_id: 'org-north',
+      p_from: '2026-10-01',
+      p_to: '2026-10-31',
+      p_today: '2026-10-05',
+    });
+  });
+
   it('reports that the app is not connected when there is no client', async () => {
     const gateway = new SupabaseExpenseGateway(null);
 

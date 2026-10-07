@@ -24,7 +24,7 @@ describe('SupabaseExpenseRepository', () => {
     expect(gateway.membershipOrganizations).not.toHaveBeenCalled();
   });
 
-  it('loads the expenses and drivers pay of the whole month', async () => {
+  it('loads the expenses, drivers pay, and vehicles pay of the whole month', async () => {
     const gateway = fakeGateway('user-1', [north]);
     const repository = new SupabaseExpenseRepository(gateway);
 
@@ -33,6 +33,7 @@ describe('SupabaseExpenseRepository', () => {
     const february = { from: '2026-02-01', to: '2026-02-28' };
     expect(gateway.listExpenses).toHaveBeenCalledWith('org-north', february);
     expect(gateway.driverPay).toHaveBeenCalledWith('org-north', february, '2026-02-10');
+    expect(gateway.vehiclePay).toHaveBeenCalledWith('org-north', february, '2026-02-10');
   });
 
   it('removes an expense of the organization', async () => {
@@ -55,6 +56,7 @@ function fakeGateway(
     listChoices: vi.fn(async () => ({ vehicles: [], drivers: [] })),
     listExpenses: vi.fn(async () => []),
     driverPay: vi.fn(async () => []),
+    vehiclePay: vi.fn(async () => []),
     insertExpense: vi.fn(),
     updateExpense: vi.fn(),
     deleteExpense: vi.fn(async () => undefined),

@@ -35,11 +35,12 @@ export class SupabaseExpenseRepository extends ExpenseRepository {
     today: string,
   ): Promise<ExpenseMonth> {
     const range = monthDays(month);
-    const [expenses, pay] = await Promise.all([
+    const [expenses, pay, rent] = await Promise.all([
       this.gateway.listExpenses(organization.id, range),
       this.gateway.driverPay(organization.id, range, today),
+      this.gateway.vehiclePay(organization.id, range, today),
     ]);
-    return { expenses, pay };
+    return { expenses, pay, rent };
   }
 
   add(

@@ -1,6 +1,9 @@
+import { Currency, toMinorUnits } from '@routeops/shared/money';
+
 export interface VehicleOrganization {
   readonly id: string;
   readonly name: string;
+  readonly currency: Currency;
 }
 
 export const vehicleTypes = ['bus', 'minibus', 'microbus', 'car'] as const;
@@ -13,6 +16,13 @@ export const vehicleOwnerships = ['owned', 'rented', 'contractor'] as const;
 
 export type VehicleOwnership = (typeof vehicleOwnerships)[number];
 
+// How the owner of a rented or contractor vehicle is paid: a fixed monthly
+// rent, or an amount for each done outbound and return trip. A vehicle the
+// company owns has no rent.
+export const rentTypes = ['none', 'monthly', 'perTrip'] as const;
+
+export type RentType = (typeof rentTypes)[number];
+
 export interface VehicleDetails {
   readonly plateNumber: string;
   readonly type: VehicleType | '';
@@ -24,6 +34,11 @@ export interface VehicleDetails {
   // Only for a vehicle the company does not own.
   readonly ownerName: string;
   readonly ownerPhone: string;
+  // Amounts are typed in the organization currency.
+  readonly rentType: RentType;
+  readonly monthlyRent: string;
+  readonly outboundRent: string;
+  readonly returnRent: string;
   readonly notes: string;
   readonly active: boolean;
 }
@@ -48,6 +63,8 @@ export const vehicleProblems = [
   'plateTaken',
   'type',
   'ownerName',
+  'amount',
+  'required',
   'tooLong',
   'year',
   'seats',
@@ -71,6 +88,10 @@ export const emptyVehicleDetails: VehicleDetails = {
   ownership: 'owned',
   ownerName: '',
   ownerPhone: '',
+  rentType: 'none',
+  monthlyRent: '',
+  outboundRent: '',
+  returnRent: '',
   notes: '',
   active: true,
 };
@@ -114,6 +135,49 @@ export function ownerNameError(
     return 'ownerName';
   }
   return name.length > vehicleLimits.ownerName ? 'tooLong' : null;
+}
+
+export function isRentType(value: string): value is RentType {
+  return (rentTypes as readonly string[]).includes(value);
+}
+
+// The rent the vehicle actually has: none for a vehicle the company owns,
+// whatever was chosen before its ownership changed.
+export function effectiveRentType(
+  ownership: VehicleOwnership,
+  rentType: RentType,
+): RentType {
+  return ownership === 'owned' ? 'none' : rentType;
+}
+
+export function monthlyRentError(
+  value: string,
+  ownership: VehicleOwnership,
+  rentType: RentType,
+  currency: Currency,
+): VehicleProblem | null {
+  return effectiveRentType(ownership, rentType) === 'monthly'
+    ? amountProblem(value, currency)
+    : null;
+}
+
+export function tripRentError(
+  value: string,
+  ownership: VehicleOwnership,
+  rentType: RentType,
+  currency: Currency,
+): VehicleProblem | null {
+  return effectiveRentType(ownership, rentType) === 'perTrip'
+    ? amountProblem(value, currency)
+    : null;
+}
+
+function amountProblem(value: string, currency: Currency): VehicleProblem | null {
+  const minor = toMinorUnits(value, currency);
+  if (minor === null) {
+    return 'required';
+  }
+  return minor === undefined ? 'amount' : null;
 }
 
 export function ofOwnership(

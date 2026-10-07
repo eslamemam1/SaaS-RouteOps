@@ -48,6 +48,12 @@ export type Database = {
           },
         ]
       }
+      routes: ReadOnlyTable<{
+        customer_id: string
+        id: string
+        name: string
+        organization_id: string
+      }>
       organizations: ReadOnlyTable<{
         currency: string
         id: string
@@ -70,7 +76,23 @@ export type Database = {
         Returns: {
           category: string
           vehicle_id: string | null
+          driver_id: string | null
           total: number
+        }[]
+      }
+      driver_pay: {
+        Args: {
+          p_organization_id: string
+          p_from: string
+          p_to: string
+          p_today: string
+        }
+        Returns: {
+          driver_id: string
+          pay_type: string
+          done_outbound: number
+          done_return: number
+          recorded: number
         }[]
       }
       trip_report: {
@@ -82,6 +104,7 @@ export type Database = {
         }
         Returns: {
           customer_id: string
+          route_id: string | null
           vehicle_id: string | null
           driver_id: string | null
           direction: string
@@ -94,6 +117,21 @@ export type Database = {
       unopened_days: {
         Args: { p_organization_id: string; p_from: string; p_to: string }
         Returns: string[]
+      }
+      vehicle_pay: {
+        Args: {
+          p_organization_id: string
+          p_from: string
+          p_to: string
+          p_today: string
+        }
+        Returns: {
+          vehicle_id: string
+          rent_type: string
+          done_outbound: number
+          done_return: number
+          recorded: number
+        }[]
       }
     }
     Enums: {

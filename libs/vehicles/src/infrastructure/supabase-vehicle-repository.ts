@@ -23,14 +23,14 @@ export class SupabaseVehicleRepository extends VehicleRepository {
   }
 
   list(organization: VehicleOrganization): Promise<Vehicle[]> {
-    return this.gateway.listVehicles(organization.id);
+    return this.gateway.listVehicles(organization);
   }
 
   add(
     organization: VehicleOrganization,
     details: VehicleDetails,
   ): Promise<Vehicle> {
-    return this.gateway.insertVehicle(organization.id, details);
+    return this.gateway.insertVehicle(organization, details);
   }
 
   update(
@@ -38,6 +38,6 @@ export class SupabaseVehicleRepository extends VehicleRepository {
     vehicleId: string,
     details: VehicleDetails,
   ): Promise<Vehicle> {
-    return this.gateway.updateVehicle(organization.id, vehicleId, details);
+    return this.gateway.updateVehicle(organization, vehicleId, details);
   }
 }

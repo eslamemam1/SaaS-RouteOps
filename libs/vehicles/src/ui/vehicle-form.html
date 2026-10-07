@@ -63,6 +63,39 @@
     >
       <input type="tel" dir="ltr" [formField]="vehicleForm.ownerPhone" />
     </app-field>
+    <app-field [label]="text().form.rentType" [hint]="text().form.rentTypeHint">
+      <select [formField]="vehicleForm.rentType">
+        @for (rentType of rentTypes; track rentType) {
+          <option [value]="rentType">{{ text().rentTypes[rentType] }}</option>
+        }
+      </select>
+    </app-field>
+    @if (model().rentType === 'monthly') {
+      <app-field
+        [label]="text().form.monthlyRent"
+        [hint]="text().form.amountHint"
+        [control]="vehicleForm.monthlyRent"
+      >
+        <input type="text" inputmode="decimal" dir="ltr" [formField]="vehicleForm.monthlyRent" />
+      </app-field>
+    }
+    @if (model().rentType === 'perTrip') {
+      <p class="hint">{{ text().form.tripRentHint }}</p>
+      <app-field
+        [label]="text().form.outboundRent"
+        [hint]="text().form.amountHint"
+        [control]="vehicleForm.outboundRent"
+      >
+        <input type="text" inputmode="decimal" dir="ltr" [formField]="vehicleForm.outboundRent" />
+      </app-field>
+      <app-field
+        [label]="text().form.returnRent"
+        [hint]="text().form.amountHint"
+        [control]="vehicleForm.returnRent"
+      >
+        <input type="text" inputmode="decimal" dir="ltr" [formField]="vehicleForm.returnRent" />
+      </app-field>
+    }
   }
   <app-field
     [label]="text().form.notes"

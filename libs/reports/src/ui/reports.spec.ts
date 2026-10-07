@@ -19,15 +19,17 @@ const choices: ReportChoices = {
     { id: 'bus-1', label: 'ABC 1234', ownership: 'owned', ownerName: '' },
     { id: 'van-2', label: 'XYZ 99', ownership: 'contractor', ownerName: 'Mohamed Ali' },
   ],
+  routes: [{ id: 'route-1', label: 'Maadi line', customerId: 'delta' }],
   drivers: [{ id: 'ahmed', label: 'Ahmed' }],
 };
 const october: MonthReport = {
   counts: [
-    { customerId: 'delta', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, revenue: 600000, unpriced: 0 },
-    { customerId: 'nour', vehicleId: 'van-2', driverId: '', done: 22, extra: 3, revenue: 0, unpriced: 0 },
+    { customerId: 'delta', routeId: 'route-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, revenue: 600000, unpriced: 0 },
+    { customerId: 'nour', routeId: '', vehicleId: 'van-2', driverId: '', done: 22, extra: 3, revenue: 0, unpriced: 0 },
   ],
   expenses: [],
   unopenedDays: [],
+  unrecorded: { drivers: 0, vehicles: 0 },
 };
 const arabic = reportsText.ar;
 
@@ -82,8 +84,8 @@ describe('Reports', () => {
       month: async () => ({
         ...october,
         expenses: [
-          { category: 'fuel', vehicleId: 'bus-1', total: 100000 },
-          { category: 'office', vehicleId: '', total: 50000 },
+          { category: 'fuel', vehicleId: 'bus-1', driverId: '', total: 100000 },
+          { category: 'office', vehicleId: '', driverId: '', total: 50000 },
         ],
       }),
     });
@@ -105,14 +107,58 @@ describe('Reports', () => {
     const harness = await open({
       month: async () => ({
         counts: [],
-        expenses: [{ category: 'rent', vehicleId: 'van-2', total: 300000 }],
+        expenses: [{ category: 'rent', vehicleId: 'van-2', driverId: '', total: 300000 }],
         unopenedDays: [],
+        unrecorded: { drivers: 0, vehicles: 0 },
       }),
     });
     await settle(harness);
 
     expect(text(harness)).not.toContain(arabic.report.empty);
     expect(text(harness)).toContain(formatMoney(-300000, 'EGP', 'ar'));
+  });
+
+  it('shows each route with the driver, vehicle, and company shares', async () => {
+    const harness = await open({
+      month: async () => ({
+        ...october,
+        counts: [{ ...october.counts[0], revenue: 2500000 }],
+        expenses: [
+          { category: 'salaries', vehicleId: '', driverId: 'ahmed', total: 500000 },
+          { category: 'rent', vehicleId: 'bus-1', driverId: '', total: 1200000 },
+          { category: 'office', vehicleId: '', driverId: '', total: 30000 },
+        ],
+      }),
+    });
+    await settle(harness);
+
+    button(harness, arabic.groups.route)?.click();
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.report.routeHint);
+    const [line] = rows(harness);
+    expect(line.textContent).toContain('Maadi line');
+    expect(line.textContent).toContain('Delta Factory');
+    expect(line.textContent).toContain(formatMoney(500000, 'EGP', 'ar'));
+    expect(line.textContent).toContain(formatMoney(1200000, 'EGP', 'ar'));
+    expect(line.textContent).toContain(formatMoney(800000, 'EGP', 'ar'));
+    expect(text(harness)).toContain(arabic.report.otherCosts);
+    expect(text(harness)).toContain(formatMoney(30000, 'EGP', 'ar'));
+    expect(text(harness)).not.toContain(arabic.report.unrecordedTitle);
+  });
+
+  it('warns on the routes view about pay not recorded yet', async () => {
+    const harness = await open({
+      month: async () => ({ ...october, unrecorded: { drivers: 2, vehicles: 1 } }),
+    });
+    await settle(harness);
+
+    button(harness, arabic.groups.route)?.click();
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.report.unrecordedTitle);
+    expect(text(harness)).toContain(arabic.report.unrecordedDrivers);
+    expect(text(harness)).toContain(arabic.report.unrecordedVehicles);
   });
 
   it('warns about done trips without a price', async () => {
@@ -154,7 +200,7 @@ describe('Reports', () => {
   });
 
   it('shows an empty state for a month without trips', async () => {
-    const harness = await open({ month: async () => ({ counts: [], expenses: [], unopenedDays: [] }) });
+    const harness = await open({ month: async () => ({ ...october, counts: [], expenses: [] }) });
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.report.empty);

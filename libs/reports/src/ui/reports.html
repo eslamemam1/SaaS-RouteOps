@@ -92,6 +92,32 @@
           <p class="hint">{{ text().report.vehicleExpensesHint }}</p>
         </div>
       }
+      @if (group() === 'route') {
+        <div class="ro-card-body ro-stack">
+          <p class="hint">{{ text().report.routeHint }}</p>
+          @if (unrecorded(); as missing) {
+            <app-alert tone="warning" [title]="text().report.unrecordedTitle">
+              <p>
+                @if (missing.drivers > 0) {
+                  <span>{{ text().report.unrecordedDrivers }} <bdi>{{ missing.drivers }}</bdi></span>
+                }
+                @if (missing.drivers > 0 && missing.vehicles > 0) {
+                  <span>{{ text().report.separator }}</span>
+                }
+                @if (missing.vehicles > 0) {
+                  <span>{{ text().report.unrecordedVehicles }} <bdi>{{ missing.vehicles }}</bdi></span>
+                }
+              </p>
+              <p>
+                {{ text().report.unrecordedHint }}
+                @if (organization(); as current) {
+                  <a [routerLink]="['/organizations', current.id, 'expenses']">{{ text().report.expensesLink }}</a>
+                }
+              </p>
+            </app-alert>
+          }
+        </div>
+      }
       <div class="ro-table-scroll">
         <table class="ro-table-stack">
           <thead>
@@ -107,6 +133,11 @@
                 <th>{{ text().report.expenses }}</th>
                 <th>{{ text().report.profit }}</th>
               }
+              @if (group() === 'route') {
+                <th>{{ text().report.driverShare }}</th>
+                <th>{{ text().report.vehicleShare }}</th>
+                <th>{{ text().report.companyShare }}</th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -115,6 +146,9 @@
                 <td [attr.data-label]="text().groupHeadings[group()]">
                   @if (line.label) {
                     <bdi>{{ line.label }}</bdi>
+                    @if (group() === 'route' && routeCustomer(line); as customer) {
+                      <span class="hint"> <bdi>{{ customer }}</bdi></span>
+                    }
                   } @else {
                     <span class="hint">{{ text().missing[group()] }}</span>
                   }
@@ -154,11 +188,34 @@
                     }
                   </td>
                 }
+                @if (group() === 'route') {
+                  <td class="ro-numeric" [attr.data-label]="text().report.driverShare">
+                    <bdi>{{ money(line.driverCost) }}</bdi>
+                  </td>
+                  <td class="ro-numeric" [attr.data-label]="text().report.vehicleShare">
+                    <bdi>{{ money(line.vehicleCost) }}</bdi>
+                  </td>
+                  <td class="ro-numeric" [attr.data-label]="text().report.companyShare">
+                    <bdi>{{ money(companyShare(line)) }}</bdi>
+                    @if (companyShare(line) < 0) {
+                      <app-tag tone="danger">{{ text().report.loss }}</app-tag>
+                    }
+                  </td>
+                }
               </tr>
             }
           </tbody>
         </table>
       </div>
+      @if (group() === 'route') {
+        <div class="ro-card-body">
+          <p>
+            {{ text().report.otherCosts }}:
+            <strong class="ro-numeric"><bdi>{{ money(otherCosts()) }}</bdi></strong>
+          </p>
+          <p class="hint">{{ text().report.otherCostsHint }}</p>
+        </div>
+      }
     </section>
   }
 </div>

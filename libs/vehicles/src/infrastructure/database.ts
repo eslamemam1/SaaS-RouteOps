@@ -46,18 +46,21 @@ export type Database = {
       organizations: {
         Row: {
           created_at: string
+          currency: string
           id: string
           name: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          currency?: string
           id?: string
           name: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          currency?: string
           id?: string
           name?: string
           updated_at?: string
@@ -72,12 +75,16 @@ export type Database = {
           license_expires_on: string | null
           model: string | null
           model_year: number | null
+          monthly_rent: number | null
           notes: string | null
           organization_id: string
           owner_name: string | null
+          outbound_rent: number | null
           owner_phone: string | null
           ownership: string
           plate_number: string
+          rent_type: string
+          return_rent: number | null
           seats: number | null
           updated_at: string
           vehicle_type: string
@@ -89,12 +96,16 @@ export type Database = {
           license_expires_on?: string | null
           model?: string | null
           model_year?: number | null
+          monthly_rent?: number | null
           notes?: string | null
           organization_id: string
+          outbound_rent?: number | null
           owner_name?: string | null
           owner_phone?: string | null
           ownership?: string
           plate_number: string
+          rent_type?: string
+          return_rent?: number | null
           seats?: number | null
           updated_at?: string
           vehicle_type: string
@@ -106,12 +117,16 @@ export type Database = {
           license_expires_on?: string | null
           model?: string | null
           model_year?: number | null
+          monthly_rent?: number | null
           notes?: string | null
           organization_id?: string
+          outbound_rent?: number | null
           owner_name?: string | null
           owner_phone?: string | null
           ownership?: string
           plate_number?: string
+          rent_type?: string
+          return_rent?: number | null
           seats?: number | null
           updated_at?: string
           vehicle_type?: string

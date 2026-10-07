@@ -1,11 +1,14 @@
 import { Signal } from '@angular/core';
 import { schema, validate } from '@angular/forms/signals';
+import { Currency } from '@routeops/shared/money';
 import {
   dateError,
+  monthlyRentError,
   optionalTextError,
   ownerNameError,
   plateError,
   seatsError,
+  tripRentError,
   VehicleDetails,
   vehicleLimits,
   VehicleProblem,
@@ -21,7 +24,11 @@ function fieldError(problem: VehicleProblem | null, problems: Problems) {
     : { kind: problem, message: problems()[problem] };
 }
 
-export function vehicleDetailsSchema(problems: Problems, currentYear: number) {
+export function vehicleDetailsSchema(
+  problems: Problems,
+  currency: Signal<Currency>,
+  currentYear: number,
+) {
   return schema<VehicleDetails>((path) => {
     validate(path.plateNumber, ({ value }) =>
       fieldError(plateError(value()), problems),
@@ -46,6 +53,24 @@ export function vehicleDetailsSchema(problems: Problems, currentYear: number) {
     );
     validate(path.ownerPhone, ({ value }) =>
       fieldError(optionalTextError(value(), vehicleLimits.ownerPhone), problems),
+    );
+    validate(path.monthlyRent, ({ value, valueOf }) =>
+      fieldError(
+        monthlyRentError(value(), valueOf(path.ownership), valueOf(path.rentType), currency()),
+        problems,
+      ),
+    );
+    validate(path.outboundRent, ({ value, valueOf }) =>
+      fieldError(
+        tripRentError(value(), valueOf(path.ownership), valueOf(path.rentType), currency()),
+        problems,
+      ),
+    );
+    validate(path.returnRent, ({ value, valueOf }) =>
+      fieldError(
+        tripRentError(value(), valueOf(path.ownership), valueOf(path.rentType), currency()),
+        problems,
+      ),
     );
     validate(path.notes, ({ value }) =>
       fieldError(optionalTextError(value(), vehicleLimits.notes), problems),

@@ -1,5 +1,5 @@
 import { Language } from '@routeops/shared/i18n';
-import { ExpenseCategory, ExpenseProblem, PayType } from '../domain/expense';
+import { ExpenseCategory, ExpenseProblem, PayType, RentType } from '../domain/expense';
 
 export interface ExpensesText {
   readonly problems: Record<ExpenseProblem, string>;
@@ -54,6 +54,21 @@ export interface ExpensesText {
     readonly done: string;
     readonly noteSalary: string;
     readonly notePay: string;
+  };
+  readonly rent: {
+    readonly rentTypes: Record<RentType, string>;
+    readonly title: string;
+    readonly hint: string;
+    readonly none: string;
+    readonly vehiclesLink: string;
+    readonly vehicle: string;
+    readonly trips: string;
+    readonly suggested: string;
+    readonly recorded: string;
+    readonly remaining: string;
+    readonly record: string;
+    readonly done: string;
+    readonly note: string;
   };
   readonly form: {
     readonly addTitle: string;
@@ -119,7 +134,7 @@ export const expensesText: Record<Language, ExpensesText> = {
       thisMonth: 'هذا الشهر',
       total: 'إجمالي مصاريف الشهر',
       count: 'عدد المصاريف',
-      unrecordedPay: 'رواتب مقترحة لم تُسجّل',
+      unrecordedPay: 'رواتب وأجرة مقترحة لم تُسجّل',
       byCategory: 'المصاريف حسب النوع',
       expensesTitle: 'مصاريف الشهر',
       noExpenses: 'لا توجد مصاريف مسجّلة في هذا الشهر بعد.',
@@ -160,6 +175,24 @@ export const expensesText: Record<Language, ExpensesText> = {
       done: 'مسجَّل بالكامل',
       noteSalary: 'راتب',
       notePay: 'أجر',
+    },
+    rent: {
+      rentTypes: {
+        monthly: 'شهري ثابت',
+        perTrip: 'بالرحلة',
+      },
+      title: 'أجرة المركبات',
+      hint: 'أجرة المركبات المؤجّرة ومركبات المتعاقدين: المبلغ الشهري، أو عدد رحلات المركبة في مبلغ كل رحلة. لا تُحسب مصروفًا حتى تسجّلها، ويمكنك تعديل المبلغ قبل التسجيل.',
+      none: 'لتظهر هنا أجرة المركبات المؤجّرة ومركبات المتعاقدين كل شهر، حدّد في صفحة المركبات كيف يتحاسب صاحب كل مركبة.',
+      vehiclesLink: 'فتح صفحة المركبات',
+      vehicle: 'المركبة',
+      trips: 'الرحلات التي طلعتها',
+      suggested: 'المقترح',
+      recorded: 'المسجَّل',
+      remaining: 'المتبقي',
+      record: 'تسجيل الأجرة',
+      done: 'مسجَّلة بالكامل',
+      note: 'أجرة',
     },
     form: {
       addTitle: 'إضافة مصروف',
@@ -223,7 +256,7 @@ export const expensesText: Record<Language, ExpensesText> = {
       thisMonth: 'This month',
       total: 'Total expenses this month',
       count: 'Expenses recorded',
-      unrecordedPay: 'Suggested salaries not recorded',
+      unrecordedPay: 'Suggested salaries and vehicle pay not recorded',
       byCategory: 'Expenses by type',
       expensesTitle: 'This month’s expenses',
       noExpenses: 'No expenses recorded this month yet.',
@@ -264,6 +297,24 @@ export const expensesText: Record<Language, ExpensesText> = {
       done: 'Fully recorded',
       noteSalary: 'Salary',
       notePay: 'Pay',
+    },
+    rent: {
+      rentTypes: {
+        monthly: 'Fixed monthly',
+        perTrip: 'Per trip',
+      },
+      title: 'Vehicle pay',
+      hint: 'Pay for rented and contractor vehicles: the monthly amount, or the vehicle\'s trips times each trip amount. It counts as an expense only after you record it, and you can change the amount before recording it.',
+      none: 'To see the pay of rented and contractor vehicles here every month, set how each vehicle owner is paid on the vehicles page.',
+      vehiclesLink: 'Open the vehicles page',
+      vehicle: 'Vehicle',
+      trips: 'Trips made',
+      suggested: 'Suggested',
+      recorded: 'Recorded',
+      remaining: 'Remaining',
+      record: 'Record pay',
+      done: 'Fully recorded',
+      note: 'Vehicle pay',
     },
     form: {
       addTitle: 'Add an expense',

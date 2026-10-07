@@ -15,6 +15,8 @@ import {
   ExpenseOrganization,
   isExpenseCategory,
   PayType,
+  RentType,
+  VehiclePay,
 } from '../domain/expense';
 import { Database } from './database';
 
@@ -28,6 +30,11 @@ export interface ExpenseGateway {
     range: DateRange,
     today: string,
   ): Promise<DriverPay[]>;
+  vehiclePay(
+    organizationId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<VehiclePay[]>;
   insertExpense(
     organization: ExpenseOrganization,
     details: ExpenseDetails,
@@ -168,6 +175,34 @@ export class SupabaseExpenseGateway implements ExpenseGateway {
     }));
   }
 
+  async vehiclePay(
+    organizationId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<VehiclePay[]> {
+    const { data, error } = await this.requireClient().rpc('vehicle_pay', {
+      p_organization_id: organizationId,
+      p_from: range.from,
+      p_to: range.to,
+      p_today: today,
+    });
+    if (error) {
+      throw new ExpenseAccessError('load');
+    }
+    return (data ?? []).map((row) => ({
+      vehicleId: row.vehicle_id,
+      contractor: row.ownership === 'contractor',
+      rentType: toRentType(row.rent_type),
+      monthlyRent: row.monthly_rent === null ? null : Number(row.monthly_rent),
+      tripRent:
+        row.outbound_rent === null || row.return_rent === null
+          ? null
+          : { outbound: Number(row.outbound_rent), return: Number(row.return_rent) },
+      done: { outbound: row.done_outbound, return: row.done_return },
+      recorded: Number(row.recorded),
+    }));
+  }
+
   async insertExpense(
     organization: ExpenseOrganization,
     details: ExpenseDetails,
@@ -230,6 +265,17 @@ function toPayType(column: string): PayType {
   switch (column) {
     case 'salary':
       return 'salary';
+    case 'per_trip':
+      return 'perTrip';
+    default:
+      throw new ExpenseAccessError('load');
+  }
+}
+
+function toRentType(column: string): RentType {
+  switch (column) {
+    case 'monthly':
+      return 'monthly';
     case 'per_trip':
       return 'perTrip';
     default:

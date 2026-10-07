@@ -8,7 +8,7 @@ import { Vehicle, VehicleOrganization } from '../domain/vehicle';
 import { Vehicles } from './vehicles';
 import { vehiclesText } from './vehicles-text';
 
-const north: VehicleOrganization = { id: 'org-north', name: 'North' };
+const north: VehicleOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 const hiace: Vehicle = {
   id: 'vehicle-1',
   plateNumber: 'أ ب ج 1234',
@@ -20,6 +20,10 @@ const hiace: Vehicle = {
   ownership: 'owned',
   ownerName: '',
   ownerPhone: '',
+  rentType: 'none',
+  monthlyRent: '',
+  outboundRent: '',
+  returnRent: '',
   notes: '',
   active: true,
 };

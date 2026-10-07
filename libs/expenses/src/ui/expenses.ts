@@ -35,14 +35,18 @@ import {
   payBreakdown,
   PerDirection,
   remainingPay,
+  remainingRent,
+  rentDetails,
   salaryDetails,
   shiftMonth,
+  suggestedRent,
+  VehiclePay,
 } from '../domain/expense';
 import { ExpenseForm } from './expense-form';
 import { expensesText } from './expenses-text';
 
 const noChoices: ExpenseChoices = { vehicles: [], drivers: [] };
-const noMonth: ExpenseMonth = { expenses: [], pay: [] };
+const noMonth: ExpenseMonth = { expenses: [], pay: [], rent: [] };
 
 @Component({
   selector: 'app-expenses',
@@ -89,8 +93,10 @@ export class Expenses {
   );
   protected readonly stats = computed(() => {
     const text = this.text().list;
-    const { expenses, pay } = this.data();
-    const unrecorded = pay.reduce((total, line) => total + remainingPay(line), 0);
+    const { expenses, pay, rent } = this.data();
+    const unrecorded =
+      pay.reduce((total, line) => total + remainingPay(line), 0) +
+      rent.reduce((total, line) => total + remainingRent(line), 0);
     return [
       { label: text.total, value: this.money(expenseTotal(expenses)) },
       { label: text.count, value: String(expenses.length) },
@@ -123,6 +129,14 @@ export class Expenses {
 
   protected remaining(pay: DriverPay): number {
     return remainingPay(pay);
+  }
+
+  protected suggestedRent(rent: VehiclePay): number {
+    return suggestedRent(rent);
+  }
+
+  protected remainingRent(rent: VehiclePay): number {
+    return remainingRent(rent);
   }
 
   protected trips(trips: PerDirection): string {
@@ -171,6 +185,21 @@ export class Expenses {
     }
   }
 
+  protected recordRent(rent: VehiclePay): void {
+    const organization = this.organization();
+    if (organization) {
+      this.open(
+        null,
+        rentDetails(
+          rent,
+          defaultDay(this.month(), this.today),
+          organization.currency,
+          this.rentNote(rent),
+        ),
+      );
+    }
+  }
+
   protected onDrawer(open: boolean): void {
     if (!open) {
       this.close();
@@ -208,6 +237,16 @@ export class Expenses {
       : '';
     const title = pay.payType === 'salary' ? text.noteSalary : text.notePay;
     return `${title} ${this.month()}: ${note}${missed}`;
+  }
+
+  // For example "Vehicle pay 2026-10: Per trip (Outbound 20 · Return 20) 11,000.00".
+  private rentNote(rent: VehiclePay): string {
+    const text = this.text().rent;
+    const terms =
+      rent.rentType === 'monthly'
+        ? text.rentTypes.monthly
+        : `${text.rentTypes.perTrip} (${this.trips(rent.done)})`;
+    return `${text.note} ${this.month()}: ${terms} ${this.money(suggestedRent(rent))}`;
   }
 
   private finish(outcome: 'added' | 'saved' | 'removed'): void {
@@ -256,7 +295,9 @@ export class Expenses {
       }
       this.data.set(data);
       this.status.set(
-        data.expenses.length === 0 && data.pay.length === 0 ? 'empty' : 'success',
+        data.expenses.length === 0 && data.pay.length === 0 && data.rent.length === 0
+          ? 'empty'
+          : 'success',
       );
     } catch (error) {
       this.fail(error);

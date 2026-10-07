@@ -96,13 +96,13 @@ select throws_ok(
 );
 
 select results_eq(
-  $$select category, vehicle_id, total
+  $$select category, vehicle_id, driver_id, total
     from public.expense_totals('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-28')
     order by category$$,
   $$values
-    ('fuel', '12000000-0000-0000-0000-000000000001'::uuid, 200000::bigint),
-    ('office', null::uuid, 30000::bigint)$$,
-  'expenses add up per category and vehicle within the month'
+    ('fuel', '12000000-0000-0000-0000-000000000001'::uuid, null::uuid, 200000::bigint),
+    ('office', null::uuid, null::uuid, 30000::bigint)$$,
+  'expenses add up per category, vehicle, and driver within the month'
 );
 
 -- Recording automatically, the two opened days give Ahmed two route outbound
@@ -128,6 +128,13 @@ select is(
    where driver_id = '13000000-0000-0000-0000-000000000001'),
   510000::bigint,
   'salary recorded for the driver in the month is shown'
+);
+select is(
+  (select total
+   from public.expense_totals('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-28')
+   where driver_id = '13000000-0000-0000-0000-000000000001'),
+  510000::bigint,
+  'expense totals name the driver a salary was recorded for'
 );
 
 select lives_ok(

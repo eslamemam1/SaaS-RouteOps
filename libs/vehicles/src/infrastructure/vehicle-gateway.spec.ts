@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { VehicleAccessError } from '../application/vehicle-access-error';
-import { emptyVehicleDetails } from '../domain/vehicle';
+import { emptyVehicleDetails, VehicleOrganization } from '../domain/vehicle';
 import { Database } from './database';
 import { SupabaseVehicleGateway } from './vehicle-gateway';
 
@@ -8,6 +8,9 @@ type Result = {
   data: unknown;
   error: { message: string; code?: string } | null;
 };
+
+const north: VehicleOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
+const south: VehicleOrganization = { id: 'org-south', name: 'South', currency: 'EGP' };
 
 const row = {
   id: 'vehicle-1',
@@ -20,6 +23,10 @@ const row = {
   ownership: 'owned',
   owner_name: null,
   owner_phone: null,
+  rent_type: 'none',
+  monthly_rent: null,
+  outbound_rent: null,
+  return_rent: null,
   notes: null,
   is_active: true,
 };
@@ -29,7 +36,7 @@ describe('SupabaseVehicleGateway', () => {
     const calls = recorder({ data: [row], error: null });
     const gateway = new SupabaseVehicleGateway(calls.client);
 
-    await expect(gateway.listVehicles('org-north')).resolves.toEqual([
+    await expect(gateway.listVehicles(north)).resolves.toEqual([
       {
         id: 'vehicle-1',
         plateNumber: 'أ ب ج 1234',
@@ -41,6 +48,10 @@ describe('SupabaseVehicleGateway', () => {
         ownership: 'owned',
         ownerName: '',
         ownerPhone: '',
+        rentType: 'none',
+        monthlyRent: '',
+        outboundRent: '',
+        returnRent: '',
         notes: '',
         active: true,
       },
@@ -55,7 +66,7 @@ describe('SupabaseVehicleGateway', () => {
     });
     const gateway = new SupabaseVehicleGateway(calls.client);
 
-    const [vehicle] = await gateway.listVehicles('org-north');
+    const [vehicle] = await gateway.listVehicles(north);
 
     expect(vehicle).toMatchObject({
       ownership: 'rented',
@@ -68,14 +79,14 @@ describe('SupabaseVehicleGateway', () => {
     const calls = recorder({ data: [{ ...row, ownership: 'leased' }], error: null });
     const gateway = new SupabaseVehicleGateway(calls.client);
 
-    await expect(gateway.listVehicles('org-north')).rejects.toEqual(
+    await expect(gateway.listVehicles(north)).rejects.toEqual(
       new VehicleAccessError('load'),
     );
   });
 
   it('stores the owner of a contractor vehicle and clears it for a company vehicle', async () => {
     const contractor = recorder({ data: row, error: null });
-    await new SupabaseVehicleGateway(contractor.client).insertVehicle('org-north', {
+    await new SupabaseVehicleGateway(contractor.client).insertVehicle(north, {
       ...emptyVehicleDetails,
       plateNumber: 'X 1',
       type: 'bus',
@@ -90,7 +101,7 @@ describe('SupabaseVehicleGateway', () => {
     });
 
     const owned = recorder({ data: row, error: null });
-    await new SupabaseVehicleGateway(owned.client).insertVehicle('org-north', {
+    await new SupabaseVehicleGateway(owned.client).insertVehicle(north, {
       ...emptyVehicleDetails,
       plateNumber: 'X 1',
       type: 'bus',
@@ -109,7 +120,7 @@ describe('SupabaseVehicleGateway', () => {
     const calls = recorder({ data: row, error: null });
     const gateway = new SupabaseVehicleGateway(calls.client);
 
-    await gateway.insertVehicle('org-north', {
+    await gateway.insertVehicle(north, {
       ...emptyVehicleDetails,
       plateNumber: '  أ  ب ج 1234 ',
       type: 'microbus',
@@ -128,16 +139,99 @@ describe('SupabaseVehicleGateway', () => {
       ownership: 'owned',
       owner_name: null,
       owner_phone: null,
+      rent_type: 'none',
+      monthly_rent: null,
+      outbound_rent: null,
+      return_rent: null,
       notes: null,
       is_active: true,
     });
+  });
+
+  it('maps rent terms paid per trip', async () => {
+    const calls = recorder({
+      data: [
+        {
+          ...row,
+          ownership: 'contractor',
+          owner_name: 'محمد علي',
+          rent_type: 'per_trip',
+          outbound_rent: 30000,
+          return_rent: 25000,
+        },
+      ],
+      error: null,
+    });
+
+    const [vehicle] = await new SupabaseVehicleGateway(calls.client).listVehicles(north);
+
+    expect(vehicle).toMatchObject({
+      rentType: 'perTrip',
+      monthlyRent: '',
+      outboundRent: '300.00',
+      returnRent: '250.00',
+    });
+  });
+
+  it('stores a monthly rent in minor units and only the terms of its type', async () => {
+    const calls = recorder({ data: row, error: null });
+    await new SupabaseVehicleGateway(calls.client).insertVehicle(north, {
+      ...emptyVehicleDetails,
+      plateNumber: 'X 1',
+      type: 'bus',
+      ownership: 'rented',
+      ownerName: 'مكتب النور',
+      rentType: 'monthly',
+      monthlyRent: '١٢٠٠٠',
+      outboundRent: '100',
+    });
+
+    expect(calls.inserted).toMatchObject({
+      rent_type: 'monthly',
+      monthly_rent: 1200000,
+      outbound_rent: null,
+      return_rent: null,
+    });
+  });
+
+  it('drops rent terms from a vehicle the company owns', async () => {
+    const calls = recorder({ data: row, error: null });
+    await new SupabaseVehicleGateway(calls.client).insertVehicle(north, {
+      ...emptyVehicleDetails,
+      plateNumber: 'X 1',
+      type: 'bus',
+      ownership: 'owned',
+      rentType: 'monthly',
+      monthlyRent: '12000',
+    });
+
+    expect(calls.inserted).toMatchObject({ rent_type: 'none', monthly_rent: null });
+  });
+
+  it('refuses rent terms without their amounts', async () => {
+    const gateway = new SupabaseVehicleGateway(recorder({ data: row, error: null }).client);
+    const contractor = {
+      ...emptyVehicleDetails,
+      plateNumber: 'X 1',
+      type: 'bus' as const,
+      ownership: 'contractor' as const,
+      ownerName: 'محمد علي',
+      rentType: 'perTrip' as const,
+    };
+
+    await expect(
+      gateway.insertVehicle(north, { ...contractor, outboundRent: '300' }),
+    ).rejects.toEqual(new VehicleAccessError('required'));
+    await expect(
+      gateway.insertVehicle(north, { ...contractor, outboundRent: '300', returnRent: 'abc' }),
+    ).rejects.toEqual(new VehicleAccessError('amount'));
   });
 
   it('scopes an update to the vehicle and its organization', async () => {
     const calls = recorder({ data: { ...row, is_active: false }, error: null });
     const gateway = new SupabaseVehicleGateway(calls.client);
 
-    await gateway.updateVehicle('org-north', 'vehicle-1', {
+    await gateway.updateVehicle(north, 'vehicle-1', {
       ...emptyVehicleDetails,
       plateNumber: 'أ ب ج 1234',
       type: 'microbus',
@@ -158,7 +252,7 @@ describe('SupabaseVehicleGateway', () => {
     const gateway = new SupabaseVehicleGateway(calls.client);
 
     await expect(
-      gateway.insertVehicle('org-north', {
+      gateway.insertVehicle(north, {
         ...emptyVehicleDetails,
         plateNumber: 'أ ب ج 1234',
         type: 'bus',
@@ -174,7 +268,7 @@ describe('SupabaseVehicleGateway', () => {
     const gateway = new SupabaseVehicleGateway(calls.client);
 
     await expect(
-      gateway.insertVehicle('org-south', {
+      gateway.insertVehicle(south, {
         ...emptyVehicleDetails,
         plateNumber: 'X 1',
         type: 'bus',
@@ -185,7 +279,7 @@ describe('SupabaseVehicleGateway', () => {
   it('reports that the app is not connected when there is no client', async () => {
     const gateway = new SupabaseVehicleGateway(null);
 
-    await expect(gateway.listVehicles('org-north')).rejects.toEqual(
+    await expect(gateway.listVehicles(north)).rejects.toEqual(
       new VehicleAccessError('notConnected'),
     );
   });

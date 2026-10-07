@@ -10,6 +10,7 @@ import {
   ExpenseChoices,
   ExpenseMonth,
   ExpenseOrganization,
+  VehiclePay,
 } from '../domain/expense';
 import { Expenses } from './expenses';
 import { expensesText } from './expenses-text';
@@ -38,6 +39,15 @@ const ahmedPay: DriverPay = {
   absent: { outbound: 0, return: 0 },
   recorded: 0,
 };
+const busRent: VehiclePay = {
+  vehicleId: 'vehicle-1',
+  contractor: false,
+  rentType: 'monthly',
+  monthlyRent: 1200000,
+  tripRent: null,
+  done: { outbound: 20, return: 20 },
+  recorded: 0,
+};
 const arabic = expensesText.ar;
 
 describe('Expenses', () => {
@@ -55,7 +65,7 @@ describe('Expenses', () => {
 
     expect(text(harness)).toContain(arabic.list.loading);
 
-    resolveMonth({ expenses: [fuel], pay: [] });
+    resolveMonth({ expenses: [fuel], pay: [], rent: [] });
     await settle(harness);
 
     expect(text(harness)).toContain('تفويل');
@@ -66,7 +76,7 @@ describe('Expenses', () => {
 
   it('suggests each driver salary and prepares it as an expense', async () => {
     const harness = await open({
-      month: async () => ({ expenses: [], pay: [ahmedPay] }),
+      month: async () => ({ expenses: [], pay: [ahmedPay], rent: [] }),
     });
     await settle(harness);
 
@@ -89,6 +99,27 @@ describe('Expenses', () => {
     expect(note).toContain(arabic.pay.extraPart);
   });
 
+  it('suggests each vehicle pay and prepares it as a rent expense', async () => {
+    const harness = await open({
+      month: async () => ({ expenses: [], pay: [], rent: [busRent] }),
+    });
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.rent.title);
+    expect(text(harness)).toContain(arabic.rent.rentTypes.monthly);
+    expect(text(harness)).toContain('12,000.00');
+
+    button(harness, arabic.rent.record)?.click();
+    await settle(harness);
+
+    const form = harness.routeNativeElement!.querySelector('form')!;
+    expect(form.querySelector<HTMLSelectElement>('select')?.value).toBe('rent');
+    expect(form.querySelector<HTMLInputElement>('input[inputmode="decimal"]')?.value).toBe(
+      '12000.00',
+    );
+    expect(form.querySelector('textarea')?.value).toContain(arabic.rent.note);
+  });
+
   it('shows the absence taken off a salary', async () => {
     const harness = await open({
       month: async () => ({
@@ -100,6 +131,7 @@ describe('Expenses', () => {
             absent: { outbound: 2, return: 2 },
           },
         ],
+        rent: [],
       }),
     });
     await settle(harness);
@@ -110,7 +142,7 @@ describe('Expenses', () => {
 
   it('marks a salary that is fully recorded', async () => {
     const harness = await open({
-      month: async () => ({ expenses: [], pay: [{ ...ahmedPay, recorded: 330000 }] }),
+      month: async () => ({ expenses: [], pay: [{ ...ahmedPay, recorded: 330000 }], rent: [] }),
     });
     await settle(harness);
 
@@ -132,7 +164,7 @@ describe('Expenses', () => {
 
   it('deletes an expense only after a second press and reloads the month', async () => {
     const remove = vi.fn(async () => undefined);
-    const month = vi.fn(async () => ({ expenses: [fuel], pay: [] }));
+    const month = vi.fn(async () => ({ expenses: [fuel], pay: [], rent: [] }));
     const harness = await open({ month, remove });
     await settle(harness);
 
@@ -153,7 +185,7 @@ describe('Expenses', () => {
   });
 
   it('refuses an organization outside the user memberships', async () => {
-    const month = vi.fn(async () => ({ expenses: [fuel], pay: [] }));
+    const month = vi.fn(async () => ({ expenses: [fuel], pay: [], rent: [] }));
     const harness = await open({ organization: async () => null, month });
     await settle(harness);
 
@@ -173,7 +205,7 @@ describe('Expenses', () => {
   });
 
   it('shows the page in English after switching language', async () => {
-    const harness = await open({ month: async () => ({ expenses: [fuel], pay: [] }) });
+    const harness = await open({ month: async () => ({ expenses: [fuel], pay: [], rent: [] }) });
     await settle(harness);
 
     TestBed.inject(LanguageService).setLanguage('en');
@@ -188,7 +220,7 @@ async function open(overrides: Partial<ExpenseRepository>) {
   const repository: ExpenseRepository = {
     organization: async () => north,
     choices: async () => choices,
-    month: async () => ({ expenses: [], pay: [] }),
+    month: async () => ({ expenses: [], pay: [], rent: [] }),
     add: async () => fuel,
     update: async () => fuel,
     remove: async () => undefined,

@@ -1,10 +1,11 @@
 import { Language } from '@routeops/shared/i18n';
-import { VehicleOwnership, VehicleProblem, VehicleType } from '../domain/vehicle';
+import { RentType, VehicleOwnership, VehicleProblem, VehicleType } from '../domain/vehicle';
 
 export interface VehiclesText {
   readonly problems: Record<VehicleProblem, string>;
   readonly types: Record<VehicleType, string>;
   readonly ownerships: Record<VehicleOwnership, string>;
+  readonly rentTypes: Record<RentType, string>;
   readonly list: {
     readonly title: string;
     readonly add: string;
@@ -46,6 +47,13 @@ export interface VehiclesText {
     readonly ownerName: string;
     readonly ownerNameHint: string;
     readonly ownerPhone: string;
+    readonly rentType: string;
+    readonly rentTypeHint: string;
+    readonly monthlyRent: string;
+    readonly amountHint: string;
+    readonly tripRentHint: string;
+    readonly outboundRent: string;
+    readonly returnRent: string;
     readonly notes: string;
     readonly notesHint: string;
     readonly active: string;
@@ -64,6 +72,8 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       plateTaken: 'رقم اللوحة هذا مسجّل بالفعل لمركبة أخرى.',
       type: 'اختر نوع المركبة.',
       ownerName: 'اكتب اسم صاحب المركبة أو المكتب.',
+      amount: 'أدخل المبلغ بالأرقام فقط، مثل 12000 أو 12000.50',
+      required: 'هذه الخانة مطلوبة.',
       tooLong: 'النص أطول من المسموح.',
       year: 'أدخل سنة صحيحة من 1950 حتى العام القادم، مثل 2020.',
       seats: 'أدخل عدد مقاعد صحيحًا من 1 إلى 100.',
@@ -84,6 +94,11 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       owned: 'ملك الشركة',
       rented: 'إيجار',
       contractor: 'متعاقد بمركبته',
+    },
+    rentTypes: {
+      none: 'لم يُحدَّد بعد',
+      monthly: 'مبلغ شهري ثابت',
+      perTrip: 'بالرحلة',
     },
     list: {
       title: 'المركبات',
@@ -126,6 +141,13 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       ownerName: 'اسم صاحب المركبة أو المكتب',
       ownerNameHint: 'الشخص الذي تحاسبه على هذه المركبة.',
       ownerPhone: 'رقم موبايله',
+      rentType: 'صاحب المركبة يتحاسب إزاي؟',
+      rentTypeHint: 'تقترح صفحة المصاريف أجرته كل شهر، وتظهر في حساب كل خط.',
+      monthlyRent: 'الأجرة الشهرية',
+      amountHint: 'بالأرقام فقط، مثل 12000 أو 12000.50',
+      tripRentHint: 'يأخذ عن كل رحلة طلعتها المركبة مبلغ اتجاهها، وقد يختلف الذهاب عن العودة.',
+      outboundRent: 'مبلغ رحلة الذهاب',
+      returnRent: 'مبلغ رحلة العودة',
       notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذه المركبة.',
       active: 'المركبة في الخدمة',
@@ -142,6 +164,8 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       plateTaken: 'This plate number is already used by another vehicle.',
       type: 'Choose the vehicle type.',
       ownerName: "Enter the vehicle owner's or office's name.",
+      amount: 'Enter the amount in digits only, like 12000 or 12000.50',
+      required: 'This field is required.',
       tooLong: 'This text is too long.',
       year: 'Enter a valid year from 1950 to next year, e.g. 2020.',
       seats: 'Enter a seat count from 1 to 100.',
@@ -162,6 +186,11 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       owned: 'Company owned',
       rented: 'Rented',
       contractor: 'Contractor vehicle',
+    },
+    rentTypes: {
+      none: 'Not set yet',
+      monthly: 'Fixed monthly amount',
+      perTrip: 'Per trip',
     },
     list: {
       title: 'Vehicles',
@@ -204,6 +233,13 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       ownerName: "Owner's or office's name",
       ownerNameHint: 'The person you settle with for this vehicle.',
       ownerPhone: 'Their mobile number',
+      rentType: 'How is the owner paid?',
+      rentTypeHint: 'The expenses page suggests this pay every month, and it shows in each route\'s account.',
+      monthlyRent: 'Monthly rent',
+      amountHint: 'Digits only, like 12000 or 12000.50',
+      tripRentHint: 'Each trip the vehicle makes earns its direction\'s amount; outbound and return may differ.',
+      outboundRent: 'Outbound trip amount',
+      returnRent: 'Return trip amount',
       notes: 'Notes',
       notesHint: 'Anything you want to remember about this vehicle.',
       active: 'This vehicle is in service',

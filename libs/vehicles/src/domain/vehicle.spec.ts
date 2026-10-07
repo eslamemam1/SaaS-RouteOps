@@ -1,14 +1,17 @@
 import {
   dateError,
+  effectiveRentType,
   emptyVehicleDetails,
   licenseExpired,
   memberOrganization,
+  monthlyRentError,
   normalizePlate,
   ofOwnership,
   ownerNameError,
   plateError,
   seatsError,
   sortByPlate,
+  tripRentError,
   Vehicle,
   vehicleTypeError,
   wholeNumber,
@@ -144,7 +147,7 @@ describe('licenseExpired', () => {
 });
 
 describe('memberOrganization', () => {
-  const memberships = [{ id: 'org-north', name: 'North' }];
+  const memberships = [{ id: 'org-north', name: 'North', currency: 'EGP' as const }];
 
   it('returns the organization when it is one of the memberships', () => {
     expect(memberOrganization(memberships, 'org-north')).toEqual(memberships[0]);
@@ -169,5 +172,26 @@ describe('sortByPlate', () => {
         (item) => item.plateNumber,
       ),
     ).toEqual(['A 100', 'B 200']);
+  });
+});
+
+describe('rent terms', () => {
+  it('needs a valid monthly rent only for a monthly rented vehicle', () => {
+    expect(monthlyRentError('', 'rented', 'monthly', 'EGP')).toBe('required');
+    expect(monthlyRentError('12,000', 'rented', 'monthly', 'EGP')).toBe('amount');
+    expect(monthlyRentError('12000', 'contractor', 'monthly', 'EGP')).toBeNull();
+    expect(monthlyRentError('', 'rented', 'perTrip', 'EGP')).toBeNull();
+  });
+
+  it('needs both trip amounts only for a vehicle paid per trip', () => {
+    expect(tripRentError('', 'contractor', 'perTrip', 'EGP')).toBe('required');
+    expect(tripRentError('300.5', 'contractor', 'perTrip', 'EGP')).toBeNull();
+    expect(tripRentError('', 'contractor', 'monthly', 'EGP')).toBeNull();
+  });
+
+  it('gives a vehicle the company owns no rent', () => {
+    expect(effectiveRentType('owned', 'monthly')).toBe('none');
+    expect(effectiveRentType('rented', 'monthly')).toBe('monthly');
+    expect(monthlyRentError('', 'owned', 'monthly', 'EGP')).toBeNull();
   });
 });
