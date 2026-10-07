@@ -42,8 +42,9 @@ set local role authenticated;
 set local request.jwt.claims = '{"sub": "a0000000-0000-0000-0000-000000000001", "role": "authenticated"}';
 
 select results_eq(
-  $$select customer_id, vehicle_id, driver_id, done_trips, extra_trips
+  $$select customer_id, vehicle_id, driver_id, sum(done_trips)::integer, sum(extra_trips)::integer
     from public.trip_report('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-28', '2026-03-15')
+    group by customer_id, vehicle_id, driver_id
     order by customer_id$$,
   $$values
     ('11000000-0000-0000-0000-000000000001'::uuid, '12000000-0000-0000-0000-000000000001'::uuid, '13000000-0000-0000-0000-000000000001'::uuid, 3, 0),

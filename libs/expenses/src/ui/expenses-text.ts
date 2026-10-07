@@ -1,5 +1,5 @@
 import { Language } from '@routeops/shared/i18n';
-import { ExpenseCategory, ExpenseProblem } from '../domain/expense';
+import { ExpenseCategory, ExpenseProblem, PayType } from '../domain/expense';
 
 export interface ExpensesText {
   readonly problems: Record<ExpenseProblem, string>;
@@ -29,17 +29,31 @@ export interface ExpensesText {
     readonly edit: string;
   };
   readonly pay: {
+    readonly payTypes: Record<PayType, string>;
     readonly title: string;
     readonly hint: string;
+    readonly absenceHint: string;
     readonly none: string;
     readonly driversLink: string;
     readonly driver: string;
     readonly trips: string;
+    readonly outbound: string;
+    readonly return: string;
+    readonly covered: string;
+    readonly fixed: string;
+    readonly absent: string;
+    readonly breakdown: string;
+    readonly salaryPart: string;
+    readonly extraPart: string;
+    readonly tripsPart: string;
+    readonly missedPart: string;
     readonly suggested: string;
     readonly recorded: string;
     readonly remaining: string;
     readonly record: string;
     readonly done: string;
+    readonly noteSalary: string;
+    readonly notePay: string;
   };
   readonly form: {
     readonly addTitle: string;
@@ -118,17 +132,34 @@ export const expensesText: Record<Language, ExpensesText> = {
       edit: 'تعديل',
     },
     pay: {
+      payTypes: {
+        salary: 'موظف براتب',
+        perTrip: 'بالرحلة',
+      },
       title: 'رواتب السائقين',
-      hint: 'الراتب المقترح = الراتب الثابت + مبلغ الرحلة × الرحلات التي تمّت هذا الشهر. لا يُحسب الراتب مصروفًا حتى تسجّله.',
-      none: 'لتظهر هنا رواتب السائقين المقترحة كل شهر، أدخل أجر كل سائق في صفحة السائقين.',
+      hint: 'الموظف يأخذ راتبه، وعن كل رحلة زيادة على العدد الذي يغطيه الراتب يأخذ مبلغها. ومن يعمل بالرحلة يأخذ عن كل رحلة طلعها. لا يُحسب الراتب مصروفًا حتى تسجّله، ويمكنك تعديل المبلغ قبل التسجيل.',
+      absenceHint: 'يُخصم من الموظف فقط عن رحلات خطه التي غيّرتها أو ألغيتها في التشغيل اليومي بسبب "غياب السائق"، وبشرط ألا يكمل العدد الذي يغطيه الراتب. الإجازات وأعطال المركبات لا تُخصم.',
+      none: 'لتظهر هنا رواتب السائقين المقترحة كل شهر، حدّد في صفحة السائقين كيف يتحاسب كل سائق.',
       driversLink: 'فتح صفحة السائقين',
       driver: 'السائق',
-      trips: 'الرحلات التي تمّت',
-      suggested: 'الراتب المقترح',
+      trips: 'الرحلات التي طلعها',
+      outbound: 'ذهاب',
+      return: 'عودة',
+      covered: 'يغطيها الراتب:',
+      fixed: 'راتب ثابت',
+      absent: 'غاب عن:',
+      breakdown: 'الحساب',
+      salaryPart: 'الراتب',
+      extraPart: 'رحلات زيادة',
+      tripsPart: 'الرحلات',
+      missedPart: 'خصم غياب',
+      suggested: 'المقترح',
       recorded: 'المسجَّل',
       remaining: 'المتبقي',
       record: 'تسجيل الراتب',
       done: 'مسجَّل بالكامل',
+      noteSalary: 'راتب',
+      notePay: 'أجر',
     },
     form: {
       addTitle: 'إضافة مصروف',
@@ -205,17 +236,34 @@ export const expensesText: Record<Language, ExpensesText> = {
       edit: 'Edit',
     },
     pay: {
+      payTypes: {
+        salary: 'Employee',
+        perTrip: 'Per trip',
+      },
       title: 'Driver salaries',
-      hint: 'Suggested salary = fixed salary + trip amount × trips done this month. A salary counts as an expense only after you record it.',
-      none: 'To see suggested driver salaries here every month, enter each driver’s pay on the drivers page.',
+      hint: 'An employee gets the salary, plus the amount of each trip beyond the number the salary covers. A driver paid per trip gets each trip done. A salary counts as an expense only after you record it, and you can change the amount before recording it.',
+      absenceHint: 'An employee loses pay only for trips of their own routes that you changed or cancelled on the daily operations page because the driver was absent, and only below the number the salary covers. Holidays and vehicle breakdowns cost nothing.',
+      none: 'To see suggested driver salaries here every month, set how each driver is paid on the drivers page.',
       driversLink: 'Open the drivers page',
       driver: 'Driver',
       trips: 'Trips done',
-      suggested: 'Suggested salary',
+      outbound: 'Outbound',
+      return: 'Return',
+      covered: 'Salary covers:',
+      fixed: 'Fixed salary',
+      absent: 'Absent for:',
+      breakdown: 'How it adds up',
+      salaryPart: 'Salary',
+      extraPart: 'Extra trips',
+      tripsPart: 'Trips',
+      missedPart: 'Absence',
+      suggested: 'Suggested',
       recorded: 'Recorded',
       remaining: 'Remaining',
       record: 'Record salary',
       done: 'Fully recorded',
+      noteSalary: 'Salary',
+      notePay: 'Pay',
     },
     form: {
       addTitle: 'Add an expense',

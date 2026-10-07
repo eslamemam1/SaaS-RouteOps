@@ -19,6 +19,7 @@ import {
   DriverOrganization,
   DriverProblem,
   emptyDriverDetails,
+  payTypes,
 } from '../domain/driver';
 import { driverDetailsSchema } from './driver-fields';
 import { driversText } from './drivers-text';
@@ -39,6 +40,7 @@ export class DriverForm {
   protected readonly text = injectText(driversText);
   private readonly problems = computed(() => this.text().problems);
 
+  protected readonly payTypes = payTypes;
   protected readonly submitting = signal(false);
   protected readonly problem = signal<DriverProblem | null>(null);
   protected readonly model = signal<DriverDetails>(emptyDriverDetails);
@@ -101,8 +103,11 @@ function detailsOf(driver: Driver | null): DriverDetails {
     nationalId: driver.nationalId,
     licenseNumber: driver.licenseNumber,
     licenseExpiry: driver.licenseExpiry,
+    payType: driver.payType,
     monthlySalary: driver.monthlySalary,
-    tripPay: driver.tripPay,
+    salaryTrips: driver.salaryTrips,
+    outboundPay: driver.outboundPay,
+    returnPay: driver.returnPay,
     notes: driver.notes,
     active: driver.active,
   };

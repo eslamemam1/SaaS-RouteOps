@@ -11,6 +11,7 @@ import {
   ExpenseOrganization,
   expenseTotal,
   memberOrganization,
+  payBreakdown,
   monthDays,
   remainingPay,
   salaryDetails,
@@ -31,13 +32,17 @@ const fuel: Expense = {
 const rent: Expense = { ...fuel, id: 'expense-2', category: 'rent', amount: 300000 };
 const moreFuel: Expense = { ...fuel, id: 'expense-3', amount: 25050 };
 
-const pay: DriverPay = {
+const ahmed: DriverPay = {
   driverId: 'driver-1',
-  doneTrips: 4,
-  monthlySalary: 500000,
-  tripPay: 5000,
+  payType: 'salary',
+  monthlySalary: 300000,
+  salaryTrips: 26,
+  tripPay: { outbound: 5000, return: 5000 },
+  done: { outbound: 26, return: 26 },
+  absent: { outbound: 0, return: 0 },
   recorded: 0,
 };
+const pay = ahmed;
 
 describe('expense validation', () => {
   it('needs a real date', () => {
@@ -70,25 +75,90 @@ describe('expense validation', () => {
 });
 
 describe('driver pay', () => {
-  it('suggests the fixed salary plus the trip amount for each done trip', () => {
-    expect(suggestedPay(pay)).toBe(520000);
-    expect(suggestedPay({ ...pay, monthlySalary: null })).toBe(20000);
-    expect(suggestedPay({ ...pay, tripPay: null })).toBe(500000);
+  it('pays the salary for exactly the trips it covers', () => {
+    expect(suggestedPay(ahmed)).toBe(300000);
+  });
+
+  it('adds each trip beyond the salary at its direction amount', () => {
+    const busy = { ...ahmed, done: { outbound: 30, return: 28 } };
+    expect(payBreakdown(busy)).toMatchObject({
+      extra: { outbound: 4, return: 2 },
+      extraAmount: 30000,
+      deduction: 0,
+      total: 330000,
+    });
+  });
+
+  it('takes off the trips missed through absence', () => {
+    const absent = {
+      ...ahmed,
+      done: { outbound: 24, return: 24 },
+      absent: { outbound: 2, return: 2 },
+    };
+    expect(payBreakdown(absent)).toMatchObject({
+      missed: { outbound: 2, return: 2 },
+      deduction: 20000,
+      total: 280000,
+    });
+  });
+
+  it('takes nothing off for trips lost to a holiday', () => {
+    expect(suggestedPay({ ...ahmed, done: { outbound: 24, return: 24 } })).toBe(300000);
+  });
+
+  it('lets absences use up the trips beyond the salary first', () => {
+    const both = {
+      ...ahmed,
+      done: { outbound: 28, return: 26 },
+      absent: { outbound: 2, return: 0 },
+    };
+    expect(payBreakdown(both)).toMatchObject({ extraAmount: 10000, deduction: 0, total: 310000 });
+  });
+
+  it('keeps a fixed salary whatever the driver does', () => {
+    const fixed = {
+      ...ahmed,
+      salaryTrips: null,
+      tripPay: null,
+      done: { outbound: 40, return: 10 },
+      absent: { outbound: 3, return: 3 },
+    };
+    expect(suggestedPay(fixed)).toBe(300000);
+  });
+
+  it('pays a driver paid per trip for every trip at its direction amount', () => {
+    const mahmoud: DriverPay = {
+      ...ahmed,
+      payType: 'perTrip',
+      monthlySalary: null,
+      salaryTrips: null,
+      tripPay: { outbound: 6000, return: 4000 },
+      done: { outbound: 2, return: 2 },
+      absent: { outbound: 1, return: 0 },
+    };
+    expect(payBreakdown(mahmoud)).toMatchObject({
+      salary: 0,
+      extra: { outbound: 2, return: 2 },
+      deduction: 0,
+      total: 20000,
+    });
   });
 
   it('leaves what is not recorded yet, never below zero', () => {
-    expect(remainingPay({ ...pay, recorded: 200000 })).toBe(320000);
-    expect(remainingPay({ ...pay, recorded: 900000 })).toBe(0);
+    expect(remainingPay({ ...ahmed, recorded: 100000 })).toBe(200000);
+    expect(remainingPay({ ...ahmed, recorded: 900000 })).toBe(0);
   });
 
-  it('prepares a salary expense for the remaining pay', () => {
-    expect(salaryDetails({ ...pay, recorded: 20000 }, '2026-10-05', 'EGP')).toEqual({
+  it('prepares a salary expense for the remaining pay with how it adds up', () => {
+    expect(
+      salaryDetails({ ...ahmed, recorded: 100000 }, '2026-10-05', 'EGP', 'راتب أكتوبر'),
+    ).toEqual({
       spentOn: '2026-10-05',
       category: 'salaries',
-      amount: '5000.00',
+      amount: '2000.00',
       vehicleId: '',
       driverId: 'driver-1',
-      description: '',
+      description: 'راتب أكتوبر',
     });
   });
 });

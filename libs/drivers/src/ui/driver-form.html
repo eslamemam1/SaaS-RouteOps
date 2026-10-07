@@ -35,24 +35,52 @@
   <fieldset>
     <legend>{{ text().form.payTitle }}</legend>
     <p class="hint">{{ text().form.payHint }}</p>
-    <app-field
-      [label]="text().form.monthlySalary"
-      [hint]="text().form.amountHint"
-      [optional]="true"
-      [control]="driverForm.monthlySalary"
-    >
-      <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.monthlySalary" />
-      <bdi>{{ organization().currency }}</bdi>
+    <app-field [label]="text().form.payType">
+      <select [formField]="driverForm.payType">
+        @for (payType of payTypes; track payType) {
+          <option [value]="payType">{{ text().payTypes[payType] }}</option>
+        }
+      </select>
     </app-field>
-    <app-field
-      [label]="text().form.tripPay"
-      [hint]="text().form.tripPayHint"
-      [optional]="true"
-      [control]="driverForm.tripPay"
-    >
-      <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.tripPay" />
-      <bdi>{{ organization().currency }}</bdi>
-    </app-field>
+    @if (model().payType === 'salary') {
+      <app-field
+        [label]="text().form.monthlySalary"
+        [hint]="text().form.amountHint"
+        [control]="driverForm.monthlySalary"
+      >
+        <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.monthlySalary" />
+        <bdi>{{ organization().currency }}</bdi>
+      </app-field>
+      <app-field
+        [label]="text().form.salaryTrips"
+        [hint]="text().form.salaryTripsHint"
+        [optional]="true"
+        [control]="driverForm.salaryTrips"
+      >
+        <input type="text" inputmode="numeric" dir="ltr" [formField]="driverForm.salaryTrips" />
+      </app-field>
+    }
+    @if (model().payType === 'perTrip' || (model().payType === 'salary' && model().salaryTrips.trim())) {
+      <p class="hint">
+        {{ model().payType === 'salary' ? text().form.extraPayHint : text().form.perTripHint }}
+      </p>
+      <app-field
+        [label]="text().form.outboundPay"
+        [hint]="text().form.amountHint"
+        [control]="driverForm.outboundPay"
+      >
+        <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.outboundPay" />
+        <bdi>{{ organization().currency }}</bdi>
+      </app-field>
+      <app-field
+        [label]="text().form.returnPay"
+        [hint]="text().form.amountHint"
+        [control]="driverForm.returnPay"
+      >
+        <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.returnPay" />
+        <bdi>{{ organization().currency }}</bdi>
+      </app-field>
+    }
   </fieldset>
   <app-field
     [label]="text().form.notes"

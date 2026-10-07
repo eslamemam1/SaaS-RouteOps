@@ -84,6 +84,7 @@ export type Database = {
           customer_id: string
           vehicle_id: string | null
           driver_id: string | null
+          direction: string
           done_trips: number
           extra_trips: number
           revenue: number

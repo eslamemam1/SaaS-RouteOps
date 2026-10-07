@@ -1,4 +1,4 @@
-import { amountError, Currency } from '@routeops/shared/money';
+import { Currency, toMinorUnits } from '@routeops/shared/money';
 
 export interface DriverOrganization {
   readonly id: string;
@@ -6,17 +6,30 @@ export interface DriverOrganization {
   readonly currency: Currency;
 }
 
-// monthlySalary and tripPay are typed amounts in the organization currency,
-// blank when the driver is not paid that way. The expenses screen suggests a
-// month's pay from them.
+// How the driver is paid: 'salary' for an employee with a monthly salary,
+// 'perTrip' for a driver paid for each trip, or 'none' without pay terms.
+export const payTypes = ['none', 'salary', 'perTrip'] as const;
+
+export type PayType = (typeof payTypes)[number];
+
+// monthlySalary, outboundPay, and returnPay are typed amounts in the
+// organization currency; salaryTrips is a typed count. A salary may cover
+// salaryTrips outbound and as many return trips a month; each done trip beyond
+// them earns outboundPay or returnPay, and each trip missed through absence
+// below them takes the same amount off. Without salaryTrips the salary is
+// fixed. A driver paid per trip earns outboundPay or returnPay for every done
+// trip. The expenses screen suggests a month's pay from them.
 export interface DriverDetails {
   readonly fullName: string;
   readonly phone: string;
   readonly nationalId: string;
   readonly licenseNumber: string;
   readonly licenseExpiry: string;
+  readonly payType: PayType;
   readonly monthlySalary: string;
-  readonly tripPay: string;
+  readonly salaryTrips: string;
+  readonly outboundPay: string;
+  readonly returnPay: string;
   readonly notes: string;
   readonly active: boolean;
 }
@@ -40,6 +53,8 @@ export const driverProblems = [
   'nationalIdTaken',
   'date',
   'amount',
+  'required',
+  'trips',
   'load',
   'save',
   'organization',
@@ -55,14 +70,93 @@ export const emptyDriverDetails: DriverDetails = {
   nationalId: '',
   licenseNumber: '',
   licenseExpiry: '',
+  payType: 'none',
   monthlySalary: '',
-  tripPay: '',
+  salaryTrips: '',
+  outboundPay: '',
+  returnPay: '',
   notes: '',
   active: true,
 };
 
-export function payError(value: string, currency: Currency): DriverProblem | null {
-  return amountError(value, currency) ? 'amount' : null;
+export const maxSalaryTrips = 999;
+
+export function isPayType(value: string): value is PayType {
+  return (payTypes as readonly string[]).includes(value);
+}
+
+// Accepts Arabic-Indic digits. Returns null for a blank text and undefined
+// for a text that is not a whole number of trips above zero.
+export function toTripCount(value: string): number | null | undefined {
+  const text = toLatinDigits(value.trim());
+  if (text.length === 0) {
+    return null;
+  }
+  const count = /^\d+$/.test(text) ? Number(text) : 0;
+  return count > 0 && count <= maxSalaryTrips ? count : undefined;
+}
+
+export function salaryError(
+  value: string,
+  payType: PayType,
+  currency: Currency,
+): DriverProblem | null {
+  if (payType !== 'salary') {
+    return null;
+  }
+  return amountProblem(value, currency, true);
+}
+
+// The trip count is optional, but the trip amounts mean nothing without it.
+export function salaryTripsError(
+  value: string,
+  payType: PayType,
+  outboundPay: string,
+  returnPay: string,
+): DriverProblem | null {
+  if (payType !== 'salary') {
+    return null;
+  }
+  const count = toTripCount(value);
+  if (count === undefined) {
+    return 'trips';
+  }
+  const amountsTyped = outboundPay.trim().length > 0 || returnPay.trim().length > 0;
+  return count === null && amountsTyped ? 'required' : null;
+}
+
+// Needed for every driver paid per trip, and for a salary that covers a
+// number of trips.
+export function tripAmountError(
+  value: string,
+  payType: PayType,
+  salaryTrips: string,
+  currency: Currency,
+): DriverProblem | null {
+  switch (payType) {
+    case 'none':
+      return null;
+    case 'salary':
+      return amountProblem(value, currency, salaryTrips.trim().length > 0);
+    case 'perTrip':
+      return amountProblem(value, currency, true);
+  }
+}
+
+function amountProblem(
+  value: string,
+  currency: Currency,
+  required: boolean,
+): DriverProblem | null {
+  const minor = toMinorUnits(value, currency);
+  if (minor === null) {
+    return required ? 'required' : null;
+  }
+  return minor === undefined ? 'amount' : null;
+}
+
+function toLatinDigits(value: string): string {
+  return value.replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660));
 }
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -85,9 +179,7 @@ export function optionalTextError(
 
 // Accepts Arabic-Indic digits and spaces, because users often type them.
 export function normalizeNationalId(value: string): string {
-  return value
-    .replace(/\s+/g, '')
-    .replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660));
+  return toLatinDigits(value.replace(/\s+/g, ''));
 }
 
 export function nationalIdError(value: string): DriverProblem | null {

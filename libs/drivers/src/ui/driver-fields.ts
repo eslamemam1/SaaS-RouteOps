@@ -9,7 +9,9 @@ import {
   DriverProblem,
   nationalIdError,
   optionalTextError,
-  payError,
+  salaryError,
+  salaryTripsError,
+  tripAmountError,
 } from '../domain/driver';
 
 type Problems = Signal<Record<DriverProblem, string>>;
@@ -25,11 +27,31 @@ export function driverDetailsSchema(
   currency: Signal<Currency>,
 ) {
   return schema<DriverDetails>((path) => {
-    validate(path.monthlySalary, ({ value }) =>
-      fieldError(payError(value(), currency()), problems),
+    validate(path.monthlySalary, ({ value, valueOf }) =>
+      fieldError(salaryError(value(), valueOf(path.payType), currency()), problems),
     );
-    validate(path.tripPay, ({ value }) =>
-      fieldError(payError(value(), currency()), problems),
+    validate(path.salaryTrips, ({ value, valueOf }) =>
+      fieldError(
+        salaryTripsError(
+          value(),
+          valueOf(path.payType),
+          valueOf(path.outboundPay),
+          valueOf(path.returnPay),
+        ),
+        problems,
+      ),
+    );
+    validate(path.outboundPay, ({ value, valueOf }) =>
+      fieldError(
+        tripAmountError(value(), valueOf(path.payType), valueOf(path.salaryTrips), currency()),
+        problems,
+      ),
+    );
+    validate(path.returnPay, ({ value, valueOf }) =>
+      fieldError(
+        tripAmountError(value(), valueOf(path.payType), valueOf(path.salaryTrips), currency()),
+        problems,
+      ),
     );
     validate(path.fullName, ({ value }) =>
       fieldError(driverNameError(value()), problems),

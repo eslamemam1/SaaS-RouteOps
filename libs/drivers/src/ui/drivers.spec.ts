@@ -16,8 +16,11 @@ const ahmed: Driver = {
   nationalId: '29001011234567',
   licenseNumber: 'L-55',
   licenseExpiry: '2000-01-01',
+  payType: 'none',
   monthlySalary: '',
-  tripPay: '',
+  salaryTrips: '',
+  outboundPay: '',
+  returnPay: '',
   notes: '',
   active: true,
 };

@@ -109,9 +109,15 @@ export type Database = {
         }
         Returns: {
           driver_id: string
-          done_trips: number
+          pay_type: string
           monthly_salary: number | null
-          trip_pay: number | null
+          salary_trips: number | null
+          outbound_pay: number | null
+          return_pay: number | null
+          done_outbound: number
+          done_return: number
+          absent_outbound: number
+          absent_return: number
           recorded: number
         }[]
       }

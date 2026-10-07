@@ -26,8 +26,11 @@ export type Database = {
           national_id: string | null
           notes: string | null
           organization_id: string
+          outbound_pay: number | null
+          pay_type: string
           phone: string | null
-          trip_pay: number | null
+          return_pay: number | null
+          salary_trips: number | null
           updated_at: string
         }
         Insert: {
@@ -41,8 +44,11 @@ export type Database = {
           national_id?: string | null
           notes?: string | null
           organization_id: string
+          outbound_pay?: number | null
+          pay_type?: string
           phone?: string | null
-          trip_pay?: number | null
+          return_pay?: number | null
+          salary_trips?: number | null
           updated_at?: string
         }
         Update: {
@@ -56,8 +62,11 @@ export type Database = {
           national_id?: string | null
           notes?: string | null
           organization_id?: string
+          outbound_pay?: number | null
+          pay_type?: string
           phone?: string | null
-          trip_pay?: number | null
+          return_pay?: number | null
+          salary_trips?: number | null
           updated_at?: string
         }
         Relationships: [

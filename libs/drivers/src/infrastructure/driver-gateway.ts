@@ -12,6 +12,8 @@ import {
   DriverDetails,
   DriverOrganization,
   normalizeNationalId,
+  PayType,
+  toTripCount,
 } from '../domain/driver';
 import { Database } from './database';
 
@@ -38,16 +40,25 @@ type DriverRow = Pick<
   | 'national_id'
   | 'license_number'
   | 'license_expires_on'
+  | 'pay_type'
   | 'monthly_salary'
-  | 'trip_pay'
+  | 'salary_trips'
+  | 'outbound_pay'
+  | 'return_pay'
   | 'notes'
   | 'is_active'
 >;
 
 const driverColumns =
-  'id, full_name, phone, national_id, license_number, license_expires_on, monthly_salary, trip_pay, notes, is_active';
+  'id, full_name, phone, national_id, license_number, license_expires_on, pay_type, monthly_salary, salary_trips, outbound_pay, return_pay, notes, is_active';
 
 const uniqueViolation = '23505';
+
+const payTypeColumns: Record<PayType, string> = {
+  none: 'none',
+  salary: 'salary',
+  perTrip: 'per_trip',
+};
 
 export class SupabaseDriverGateway implements DriverGateway {
   constructor(private readonly client: SupabaseClient<Database> | null) {}
@@ -151,8 +162,11 @@ function toDriver(row: DriverRow, currency: Currency): Driver {
     nationalId: row.national_id ?? '',
     licenseNumber: row.license_number ?? '',
     licenseExpiry: row.license_expires_on ?? '',
+    payType: toPayType(row.pay_type),
     monthlySalary: toAmountText(row.monthly_salary, currency),
-    tripPay: toAmountText(row.trip_pay, currency),
+    salaryTrips: row.salary_trips === null ? '' : String(row.salary_trips),
+    outboundPay: toAmountText(row.outbound_pay, currency),
+    returnPay: toAmountText(row.return_pay, currency),
     notes: row.notes ?? '',
     active: row.is_active,
   };
@@ -165,15 +179,65 @@ function toColumns(details: DriverDetails, currency: Currency) {
     national_id: blankToNull(normalizeNationalId(details.nationalId)),
     license_number: blankToNull(details.licenseNumber),
     license_expires_on: blankToNull(details.licenseExpiry),
-    monthly_salary: toPay(details.monthlySalary, currency),
-    trip_pay: toPay(details.tripPay, currency),
+    ...toPayColumns(details, currency),
     notes: blankToNull(details.notes),
     is_active: details.active,
   };
 }
 
-function toPay(text: string, currency: Currency): number | null {
+function toPayType(column: string): PayType {
+  const payType = (Object.keys(payTypeColumns) as PayType[]).find(
+    (key) => payTypeColumns[key] === column,
+  );
+  if (!payType) {
+    throw new DriverAccessError('load');
+  }
+  return payType;
+}
+
+// Only the terms of the chosen pay type are kept; the database refuses any
+// other combination.
+function toPayColumns(details: DriverDetails, currency: Currency) {
+  const none = {
+    pay_type: payTypeColumns[details.payType],
+    monthly_salary: null,
+    salary_trips: null,
+    outbound_pay: null,
+    return_pay: null,
+  };
+  switch (details.payType) {
+    case 'none':
+      return none;
+    case 'salary': {
+      const salaryTrips = toTripCount(details.salaryTrips);
+      if (salaryTrips === undefined) {
+        throw new DriverAccessError('trips');
+      }
+      const monthlySalary = requiredAmount(details.monthlySalary, currency);
+      return salaryTrips === null
+        ? { ...none, monthly_salary: monthlySalary }
+        : {
+            ...none,
+            monthly_salary: monthlySalary,
+            salary_trips: salaryTrips,
+            outbound_pay: requiredAmount(details.outboundPay, currency),
+            return_pay: requiredAmount(details.returnPay, currency),
+          };
+    }
+    case 'perTrip':
+      return {
+        ...none,
+        outbound_pay: requiredAmount(details.outboundPay, currency),
+        return_pay: requiredAmount(details.returnPay, currency),
+      };
+  }
+}
+
+function requiredAmount(text: string, currency: Currency): number {
   const minor = toMinorUnits(text, currency);
+  if (minor === null) {
+    throw new DriverAccessError('required');
+  }
   if (minor === undefined) {
     throw new DriverAccessError('amount');
   }

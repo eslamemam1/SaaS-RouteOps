@@ -19,8 +19,11 @@ const row = {
   national_id: null,
   license_number: null,
   license_expires_on: '2027-01-31',
+  pay_type: 'none',
   monthly_salary: null,
-  trip_pay: null,
+  salary_trips: null,
+  outbound_pay: null,
+  return_pay: null,
   notes: null,
   is_active: true,
 };
@@ -38,8 +41,11 @@ describe('SupabaseDriverGateway', () => {
         nationalId: '',
         licenseNumber: '',
         licenseExpiry: '2027-01-31',
+        payType: 'none',
         monthlySalary: '',
-        tripPay: '',
+        salaryTrips: '',
+        outboundPay: '',
+        returnPay: '',
         notes: '',
         active: true,
       },
@@ -65,16 +71,26 @@ describe('SupabaseDriverGateway', () => {
       national_id: '2900101',
       license_number: null,
       license_expires_on: null,
+      pay_type: 'none',
       monthly_salary: null,
-      trip_pay: null,
+      salary_trips: null,
+      outbound_pay: null,
+      return_pay: null,
       notes: null,
       is_active: true,
     });
   });
 
-  it('stores the pay in the smallest unit of the currency and shows it back as typed', async () => {
+  it('stores a salary covering trips in the smallest unit of the currency', async () => {
     const calls = recorder({
-      data: { ...row, monthly_salary: 500050, trip_pay: 5000 },
+      data: {
+        ...row,
+        pay_type: 'salary',
+        monthly_salary: 300050,
+        salary_trips: 26,
+        outbound_pay: 5000,
+        return_pay: 4000,
+      },
       error: null,
     });
     const gateway = new SupabaseDriverGateway(calls.client);
@@ -82,26 +98,70 @@ describe('SupabaseDriverGateway', () => {
     const saved = await gateway.insertDriver(north, {
       ...emptyDriverDetails,
       fullName: 'أحمد',
-      monthlySalary: '٥٠٠٠.٥',
-      tripPay: '50',
+      payType: 'salary',
+      monthlySalary: '٣٠٠٠.٥',
+      salaryTrips: '٢٦',
+      outboundPay: '50',
+      returnPay: '40',
     });
 
-    expect(calls.inserted).toMatchObject({ monthly_salary: 500050, trip_pay: 5000 });
-    expect(saved.monthlySalary).toBe('5000.50');
-    expect(saved.tripPay).toBe('50.00');
+    expect(calls.inserted).toMatchObject({
+      pay_type: 'salary',
+      monthly_salary: 300050,
+      salary_trips: 26,
+      outbound_pay: 5000,
+      return_pay: 4000,
+    });
+    expect(saved).toMatchObject({
+      payType: 'salary',
+      monthlySalary: '3000.50',
+      salaryTrips: '26',
+      outboundPay: '50.00',
+      returnPay: '40.00',
+    });
   });
 
-  it('refuses a pay that is not an amount', async () => {
+  it('keeps only the terms of the chosen pay type', async () => {
     const calls = recorder({ data: row, error: null });
     const gateway = new SupabaseDriverGateway(calls.client);
 
+    await gateway.insertDriver(north, {
+      ...emptyDriverDetails,
+      fullName: 'محمود',
+      payType: 'perTrip',
+      monthlySalary: '3000',
+      salaryTrips: '26',
+      outboundPay: '60',
+      returnPay: '40',
+    });
+
+    expect(calls.inserted).toMatchObject({
+      pay_type: 'per_trip',
+      monthly_salary: null,
+      salary_trips: null,
+      outbound_pay: 6000,
+      return_pay: 4000,
+    });
+  });
+
+  it('refuses pay terms that are missing or not amounts', async () => {
+    const calls = recorder({ data: row, error: null });
+    const gateway = new SupabaseDriverGateway(calls.client);
+    const salaried = { ...emptyDriverDetails, fullName: 'أحمد', payType: 'salary' as const };
+
+    await expect(gateway.insertDriver(north, salaried)).rejects.toEqual(
+      new DriverAccessError('required'),
+    );
     await expect(
-      gateway.insertDriver(north, {
-        ...emptyDriverDetails,
-        fullName: 'أحمد',
-        tripPay: '50.123',
-      }),
+      gateway.insertDriver(north, { ...salaried, monthlySalary: '3000', salaryTrips: '26', outboundPay: '50' }),
+    ).rejects.toEqual(new DriverAccessError('required'));
+    await expect(
+      gateway.insertDriver(north, { ...salaried, monthlySalary: '3000', salaryTrips: 'x' }),
+    ).rejects.toEqual(new DriverAccessError('trips'));
+    await expect(
+      gateway.insertDriver(north, { ...salaried, monthlySalary: '50.123' }),
     ).rejects.toEqual(new DriverAccessError('amount'));
+    expect(calls.inserted).toBeNull();
   });
 
   it('scopes an update to the driver and its organization', async () => {

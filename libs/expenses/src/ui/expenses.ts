@@ -31,10 +31,12 @@ import {
   expenseTotal,
   isExpenseMonth,
   monthOf,
+  PayBreakdown,
+  payBreakdown,
+  PerDirection,
   remainingPay,
   salaryDetails,
   shiftMonth,
-  suggestedPay,
 } from '../domain/expense';
 import { ExpenseForm } from './expense-form';
 import { expensesText } from './expenses-text';
@@ -115,12 +117,21 @@ export class Expenses {
     return choiceLabel(this.choices().drivers, id);
   }
 
-  protected suggested(pay: DriverPay): number {
-    return suggestedPay(pay);
+  protected breakdown(pay: DriverPay): PayBreakdown {
+    return payBreakdown(pay);
   }
 
   protected remaining(pay: DriverPay): number {
     return remainingPay(pay);
+  }
+
+  protected trips(trips: PerDirection): string {
+    const text = this.text().pay;
+    return `${text.outbound} ${trips.outbound} · ${text.return} ${trips.return}`;
+  }
+
+  protected hasTrips(trips: PerDirection): boolean {
+    return trips.outbound + trips.return > 0;
   }
 
   protected chooseMonth(value: string): void {
@@ -154,6 +165,7 @@ export class Expenses {
           pay,
           defaultDay(this.month(), this.today),
           organization.currency,
+          this.payNote(pay),
         ),
       );
     }
@@ -176,6 +188,26 @@ export class Expenses {
 
   protected onRemoved(): void {
     this.finish('removed');
+  }
+
+  // For example "Salary 2026-10: Salary 3,000.00 + Extra trips (Outbound 4 · Return 2) 300.00".
+  private payNote(pay: DriverPay): string {
+    const text = this.text().pay;
+    const sum = this.breakdown(pay);
+    const parts =
+      pay.payType === 'salary'
+        ? [`${text.salaryPart} ${this.money(sum.salary)}`]
+        : [];
+    if (this.hasTrips(sum.extra)) {
+      const label = pay.payType === 'salary' ? text.extraPart : text.tripsPart;
+      parts.push(`${label} (${this.trips(sum.extra)}) ${this.money(sum.extraAmount)}`);
+    }
+    const note = parts.join(' + ');
+    const missed = this.hasTrips(sum.missed)
+      ? ` − ${text.missedPart} (${this.trips(sum.missed)}) ${this.money(sum.deduction)}`
+      : '';
+    const title = pay.payType === 'salary' ? text.noteSalary : text.notePay;
+    return `${title} ${this.month()}: ${note}${missed}`;
   }
 
   private finish(outcome: 'added' | 'saved' | 'removed'): void {

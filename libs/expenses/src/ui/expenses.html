@@ -83,12 +83,16 @@
             }
           </div>
         } @else {
+          <div class="ro-card-body">
+            <p class="hint">{{ text().pay.absenceHint }}</p>
+          </div>
           <div class="ro-table-scroll">
             <table class="ro-table-stack">
               <thead>
                 <tr>
                   <th>{{ text().pay.driver }}</th>
                   <th>{{ text().pay.trips }}</th>
+                  <th>{{ text().pay.breakdown }}</th>
                   <th>{{ text().pay.suggested }}</th>
                   <th>{{ text().pay.recorded }}</th>
                   <th>{{ text().pay.remaining }}</th>
@@ -97,15 +101,52 @@
               </thead>
               <tbody>
                 @for (pay of data().pay; track pay.driverId) {
+                  @let sum = breakdown(pay);
                   <tr>
                     <td [attr.data-label]="text().pay.driver">
-                      <bdi>{{ driverName(pay.driverId) }}</bdi>
+                      <div class="ro-cell-stack">
+                        <bdi>{{ driverName(pay.driverId) }}</bdi>
+                        <app-tag>{{ text().pay.payTypes[pay.payType] }}</app-tag>
+                      </div>
                     </td>
-                    <td class="ro-numeric" [attr.data-label]="text().pay.trips">
-                      <bdi>{{ pay.doneTrips }}</bdi>
+                    <td [attr.data-label]="text().pay.trips">
+                      <div class="ro-cell-stack">
+                        <bdi class="ro-numeric">{{ trips(pay.done) }}</bdi>
+                        @if (pay.payType === 'salary') {
+                          @if (pay.salaryTrips === null) {
+                            <span class="hint">{{ text().pay.fixed }}</span>
+                          } @else {
+                            <span class="hint">
+                              {{ text().pay.covered }}
+                              <bdi>{{ trips({ outbound: pay.salaryTrips, return: pay.salaryTrips }) }}</bdi>
+                            </span>
+                          }
+                        }
+                        @if (hasTrips(pay.absent)) {
+                          <span class="hint">
+                            {{ text().pay.absent }} <bdi>{{ trips(pay.absent) }}</bdi>
+                          </span>
+                        }
+                      </div>
+                    </td>
+                    <td [attr.data-label]="text().pay.breakdown">
+                      <div class="ro-cell-stack">
+                        @if (pay.payType === 'salary') {
+                          <span>{{ text().pay.salaryPart }} <bdi>{{ money(sum.salary) }}</bdi></span>
+                        }
+                        @if (hasTrips(sum.extra)) {
+                          <span>
+                            + {{ pay.payType === 'salary' ? text().pay.extraPart : text().pay.tripsPart }}
+                            <bdi>{{ money(sum.extraAmount) }}</bdi>
+                          </span>
+                        }
+                        @if (hasTrips(sum.missed)) {
+                          <span>− {{ text().pay.missedPart }} <bdi>{{ money(sum.deduction) }}</bdi></span>
+                        }
+                      </div>
                     </td>
                     <td class="ro-numeric" [attr.data-label]="text().pay.suggested">
-                      <bdi>{{ money(suggested(pay)) }}</bdi>
+                      <bdi>{{ money(sum.total) }}</bdi>
                     </td>
                     <td class="ro-numeric" [attr.data-label]="text().pay.recorded">
                       <bdi>{{ money(pay.recorded) }}</bdi>

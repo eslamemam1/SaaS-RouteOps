@@ -9,6 +9,10 @@ import {
   nationalIdError,
   normalizeNationalId,
   optionalTextError,
+  salaryError,
+  salaryTripsError,
+  toTripCount,
+  tripAmountError,
   sortByName,
 } from './driver';
 
@@ -65,6 +69,37 @@ describe('licenseExpired', () => {
     expect(licenseExpired('2026-10-03', '2026-10-04')).toBe(true);
     expect(licenseExpired('2026-10-04', '2026-10-04')).toBe(false);
     expect(licenseExpired('', '2026-10-04')).toBe(false);
+  });
+});
+
+describe('pay terms', () => {
+  it('reads a trip count with Arabic or Latin digits', () => {
+    expect(toTripCount('26')).toBe(26);
+    expect(toTripCount('٢٦')).toBe(26);
+    expect(toTripCount('')).toBeNull();
+    expect(toTripCount('0')).toBeUndefined();
+    expect(toTripCount('2.5')).toBeUndefined();
+  });
+
+  it('needs a salary only for a salaried driver', () => {
+    expect(salaryError('', 'salary', 'EGP')).toBe('required');
+    expect(salaryError('3000', 'salary', 'EGP')).toBeNull();
+    expect(salaryError('', 'perTrip', 'EGP')).toBeNull();
+  });
+
+  it('needs the trip count once trip amounts are typed for a salary', () => {
+    expect(salaryTripsError('', 'salary', '', '')).toBeNull();
+    expect(salaryTripsError('', 'salary', '50', '')).toBe('required');
+    expect(salaryTripsError('abc', 'salary', '', '')).toBe('trips');
+    expect(salaryTripsError('', 'perTrip', '50', '50')).toBeNull();
+  });
+
+  it('needs trip amounts for a driver paid per trip and for a salary covering trips', () => {
+    expect(tripAmountError('', 'perTrip', '', 'EGP')).toBe('required');
+    expect(tripAmountError('', 'salary', '', 'EGP')).toBeNull();
+    expect(tripAmountError('', 'salary', '26', 'EGP')).toBe('required');
+    expect(tripAmountError('50.123', 'salary', '26', 'EGP')).toBe('amount');
+    expect(tripAmountError('', 'none', '26', 'EGP')).toBeNull();
   });
 });
 

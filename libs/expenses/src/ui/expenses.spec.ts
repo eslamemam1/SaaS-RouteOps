@@ -30,9 +30,12 @@ const fuel: Expense = {
 };
 const ahmedPay: DriverPay = {
   driverId: 'driver-1',
-  doneTrips: 4,
-  monthlySalary: 500000,
-  tripPay: 5000,
+  payType: 'salary',
+  monthlySalary: 300000,
+  salaryTrips: 26,
+  tripPay: { outbound: 5000, return: 5000 },
+  done: { outbound: 30, return: 28 },
+  absent: { outbound: 0, return: 0 },
   recorded: 0,
 };
 const arabic = expensesText.ar;
@@ -68,21 +71,46 @@ describe('Expenses', () => {
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.pay.title);
-    expect(text(harness)).toContain('5,200.00');
+    expect(text(harness)).toContain(arabic.pay.payTypes.salary);
+    expect(text(harness)).toContain(`${arabic.pay.outbound} 30 · ${arabic.pay.return} 28`);
+    expect(text(harness)).toContain(arabic.pay.extraPart);
+    expect(text(harness)).toContain('3,300.00');
 
     button(harness, arabic.pay.record)?.click();
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.form.addTitle);
-    const amount = harness.routeNativeElement!.querySelector<HTMLInputElement>(
-      'form input[inputmode="decimal"]',
+    const form = harness.routeNativeElement!.querySelector('form')!;
+    expect(form.querySelector<HTMLInputElement>('input[inputmode="decimal"]')?.value).toBe(
+      '3300.00',
     );
-    expect(amount?.value).toBe('5200.00');
+    const note = form.querySelector('textarea')?.value ?? '';
+    expect(note).toContain(arabic.pay.noteSalary);
+    expect(note).toContain(arabic.pay.extraPart);
+  });
+
+  it('shows the absence taken off a salary', async () => {
+    const harness = await open({
+      month: async () => ({
+        expenses: [],
+        pay: [
+          {
+            ...ahmedPay,
+            done: { outbound: 24, return: 24 },
+            absent: { outbound: 2, return: 2 },
+          },
+        ],
+      }),
+    });
+    await settle(harness);
+
+    expect(text(harness)).toContain(arabic.pay.missedPart);
+    expect(text(harness)).toContain('2,800.00');
   });
 
   it('marks a salary that is fully recorded', async () => {
     const harness = await open({
-      month: async () => ({ expenses: [], pay: [{ ...ahmedPay, recorded: 520000 }] }),
+      month: async () => ({ expenses: [], pay: [{ ...ahmedPay, recorded: 330000 }] }),
     });
     await settle(harness);
 

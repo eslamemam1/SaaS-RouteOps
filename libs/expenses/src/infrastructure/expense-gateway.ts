@@ -14,6 +14,7 @@ import {
   ExpenseDetails,
   ExpenseOrganization,
   isExpenseCategory,
+  PayType,
 } from '../domain/expense';
 import { Database } from './database';
 
@@ -154,9 +155,15 @@ export class SupabaseExpenseGateway implements ExpenseGateway {
     }
     return (data ?? []).map((row) => ({
       driverId: row.driver_id,
-      doneTrips: row.done_trips,
+      payType: toPayType(row.pay_type),
       monthlySalary: row.monthly_salary === null ? null : Number(row.monthly_salary),
-      tripPay: row.trip_pay === null ? null : Number(row.trip_pay),
+      salaryTrips: row.salary_trips,
+      tripPay:
+        row.outbound_pay === null || row.return_pay === null
+          ? null
+          : { outbound: Number(row.outbound_pay), return: Number(row.return_pay) },
+      done: { outbound: row.done_outbound, return: row.done_return },
+      absent: { outbound: row.absent_outbound, return: row.absent_return },
       recorded: Number(row.recorded),
     }));
   }
@@ -216,6 +223,17 @@ export class SupabaseExpenseGateway implements ExpenseGateway {
       throw new ExpenseAccessError('notConnected');
     }
     return this.client;
+  }
+}
+
+function toPayType(column: string): PayType {
+  switch (column) {
+    case 'salary':
+      return 'salary';
+    case 'per_trip':
+      return 'perTrip';
+    default:
+      throw new ExpenseAccessError('load');
   }
 }
 
