@@ -36,11 +36,13 @@ describe('SupabaseOrganizationGateway', () => {
     );
   });
 
-  it('maps organization rows to id and name', async () => {
+  it('maps organization rows to id, name, and currency', async () => {
     const client = fakeClient({
       onIn() {
         return {
-          data: [{ id: 'org-north', name: 'North', is_active: false, extra: 'hidden' }],
+          data: [
+            { id: 'org-north', name: 'North', currency: 'SAR', is_active: false, extra: 'hidden' },
+          ],
           error: null,
         };
       },
@@ -48,7 +50,7 @@ describe('SupabaseOrganizationGateway', () => {
     const gateway = new SupabaseOrganizationGateway(client);
 
     await expect(gateway.organizationsByIds(['org-north'])).resolves.toEqual([
-      { id: 'org-north', name: 'North', isActive: false },
+      { id: 'org-north', name: 'North', currency: 'SAR', isActive: false },
     ]);
   });
 
@@ -143,6 +145,84 @@ describe('SupabaseOrganizationGateway', () => {
     );
   });
 
+  it('sums the month and today for the dashboard under the reports rules', async () => {
+    const calls: { name: string; args?: Record<string, unknown> }[] = [];
+    const rows: Record<string, unknown[]> = {
+      expense_totals: [{ total: 150000 }, { total: 50000 }],
+      unopened_days: ['2026-10-04', '2026-10-08'],
+      driver_pay: [
+        { pay_type: 'salary', done_outbound: 0, done_return: 0, recorded: 0 },
+        { pay_type: 'salary', done_outbound: 10, done_return: 10, recorded: 700000 },
+        { pay_type: 'perTrip', done_outbound: 0, done_return: 0, recorded: 0 },
+        { pay_type: 'perTrip', done_outbound: 3, done_return: 0, recorded: 0 },
+      ],
+      vehicle_pay: [
+        { rent_type: 'monthly', done_outbound: 0, done_return: 0, recorded: 0 },
+        { rent_type: 'perTrip', done_outbound: 0, done_return: 0, recorded: 0 },
+      ],
+    };
+    const client = fakeClient({
+      onEq(column, value) {
+        return column === 'service_date' && value === '2026-10-08'
+          ? { data: [{ is_cancelled: false }, { is_cancelled: true }], error: null }
+          : { data: [], error: null };
+      },
+      onRpc(name, args) {
+        calls.push({ name, args });
+        if (name === 'trip_report') {
+          return args?.['p_from'] === '2026-10-08'
+            ? { data: [{ done_trips: 1, revenue: 5000, unpriced_trips: 0 }], error: null }
+            : {
+                data: [
+                  { done_trips: 20, revenue: 100000, unpriced_trips: 2 },
+                  { done_trips: 5, revenue: 25000, unpriced_trips: 0 },
+                ],
+                error: null,
+              };
+        }
+        return { data: rows[name] ?? [], error: null };
+      },
+    });
+    const gateway = new SupabaseOrganizationGateway(client);
+
+    const facts = await gateway.dashboardFacts(
+      'org-north',
+      { from: '2026-10-01', to: '2026-10-31' },
+      '2026-10-08',
+    );
+
+    expect(facts).toEqual({
+      todayTrips: [{ cancelled: false }, { cancelled: true }],
+      todayDone: 1,
+      monthDone: 25,
+      monthRevenue: 125000,
+      monthUnpriced: 2,
+      monthExpenses: 200000,
+      unopenedDays: ['2026-10-04', '2026-10-08'],
+      unrecordedDriverPay: 2,
+      unrecordedVehiclePay: 1,
+    });
+    expect(calls).toContainEqual({
+      name: 'unopened_days',
+      args: { p_organization_id: 'org-north', p_from: '2026-10-01', p_to: '2026-10-08' },
+    });
+  });
+
+  it('replaces an error loading the dashboard with a safe message', async () => {
+    const client = fakeClient({
+      onRpc(name) {
+        return name === 'expense_totals'
+          ? { data: null, error: { message: 'permission denied' } }
+          : { data: [], error: null };
+      },
+    });
+    const gateway = new SupabaseOrganizationGateway(client);
+
+    await expect(
+      gateway.dashboardFacts('org-north', { from: '2026-10-01', to: '2026-10-31' }, '2026-10-08'),
+    ).rejects.toEqual(new OrganizationAccessError('load'));
+  });
+
   it('replaces an error listing the accounts with a safe message', async () => {
     const client = fakeClient({
       onRpc() {
@@ -176,9 +256,9 @@ function fakeClient(handlers: {
       return query;
     },
     eq(column: string, value: string) {
-      return Promise.resolve(
-        handlers.onEq?.(column, value) ?? { data: [], error: null },
-      );
+      const result = (name: string, current: string) =>
+        Promise.resolve(handlers.onEq?.(name, current) ?? { data: [], error: null });
+      return Object.assign(result(column, value), { eq: result });
     },
     in(column: string, value: readonly string[]) {
       return Promise.resolve(

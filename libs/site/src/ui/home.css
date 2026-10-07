@@ -14,14 +14,16 @@
 .home-eyebrow {
   padding: var(--ro-space-1) var(--ro-space-3);
   border-radius: var(--ro-radius-full);
-  background: var(--ro-bg-brand-subtle);
-  color: var(--ro-text-brand);
+  border: var(--ro-border-width) solid var(--ro-border-warning-subtle);
+  background: var(--ro-bg-accent-subtle);
+  color: var(--ro-text-accent);
   font-size: var(--ro-text-body-sm);
-  font-weight: var(--ro-font-medium);
+  font-weight: var(--ro-font-semibold);
 }
 
 .home-title {
   max-inline-size: var(--ro-headline-width);
+  font-weight: var(--ro-font-bold);
   font-size: var(--ro-text-display);
   line-height: var(--ro-leading-display);
 }
@@ -116,9 +118,13 @@
   justify-content: space-between;
   gap: var(--ro-space-4);
   padding: var(--ro-space-8);
-  border-radius: var(--ro-radius-lg);
-  background: var(--ro-bg-brand);
-  color: var(--ro-text-on-brand);
+  border-radius: var(--ro-radius-xl);
+  background: var(--ro-bg-inverse);
+  color: var(--ro-text-on-inverse);
+}
+
+.home-cta p {
+  color: var(--ro-text-on-inverse-muted);
 }
 
 .home-cta h2 {

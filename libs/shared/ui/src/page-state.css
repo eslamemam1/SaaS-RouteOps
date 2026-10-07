@@ -3,6 +3,7 @@
   justify-items: center;
   gap: var(--ro-space-2);
   padding: var(--ro-space-10);
+  color: var(--ro-text-secondary);
   text-align: center;
 }
 
@@ -16,7 +17,7 @@
 .app-page-state-spinner {
   inline-size: var(--ro-spinner-size);
   block-size: var(--ro-spinner-size);
-  border: var(--ro-focus-width) solid var(--ro-border-default);
+  border: var(--ro-indicator-width) solid var(--ro-bg-brand-subtle);
   border-block-start-color: var(--ro-bg-brand);
   border-radius: var(--ro-radius-full);
   animation: app-page-state-spin var(--ro-motion-spin) linear infinite;
@@ -29,8 +30,10 @@
 }
 
 .app-page-state-title {
+  color: var(--ro-text-primary);
   font-size: var(--ro-text-heading-md);
   line-height: var(--ro-leading-heading-md);
+  font-weight: var(--ro-font-semibold);
 }
 
 .app-page-state-error .app-page-state-title {

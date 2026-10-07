@@ -1,4 +1,5 @@
 import { Currency } from '@routeops/shared/money';
+import { Dashboard } from '../domain/dashboard';
 import { CompanyAccount, Organization } from '../domain/organization';
 
 export interface ProvisionCompany {
@@ -22,4 +23,5 @@ export abstract class OrganizationRepository {
     isActive: boolean,
   ): Promise<void>;
   abstract provisionCompany(input: ProvisionCompany): Promise<void>;
+  abstract dashboard(organizationId: string, today: string): Promise<Dashboard>;
 }

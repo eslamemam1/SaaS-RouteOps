@@ -21,7 +21,7 @@
   inset-block-start: 0;
   z-index: var(--ro-z-sticky);
   background: var(--ro-bg-surface);
-  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+  box-shadow: var(--ro-shadow-topbar);
 }
 
 .app-public-header .app-public-bar {

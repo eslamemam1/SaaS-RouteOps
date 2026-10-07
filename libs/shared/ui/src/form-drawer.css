@@ -38,6 +38,7 @@
 .title {
   font-size: var(--ro-text-heading-lg);
   line-height: var(--ro-leading-heading-lg);
+  font-weight: var(--ro-font-bold);
 }
 
 .close {
@@ -53,6 +54,11 @@
 
 .close:hover {
   background: var(--ro-bg-subtle);
+  color: var(--ro-text-primary);
+}
+
+.close:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-border-focus);
 }
 
 .content {

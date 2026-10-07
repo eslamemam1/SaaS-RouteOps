@@ -1,3 +1,4 @@
+import { Dashboard, dashboard, monthDays } from '../domain/dashboard';
 import { CompanyAccount, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import {
@@ -54,5 +55,10 @@ export class SupabaseOrganizationRepository extends OrganizationRepository {
 
   provisionCompany(input: ProvisionCompany): Promise<void> {
     return this.gateway.provision(input);
+  }
+
+  async dashboard(organizationId: string, today: string): Promise<Dashboard> {
+    const facts = await this.gateway.dashboardFacts(organizationId, monthDays(today), today);
+    return dashboard(facts, today);
   }
 }

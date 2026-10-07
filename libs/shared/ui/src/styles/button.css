@@ -10,10 +10,23 @@
   border-radius: var(--ro-radius-md);
   font-size: var(--ro-text-body-sm);
   line-height: var(--ro-leading-body-sm);
-  font-weight: var(--ro-font-medium);
+  font-weight: var(--ro-font-semibold);
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  transition:
+    background var(--ro-motion-fast),
+    border-color var(--ro-motion-fast),
+    box-shadow var(--ro-motion-fast),
+    transform var(--ro-motion-fast);
+}
+
+.app-button:active:not(:disabled) {
+  transform: translateY(var(--ro-press-offset));
+}
+
+.app-button ng-icon {
+  font-size: var(--ro-icon-size);
 }
 
 .app-button:focus-visible {
@@ -30,6 +43,7 @@
   min-block-size: 0;
   padding-block: var(--ro-space-1);
   padding-inline: var(--ro-space-3);
+  border-radius: var(--ro-radius-sm);
 }
 
 @media (pointer: coarse) {
@@ -42,6 +56,7 @@
 .app-button[data-variant='primary'] {
   background: var(--ro-bg-brand);
   color: var(--ro-text-on-brand);
+  box-shadow: var(--ro-shadow-button);
 }
 
 .app-button[data-variant='primary']:hover:not(:disabled) {
@@ -55,7 +70,8 @@
 }
 
 .app-button[data-variant='secondary']:hover:not(:disabled) {
-  background: var(--ro-bg-subtle);
+  background: var(--ro-bg-hover);
+  border-color: var(--ro-border-hover);
 }
 
 .app-button[data-variant='text'] {
@@ -70,4 +86,18 @@
 .app-button[data-variant='danger'] {
   background: var(--ro-bg-danger);
   color: var(--ro-text-on-brand);
+}
+
+.app-button[data-variant='danger']:hover:not(:disabled) {
+  background: var(--ro-bg-danger-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-button {
+    transition: none;
+  }
+
+  .app-button:active:not(:disabled) {
+    transform: none;
+  }
 }

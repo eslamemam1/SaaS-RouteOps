@@ -11,8 +11,9 @@
   grid-template-rows: var(--ro-topbar-height) minmax(0, 1fr);
   block-size: 100dvh;
   overflow: hidden;
-  background: var(--ro-bg-surface);
-  border-inline-end: var(--ro-border-width) solid var(--ro-border-default);
+  background: var(--ro-bg-sidebar);
+  color: var(--ro-text-sidebar);
+  border-inline-end: var(--ro-border-width) solid var(--ro-border-sidebar);
 }
 
 .shell-sidebar > * {
@@ -34,11 +35,21 @@
   justify-content: space-between;
   gap: var(--ro-space-2);
   padding-inline: var(--ro-space-3);
-  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+  border-block-end: var(--ro-border-width) solid var(--ro-border-sidebar);
 }
 
 .shell-brand {
   padding-inline: var(--ro-space-2);
+  color: var(--ro-text-sidebar-active);
+}
+
+.shell-sidebar .shell-toggle {
+  color: var(--ro-text-sidebar);
+}
+
+.shell-sidebar .shell-toggle:hover {
+  background: var(--ro-bg-sidebar-hover);
+  color: var(--ro-text-sidebar-active);
 }
 
 .shell-brand,
@@ -61,15 +72,19 @@
 }
 
 .shell-nav-item {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--ro-space-2);
+  gap: var(--ro-space-3);
   min-block-size: var(--ro-control-height);
   padding-inline: var(--ro-space-3);
   border-radius: var(--ro-radius-md);
-  color: var(--ro-text-secondary);
-  font-size: var(--ro-text-body-sm);
+  color: var(--ro-text-sidebar);
+  font-size: var(--ro-text-body-md);
   text-decoration: none;
+  transition:
+    background var(--ro-motion-fast),
+    color var(--ro-motion-fast);
 }
 
 .shell-nav-item ng-icon {
@@ -77,15 +92,34 @@
 }
 
 .shell-nav-item:hover {
-  background: var(--ro-bg-subtle);
-  color: var(--ro-text-primary);
+  background: var(--ro-bg-sidebar-hover);
+  color: var(--ro-text-sidebar-active);
+}
+
+.shell-nav-item:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-bg-accent);
+  outline-offset: calc(var(--ro-focus-width) * -1);
 }
 
 .shell-nav-item-active,
 .shell-nav-item-active:hover {
-  background: var(--ro-bg-brand-subtle);
-  color: var(--ro-text-brand);
-  font-weight: var(--ro-font-medium);
+  background: var(--ro-bg-sidebar-active);
+  color: var(--ro-text-sidebar-active);
+  font-weight: var(--ro-font-semibold);
+}
+
+.shell-nav-item-active::before {
+  content: '';
+  position: absolute;
+  inset-block: var(--ro-space-2);
+  inset-inline-start: 0;
+  inline-size: var(--ro-indicator-width);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-accent);
+}
+
+.shell-nav-item-active ng-icon {
+  color: var(--ro-bg-accent);
 }
 
 .shell-main {
@@ -103,7 +137,7 @@
   gap: var(--ro-space-2);
   padding-inline: var(--ro-space-3) var(--ro-space-6);
   background: var(--ro-bg-surface);
-  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+  box-shadow: var(--ro-shadow-topbar);
 }
 
 .shell-topbar app-language-switch {
@@ -139,8 +173,12 @@
   outline: var(--ro-focus-width) solid var(--ro-border-focus);
 }
 
+
 .shell-content {
+  inline-size: 100%;
   min-inline-size: 0;
+  max-inline-size: var(--ro-content-max-width);
+  margin-inline: auto;
   padding: var(--ro-space-8);
 }
 
@@ -234,7 +272,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .shell,
-  .shell-sidebar {
+  .shell-sidebar,
+  .shell-nav-item {
     transition: none;
   }
 }

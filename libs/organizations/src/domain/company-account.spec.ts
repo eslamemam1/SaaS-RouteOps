@@ -5,8 +5,8 @@ import {
 } from './company-account';
 import { activeOrganization, Organization } from './organization';
 
-const north: Organization = { id: 'org-north', name: 'North', isActive: true };
-const south: Organization = { id: 'org-south', name: 'South', isActive: true };
+const north: Organization = { id: 'org-north', name: 'North', currency: 'EGP', isActive: true };
+const south: Organization = { id: 'org-south', name: 'South', currency: 'EGP', isActive: true };
 
 describe('organization name', () => {
   it('rejects a blank name', () => {

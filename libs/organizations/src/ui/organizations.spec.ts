@@ -1,13 +1,25 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { LanguageService } from '@routeops/shared/i18n';
+import { Dashboard } from '../domain/dashboard';
 import { CompanyAccount, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
 import { Organizations } from './organizations';
 import { organizationsText } from './organizations-text';
 
-const north: Organization = { id: 'org-north', name: 'North', isActive: true };
+const north: Organization = { id: 'org-north', name: 'North', currency: 'EGP', isActive: true };
+const busy: Dashboard = {
+  today: { status: 'open', planned: 12, done: 7, cancelled: 1 },
+  month: { done: 180, revenue: 9_000_000, expenses: 6_500_000, profit: 2_500_000 },
+  attention: { unopenedDays: 0, driverPay: 2, vehiclePay: 0, unpriced: 3 },
+};
+const calm: Dashboard = {
+  ...busy,
+  today: { status: 'unopened', planned: 0, done: 0, cancelled: 0 },
+  month: { done: 10, revenue: 100_000, expenses: 400_000, profit: -300_000 },
+  attention: { unopenedDays: 0, driverPay: 0, vehiclePay: 0, unpriced: 0 },
+};
 const gulf: CompanyAccount = {
   id: 'org-gulf',
   name: 'Gulf Transport',
@@ -48,8 +60,64 @@ describe('Organizations', () => {
     expect(text(fixture)).toContain(`${arabic.home.welcome} North`);
   });
 
+  it('shows today’s trips, the month’s figures, and what needs attention', async () => {
+    const dashboard = vi.fn<OrganizationRepository['dashboard']>(async () => busy);
+    const fixture = await render({ listMine: async () => [north], dashboard });
+    await settle(fixture);
+    await settle(fixture);
+
+    const element: HTMLElement = fixture.nativeElement;
+    expect(dashboard).toHaveBeenCalledWith('org-north', expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/));
+    expect([...element.querySelectorAll('.dashboard-today dd')].map((item) => item.textContent?.trim())).toEqual([
+      '12',
+      '7',
+      '1',
+    ]);
+    expect(text(fixture)).toContain('90,000.00');
+    expect(text(fixture)).toContain('25,000.00');
+    const attention = [...element.querySelectorAll('.dashboard-attention a')];
+    expect(attention.map((link) => link.getAttribute('href'))).toEqual([
+      '/organizations/org-north/expenses',
+      '/organizations/org-north/routes',
+    ]);
+    expect(attention[0].textContent).toContain(arabic.dashboard.driverPay);
+    expect(attention[0].textContent).toContain('2');
+  });
+
+  it('asks to open today, marks a loss, and says when everything is recorded', async () => {
+    const fixture = await render({ listMine: async () => [north], dashboard: async () => calm });
+    await settle(fixture);
+    await settle(fixture);
+
+    const element: HTMLElement = fixture.nativeElement;
+    expect(text(fixture)).toContain(arabic.dashboard.unopenedTitle);
+    expect(text(fixture)).toContain(arabic.dashboard.loss);
+    expect(element.querySelector('.ro-stat-danger')).toBeTruthy();
+    expect(text(fixture)).toContain(arabic.dashboard.allClear);
+  });
+
+  it('shows a safe error when the figures cannot load and tries again', async () => {
+    const dashboard = vi
+      .fn<OrganizationRepository['dashboard']>()
+      .mockRejectedValueOnce(new OrganizationAccessError('load'))
+      .mockResolvedValueOnce(busy);
+    const fixture = await render({ listMine: async () => [north], dashboard });
+    await settle(fixture);
+    await settle(fixture);
+    expect(text(fixture)).toContain(arabic.problems.load);
+
+    const element: HTMLElement = fixture.nativeElement;
+    [...element.querySelectorAll('button')]
+      .find((button) => button.textContent?.trim() === arabic.dashboard.retry)!
+      .click();
+    await settle(fixture);
+    await settle(fixture);
+
+    expect(element.querySelectorAll('.dashboard-today dd')).toHaveLength(3);
+  });
+
   it('lets a member of two companies choose which one to open', async () => {
-    const south: Organization = { id: 'org-south', name: 'South', isActive: true };
+    const south: Organization = { id: 'org-south', name: 'South', currency: 'EGP', isActive: true };
     const fixture = await render({ listMine: async () => [north, south] });
     await settle(fixture);
 
@@ -242,6 +310,7 @@ describe('Organizations', () => {
     expect(text(fixture)).toContain(arabic.home.suspendedTitle);
     expect(text(fixture)).toContain(arabic.home.suspended);
     expect(element.querySelector('a[href="/organizations/org-north/routes"]')).toBeNull();
+    expect(element.querySelector('.dashboard-today')).toBeNull();
   });
 
   it('does not list company accounts for a company login', async () => {
@@ -279,6 +348,7 @@ async function render(overrides: Partial<OrganizationRepository>) {
     listCompanyAccounts: async () => [],
     setCompanyActive: async () => undefined,
     provisionCompany: async () => undefined,
+    dashboard: async () => busy,
     ...overrides,
   };
   await TestBed.configureTestingModule({

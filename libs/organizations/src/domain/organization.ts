@@ -5,6 +5,7 @@ import { Currency } from '@routeops/shared/money';
 export interface Organization {
   readonly id: string;
   readonly name: string;
+  readonly currency: Currency;
   readonly isActive: boolean;
 }
 

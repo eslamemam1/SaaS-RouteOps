@@ -65,6 +65,9 @@ async function render(overrides: Partial<OrganizationRepository>) {
     listCompanyAccounts: async () => [],
     setCompanyActive: async () => undefined,
     provisionCompany: async () => undefined,
+    dashboard: async () => {
+      throw new Error('not used');
+    },
     ...overrides,
   };
   await TestBed.configureTestingModule({

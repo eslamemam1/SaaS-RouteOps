@@ -7,7 +7,7 @@ Multi-tenant operations app for staff transportation companies.
 - `apps/routeops` is the only Angular application.
 - `apps/routeops-e2e` is the Playwright project.
 - `libs/site` holds the public home page (`/`) and contact page (`/contact`). Edit the phone, WhatsApp, and email in `libs/site/src/domain/contact-details.ts`.
-- `libs/organizations` signs users in, shows the dashboard at `/dashboard`, and creates companies.
+- `libs/organizations` signs users in, shows the dashboard at `/dashboard` (today's trips, the month's figures, and what still needs recording), and creates companies.
 - `libs/customers` keeps each organization's customers.
 - `libs/vehicles` keeps each organization's vehicles and how the owner of a rented or contractor vehicle is paid.
 - `libs/drivers` keeps each organization's drivers.

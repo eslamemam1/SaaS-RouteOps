@@ -40,6 +40,38 @@ export interface OrganizationsText {
     readonly reportsHint: string;
     readonly suspendedTitle: string;
     readonly suspended: string;
+    readonly sectionsTitle: string;
+  };
+  readonly dashboard: {
+    readonly todayTitle: string;
+    readonly openToday: string;
+    readonly planned: string;
+    readonly done: string;
+    readonly cancelled: string;
+    readonly unopenedTitle: string;
+    readonly unopened: string;
+    readonly noTrips: string;
+    readonly monthTitle: string;
+    readonly monthHint: string;
+    readonly openReports: string;
+    readonly monthDone: string;
+    readonly revenue: string;
+    readonly expenses: string;
+    readonly profit: string;
+    readonly loss: string;
+    readonly attentionTitle: string;
+    readonly attentionHint: string;
+    readonly allClear: string;
+    readonly unopenedDays: string;
+    readonly unopenedDaysHint: string;
+    readonly driverPay: string;
+    readonly driverPayHint: string;
+    readonly vehiclePay: string;
+    readonly vehiclePayHint: string;
+    readonly unpriced: string;
+    readonly unpricedHint: string;
+    readonly loading: string;
+    readonly retry: string;
   };
   readonly accounts: {
     readonly title: string;
@@ -150,6 +182,38 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       suspendedTitle: 'حساب الشركة موقوف',
       suspended:
         'أُوقف حساب شركتك مؤقتًا لحين سداد الاشتراك الشهري. بياناتك محفوظة ولن يُحذف منها شيء. تواصل مع مدير الموقع لإعادة تفعيل الحساب.',
+      sectionsTitle: 'الأقسام',
+    },
+    dashboard: {
+      todayTitle: 'رحلات اليوم',
+      openToday: 'افتح التشغيل اليومي',
+      planned: 'رحلات اليوم',
+      done: 'تمّت',
+      cancelled: 'ملغاة',
+      unopenedTitle: 'لم يُفتح يوم اليوم بعد',
+      unopened: 'افتح التشغيل اليومي لتظهر رحلات اليوم وتسجّل ما تغيّر فيها.',
+      noTrips: 'لا توجد خطوط تعمل اليوم.',
+      monthTitle: 'هذا الشهر',
+      monthHint: 'بنفس حساب صفحة التقارير: الرحلات التي تمّت حتى اليوم ومصاريف الشهر المسجّلة.',
+      openReports: 'افتح التقارير',
+      monthDone: 'رحلات تمّت',
+      revenue: 'الإيراد',
+      expenses: 'المصاريف',
+      profit: 'صافي الربح',
+      loss: 'خسارة',
+      attentionTitle: 'يحتاج انتباهك',
+      attentionHint: 'أشياء لم تُسجّل بعد، فتنقص حسابات الشهر حتى تسجّلها.',
+      allClear: 'كل شيء مسجّل. لا يوجد ما يحتاج انتباهك الآن.',
+      unopenedDays: 'أيام عمل لم تُفتح هذا الشهر',
+      unopenedDaysHint: 'رحلات هذه الأيام لم تُسجّل، فلا تدخل في التقارير.',
+      driverPay: 'سائقون لم تُسجّل رواتبهم أو أجرهم',
+      driverPayHint: 'سجّلها من المصاريف لتدخل في صافي الربح.',
+      vehiclePay: 'مركبات لم تُسجّل أجرتها',
+      vehiclePayHint: 'سجّل إيجار المركبات المؤجّرة ومركبات المقاولين من المصاريف.',
+      unpriced: 'رحلات تمّت بلا سعر',
+      unpricedHint: 'أضف سعر الرحلة للخط حتى يُحسب إيرادها.',
+      loading: 'جارٍ تحميل أرقام اليوم والشهر...',
+      retry: 'حاول مرة أخرى',
     },
     accounts: {
       title: 'حسابات الشركات',
@@ -261,6 +325,38 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       suspendedTitle: 'The company account is stopped',
       suspended:
         'Your company account is stopped until the monthly subscription is paid. Your data is kept and nothing is deleted. Contact the site manager to turn the account back on.',
+      sectionsTitle: 'Sections',
+    },
+    dashboard: {
+      todayTitle: "Today's trips",
+      openToday: 'Open daily operations',
+      planned: "Today's trips",
+      done: 'Done',
+      cancelled: 'Cancelled',
+      unopenedTitle: 'Today is not opened yet',
+      unopened: "Open daily operations to see today's trips and record what changed.",
+      noTrips: 'No route runs today.',
+      monthTitle: 'This month',
+      monthHint: "Counted like the reports page: the trips done so far and the month's recorded expenses.",
+      openReports: 'Open reports',
+      monthDone: 'Trips done',
+      revenue: 'Revenue',
+      expenses: 'Expenses',
+      profit: 'Net profit',
+      loss: 'Loss',
+      attentionTitle: 'Needs your attention',
+      attentionHint: "Things not recorded yet, so the month's figures stay short until you record them.",
+      allClear: 'Everything is recorded. Nothing needs your attention now.',
+      unopenedDays: 'Working days not opened this month',
+      unopenedDaysHint: 'The trips of these days were not recorded, so reports leave them out.',
+      driverPay: 'Drivers with salary or pay not recorded',
+      driverPayHint: 'Record it in expenses so it counts in net profit.',
+      vehiclePay: 'Vehicles with pay not recorded',
+      vehiclePayHint: 'Record the rent of rented and contractor vehicles in expenses.',
+      unpriced: 'Done trips with no price',
+      unpricedHint: 'Add a trip price to the route so its revenue counts.',
+      loading: "Loading today's and this month's figures...",
+      retry: 'Try again',
     },
     accounts: {
       title: 'Company accounts',

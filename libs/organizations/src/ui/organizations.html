@@ -1,5 +1,13 @@
 <div class="ro-stack">
-  <app-page-header [title]="headerTitle()" [hint]="active() ? text().home.hint : ''" />
+  <app-page-header [title]="headerTitle()" [hint]="active()?.isActive ? todayLabel() : ''">
+    @if (active(); as current) {
+      @if (current.isActive) {
+        <a appButton [routerLink]="['/organizations', current.id, 'operations']">
+          {{ text().dashboard.openToday }}
+        </a>
+      }
+    }
+  </app-page-header>
 
   @switch (status()) {
     @case ('loading') {
@@ -42,18 +50,140 @@
             {{ text().home.suspended }}
           </app-alert>
         } @else {
-          <div class="ro-grid">
-            @for (section of sections; track section.path) {
-              <a
-                class="home-section ro-card"
-                [routerLink]="['/organizations', current.id, section.path]"
-              >
-                <span class="home-section-icon"><ng-icon [svg]="section.icon" aria-hidden="true" /></span>
-                <strong>{{ text().home[section.path] }}</strong>
-                <span class="hint">{{ text().home[section.hint] }}</span>
-              </a>
+          @switch (summaryStatus()) {
+            @case ('loading') {
+              <app-page-state kind="loading" [message]="text().dashboard.loading" />
             }
-          </div>
+            @case ('error') {
+              <app-page-state kind="error" [message]="text().problems.load">
+                <button type="button" appButton="secondary" (click)="loadDashboard()">
+                  {{ text().dashboard.retry }}
+                </button>
+              </app-page-state>
+            }
+            @case ('success') {
+              @if (summary(); as summary) {
+                <div class="dashboard-top">
+                  <section class="ro-card" aria-labelledby="dashboard-today">
+                    <div class="ro-card-header">
+                      <h2 id="dashboard-today" class="ro-card-title">{{ text().dashboard.todayTitle }}</h2>
+                    </div>
+                    <div class="ro-card-body">
+                      @switch (summary.today.status) {
+                        @case ('unopened') {
+                          <app-alert tone="info" [title]="text().dashboard.unopenedTitle">
+                            {{ text().dashboard.unopened }}
+                          </app-alert>
+                        }
+                        @case ('none') {
+                          <p class="hint">{{ text().dashboard.noTrips }}</p>
+                        }
+                        @case ('open') {
+                          <dl class="dashboard-today">
+                            <div>
+                              <dt>{{ text().dashboard.planned }}</dt>
+                              <dd class="ro-numeric">{{ summary.today.planned }}</dd>
+                            </div>
+                            <div class="dashboard-today-done">
+                              <dt>{{ text().dashboard.done }}</dt>
+                              <dd class="ro-numeric">{{ summary.today.done }}</dd>
+                            </div>
+                            <div class="dashboard-today-cancelled">
+                              <dt>{{ text().dashboard.cancelled }}</dt>
+                              <dd class="ro-numeric">{{ summary.today.cancelled }}</dd>
+                            </div>
+                          </dl>
+                        }
+                      }
+                    </div>
+                  </section>
+
+                  <section class="ro-card" aria-labelledby="dashboard-attention">
+                    <div class="ro-card-header">
+                      <h2 id="dashboard-attention" class="ro-card-title">{{ text().dashboard.attentionTitle }}</h2>
+                      <p class="hint">{{ text().dashboard.attentionHint }}</p>
+                    </div>
+                    <div class="ro-card-body">
+                      @if (allClear()) {
+                        <app-alert tone="success">{{ text().dashboard.allClear }}</app-alert>
+                      } @else {
+                        <ul class="dashboard-attention">
+                          @for (item of attention(); track item.key) {
+                            <li>
+                              <a [routerLink]="['/organizations', current.id, item.path]">
+                                <app-tag tone="warning"><bdi>{{ item.count }}</bdi></app-tag>
+                                <span class="dashboard-attention-text">
+                                  <strong>{{ text().dashboard[item.key] }}</strong>
+                                  <span class="hint">{{ text().dashboard[item.hint] }}</span>
+                                </span>
+                              </a>
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                  </section>
+                </div>
+
+                <section class="dashboard-month" aria-labelledby="dashboard-month">
+                  <div class="dashboard-month-header">
+                    <div>
+                      <h2 id="dashboard-month">{{ text().dashboard.monthTitle }} · {{ monthLabel() }}</h2>
+                      <p class="hint">{{ text().dashboard.monthHint }}</p>
+                    </div>
+                    <a appButton="secondary" size="sm" [routerLink]="['/organizations', current.id, 'reports']">
+                      {{ text().dashboard.openReports }}
+                    </a>
+                  </div>
+                  <div class="ro-stats">
+                    <div class="ro-stat ro-card">
+                      <span class="ro-stat-label">{{ text().dashboard.monthDone }}</span>
+                      <strong class="ro-stat-value"><bdi>{{ summary.month.done }}</bdi></strong>
+                    </div>
+                    <div class="ro-stat ro-card">
+                      <span class="ro-stat-label">{{ text().dashboard.revenue }}</span>
+                      <strong class="ro-stat-value"><bdi>{{ money(summary.month.revenue) }}</bdi></strong>
+                    </div>
+                    <div class="ro-stat ro-card">
+                      <span class="ro-stat-label">{{ text().dashboard.expenses }}</span>
+                      <strong class="ro-stat-value"><bdi>{{ money(summary.month.expenses) }}</bdi></strong>
+                    </div>
+                    <div
+                      class="ro-stat ro-card"
+                      [class.ro-stat-success]="summary.month.profit > 0"
+                      [class.ro-stat-danger]="summary.month.profit < 0"
+                    >
+                      <span class="ro-stat-label">
+                        {{ text().dashboard.profit }}
+                        @if (summary.month.profit < 0) {
+                          <app-tag tone="danger">{{ text().dashboard.loss }}</app-tag>
+                        }
+                      </span>
+                      <strong class="ro-stat-value"><bdi>{{ money(summary.month.profit) }}</bdi></strong>
+                    </div>
+                  </div>
+                </section>
+              }
+            }
+          }
+
+          <section class="dashboard-sections" aria-labelledby="dashboard-sections">
+            <h2 id="dashboard-sections">{{ text().home.sectionsTitle }}</h2>
+            <div class="dashboard-section-grid">
+              @for (section of sections; track section.path) {
+                <a
+                  class="home-section ro-card"
+                  [routerLink]="['/organizations', current.id, section.path]"
+                >
+                  <span class="home-section-icon"><ng-icon [svg]="section.icon" aria-hidden="true" /></span>
+                  <span class="home-section-text">
+                    <strong>{{ text().home[section.path] }}</strong>
+                    <span class="hint">{{ text().home[section.hint] }}</span>
+                  </span>
+                </a>
+              }
+            </div>
+          </section>
         }
       }
     }

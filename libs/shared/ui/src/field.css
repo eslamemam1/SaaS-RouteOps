@@ -11,9 +11,10 @@
 }
 
 .app-field-label {
+  color: var(--ro-text-primary);
   font-size: var(--ro-text-body-sm);
   line-height: var(--ro-leading-body-sm);
-  font-weight: var(--ro-font-medium);
+  font-weight: var(--ro-font-semibold);
 }
 
 .app-field-optional {
