@@ -17,7 +17,7 @@ import { organizationsText } from './organizations-text';
           <button appButton type="button" (click)="signOut()">
             {{ text().signOut.retry }}
           </button>
-          <a appButton="secondary" routerLink="/">{{ text().signOut.backHome }}</a>
+          <a appButton="secondary" routerLink="/dashboard">{{ text().signOut.backHome }}</a>
         </div>
       </app-page-state>
     } @else {

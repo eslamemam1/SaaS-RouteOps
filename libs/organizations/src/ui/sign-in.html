@@ -1,32 +1,48 @@
-<main class="sign-in">
-  <div class="sign-in-language"><app-language-switch /></div>
-  <section class="sign-in-card ro-card">
-    <h1 class="sign-in-brand">
-      <app-logo size="lg" />
-      <span>{{ brand() }}</span>
-    </h1>
-    <div class="sign-in-titles">
-      <h2>{{ text().signIn.title }}</h2>
-      <p class="hint">{{ text().signIn.hint }}</p>
-    </div>
-    <form class="ro-form" (submit)="onSubmit($event)">
-      <app-field [label]="text().signIn.email" [control]="signInForm.email">
-        <input type="email" dir="ltr" autocomplete="username" [formField]="signInForm.email" />
-      </app-field>
-      <app-field [label]="text().signIn.password" [control]="signInForm.password">
-        <input
-          type="password"
-          dir="ltr"
-          autocomplete="current-password"
-          [formField]="signInForm.password"
-        />
-      </app-field>
-      @if (problem(); as current) {
-        <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
-      }
-      <button appButton class="sign-in-submit" type="submit" [disabled]="submitting()">
-        {{ text().signIn.submit }}
-      </button>
-    </form>
-  </section>
-</main>
+<app-public-layout>
+  <div class="sign-in">
+    <section class="sign-in-intro">
+      <h1 class="sign-in-brand">
+        <app-logo size="lg" />
+        <span>{{ brand() }}</span>
+      </h1>
+      <p class="sign-in-welcome">{{ text().signIn.welcome }}</p>
+      <ul class="sign-in-points">
+        @for (point of text().signIn.points; track point) {
+          <li>
+            <ng-icon [svg]="pointIcon" aria-hidden="true" />
+            <span>{{ point }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+    <section class="sign-in-card ro-card">
+      <div class="sign-in-titles">
+        <h2>{{ text().signIn.title }}</h2>
+        <p class="hint">{{ text().signIn.hint }}</p>
+      </div>
+      <form class="ro-form" (submit)="onSubmit($event)">
+        <app-field [label]="text().signIn.email" [control]="signInForm.email">
+          <input type="email" dir="ltr" autocomplete="username" [formField]="signInForm.email" />
+        </app-field>
+        <app-field [label]="text().signIn.password" [control]="signInForm.password">
+          <input
+            type="password"
+            dir="ltr"
+            autocomplete="current-password"
+            [formField]="signInForm.password"
+          />
+        </app-field>
+        @if (problem(); as current) {
+          <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+        }
+        <button appButton class="sign-in-submit" type="submit" [disabled]="submitting()">
+          {{ text().signIn.submit }}
+        </button>
+      </form>
+      <p class="hint sign-in-no-account">
+        {{ text().signIn.noAccount }}
+        <a routerLink="/contact">{{ text().signIn.contactLink }}</a>
+      </p>
+    </section>
+  </div>
+</app-public-layout>

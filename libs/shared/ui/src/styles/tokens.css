@@ -87,6 +87,7 @@
   --ro-space-6: 24px;
   --ro-space-8: 32px;
   --ro-space-10: 40px;
+  --ro-space-16: 64px;
 
   --ro-radius-sm: 4px;
   --ro-radius-md: 8px;
@@ -123,4 +124,8 @@
   --ro-card-min-height: 160px;
   --ro-table-label-width: 112px;
   --ro-form-max-width: 480px;
+  --ro-site-width: 1120px;
+  --ro-headline-width: 20ch;
+  --ro-text-display: 36px;
+  --ro-leading-display: 48px;
 }

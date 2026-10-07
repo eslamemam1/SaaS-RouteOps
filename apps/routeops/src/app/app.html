@@ -11,7 +11,7 @@
     }
     <aside id="shell-sidebar" class="shell-sidebar" [class.shell-sidebar-open]="menuOpen()">
       <div class="shell-sidebar-header">
-        <a class="shell-brand" routerLink="/">
+        <a class="shell-brand" routerLink="/dashboard">
           <app-logo />
           <span>{{ brand() }}</span>
         </a>
@@ -31,7 +31,7 @@
       <nav class="shell-nav" [attr.aria-label]="text().navigation">
         <a
           class="shell-nav-item"
-          routerLink="/"
+          routerLink="/dashboard"
           routerLinkActive="shell-nav-item-active"
           [routerLinkActiveOptions]="{ exact: true }"
         >

@@ -1,23 +1,14 @@
 .sign-in {
   display: grid;
-  grid-template-rows: auto 1fr;
-  gap: var(--ro-space-4);
-  min-block-size: 100dvh;
-  padding: var(--ro-space-4);
+  grid-template-columns: repeat(auto-fit, minmax(var(--ro-card-min-width), 1fr));
+  align-items: center;
+  gap: var(--ro-space-10);
+  min-block-size: 100%;
 }
 
-.sign-in-language {
-  justify-self: end;
-}
-
-.sign-in-card {
+.sign-in-intro {
   display: grid;
-  gap: var(--ro-space-6);
-  align-self: center;
-  justify-self: center;
-  inline-size: 100%;
-  max-inline-size: var(--ro-form-max-width);
-  padding: var(--ro-space-8);
+  gap: var(--ro-space-4);
 }
 
 .sign-in-brand {
@@ -25,8 +16,41 @@
   align-items: center;
   gap: var(--ro-space-3);
   color: var(--ro-text-brand);
-  font-size: var(--ro-text-heading-lg);
-  line-height: var(--ro-leading-heading-lg);
+  font-size: var(--ro-text-display);
+  line-height: var(--ro-leading-display);
+}
+
+.sign-in-welcome {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-heading-md);
+  line-height: var(--ro-leading-heading-md);
+}
+
+.sign-in-points {
+  display: grid;
+  gap: var(--ro-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sign-in-points li {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+}
+
+.sign-in-points ng-icon {
+  color: var(--ro-text-success);
+}
+
+.sign-in-card {
+  display: grid;
+  gap: var(--ro-space-6);
+  justify-self: center;
+  inline-size: 100%;
+  max-inline-size: var(--ro-form-max-width);
+  padding: var(--ro-space-8);
 }
 
 .sign-in-titles {
@@ -38,7 +62,20 @@
   inline-size: 100%;
 }
 
+.sign-in-no-account {
+  text-align: center;
+}
+
 @media (width < 640px) {
+  .sign-in {
+    gap: var(--ro-space-6);
+  }
+
+  .sign-in-brand {
+    font-size: var(--ro-text-heading-xl);
+    line-height: var(--ro-leading-heading-xl);
+  }
+
   .sign-in-card {
     gap: var(--ro-space-5);
     padding: var(--ro-space-5);

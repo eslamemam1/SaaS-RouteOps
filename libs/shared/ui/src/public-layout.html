@@ -1,0 +1,44 @@
+<header class="app-public-header">
+  <div class="app-public-bar">
+    <a class="app-public-brand" routerLink="/">
+      <app-logo />
+      <span>{{ brand() }}</span>
+    </a>
+    <nav class="app-public-nav" [attr.aria-label]="text().site.navigation">
+      <a
+        class="app-public-link"
+        routerLink="/"
+        routerLinkActive="app-public-link-active"
+        ariaCurrentWhenActive="page"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        {{ text().site.home }}
+      </a>
+      <a
+        class="app-public-link"
+        routerLink="/contact"
+        routerLinkActive="app-public-link-active"
+        ariaCurrentWhenActive="page"
+      >
+        {{ text().site.contact }}
+      </a>
+    </nav>
+    <div class="app-public-actions">
+      <app-language-switch />
+      <a appButton size="sm" routerLink="/sign-in">{{ text().site.signIn }}</a>
+    </div>
+  </div>
+</header>
+<main class="app-public-main">
+  <ng-content />
+</main>
+<footer class="app-public-footer">
+  <div class="app-public-bar">
+    <span class="app-public-footer-brand">
+      <app-logo size="sm" />
+      <span>{{ brand() }}</span>
+    </span>
+    <span class="hint">{{ text().site.tagline }}</span>
+    <span class="hint">© <bdi>{{ year }}</bdi> {{ brand() }}</span>
+  </div>
+</footer>

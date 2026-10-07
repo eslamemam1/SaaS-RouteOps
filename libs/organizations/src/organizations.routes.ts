@@ -12,7 +12,7 @@ export const organizationsRoutes: Route[] = [
     children: [
       { path: 'sign-in', component: SignIn, data: { shell: false } },
       { path: 'sign-out', component: SignOut, data: { shell: false } },
-      { path: '', component: Organizations, canActivate: [requireSession] },
+      { path: 'dashboard', component: Organizations, canActivate: [requireSession] },
     ],
   },
 ];

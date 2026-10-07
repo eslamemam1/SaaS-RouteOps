@@ -1,0 +1,105 @@
+.app-public-layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-block-size: 100dvh;
+  background: var(--ro-bg-canvas);
+}
+
+.app-public-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-4);
+  inline-size: 100%;
+  max-inline-size: var(--ro-site-width);
+  margin-inline: auto;
+  padding-inline: var(--ro-space-4);
+}
+
+.app-public-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--ro-z-sticky);
+  background: var(--ro-bg-surface);
+  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+.app-public-header .app-public-bar {
+  min-block-size: var(--ro-topbar-height);
+}
+
+.app-public-brand,
+.app-public-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  color: var(--ro-text-brand);
+  font-weight: var(--ro-font-semibold);
+  text-decoration: none;
+}
+
+.app-public-brand {
+  font-size: var(--ro-text-heading-lg);
+  line-height: var(--ro-leading-heading-lg);
+}
+
+.app-public-nav {
+  display: flex;
+  gap: var(--ro-space-1);
+}
+
+.app-public-link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--ro-touch-target);
+  padding-inline: var(--ro-space-3);
+  border-radius: var(--ro-radius-md);
+  color: var(--ro-text-secondary);
+  font-weight: var(--ro-font-medium);
+  text-decoration: none;
+}
+
+.app-public-link:hover {
+  background: var(--ro-bg-subtle);
+  color: var(--ro-text-primary);
+}
+
+.app-public-link-active {
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+}
+
+.app-public-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  margin-inline-start: auto;
+}
+
+.app-public-main {
+  inline-size: 100%;
+  max-inline-size: var(--ro-site-width);
+  margin-inline: auto;
+  padding: var(--ro-space-8) var(--ro-space-4);
+}
+
+.app-public-footer {
+  background: var(--ro-bg-surface);
+  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+.app-public-footer .app-public-bar {
+  justify-content: space-between;
+  padding-block: var(--ro-space-6);
+}
+
+@media (width < 640px) {
+  .app-public-nav {
+    order: 3;
+    inline-size: 100%;
+  }
+
+  .app-public-main {
+    padding-block: var(--ro-space-6);
+  }
+}

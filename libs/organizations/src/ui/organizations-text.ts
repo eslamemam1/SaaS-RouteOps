@@ -11,6 +11,10 @@ export interface OrganizationsText {
     readonly email: string;
     readonly password: string;
     readonly submit: string;
+    readonly welcome: string;
+    readonly points: readonly string[];
+    readonly noAccount: string;
+    readonly contactLink: string;
   };
   readonly home: {
     readonly title: string;
@@ -112,6 +116,14 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       email: 'البريد الإلكتروني',
       password: 'كلمة المرور',
       submit: 'دخول',
+      welcome: 'مرحبًا بعودتك. ادخل لمتابعة عمل شركتك.',
+      points: [
+        'رحلات اليوم وما تغيّر فيها',
+        'رواتب السائقين وأجرة المركبات',
+        'الإيراد والمصاريف وربح كل خط',
+      ],
+      noAccount: 'ليس لديك حساب؟ نجهّز حساب كل شركة بأنفسنا.',
+      contactLink: 'تواصل معنا',
     },
     home: {
       title: 'الرئيسية',
@@ -213,6 +225,14 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       email: 'Email',
       password: 'Password',
       submit: 'Sign in',
+      welcome: 'Welcome back. Sign in to follow your company\'s work.',
+      points: [
+        'Today\'s trips and what changed',
+        'Driver salaries and vehicle pay',
+        'Revenue, expenses, and the profit of each route',
+      ],
+      noAccount: 'No account yet? We set up every company account ourselves.',
+      contactLink: 'Contact us',
     },
     home: {
       title: 'Home',

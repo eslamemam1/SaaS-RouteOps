@@ -46,6 +46,13 @@ describe('SignIn', () => {
 
     expect(text(fixture)).toContain(organizationsText.en.signIn.title);
   });
+
+  it('sends a visitor without an account to the contact page', async () => {
+    const fixture = await render({});
+
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('.sign-in-no-account a')?.getAttribute('href')).toBe('/contact');
+  });
 });
 
 async function render(overrides: Partial<OrganizationRepository>) {

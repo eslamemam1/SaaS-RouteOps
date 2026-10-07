@@ -39,6 +39,11 @@ export const appRoutes: Route[] = [
   {
     path: '',
     loadChildren: () =>
+      import('@routeops/site').then((module) => module.siteRoutes),
+  },
+  {
+    path: '',
+    loadChildren: () =>
       import('@routeops/organizations').then(
         (module) => module.organizationsRoutes,
       ),

@@ -22,7 +22,8 @@ describe('App', () => {
           { path: 'sign-in', component: Blank, data: { shell: false } },
           { path: 'sign-out', component: Blank, data: { shell: false } },
           { path: 'organizations/:organizationId/routes', component: Blank },
-          { path: '', component: Blank },
+          { path: 'dashboard', component: Blank },
+          { path: '', component: Blank, data: { shell: false } },
         ]),
         {
           provide: BreakpointObserver,
@@ -34,11 +35,18 @@ describe('App', () => {
     }).compileComponents();
   });
 
-  it('shows the product name and home link on the home page', async () => {
-    const element = await open('/');
+  it('shows the product name and home link on the dashboard', async () => {
+    const element = await open('/dashboard');
 
     expect(element.querySelector('.shell-brand')?.textContent).toContain('حركة');
+    expect(element.querySelector('.shell-brand')?.getAttribute('href')).toBe('/dashboard');
     expect(navLabels(element)).toEqual([shellText.ar.home]);
+  });
+
+  it('leaves the public home page without the sidebar', async () => {
+    const element = await open('/');
+
+    expect(element.querySelector('.shell-sidebar')).toBeNull();
   });
 
   it('links every section of the organization in the address', async () => {
@@ -67,7 +75,7 @@ describe('App', () => {
     expect(document.activeElement).toBe(menu);
     expect(localStorage.getItem('routeops.sidebar')).toBe('hidden');
 
-    await TestBed.inject(Router).navigateByUrl('/');
+    await TestBed.inject(Router).navigateByUrl('/dashboard');
     await fixture.whenStable();
     expect(element.querySelector('.shell-sidebar-hidden')).toBeTruthy();
 
@@ -81,7 +89,7 @@ describe('App', () => {
   it('starts with the sidebar hidden when that was the last choice', async () => {
     localStorage.setItem('routeops.sidebar', 'hidden');
 
-    const element = await open('/');
+    const element = await open('/dashboard');
 
     expect(element.querySelector('.shell-sidebar-hidden')).toBeTruthy();
     expect(button(element, '.shell-menu-button').getAttribute('aria-expanded')).toBe('false');
@@ -117,7 +125,7 @@ describe('App', () => {
 
     menu.click();
     await fixture.whenStable();
-    await TestBed.inject(Router).navigateByUrl('/');
+    await TestBed.inject(Router).navigateByUrl('/dashboard');
     await fixture.whenStable();
     expect(menu.getAttribute('aria-expanded')).toBe('false');
     expect(element.querySelector('.shell-sidebar-open')).toBeNull();

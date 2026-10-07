@@ -1,8 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { NgIcon } from '@ng-icons/core';
+import { lucideCircleCheck } from '@ng-icons/lucide';
 import { injectText, productName } from '@routeops/shared/i18n';
-import { Alert, Button, Field, LanguageSwitch, Logo } from '@routeops/shared/ui';
+import { Alert, Button, Field, Logo, PublicLayout } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -11,7 +13,7 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-sign-in',
-  imports: [Alert, Button, Field, FormField, LanguageSwitch, Logo],
+  imports: [Alert, Button, Field, FormField, Logo, NgIcon, PublicLayout, RouterLink],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.css',
 })
@@ -21,6 +23,7 @@ export class SignIn {
 
   protected readonly text = injectText(organizationsText);
   protected readonly brand = injectText(productName);
+  protected readonly pointIcon = lucideCircleCheck;
   private readonly problems = computed(() => this.text().problems);
 
   protected readonly submitting = signal(false);
@@ -40,7 +43,7 @@ export class SignIn {
       try {
         const value = this.model();
         await this.repository.signIn(value.email.trim(), value.password);
-        await this.router.navigateByUrl('/');
+        await this.router.navigateByUrl('/dashboard');
         return undefined;
       } catch (error) {
         const problem =

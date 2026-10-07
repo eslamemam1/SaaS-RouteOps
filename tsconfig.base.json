@@ -23,6 +23,7 @@
       "@routeops/operations": ["./libs/operations/src/index.ts"],
       "@routeops/expenses": ["./libs/expenses/src/index.ts"],
       "@routeops/reports": ["./libs/reports/src/index.ts"],
+      "@routeops/site": ["./libs/site/src/index.ts"],
       "@routeops/shared/supabase": ["./libs/shared/supabase/src/index.ts"],
       "@routeops/shared/i18n": ["./libs/shared/i18n/src/index.ts"],
       "@routeops/shared/money": ["./libs/shared/money/src/index.ts"],

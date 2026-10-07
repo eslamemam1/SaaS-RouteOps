@@ -1,0 +1,50 @@
+<app-public-layout>
+  <div class="ro-stack">
+    <app-page-header [title]="text().contact.title" [hint]="text().contact.hint" />
+
+    <ul class="contact-channels">
+      @for (channel of channels(); track channel.label) {
+        <li>
+          <a
+            class="ro-card contact-channel"
+            [href]="channel.href"
+            [attr.target]="channel.external ? '_blank' : null"
+            [attr.rel]="channel.external ? 'noopener' : null"
+          >
+            <span class="contact-icon"><ng-icon [svg]="channel.icon" aria-hidden="true" /></span>
+            <span class="contact-label">{{ channel.label }}</span>
+            <bdi class="contact-value" dir="ltr">{{ channel.value }}</bdi>
+            <span class="hint">{{ channel.hint }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+
+    <div class="contact-details">
+      <section class="ro-card contact-info">
+        <h2 class="ro-card-title">
+          <ng-icon [svg]="hoursIcon" aria-hidden="true" />
+          {{ text().contact.hours }}
+        </h2>
+        <p>{{ text().contact.hoursText }}</p>
+        <h2 class="ro-card-title">
+          <ng-icon [svg]="addressIcon" aria-hidden="true" />
+          {{ text().contact.address }}
+        </h2>
+        <p>{{ text().contact.addressText }}</p>
+      </section>
+      <section class="ro-card contact-info">
+        <h2 class="ro-card-title">{{ text().contact.accountTitle }}</h2>
+        <ol class="contact-steps">
+          @for (step of text().contact.accountSteps; track step) {
+            <li>{{ step }}</li>
+          }
+        </ol>
+        <p class="contact-sign-in">
+          <span class="hint">{{ text().contact.signInHint }}</span>
+          <a appButton="secondary" size="sm" routerLink="/sign-in">{{ text().contact.signIn }}</a>
+        </p>
+      </section>
+    </div>
+  </div>
+</app-public-layout>
