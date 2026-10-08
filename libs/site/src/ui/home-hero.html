@@ -1,0 +1,41 @@
+<section class="home-hero">
+  <div class="home-hero-backdrop" aria-hidden="true">
+    <svg class="home-route" viewBox="0 0 1200 640" preserveAspectRatio="none">
+      <path
+        id="home-route-path"
+        class="home-route-path"
+        d="M-40 560 C 180 470 300 600 520 470 S 840 300 1000 330 S 1180 190 1260 140"
+      />
+      <circle class="home-route-bus" r="7">
+        <animateMotion dur="14s" repeatCount="indefinite">
+          <mpath href="#home-route-path" />
+        </animateMotion>
+      </circle>
+    </svg>
+  </div>
+
+  <div class="home-container home-hero-grid">
+    <div class="home-hero-copy">
+      <p class="home-eyebrow">
+        <ng-icon [svg]="icons.sparkles" aria-hidden="true" />
+        {{ text().home.eyebrow }}
+      </p>
+      <h1 class="home-title">
+        {{ text().home.title }}
+        <span class="home-title-highlight">{{ text().home.titleHighlight }}</span>
+      </h1>
+      <p class="home-lead">{{ text().home.lead }}</p>
+      <app-site-actions />
+      <ul class="home-promises">
+        @for (promise of promises; track promise.key) {
+          <li>
+            <ng-icon [svg]="promise.icon" aria-hidden="true" />
+            <span>{{ text().home.promises[promise.key] }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <app-product-preview />
+  </div>
+</section>

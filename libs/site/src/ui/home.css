@@ -1,165 +1,276 @@
 .home {
   display: grid;
   gap: var(--ro-space-16);
+  padding-block-end: var(--ro-space-16);
 }
 
-.home-hero {
+.home-container {
+  inline-size: 100%;
+  max-inline-size: var(--ro-site-width);
+  margin-inline: auto;
+  padding-inline: var(--ro-space-4);
+}
+
+/* Sections */
+
+.home-section {
+  display: grid;
+  gap: var(--ro-space-8);
+}
+
+.home-section-titles {
   display: grid;
   justify-items: center;
-  gap: var(--ro-space-4);
-  padding-block: var(--ro-space-10);
+  gap: var(--ro-space-2);
   text-align: center;
 }
 
-.home-eyebrow {
-  padding: var(--ro-space-1) var(--ro-space-3);
-  border-radius: var(--ro-radius-full);
-  border: var(--ro-border-width) solid var(--ro-border-warning-subtle);
-  background: var(--ro-bg-accent-subtle);
-  color: var(--ro-text-accent);
-  font-size: var(--ro-text-body-sm);
-  font-weight: var(--ro-font-semibold);
-}
-
-.home-title {
-  max-inline-size: var(--ro-headline-width);
-  font-weight: var(--ro-font-bold);
+.home-section-titles h2 {
   font-size: var(--ro-text-display);
   line-height: var(--ro-leading-display);
+  font-weight: var(--ro-font-bold);
 }
 
-.home-lead {
-  max-inline-size: var(--ro-readable-width);
-  color: var(--ro-text-secondary);
-  font-size: var(--ro-text-heading-md);
-  line-height: var(--ro-leading-heading-md);
+.home-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ro-space-4);
 }
 
-.home-actions {
-  justify-content: center;
+.home-compare-card {
+  display: grid;
+  align-content: start;
+  gap: var(--ro-space-4);
+  padding: var(--ro-space-8);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-xl);
+  background: var(--ro-bg-surface);
 }
 
-.home-promises,
-.home-features,
-.home-steps {
+.home-compare-card ul {
+  display: grid;
+  gap: var(--ro-space-4);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.home-promises {
+.home-compare-card li {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--ro-space-2) var(--ro-space-6);
+  align-items: flex-start;
+  gap: var(--ro-space-3);
+}
+
+.home-compare-card ng-icon {
+  flex: none;
+  margin-block-start: var(--ro-space-1);
+  font-size: var(--ro-text-heading-md);
+}
+
+.home-compare-before {
+  background: var(--ro-bg-hover);
   color: var(--ro-text-secondary);
-  font-size: var(--ro-text-body-sm);
 }
 
-.home-promises li {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ro-space-2);
+.home-compare-before ng-icon {
+  color: var(--ro-text-danger);
 }
 
-.home-section {
-  display: grid;
-  gap: var(--ro-space-6);
+.home-compare-after {
+  border-color: var(--ro-border-brand-subtle);
+  background:
+    radial-gradient(80% 80% at 100% 0%, var(--ro-bg-brand-subtle), transparent 70%),
+    var(--ro-bg-surface);
+  box-shadow: var(--ro-shadow-raised);
 }
 
-.home-section-titles {
-  display: grid;
-  gap: var(--ro-space-1);
-  text-align: center;
-}
-
-.home-section-titles h2 {
-  font-size: var(--ro-text-heading-xl);
-  line-height: var(--ro-leading-heading-xl);
-}
-
-.home-features,
-.home-steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--ro-space-4);
-}
-
-.home-feature,
-.home-step {
-  display: grid;
-  align-content: start;
-  gap: var(--ro-space-2);
-  padding: var(--ro-space-6);
-}
-
-.home-feature-icon,
-.home-step-number {
-  display: inline-grid;
-  place-items: center;
-  inline-size: var(--ro-touch-target);
-  block-size: var(--ro-touch-target);
-  border-radius: var(--ro-radius-md);
-  background: var(--ro-bg-brand-subtle);
+.home-compare-after h3 {
   color: var(--ro-text-brand);
 }
 
+.home-compare-after ng-icon {
+  color: var(--ro-text-success);
+}
+
+.home-steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ro-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-steps::before {
+  content: '';
+  position: absolute;
+  inset-block-start: calc(var(--ro-step-stop) / 2);
+  inset-inline: 16%;
+  border-block-start: var(--ro-focus-width) dashed var(--ro-border-strong);
+}
+
+.home-step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--ro-space-2);
+  text-align: center;
+}
+
 .home-step-number {
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--ro-step-stop);
+  block-size: var(--ro-step-stop);
+  margin-block-end: var(--ro-space-2);
+  border: var(--ro-indicator-width) solid var(--ro-bg-canvas);
   border-radius: var(--ro-radius-full);
-  background: var(--ro-bg-brand);
-  color: var(--ro-text-on-brand);
+  background: var(--ro-bg-inverse);
+  color: var(--ro-amber-400);
+  font-size: var(--ro-text-heading-lg);
+  font-weight: var(--ro-font-bold);
+  box-shadow: var(--ro-shadow-raised);
+}
+
+.home-faq-section {
+  max-inline-size: var(--ro-faq-width);
+}
+
+.home-faq {
+  display: grid;
+  gap: var(--ro-space-3);
+}
+
+.home-faq details {
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-lg);
+  background: var(--ro-bg-surface);
+  transition: border-color var(--ro-motion-fast);
+}
+
+.home-faq details[open] {
+  border-color: var(--ro-border-brand-subtle);
+  box-shadow: var(--ro-shadow-card);
+}
+
+.home-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ro-space-4);
+  padding: var(--ro-space-4) var(--ro-space-5);
   font-weight: var(--ro-font-semibold);
+  cursor: pointer;
+  list-style: none;
+}
+
+.home-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.home-faq summary:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-border-focus);
+  border-radius: var(--ro-radius-lg);
+}
+
+.home-faq summary ng-icon {
+  flex: none;
+  color: var(--ro-text-muted);
+  transition: transform var(--ro-motion-fast);
+}
+
+.home-faq details[open] summary ng-icon {
+  color: var(--ro-text-brand);
+  transform: rotate(180deg);
+}
+
+.home-faq details p {
+  padding: 0 var(--ro-space-5) var(--ro-space-5);
+  color: var(--ro-text-secondary);
 }
 
 .home-cta {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ro-space-4);
-  padding: var(--ro-space-8);
+  gap: var(--ro-space-6);
+  overflow: hidden;
+  padding: var(--ro-space-10);
   border-radius: var(--ro-radius-xl);
-  background: var(--ro-bg-inverse);
+  background:
+    radial-gradient(50% 120% at 0% 0%, var(--ro-glow-accent), transparent 70%),
+    radial-gradient(50% 120% at 100% 100%, var(--ro-glow-brand), transparent 70%),
+    var(--ro-bg-inverse);
   color: var(--ro-text-on-inverse);
+}
+
+.home-cta-copy {
+  display: grid;
+  gap: var(--ro-space-2);
+}
+
+.home-cta h2 {
+  font-size: var(--ro-text-display);
+  line-height: var(--ro-leading-display);
+  font-weight: var(--ro-font-bold);
 }
 
 .home-cta p {
   color: var(--ro-text-on-inverse-muted);
+  font-size: var(--ro-text-heading-md);
 }
 
-.home-cta h2 {
-  font-size: var(--ro-text-heading-xl);
-  line-height: var(--ro-leading-heading-xl);
-}
+/* Motion */
 
-@media (width < 900px) {
-  .home-features {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .home-steps {
-    grid-template-columns: 1fr;
+@keyframes home-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--ro-rise-distance));
   }
 }
 
-@media (width < 640px) {
-  .home-features {
-    grid-template-columns: 1fr;
+@supports (animation-timeline: view()) {
+  .home-reveal {
+    animation: home-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
   }
+}
 
+@media (prefers-reduced-motion: reduce) {
+  .home-reveal,
+  .home-faq summary ng-icon {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Layout on smaller screens */
+
+@media (width < 760px) {
   .home {
     gap: var(--ro-space-10);
   }
 
-  .home-hero {
-    padding-block: var(--ro-space-4);
-  }
-
-  .home-title {
+  .home-section-titles h2,
+  .home-cta h2 {
     font-size: var(--ro-text-heading-xl);
     line-height: var(--ro-leading-heading-xl);
   }
 
+  .home-compare,
+  .home-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-steps::before {
+    display: none;
+  }
+
+  .home-compare-card,
   .home-cta {
     padding: var(--ro-space-6);
   }

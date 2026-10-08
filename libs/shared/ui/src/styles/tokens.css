@@ -177,4 +177,33 @@
   --ro-headline-width: 20ch;
   --ro-text-display: 40px;
   --ro-leading-display: 54px;
+
+  --ro-bg-accent-hover: var(--ro-amber-400);
+  --ro-text-on-accent: var(--ro-navy-900);
+  --ro-text-hero: 54px;
+  --ro-leading-hero: 72px;
+  --ro-hero-surface: color-mix(in srgb, var(--ro-slate-0) 7%, transparent);
+  --ro-hero-surface-hover: color-mix(in srgb, var(--ro-slate-0) 14%, transparent);
+  --ro-hero-border: color-mix(in srgb, var(--ro-slate-0) 16%, transparent);
+  --ro-hero-grid-line: color-mix(in srgb, var(--ro-slate-0) 5%, transparent);
+  --ro-hero-grid-size: 56px;
+  --ro-glow-brand: color-mix(in srgb, var(--ro-blue-500) 45%, transparent);
+  --ro-glow-accent: color-mix(in srgb, var(--ro-amber-500) 28%, transparent);
+  --ro-route-line: color-mix(in srgb, var(--ro-amber-400) 55%, transparent);
+  --ro-gradient-accent-text: linear-gradient(90deg, var(--ro-amber-400), var(--ro-amber-500));
+  --ro-shadow-mockup: 0 30px 80px rgb(2 6 23 / 55%), 0 0 0 1px rgb(255 255 255 / 8%);
+  --ro-shadow-float: 0 18px 40px rgb(2 6 23 / 35%);
+  --ro-blur-glass: 14px;
+  --ro-float-distance: 10px;
+  --ro-rise-distance: 24px;
+  --ro-mockup-dot: 10px;
+  --ro-mockup-rail: 52px;
+  --ro-mockup-float-width: 230px;
+  --ro-chart-height: 64px;
+  --ro-route-dot: 7px;
+  --ro-step-stop: 56px;
+  --ro-faq-width: 820px;
+  --ro-motion-float: 6s;
+  --ro-motion-route: 14s;
+  --ro-motion-reveal: 600ms;
 }

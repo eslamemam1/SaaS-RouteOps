@@ -1,47 +1,42 @@
-<app-public-layout>
+<app-public-layout fullWidth>
   <div class="home">
-    <section class="home-hero">
-      <p class="home-eyebrow">{{ text().home.eyebrow }}</p>
-      <h1 class="home-title">{{ text().home.title }}</h1>
-      <p class="home-lead">{{ text().home.lead }}</p>
-      <div class="ro-toolbar home-actions">
-        <a appButton routerLink="/contact">{{ text().home.contact }}</a>
-        <a appButton="secondary" routerLink="/sign-in">{{ text().home.signIn }}</a>
-      </div>
-      <ul class="home-promises">
-        @for (promise of promises; track promise.key) {
-          <li>
-            <ng-icon [svg]="promise.icon" aria-hidden="true" />
-            <span>{{ text().home.promises[promise.key] }}</span>
-          </li>
-        }
-      </ul>
-    </section>
+    <app-home-hero />
 
-    <section class="home-section" aria-labelledby="home-features">
+    <section class="home-section home-container home-reveal" aria-labelledby="home-compare">
       <div class="home-section-titles">
-        <h2 id="home-features">{{ text().home.featuresTitle }}</h2>
-        <p class="hint">{{ text().home.featuresHint }}</p>
+        <h2 id="home-compare">{{ text().home.compareTitle }}</h2>
+        <p class="hint">{{ text().home.compareHint }}</p>
       </div>
-      <ul class="home-features">
-        @for (feature of features; track feature.key) {
-          <li class="ro-card home-feature">
-            <span class="home-feature-icon"><ng-icon [svg]="feature.icon" aria-hidden="true" /></span>
-            <h3>{{ text().home.features[feature.key].title }}</h3>
-            <p class="hint">{{ text().home.features[feature.key].text }}</p>
-          </li>
-        }
-      </ul>
+      <div class="home-compare">
+        <div class="home-compare-card home-compare-before">
+          <h3>{{ text().home.before.title }}</h3>
+          <ul>
+            @for (item of text().home.before.items; track item) {
+              <li><ng-icon [svg]="icons.cross" aria-hidden="true" /><span>{{ item }}</span></li>
+            }
+          </ul>
+        </div>
+        <div class="home-compare-card home-compare-after">
+          <h3>{{ text().home.after.title }}</h3>
+          <ul>
+            @for (item of text().home.after.items; track item) {
+              <li><ng-icon [svg]="icons.check" aria-hidden="true" /><span>{{ item }}</span></li>
+            }
+          </ul>
+        </div>
+      </div>
     </section>
 
-    <section class="home-section" aria-labelledby="home-steps">
+    <app-home-features class="home-container home-reveal" />
+
+    <section class="home-section home-container home-reveal" aria-labelledby="home-steps">
       <div class="home-section-titles">
         <h2 id="home-steps">{{ text().home.stepsTitle }}</h2>
         <p class="hint">{{ text().home.stepsHint }}</p>
       </div>
       <ol class="home-steps">
         @for (step of text().home.steps; track step.title; let index = $index) {
-          <li class="ro-card home-step">
+          <li class="home-step">
             <span class="home-step-number" aria-hidden="true">{{ index + 1 }}</span>
             <h3>{{ step.title }}</h3>
             <p class="hint">{{ step.text }}</p>
@@ -50,12 +45,32 @@
       </ol>
     </section>
 
-    <section class="home-cta">
-      <div>
-        <h2>{{ text().home.ctaTitle }}</h2>
-        <p>{{ text().home.ctaText }}</p>
+    <section class="home-section home-container home-faq-section home-reveal" aria-labelledby="home-faq">
+      <div class="home-section-titles">
+        <h2 id="home-faq">{{ text().home.faqTitle }}</h2>
+        <p class="hint">{{ text().home.faqHint }}</p>
       </div>
-      <a appButton="secondary" routerLink="/contact">{{ text().home.contact }}</a>
+      <div class="home-faq">
+        @for (item of text().home.faq; track item.title) {
+          <details>
+            <summary>
+              <span>{{ item.title }}</span>
+              <ng-icon [svg]="icons.chevron" aria-hidden="true" />
+            </summary>
+            <p>{{ item.text }}</p>
+          </details>
+        }
+      </div>
+    </section>
+
+    <section class="home-container home-reveal">
+      <div class="home-cta">
+        <div class="home-cta-copy">
+          <h2>{{ text().home.ctaTitle }}</h2>
+          <p>{{ text().home.ctaText }}</p>
+        </div>
+        <app-site-actions />
+      </div>
     </section>
   </div>
 </app-public-layout>

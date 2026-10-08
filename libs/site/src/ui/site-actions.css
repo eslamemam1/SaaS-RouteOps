@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.site-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ro-space-3);
+}
+
+.site-actions .app-button {
+  min-block-size: var(--ro-touch-target);
+  padding-inline: var(--ro-space-6);
+  font-size: var(--ro-text-body-md);
+}
+
+.site-actions .site-button-accent {
+  background: var(--ro-bg-accent);
+  color: var(--ro-text-on-accent);
+  box-shadow: var(--ro-shadow-float);
+}
+
+.site-actions .site-button-accent:hover {
+  background: var(--ro-bg-accent-hover);
+}
+
+.site-actions .site-button-ghost {
+  border-color: var(--ro-hero-border);
+  background: var(--ro-hero-surface);
+  color: var(--ro-text-on-inverse);
+}
+
+.site-actions .site-button-ghost:hover {
+  border-color: var(--ro-hero-border);
+  background: var(--ro-hero-surface-hover);
+}
+
+@media (width < 760px) {
+  .site-actions .app-button {
+    flex: 1;
+  }
+}

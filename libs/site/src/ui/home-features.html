@@ -1,0 +1,41 @@
+<section class="home-features" aria-labelledby="home-features">
+  <div class="home-section-titles">
+    <h2 id="home-features">{{ text().home.featuresTitle }}</h2>
+    <p class="hint">{{ text().home.featuresHint }}</p>
+  </div>
+  <ul class="home-bento">
+    <li class="home-feature home-feature-wide">
+      <span class="home-feature-icon"><ng-icon [svg]="icons.operations" aria-hidden="true" /></span>
+      <h3>{{ text().home.features.operations.title }}</h3>
+      <p class="hint">{{ text().home.features.operations.text }}</p>
+      <ul class="home-mini-trips" aria-hidden="true">
+        @for (trip of text().home.preview.trips.slice(0, 3); track trip.route) {
+          <li>
+            <bdi>{{ trip.time }}</bdi>
+            <span>{{ trip.route }}</span>
+            <span class="home-pill" [attr.data-status]="trip.status">
+              {{ text().home.preview.statuses[trip.status] }}
+            </span>
+          </li>
+        }
+      </ul>
+    </li>
+    @for (feature of smallFeatures; track feature.key) {
+      <li class="home-feature">
+        <span class="home-feature-icon"><ng-icon [svg]="feature.icon" aria-hidden="true" /></span>
+        <h3>{{ text().home.features[feature.key].title }}</h3>
+        <p class="hint">{{ text().home.features[feature.key].text }}</p>
+      </li>
+    }
+    <li class="home-feature home-feature-wide">
+      <span class="home-feature-icon"><ng-icon [svg]="icons.reports" aria-hidden="true" /></span>
+      <h3>{{ text().home.features.reports.title }}</h3>
+      <p class="hint">{{ text().home.features.reports.text }}</p>
+      <span class="home-bars home-bars-large" aria-hidden="true">
+        @for (bar of bars; track $index) {
+          <i [style.block-size.%]="bar"></i>
+        }
+      </span>
+    </li>
+  </ul>
+</section>

@@ -83,6 +83,11 @@
   padding: var(--ro-space-8) var(--ro-space-4);
 }
 
+.app-public-main-full {
+  max-inline-size: none;
+  padding: 0;
+}
+
 .app-public-footer {
   background: var(--ro-bg-surface);
   border-block-start: var(--ro-border-width) solid var(--ro-border-default);
@@ -99,7 +104,7 @@
     inline-size: 100%;
   }
 
-  .app-public-main {
+  .app-public-main:not(.app-public-main-full) {
     padding-block: var(--ro-space-6);
   }
 }

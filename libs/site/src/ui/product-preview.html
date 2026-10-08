@@ -1,0 +1,56 @@
+<div class="home-window">
+  <div class="home-window-bar">
+    <span class="home-window-dots"><i></i><i></i><i></i></span>
+    <span>{{ text().home.preview.window }}</span>
+  </div>
+  <div class="home-window-body">
+    <div class="home-window-rail">
+      <span class="home-window-logo"></span>
+      <i></i>
+      <i class="home-window-rail-active"></i>
+      <i></i>
+      <i></i>
+      <i></i>
+    </div>
+    <div class="home-window-main">
+      <strong class="home-window-title">{{ text().home.preview.today }}</strong>
+      <div class="home-window-stats">
+        <span><small>{{ text().home.preview.planned }}</small><b>24</b></span>
+        <span class="home-window-stat-done"><small>{{ text().home.preview.done }}</small><b>15</b></span>
+        <span class="home-window-stat-cancelled"><small>{{ text().home.preview.cancelled }}</small><b>2</b></span>
+      </div>
+      <ul class="home-window-trips">
+        @for (trip of text().home.preview.trips; track trip.route) {
+          <li>
+            <bdi class="home-window-time">{{ trip.time }}</bdi>
+            <span class="home-window-route">
+              <b>{{ trip.route }}</b>
+              <small>{{ trip.customer }}</small>
+            </span>
+            <span class="home-pill" [attr.data-status]="trip.status">
+              {{ text().home.preview.statuses[trip.status] }}
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="home-float home-float-swap">
+  <span class="home-float-icon"><ng-icon [svg]="swapIcon" /></span>
+  <span>
+    <b>{{ text().home.preview.swapTitle }}</b>
+    <small>{{ text().home.preview.swapText }}</small>
+  </span>
+</div>
+
+<div class="home-float home-float-profit">
+  <small>{{ text().home.preview.profit }}</small>
+  <b><bdi>{{ profit() }}</bdi> <ng-icon [svg]="trendIcon" /></b>
+  <span class="home-bars">
+    @for (bar of bars; track $index) {
+      <i [style.block-size.%]="bar"></i>
+    }
+  </span>
+</div>

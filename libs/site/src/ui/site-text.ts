@@ -15,6 +15,17 @@ export const promiseKeys = ['languages', 'devices', 'privacy'] as const;
 
 export type PromiseKey = (typeof promiseKeys)[number];
 
+export const previewStatuses = ['done', 'planned', 'cancelled'] as const;
+
+export type PreviewStatus = (typeof previewStatuses)[number];
+
+interface PreviewTrip {
+  readonly route: string;
+  readonly customer: string;
+  readonly time: string;
+  readonly status: PreviewStatus;
+}
+
 interface TitledText {
   readonly title: string;
   readonly text: string;
@@ -24,6 +35,7 @@ export interface SiteText {
   readonly home: {
     readonly eyebrow: string;
     readonly title: string;
+    readonly titleHighlight: string;
     readonly lead: string;
     readonly contact: string;
     readonly signIn: string;
@@ -36,6 +48,26 @@ export interface SiteText {
     readonly steps: readonly TitledText[];
     readonly ctaTitle: string;
     readonly ctaText: string;
+    readonly whatsapp: string;
+    readonly preview: {
+      readonly window: string;
+      readonly today: string;
+      readonly planned: string;
+      readonly done: string;
+      readonly cancelled: string;
+      readonly trips: readonly PreviewTrip[];
+      readonly statuses: Record<PreviewStatus, string>;
+      readonly swapTitle: string;
+      readonly swapText: string;
+      readonly profit: string;
+    };
+    readonly compareTitle: string;
+    readonly compareHint: string;
+    readonly before: { readonly title: string; readonly items: readonly string[] };
+    readonly after: { readonly title: string; readonly items: readonly string[] };
+    readonly faqTitle: string;
+    readonly faqHint: string;
+    readonly faq: readonly TitledText[];
   };
   readonly contact: {
     readonly title: string;
@@ -63,7 +95,8 @@ export const siteText: Record<Language, SiteText> = {
   ar: {
     home: {
       eyebrow: 'نظام إدارة نقل الموظفين',
-      title: 'نظّم نقل موظفي الشركات المتعاقدة معك من مكان واحد',
+      title: 'نظّم نقل موظفي الشركات المتعاقدة معك',
+      titleHighlight: 'من مكان واحد',
       lead: 'سجّل الشركات المتعاقدة وخطوطها، وتابع رحلات كل يوم، واحسب رواتب السائقين وأجرة المركبات، واعرف ربح كل خط في نهاية الشهر.',
       contact: 'اطلب حسابًا لشركتك',
       signIn: 'تسجيل الدخول',
@@ -109,6 +142,68 @@ export const siteText: Record<Language, SiteText> = {
       ],
       ctaTitle: 'جاهز تنظّم عمل شركتك؟',
       ctaText: 'تواصل معنا وسنجهّز حساب شركتك.',
+      whatsapp: 'كلّمنا على واتساب',
+      preview: {
+        window: 'حركة · التشغيل اليومي',
+        today: 'رحلات اليوم',
+        planned: 'رحلات اليوم',
+        done: 'تمّت',
+        cancelled: 'ملغاة',
+        trips: [
+          { route: 'خط مدينة نصر', customer: 'مصنع الأمل', time: '07:00', status: 'done' },
+          { route: 'خط المعادي', customer: 'شركة النيل', time: '07:30', status: 'done' },
+          { route: 'خط 6 أكتوبر', customer: 'مجمع الصناعات', time: '08:00', status: 'planned' },
+          { route: 'خط حلوان', customer: 'شركة الدلتا', time: '08:15', status: 'cancelled' },
+        ],
+        statuses: { done: 'تمّت', planned: 'قادمة', cancelled: 'ملغاة' },
+        swapTitle: 'تبديل سائق',
+        swapText: 'غاب أحمد، وتولّى محمود رحلة 08:00.',
+        profit: 'صافي ربح الشهر',
+      },
+      compareTitle: 'ودّع الكشكول والإكسل والمكالمات',
+      compareHint: 'الفرق الذي تشعر به من أول أسبوع.',
+      before: {
+        title: 'قبل حركة',
+        items: [
+          'كشكول الرحلات يتأخر أو يضيع، ولا تعرف ما حدث أمس.',
+          'حساب رواتب السائقين آخر الشهر يأخذ أيامًا من الجمع والمراجعة.',
+          'ربح كل خط تعرفه بالتقريب، أو لا تعرفه أصلًا.',
+          'غياب سائق أو عطل مركبة يضيع في المكالمات والرسائل.',
+        ],
+      },
+      after: {
+        title: 'مع حركة',
+        items: [
+          'رحلات كل يوم جاهزة من الخطوط، وتسجّل أي تغيير في ثوانٍ.',
+          'النظام يقترح راتب كل سائق وأجرة كل مركبة من رحلاتهم الفعلية.',
+          'ربح كل خط بعد نصيب السائق والمركبة، بالأرقام.',
+          'كل تغيير يُسجّل بسببه، ويظهر في التقرير الشهري.',
+        ],
+      },
+      faqTitle: 'أسئلة شائعة',
+      faqHint: 'لم تجد إجابتك؟ تواصل معنا وسنرد عليك.',
+      faq: [
+        {
+          title: 'هل أحتاج إلى تثبيت برنامج؟',
+          text: 'لا. يعمل حركة من المتصفح على الكمبيوتر والموبايل، دون تثبيت أي شيء.',
+        },
+        {
+          title: 'كيف أحصل على حساب لشركتي؟',
+          text: 'تواصل معنا ونتفق على الاشتراك الشهري، ثم ننشئ حساب شركتك ونرسل لك البريد الإلكتروني وكلمة المرور.',
+        },
+        {
+          title: 'هل يرى أحد غيري بيانات شركتي؟',
+          text: 'لا. بيانات كل شركة منفصلة تمامًا، ولا يصل إليها إلا حسابات شركتك.',
+        },
+        {
+          title: 'بأي عملة يعمل النظام؟',
+          text: 'بالجنيه المصري افتراضيًا، ويمكن اختيار عملة أخرى عند إنشاء حساب شركتك.',
+        },
+        {
+          title: 'ماذا يحدث لو تأخر دفع الاشتراك؟',
+          text: 'يُوقف الحساب مؤقتًا وتبقى بياناتك محفوظة كاملة، ويعود كما كان فور الدفع.',
+        },
+      ],
     },
     contact: {
       title: 'تواصل معنا',
@@ -138,7 +233,8 @@ export const siteText: Record<Language, SiteText> = {
   en: {
     home: {
       eyebrow: 'Staff transport management',
-      title: 'Run the staff transport of your client companies from one place',
+      title: 'Run the staff transport of your client companies',
+      titleHighlight: 'from one place',
       lead: 'Record your client companies and their routes, follow each day\u2019s trips, work out driver salaries and vehicle pay, and see the profit of every route at the end of the month.',
       contact: 'Request an account',
       signIn: 'Sign in',
@@ -184,6 +280,68 @@ export const siteText: Record<Language, SiteText> = {
       ],
       ctaTitle: 'Ready to organize your company\u2019s work?',
       ctaText: 'Contact us and we will set up your company account.',
+      whatsapp: 'Message us on WhatsApp',
+      preview: {
+        window: 'Haraka · Daily operations',
+        today: 'Today\u2019s trips',
+        planned: 'Today\u2019s trips',
+        done: 'Done',
+        cancelled: 'Cancelled',
+        trips: [
+          { route: 'Nasr City route', customer: 'Al Amal Factory', time: '07:00', status: 'done' },
+          { route: 'Maadi route', customer: 'Nile Company', time: '07:30', status: 'done' },
+          { route: '6th of October route', customer: 'Industrial Park', time: '08:00', status: 'planned' },
+          { route: 'Helwan route', customer: 'Delta Company', time: '08:15', status: 'cancelled' },
+        ],
+        statuses: { done: 'Done', planned: 'Coming', cancelled: 'Cancelled' },
+        swapTitle: 'Driver changed',
+        swapText: 'Ahmed was absent, so Mahmoud took the 08:00 trip.',
+        profit: 'Net profit this month',
+      },
+      compareTitle: 'Say goodbye to notebooks, spreadsheets, and phone calls',
+      compareHint: 'The difference you feel from the first week.',
+      before: {
+        title: 'Before Haraka',
+        items: [
+          'The trip notebook arrives late or gets lost, and nobody knows what happened yesterday.',
+          'Working out driver salaries at the end of the month takes days of adding up and checking.',
+          'You know each route\u2019s profit roughly, or not at all.',
+          'An absent driver or a broken vehicle gets lost in calls and messages.',
+        ],
+      },
+      after: {
+        title: 'With Haraka',
+        items: [
+          'Each day\u2019s trips come ready from the routes, and any change takes seconds.',
+          'The system suggests each driver\u2019s salary and each vehicle\u2019s pay from the trips they made.',
+          'Each route\u2019s profit after the driver\u2019s and vehicle\u2019s share, in numbers.',
+          'Every change is recorded with its reason and shows in the monthly report.',
+        ],
+      },
+      faqTitle: 'Common questions',
+      faqHint: 'Did not find your answer? Contact us and we will reply.',
+      faq: [
+        {
+          title: 'Do I need to install anything?',
+          text: 'No. Haraka runs in the browser on computers and phones, with nothing to install.',
+        },
+        {
+          title: 'How do I get an account for my company?',
+          text: 'Contact us and we agree on the monthly subscription, then we create your company account and send you the email and password.',
+        },
+        {
+          title: 'Can anyone else see my company\u2019s data?',
+          text: 'No. Each company\u2019s data is fully separate, and only your company\u2019s logins can reach it.',
+        },
+        {
+          title: 'Which currency does it use?',
+          text: 'Egyptian pounds by default, and another currency can be chosen when your company account is created.',
+        },
+        {
+          title: 'What happens if the subscription is paid late?',
+          text: 'The account is paused and all your data is kept, and it comes back as it was once paid.',
+        },
+      ],
     },
     contact: {
       title: 'Contact us',
