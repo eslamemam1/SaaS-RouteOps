@@ -1,0 +1,111 @@
+<button
+  #button
+  type="button"
+  class="notification-bell-button"
+  aria-haspopup="dialog"
+  aria-controls="notification-panel"
+  [attr.aria-expanded]="open()"
+  [attr.aria-label]="buttonLabel()"
+  [attr.title]="text().title"
+  (click)="toggle()"
+>
+  <ng-icon [svg]="icons.bell" aria-hidden="true" />
+  @if (items().length > 0) {
+  <span
+    class="notification-bell-count ro-numeric"
+    [class.notification-bell-count-urgent]="urgent()"
+  >
+    {{ badge() }}
+  </span>
+  }
+</button>
+
+@if (open()) {
+<section
+  id="notification-panel"
+  class="notification-panel"
+  role="dialog"
+  [attr.aria-label]="text().title"
+>
+  <header class="notification-panel-header">
+    <div>
+      <h2 class="notification-panel-title">{{ text().title }}</h2>
+      <p class="hint">{{ text().hint }}</p>
+    </div>
+    <div class="notification-panel-actions">
+      <button
+        type="button"
+        class="notification-panel-icon"
+        [attr.aria-label]="text().refresh"
+        [attr.title]="text().refresh"
+        (click)="refresh()"
+      >
+        <ng-icon [svg]="icons.refresh" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="notification-panel-icon"
+        [attr.aria-label]="text().close"
+        [attr.title]="text().close"
+        (click)="close(true)"
+      >
+        <ng-icon [svg]="icons.close" aria-hidden="true" />
+      </button>
+    </div>
+  </header>
+
+  @switch (status()) { @case ('loading') {
+  <p class="notification-panel-state" role="status">{{ text().loading }}</p>
+  } @case ('error') {
+  <div class="notification-panel-state" role="alert">
+    <p>{{ text().loadFailed }}</p>
+    <button type="button" class="notification-retry" (click)="refresh()">
+      {{ text().retry }}
+    </button>
+  </div>
+  } @case ('success') { @if (items().length === 0) {
+  <div class="notification-panel-state notification-panel-clear">
+    <ng-icon [svg]="icons.clear" aria-hidden="true" />
+    <strong>{{ text().empty }}</strong>
+    <p class="hint">{{ text().emptyHint }}</p>
+  </div>
+  } @else {
+  <ul class="notification-list">
+    @for (item of items(); track item.key) {
+    <li>
+      <a
+        class="notification-item"
+        [attr.data-urgent]="item.urgent"
+        [routerLink]="link(item)"
+        [queryParams]="item.link.query"
+        (click)="close()"
+      >
+        <span class="notification-item-icon">
+          <ng-icon [svg]="icons.kinds[item.kind]" aria-hidden="true" />
+        </span>
+        <span class="notification-item-text">
+          <span class="notification-item-title">
+            {{ text().kinds[item.kind].title }} @if (!item.name) {
+            <span class="notification-item-count ro-numeric"
+              >{{ item.count }}</span
+            >
+            }
+          </span>
+          @if (item.name) {
+          <span class="notification-item-detail">
+            <bdi>{{ item.name }}</bdi> · {{ item.urgent ? text().expiredOn :
+            text().expiresOn }}
+            <bdi>{{ day(item.day) }}</bdi>
+          </span>
+          }
+          <span class="notification-item-hint"
+            >{{ text().kinds[item.kind].hint }}</span
+          >
+        </span>
+      </a>
+    </li>
+    }
+  </ul>
+  } } }
+</section>
+}

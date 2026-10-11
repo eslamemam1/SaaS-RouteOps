@@ -1,94 +1,100 @@
 @if (showShell()) {
-  <div class="shell" [class.shell-sidebar-hidden]="sidebarHidden()">
-    @if (menuOpen()) {
+<div class="shell" [class.shell-sidebar-hidden]="sidebarHidden()">
+  @if (menuOpen()) {
+  <button
+    type="button"
+    class="shell-backdrop"
+    tabindex="-1"
+    [attr.aria-label]="text().closeMenu"
+    (click)="closeMenu()"
+  ></button>
+  }
+  <aside
+    id="shell-sidebar"
+    class="shell-sidebar"
+    [class.shell-sidebar-open]="menuOpen()"
+  >
+    <div class="shell-sidebar-header">
+      <a class="shell-brand" routerLink="/dashboard">
+        <app-logo />
+        <span>{{ brand() }}</span>
+      </a>
       <button
+        #sidebarToggle
         type="button"
-        class="shell-backdrop"
-        tabindex="-1"
+        class="shell-toggle shell-sidebar-toggle"
+        aria-controls="shell-sidebar"
+        aria-expanded="true"
         [attr.aria-label]="text().closeMenu"
-        (click)="closeMenu()"
-      ></button>
-    }
-    <aside id="shell-sidebar" class="shell-sidebar" [class.shell-sidebar-open]="menuOpen()">
-      <div class="shell-sidebar-header">
-        <a class="shell-brand" routerLink="/dashboard">
-          <app-logo />
-          <span>{{ brand() }}</span>
-        </a>
-        <button
-          #sidebarToggle
-          type="button"
-          class="shell-toggle shell-sidebar-toggle"
-          aria-controls="shell-sidebar"
-          aria-expanded="true"
-          [attr.aria-label]="text().closeMenu"
-          [attr.title]="text().closeMenu"
-          (click)="toggleSidebar()"
-        >
-          <ng-icon [svg]="closeSidebarIcon()" aria-hidden="true" />
-        </button>
-      </div>
-      <nav class="shell-nav" [attr.aria-label]="text().navigation">
-        <a
-          class="shell-nav-item"
-          routerLink="/dashboard"
-          routerLinkActive="shell-nav-item-active"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >
-          <ng-icon [svg]="homeIcon" aria-hidden="true" />
-          <span>{{ text().home }}</span>
-        </a>
-        @if (organizationId(); as organizationId) {
-          @for (section of sections; track section.path) {
-            <a
-              class="shell-nav-item"
-              routerLinkActive="shell-nav-item-active"
-              [routerLink]="['/organizations', organizationId, section.path]"
-            >
-              <ng-icon [svg]="section.icon" aria-hidden="true" />
-              <span>{{ text().sections[section.path] }}</span>
-            </a>
-          }
-        }
-      </nav>
-    </aside>
-    <div class="shell-main">
-      <header class="shell-topbar">
-        <button
-          #menuToggle
-          type="button"
-          class="shell-toggle shell-menu-button"
-          aria-controls="shell-sidebar"
-          [attr.aria-expanded]="sidebarVisible()"
-          [attr.aria-label]="text().openMenu"
-          [attr.title]="text().openMenu"
-          (click)="toggleSidebar()"
-        >
-          <ng-icon [svg]="openSidebarIcon()" aria-hidden="true" />
-        </button>
-        <span class="shell-topbar-brand">
-          <app-logo size="sm" />
-          <span>{{ brand() }}</span>
-        </span>
-        <app-language-switch />
-        <button
-          appButton="secondary"
-          size="sm"
-          type="button"
-          class="shell-sign-out"
-          [attr.aria-label]="text().signOut"
-          [attr.title]="text().signOut"
-          (click)="signOut()"
-        >
-          <ng-icon [svg]="signOutIcon" aria-hidden="true" />
-          <span class="shell-sign-out-label">{{ text().signOut }}</span>
-        </button>
-      </header>
-      <main class="shell-content">
-        <router-outlet />
-      </main>
+        [attr.title]="text().closeMenu"
+        (click)="toggleSidebar()"
+      >
+        <ng-icon [svg]="closeSidebarIcon()" aria-hidden="true" />
+      </button>
     </div>
+    <nav class="shell-nav" [attr.aria-label]="text().navigation">
+      <a
+        class="shell-nav-item"
+        routerLink="/dashboard"
+        routerLinkActive="shell-nav-item-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <ng-icon [svg]="homeIcon" aria-hidden="true" />
+        <span>{{ text().home }}</span>
+      </a>
+      @if (organizationId(); as organizationId) { @for (section of sections;
+      track section.path) {
+      <a
+        class="shell-nav-item"
+        routerLinkActive="shell-nav-item-active"
+        [routerLink]="['/organizations', organizationId, section.path]"
+      >
+        <ng-icon [svg]="section.icon" aria-hidden="true" />
+        <span>{{ text().sections[section.path] }}</span>
+      </a>
+      } }
+    </nav>
+  </aside>
+  <div class="shell-main">
+    <header class="shell-topbar">
+      <button
+        #menuToggle
+        type="button"
+        class="shell-toggle shell-menu-button"
+        aria-controls="shell-sidebar"
+        [attr.aria-expanded]="sidebarVisible()"
+        [attr.aria-label]="text().openMenu"
+        [attr.title]="text().openMenu"
+        (click)="toggleSidebar()"
+      >
+        <ng-icon [svg]="openSidebarIcon()" aria-hidden="true" />
+      </button>
+      <span class="shell-topbar-brand">
+        <app-logo size="sm" />
+        <span>{{ brand() }}</span>
+      </span>
+      @if (organizationId(); as organizationId) { @defer (on idle) {
+      <app-notifications [organizationId]="organizationId" />
+      } }
+      <app-language-switch />
+      <button
+        appButton="secondary"
+        size="sm"
+        type="button"
+        class="shell-sign-out"
+        [attr.aria-label]="text().signOut"
+        [attr.title]="text().signOut"
+        (click)="signOut()"
+      >
+        <ng-icon [svg]="signOutIcon" aria-hidden="true" />
+        <span class="shell-sign-out-label">{{ text().signOut }}</span>
+      </button>
+    </header>
+    <main class="shell-content">
+      <router-outlet />
+    </main>
   </div>
+</div>
 } @else {
-  <router-outlet />
+<router-outlet />
 }

@@ -1,0 +1,245 @@
+:host {
+  position: relative;
+  display: inline-flex;
+}
+
+.notification-bell-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--ro-touch-target);
+  min-block-size: var(--ro-touch-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--ro-radius-md);
+  background: transparent;
+  color: var(--ro-text-primary);
+  font-size: var(--ro-text-heading-lg);
+  cursor: pointer;
+  transition: background-color var(--ro-motion-fast);
+}
+
+.notification-bell-button:hover,
+.notification-bell-button[aria-expanded='true'] {
+  background: var(--ro-bg-subtle);
+}
+
+.notification-bell-button:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-border-focus);
+}
+
+/* How many notifications there are; red when one is urgent, such as an expired license. */
+.notification-bell-count {
+  position: absolute;
+  inset-block-start: var(--ro-space-1);
+  inset-inline-end: var(--ro-space-1);
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--ro-count-badge-size);
+  block-size: var(--ro-count-badge-size);
+  padding-inline: var(--ro-space-1);
+  border: var(--ro-focus-width) solid var(--ro-bg-surface);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-accent);
+  color: var(--ro-text-on-accent);
+  font-size: var(--ro-text-caption);
+  font-weight: var(--ro-font-bold);
+  box-sizing: content-box;
+}
+
+.notification-bell-count-urgent {
+  background: var(--ro-bg-danger);
+  color: var(--ro-text-on-brand);
+}
+
+.notification-panel {
+  position: absolute;
+  inset-block-start: calc(100% + var(--ro-space-2));
+  inset-inline-end: 0;
+  z-index: var(--ro-z-overlay);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  inline-size: min(var(--ro-popover-width), calc(100vw - var(--ro-space-6)));
+  max-block-size: 70vh;
+  overflow: hidden;
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-lg);
+  background: var(--ro-bg-surface);
+  box-shadow: var(--ro-shadow-overlay);
+}
+
+.notification-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ro-space-3);
+  padding: var(--ro-space-4);
+  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+.notification-panel-title {
+  margin: 0;
+  font-size: var(--ro-text-heading-md);
+  line-height: var(--ro-leading-heading-md);
+  font-weight: var(--ro-font-semibold);
+}
+
+.notification-panel-header .hint {
+  margin: 0;
+}
+
+.notification-panel-actions {
+  display: flex;
+  flex: none;
+  gap: var(--ro-space-1);
+}
+
+.notification-panel-icon {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--ro-avatar-sm);
+  min-block-size: var(--ro-avatar-sm);
+  padding: 0;
+  border: 0;
+  border-radius: var(--ro-radius-sm);
+  background: transparent;
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-icon-size);
+  cursor: pointer;
+}
+
+.notification-panel-icon:hover {
+  background: var(--ro-bg-hover);
+  color: var(--ro-text-primary);
+}
+
+.notification-panel-icon:focus-visible,
+.notification-retry:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-border-focus);
+}
+
+.notification-panel-state {
+  display: grid;
+  justify-items: center;
+  gap: var(--ro-space-2);
+  margin: 0;
+  padding: var(--ro-space-6) var(--ro-space-4);
+  color: var(--ro-text-secondary);
+  text-align: center;
+}
+
+.notification-panel-state p {
+  margin: 0;
+}
+
+.notification-panel-clear ng-icon {
+  color: var(--ro-text-success);
+  font-size: var(--ro-text-heading-xl);
+}
+
+.notification-panel-clear strong {
+  color: var(--ro-text-primary);
+}
+
+.notification-retry {
+  padding: var(--ro-space-1) var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-surface);
+  color: var(--ro-text-primary);
+  font: inherit;
+  font-weight: var(--ro-font-medium);
+  cursor: pointer;
+}
+
+.notification-list {
+  display: grid;
+  margin: 0;
+  padding: var(--ro-space-2);
+  overflow-y: auto;
+  list-style: none;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ro-space-3);
+  padding: var(--ro-space-3);
+  border-radius: var(--ro-radius-md);
+  color: var(--ro-text-primary);
+  transition: background-color var(--ro-motion-fast);
+}
+
+.notification-item:hover {
+  background: var(--ro-bg-hover);
+}
+
+.notification-item:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-border-focus);
+  outline-offset: calc(var(--ro-focus-width) * -1);
+}
+
+.notification-item-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--ro-avatar-sm);
+  block-size: var(--ro-avatar-sm);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-warning-subtle);
+  color: var(--ro-text-warning);
+  font-size: var(--ro-icon-size);
+}
+
+.notification-item[data-urgent='true'] .notification-item-icon {
+  background: var(--ro-bg-danger-subtle);
+  color: var(--ro-text-danger);
+}
+
+.notification-item-text {
+  display: grid;
+  gap: var(--ro-space-1);
+  min-inline-size: 0;
+}
+
+.notification-item-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-2);
+  font-weight: var(--ro-font-semibold);
+}
+
+.notification-item-count {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--ro-count-badge-size);
+  padding-inline: var(--ro-space-2);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-subtle);
+  color: var(--ro-text-primary);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+}
+
+.notification-item-detail {
+  color: var(--ro-text-primary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}
+
+.notification-item-hint {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}
+
+/* On a phone the panel spans the screen under the top bar. */
+@media (width < 640px) {
+  .notification-panel {
+    position: fixed;
+    inset-block-start: calc(var(--ro-topbar-height) + var(--ro-space-2));
+    inset-inline: var(--ro-space-3);
+    inline-size: auto;
+  }
+}

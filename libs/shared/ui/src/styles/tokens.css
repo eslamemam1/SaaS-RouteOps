@@ -167,6 +167,8 @@
   --ro-topbar-height: 60px;
   --ro-readable-width: 70ch;
   --ro-drawer-width: 460px;
+  --ro-popover-width: 380px;
+  --ro-count-badge-size: 18px;
   --ro-card-min-width: 240px;
   --ro-list-card-min-width: 300px;
   --ro-avatar-sm: 32px;

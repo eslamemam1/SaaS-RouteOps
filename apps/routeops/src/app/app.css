@@ -140,8 +140,13 @@
   box-shadow: var(--ro-shadow-topbar);
 }
 
-.shell-topbar app-language-switch {
+.shell-topbar app-language-switch,
+.shell-topbar app-notifications {
   margin-inline-start: auto;
+}
+
+.shell-topbar app-notifications + app-language-switch {
+  margin-inline-start: 0;
 }
 
 .shell-topbar-brand,
@@ -172,7 +177,6 @@
 .shell-toggle:focus-visible {
   outline: var(--ro-focus-width) solid var(--ro-border-focus);
 }
-
 
 .shell-content {
   inline-size: 100%;

@@ -29,6 +29,7 @@ import {
   lucideLogOut,
   lucideMenu,
 } from '@ng-icons/lucide';
+import { Notifications } from '@routeops/notifications';
 import { injectText, LanguageService, productName } from '@routeops/shared/i18n';
 import { Button, LanguageSwitch, Logo, ShellOrganization } from '@routeops/shared/ui';
 import { filter, map } from 'rxjs';
@@ -39,7 +40,16 @@ export const compactShellQuery = '(max-width: 899.98px)';
 const sidebarStorageKey = 'routeops.sidebar';
 
 @Component({
-  imports: [Button, LanguageSwitch, Logo, NgIcon, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [
+    Button,
+    LanguageSwitch,
+    Logo,
+    NgIcon,
+    Notifications,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+  ],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
