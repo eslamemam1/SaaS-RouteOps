@@ -161,6 +161,7 @@
   --ro-shadow-overlay: 0 24px 48px rgb(14 26 51 / 18%);
   --ro-shadow-button: 0 1px 2px rgb(42 71 212 / 28%);
   --ro-shadow-topbar: 0 1px 0 rgb(14 26 51 / 6%);
+  --ro-shadow-none: none;
 
   --ro-control-height: 42px;
   --ro-sidebar-width: 256px;
@@ -170,7 +171,7 @@
   --ro-popover-width: 380px;
   --ro-count-badge-size: 18px;
   --ro-card-min-width: 240px;
-  --ro-list-card-min-width: 300px;
+  --ro-list-card-min-width: 360px;
   --ro-avatar-sm: 32px;
   --ro-avatar-md: 44px;
   --ro-avatar-lg: 72px;

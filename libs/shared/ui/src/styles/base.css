@@ -944,10 +944,29 @@ a.ro-entity-name:hover {
 
   .ro-table-cards tbody {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--ro-list-card-min-width), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--ro-list-card-min-width), 100%), 1fr));
     gap: var(--ro-space-4);
-    padding: var(--ro-space-4);
-    background: var(--ro-bg-canvas);
+  }
+
+  /*
+   * Cards sit on the page, not inside another card: the frame around a list in cards view goes,
+   * and its heading, filters, and pager line up with the cards above and below them.
+   */
+  .ro-card:has(> .ro-table-scroll > .ro-table-cards) {
+    display: grid;
+    gap: var(--ro-space-4);
+    border-color: transparent;
+    background: transparent;
+    box-shadow: var(--ro-shadow-none);
+  }
+
+  .ro-card:has(> .ro-table-scroll > .ro-table-cards) > :is(.ro-card-header, .ro-card-body, .app-pager) {
+    padding: 0;
+    border: 0;
+  }
+
+  .ro-table-scroll:has(> .ro-table-cards) {
+    overflow: visible;
   }
 
   /*
