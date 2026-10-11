@@ -27,6 +27,13 @@ export interface UiText {
     readonly page: string;
     readonly perPage: string;
   };
+  readonly monthPicker: {
+    readonly previous: string;
+    readonly next: string;
+    readonly previousYear: string;
+    readonly nextYear: string;
+    readonly thisMonth: string;
+  };
 }
 
 export const uiText: Record<Language, UiText> = {
@@ -57,6 +64,13 @@ export const uiText: Record<Language, UiText> = {
       page: 'صفحة',
       perPage: 'عدد الصفوف في الصفحة',
     },
+    monthPicker: {
+      previous: 'الشهر السابق',
+      next: 'الشهر التالي',
+      previousYear: 'السنة السابقة',
+      nextYear: 'السنة التالية',
+      thisMonth: 'الشهر الحالي',
+    },
   },
   en: {
     optional: '(optional)',
@@ -84,6 +98,13 @@ export const uiText: Record<Language, UiText> = {
       next: 'Next page',
       page: 'Page',
       perPage: 'Rows per page',
+    },
+    monthPicker: {
+      previous: 'Previous month',
+      next: 'Next month',
+      previousYear: 'Previous year',
+      nextYear: 'Next year',
+      thisMonth: 'This month',
     },
   },
 };

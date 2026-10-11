@@ -95,6 +95,14 @@ export function formatMonth(month: string, language: Language): string {
   });
 }
 
+// Only the name of a month stored as YYYY-MM, such as أكتوبر.
+export function formatMonthName(month: string, language: Language): string {
+  if (!/^\d{4}-\d{2}$/.test(month)) {
+    return month;
+  }
+  return formatDate(`${month}-01`, language, { month: 'long' });
+}
+
 // A time stored as HH:MM or HH:MM:SS, on a 12-hour clock, such as 7:30 ص or 7:30 PM.
 export function formatTime(time: string, language: Language): string {
   const match = /^(\d{2}):(\d{2})(:\d{2})?$/.exec(time);

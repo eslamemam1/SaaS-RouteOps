@@ -56,27 +56,12 @@
 
   <section class="driver-month">
     <h2>{{ text().page.monthTitle }} {{ monthLabel() }}</h2>
-    <div class="ro-toolbar ro-date-nav">
-      <button appButton="secondary" type="button" (click)="moveMonth(-1)">
-        {{ text().page.previous }}
-      </button>
-      <app-field [label]="text().page.month">
-        <input
-          type="month"
-          dir="ltr"
-          [value]="month()"
-          (change)="chooseMonth($any($event.target).value)"
-        />
-      </app-field>
-      <button appButton="secondary" type="button" (click)="moveMonth(1)">
-        {{ text().page.next }}
-      </button>
-      @if (month() !== thisMonth) {
-      <button appButton="text" type="button" (click)="chooseMonth(thisMonth)">
-        {{ text().page.thisMonth }}
-      </button>
-      }
-    </div>
+    <app-month-picker
+      [label]="text().page.month"
+      [month]="month()"
+      [current]="thisMonth"
+      (monthChange)="chooseMonth($event)"
+    />
   </section>
 
   @switch (monthStatus()) { @case ('loading') {

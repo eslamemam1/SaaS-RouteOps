@@ -11,9 +11,6 @@ export interface ExpensesText {
     readonly loading: string;
     readonly empty: string;
     readonly month: string;
-    readonly previous: string;
-    readonly next: string;
-    readonly thisMonth: string;
     readonly total: string;
     readonly count: string;
     readonly unrecordedPay: string;
@@ -132,9 +129,6 @@ export const expensesText: Record<Language, ExpensesText> = {
       loading: 'جارٍ التحميل...',
       empty: 'لم تسجّل أي مصروف في هذا الشهر.',
       month: 'الشهر',
-      previous: 'الشهر السابق',
-      next: 'الشهر التالي',
-      thisMonth: 'هذا الشهر',
       total: 'إجمالي مصاريف الشهر',
       count: 'عدد المصاريف',
       unrecordedPay: 'رواتب وأجرة مقترحة لم تُسجّل',
@@ -257,9 +251,6 @@ export const expensesText: Record<Language, ExpensesText> = {
       loading: 'Loading...',
       empty: 'You have not recorded any expense this month.',
       month: 'Month',
-      previous: 'Previous month',
-      next: 'Next month',
-      thisMonth: 'This month',
       total: 'Total expenses this month',
       count: 'Expenses recorded',
       unrecordedPay: 'Suggested salaries and vehicle pay not recorded',

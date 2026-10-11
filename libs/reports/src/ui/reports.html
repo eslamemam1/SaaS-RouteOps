@@ -1,27 +1,12 @@
 <div class="ro-stack">
   <app-page-header [title]="text().report.title" [hint]="text().report.hint">
     @if (organization()) {
-      <div class="ro-toolbar ro-date-nav">
-        <button appButton="secondary" type="button" (click)="moveMonth(-1)">
-          {{ text().report.previous }}
-        </button>
-        <app-field [label]="text().report.month">
-          <input
-            type="month"
-            dir="ltr"
-            [value]="month()"
-            (change)="chooseMonth($any($event.target).value)"
-          />
-        </app-field>
-        <button appButton="secondary" type="button" (click)="moveMonth(1)">
-          {{ text().report.next }}
-        </button>
-        @if (month() !== thisMonth) {
-          <button appButton="text" type="button" (click)="chooseMonth(thisMonth)">
-            {{ text().report.thisMonth }}
-          </button>
-        }
-      </div>
+      <app-month-picker
+        [label]="text().report.month"
+        [month]="month()"
+        [current]="thisMonth"
+        (monthChange)="chooseMonth($event)"
+      />
     }
   </app-page-header>
 

@@ -119,12 +119,6 @@ export function monthOf(date: string): string {
   return date.slice(0, 7);
 }
 
-export function shiftMonth(month: string, months: number): string {
-  const [year, index] = month.split('-').map(Number);
-  const date = new Date(Date.UTC(year, index - 1 + months, 1));
-  return date.toISOString().slice(0, 7);
-}
-
 export function monthDays(month: string): DateRange {
   const [year, index] = month.split('-').map(Number);
   const last = new Date(Date.UTC(year, index, 0)).getUTCDate();

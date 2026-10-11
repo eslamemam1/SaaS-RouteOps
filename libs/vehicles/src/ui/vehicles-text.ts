@@ -24,10 +24,7 @@ export interface VehiclesText {
     readonly edit: string;
     readonly owner: string;
     readonly monthTitle: string;
-    readonly previous: string;
-    readonly next: string;
     readonly month: string;
-    readonly thisMonth: string;
     readonly monthLoading: string;
     readonly loadFailed: string;
     readonly unopenedTitle: string;
@@ -208,10 +205,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       edit: 'تعديل البيانات',
       owner: 'صاحبها:',
       monthTitle: 'شغل شهر',
-      previous: 'الشهر السابق',
-      next: 'الشهر التالي',
       month: 'الشهر',
-      thisMonth: 'الشهر الحالي',
       monthLoading: 'جارٍ تحميل رحلات الشهر...',
       loadFailed: 'تعذّر تحميل بيانات الشهر. حاول مرة أخرى.',
       unopenedTitle: 'أيام عمل لم تُفتح',
@@ -394,10 +388,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       edit: 'Edit details',
       owner: 'Owner:',
       monthTitle: 'Work in',
-      previous: 'Previous month',
-      next: 'Next month',
       month: 'Month',
-      thisMonth: 'This month',
       monthLoading: "Loading the month's trips...",
       loadFailed: "Could not load this month's figures. Please try again.",
       unopenedTitle: 'Working days nobody opened',

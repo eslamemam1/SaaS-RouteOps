@@ -5,7 +5,6 @@ import {
   driverTripState,
   isMonth,
   monthDays,
-  shiftMonth,
 } from './driver-month';
 
 const trip: DriverTrip = {
@@ -129,9 +128,7 @@ describe('months', () => {
     expect(daysSoFar('2026-03', '2026-02-10')).toBeNull();
   });
 
-  it('moves across years and accepts only a real month', () => {
-    expect(shiftMonth('2026-01', -1)).toBe('2025-12');
-    expect(shiftMonth('2026-12', 1)).toBe('2027-01');
+  it('accepts only a real month', () => {
     expect(isMonth('2026-12')).toBe(true);
     expect(isMonth('2026-13')).toBe(false);
   });

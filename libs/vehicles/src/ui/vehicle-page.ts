@@ -25,8 +25,8 @@ import { remainingRent, suggestedRent } from '@routeops/shared/pay';
 import {
   Alert,
   Button,
-  Field,
   FormDrawer,
+  MonthPicker,
   PageState,
   paginate,
   Pager,
@@ -49,7 +49,6 @@ import {
   expenseSum,
   isMonth,
   monthOf,
-  shiftMonth,
   TripStatus,
   VehicleMonth,
   vehicleTotals,
@@ -81,8 +80,8 @@ const statusTones: Record<TripStatus, Tone> = {
   imports: [
     Alert,
     Button,
-    Field,
     FormDrawer,
+    MonthPicker,
     NgIcon,
     PageState,
     Pager,
@@ -198,10 +197,6 @@ export class VehiclePage {
       this.month.set(value);
       void this.loadMonth();
     }
-  }
-
-  protected moveMonth(months: number): void {
-    this.chooseMonth(shiftMonth(this.month(), months));
   }
 
   protected retry(): void {

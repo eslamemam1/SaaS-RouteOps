@@ -197,12 +197,12 @@ describe('Reports', () => {
     await settle(harness);
     const current = month.mock.calls[0][1];
 
-    button(harness, arabic.report.previous)?.click();
+    button(harness, 'الشهر السابق')?.click();
     await settle(harness);
 
     const previous = month.mock.calls[1][1];
     expect(previous < current).toBe(true);
-    expect(button(harness, arabic.report.thisMonth)).toBeTruthy();
+    expect(button(harness, 'الشهر الحالي')).toBeTruthy();
   });
 
   it('shows an empty state for a month without trips', async () => {
@@ -281,7 +281,9 @@ function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
 function button(harness: RouterTestingHarness, label: string): HTMLButtonElement | undefined {
   return [
     ...(harness.routeNativeElement?.querySelectorAll<HTMLButtonElement>('button') ?? []),
-  ].find((item) => item.textContent?.trim() === label);
+  ].find(
+    (item) => item.textContent?.trim() === label || item.getAttribute('aria-label') === label,
+  );
 }
 
 function text(harness: RouterTestingHarness): string {

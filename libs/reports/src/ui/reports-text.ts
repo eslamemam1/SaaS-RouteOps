@@ -15,9 +15,6 @@ export interface ReportsText {
     readonly title: string;
     readonly hint: string;
     readonly month: string;
-    readonly previous: string;
-    readonly next: string;
-    readonly thisMonth: string;
     readonly loading: string;
     readonly empty: string;
     readonly doneTotal: string;
@@ -92,9 +89,6 @@ export const reportsText: Record<Language, ReportsText> = {
       title: 'التقرير الشهري',
       hint: 'عدد الرحلات التي تمّت في الشهر وإيرادها ومصاريف الشهر وصافي الربح، لكل شركة متعاقدة وخط ومركبة وسائق. استخدمه في محاسبة الشركات والمركبات المؤجرة والمتعاقدين. الإيراد يُحسب من سعر الرحلة المسجّل لكل خط.',
       month: 'الشهر',
-      previous: 'الشهر السابق',
-      next: 'الشهر التالي',
-      thisMonth: 'هذا الشهر',
       loading: 'جارٍ التحميل...',
       empty: 'لا توجد رحلات تمّت ولا مصاريف في هذا الشهر.',
       doneTotal: 'رحلات كاملة تمّت',
@@ -167,9 +161,6 @@ export const reportsText: Record<Language, ReportsText> = {
       title: 'Monthly report',
       hint: 'How many trips were done in the month, their revenue, the month’s expenses, and net profit, per client company, route, vehicle, and driver. Use it to settle with client companies, rented vehicles, and contractors. Revenue comes from the trip price set on each route.',
       month: 'Month',
-      previous: 'Previous month',
-      next: 'Next month',
-      thisMonth: 'This month',
       loading: 'Loading...',
       empty: 'No trips were done and no expenses were recorded in this month.',
       doneTotal: 'Full trips done',

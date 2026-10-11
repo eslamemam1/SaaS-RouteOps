@@ -17,7 +17,6 @@ import {
   remainingRent,
   rentDetails,
   salaryDetails,
-  shiftMonth,
   spentOnError,
   suggestedPay,
   suggestedRent,
@@ -235,8 +234,6 @@ describe('expenseDetails', () => {
 describe('months', () => {
   it('knows the first and last day of a month', () => {
     expect(monthDays('2026-02')).toEqual({ from: '2026-02-01', to: '2026-02-28' });
-    expect(shiftMonth('2026-12', 1)).toBe('2027-01');
-    expect(shiftMonth('2026-01', -1)).toBe('2025-12');
   });
 
   it('dates a new expense today, or the closest day of another month', () => {

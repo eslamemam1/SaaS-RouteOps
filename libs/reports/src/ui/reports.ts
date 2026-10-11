@@ -13,7 +13,7 @@ import { formatMoney } from '@routeops/shared/money';
 import {
   Alert,
   Button,
-  Field,
+  MonthPicker,
   PageHeader,
   PageState,
   paginate,
@@ -38,7 +38,6 @@ import {
   ReportProblem,
   reportTotal,
   ReportVehicle,
-  shiftMonth,
 } from '../domain/trip-report';
 import { reportsText } from './reports-text';
 
@@ -59,7 +58,7 @@ interface Stat {
 
 @Component({
   selector: 'app-reports',
-  imports: [Alert, Button, Field, NgIcon, PageHeader, PageState, Pager, RouterLink, Tag],
+  imports: [Alert, Button, MonthPicker, NgIcon, PageHeader, PageState, Pager, RouterLink, Tag],
   templateUrl: './reports.html',
   styleUrl: './reports.css',
 })
@@ -175,10 +174,6 @@ export class Reports {
       this.month.set(value);
       void this.loadMonth();
     }
-  }
-
-  protected moveMonth(months: number): void {
-    this.chooseMonth(shiftMonth(this.month(), months));
   }
 
   private async load(): Promise<void> {

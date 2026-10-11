@@ -4,6 +4,7 @@ import {
   formatDay,
   formatDayWithWeekday,
   formatMonth,
+  formatMonthName,
   formatTime,
   formatWeekdayAndDay,
   LanguageService,
@@ -81,6 +82,13 @@ describe('formatMonth', () => {
 
   it('leaves an unknown month as it is', () => {
     expect(formatMonth('2026-13-01', 'ar')).toBe('2026-13-01');
+  });
+});
+
+describe('formatMonthName', () => {
+  it('writes only the name of a month', () => {
+    expect(formatMonthName('2026-10', 'ar')).toBe('أكتوبر');
+    expect(formatMonthName('2026-01', 'en')).toBe('January');
   });
 });
 

@@ -10,7 +10,6 @@ import {
   reportLines,
   ReportOrganization,
   reportTotal,
-  shiftMonth,
   TripCount,
 } from './trip-report';
 
@@ -20,11 +19,6 @@ describe('report months', () => {
     expect(isReportMonth('2026-13')).toBe(false);
     expect(isReportMonth('2026-10-01')).toBe(false);
     expect(isReportMonth('')).toBe(false);
-  });
-
-  it('moves across years', () => {
-    expect(shiftMonth('2026-01', -1)).toBe('2025-12');
-    expect(shiftMonth('2026-12', 1)).toBe('2027-01');
   });
 
   it('knows the last day of each month, including leap years', () => {

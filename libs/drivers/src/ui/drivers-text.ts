@@ -19,10 +19,7 @@ export interface DriversText {
     readonly licenseExpired: string;
     readonly edit: string;
     readonly monthTitle: string;
-    readonly previous: string;
-    readonly next: string;
     readonly month: string;
-    readonly thisMonth: string;
     readonly monthLoading: string;
     readonly loadFailed: string;
     readonly unopenedTitle: string;
@@ -179,10 +176,7 @@ export const driversText: Record<Language, DriversText> = {
       licenseExpired: 'الرخصة منتهية',
       edit: 'تعديل البيانات',
       monthTitle: 'شغل شهر',
-      previous: 'الشهر السابق',
-      next: 'الشهر التالي',
       month: 'الشهر',
-      thisMonth: 'الشهر الحالي',
       monthLoading: 'جارٍ تحميل رحلات الشهر...',
       loadFailed: 'تعذّر تحميل بيانات الشهر. حاول مرة أخرى.',
       unopenedTitle: 'أيام عمل لم تُفتح',
@@ -350,10 +344,7 @@ export const driversText: Record<Language, DriversText> = {
       licenseExpired: 'License expired',
       edit: 'Edit details',
       monthTitle: 'Work in',
-      previous: 'Previous month',
-      next: 'Next month',
       month: 'Month',
-      thisMonth: 'This month',
       monthLoading: "Loading the month's trips...",
       loadFailed: "Could not load this month's figures. Please try again.",
       unopenedTitle: 'Working days nobody opened',

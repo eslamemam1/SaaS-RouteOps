@@ -7,9 +7,9 @@ import { formatMoney } from '@routeops/shared/money';
 import {
   Alert,
   Button,
-  Field,
   FormDrawer,
   injectListView,
+  MonthPicker,
   PageHeader,
   PageState,
   Tag,
@@ -43,7 +43,6 @@ import {
   remainingRent,
   rentDetails,
   salaryDetails,
-  shiftMonth,
   suggestedRent,
   VehiclePay,
 } from '../domain/expense';
@@ -66,8 +65,8 @@ interface Stat {
     Alert,
     Button,
     ExpenseForm,
-    Field,
     FormDrawer,
+    MonthPicker,
     NgIcon,
     PageHeader,
     PageState,
@@ -197,10 +196,6 @@ export class Expenses {
       this.month.set(value);
       void this.loadMonth();
     }
-  }
-
-  protected moveMonth(months: number): void {
-    this.chooseMonth(shiftMonth(this.month(), months));
   }
 
   protected add(): void {

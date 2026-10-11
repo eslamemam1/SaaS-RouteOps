@@ -25,8 +25,8 @@ import {
   Alert,
   Avatar,
   Button,
-  Field,
   FormDrawer,
+  MonthPicker,
   PageState,
   paginate,
   Pager,
@@ -50,7 +50,6 @@ import {
   driverTripState,
   isMonth,
   monthOf,
-  shiftMonth,
   WorkChoice,
 } from '../domain/driver-month';
 import { DriverForm, DriverSaved } from './driver-form';
@@ -78,8 +77,8 @@ const stateTones: Record<DriverTripState, Tone> = {
     Avatar,
     Button,
     DriverForm,
-    Field,
     FormDrawer,
+    MonthPicker,
     NgIcon,
     PageState,
     Pager,
@@ -204,10 +203,6 @@ export class DriverPage {
       this.month.set(value);
       void this.loadMonth();
     }
-  }
-
-  protected moveMonth(months: number): void {
-    this.chooseMonth(shiftMonth(this.month(), months));
   }
 
   protected retry(): void {

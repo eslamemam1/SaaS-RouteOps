@@ -119,7 +119,7 @@ describe('DriverPage', () => {
     const harness = await open({ month }, '?month=2026-02');
     await settle(harness);
 
-    button(harness, arabic.page.previous)?.click();
+    button(harness, 'الشهر السابق')?.click();
     await settle(harness);
 
     expect(month.mock.calls.map((call) => call[2])).toEqual([
@@ -239,7 +239,11 @@ function button(
     ...(harness.routeNativeElement?.querySelectorAll<HTMLButtonElement>(
       'button',
     ) ?? []),
-  ].find((item) => item.textContent?.trim() === label);
+  ].find(
+    (item) =>
+      item.textContent?.trim() === label ||
+      item.getAttribute('aria-label') === label,
+  );
 }
 
 function statValue(harness: RouterTestingHarness, label: string): string {
