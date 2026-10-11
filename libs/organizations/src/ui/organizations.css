@@ -2,11 +2,23 @@
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: var(--ro-space-4);
-  align-items: start;
+}
+
+/* Both cards take the height of the taller one, and today's figures grow to fill theirs. */
+.dashboard-top > .ro-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-top > .ro-card > .ro-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
 .dashboard-today {
   display: grid;
+  flex: 1;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--ro-space-3);
   margin: 0;
@@ -14,6 +26,7 @@
 
 .dashboard-today > div {
   display: grid;
+  align-content: space-between;
   gap: var(--ro-space-1);
   padding: var(--ro-space-4);
   border-radius: var(--ro-radius-md);
