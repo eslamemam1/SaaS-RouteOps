@@ -6,7 +6,7 @@ import { SupabaseDriverGateway } from './driver-gateway';
 
 type Result = {
   data: unknown;
-  error: { message: string; code?: string } | null;
+  error: { message: string; code?: string; details?: string } | null;
 };
 
 const north = { id: 'org-north', name: 'North', currency: 'EGP' } as const;
@@ -292,6 +292,143 @@ describe('SupabaseDriverGateway', () => {
     ).rejects.toEqual(new DriverAccessError('save'));
   });
 
+  it("lists the driver's trips of a period with the status the reports count them under", async () => {
+    const calls = recorder({
+      data: [
+        {
+          id: 'trip-1',
+          service_date: '2026-02-02',
+          departure_time: '07:30:00',
+          direction: 'outbound',
+          customer_id: 'customer-1',
+          route_id: null,
+          vehicle_id: null,
+          driver_id: 'driver-2',
+          planned_driver_id: 'driver-1',
+          is_extra: false,
+          status: 'done',
+          change_reason: 'driver_absent',
+          notes: null,
+          price: 5000,
+        },
+      ],
+      error: null,
+    });
+    const gateway = new SupabaseDriverGateway(calls.client);
+
+    await expect(
+      gateway.tripLog('org-north', 'driver-1', { from: '2026-02-01', to: '2026-02-28' }, '2026-02-10'),
+    ).resolves.toEqual([
+      {
+        id: 'trip-1',
+        serviceDate: '2026-02-02',
+        departureTime: '07:30',
+        direction: 'outbound',
+        customerId: 'customer-1',
+        routeId: '',
+        vehicleId: '',
+        driverId: 'driver-2',
+        plannedDriverId: 'driver-1',
+        extra: false,
+        status: 'done',
+        reason: 'driverAbsent',
+        notes: '',
+        price: 5000,
+      },
+    ]);
+    expect(calls.rpcs).toEqual([
+      [
+        'trip_log',
+        {
+          p_organization_id: 'org-north',
+          p_from: '2026-02-01',
+          p_to: '2026-02-28',
+          p_today: '2026-02-10',
+          p_driver_id: 'driver-1',
+        },
+      ],
+    ]);
+  });
+
+  it('refuses a trip status this app does not know', async () => {
+    const calls = recorder({
+      data: [
+        {
+          id: 'trip-1',
+          service_date: '2026-02-02',
+          departure_time: '07:30:00',
+          direction: 'outbound',
+          customer_id: 'customer-1',
+          route_id: null,
+          vehicle_id: null,
+          driver_id: 'driver-1',
+          planned_driver_id: null,
+          is_extra: false,
+          status: 'lost',
+          change_reason: null,
+          notes: null,
+          price: null,
+        },
+      ],
+      error: null,
+    });
+    const gateway = new SupabaseDriverGateway(calls.client);
+
+    await expect(
+      gateway.tripLog('org-north', 'driver-1', { from: '2026-02-01', to: '2026-02-28' }, '2026-02-10'),
+    ).rejects.toEqual(new DriverAccessError('load'));
+  });
+
+  it("reads only this driver's pay of the month", async () => {
+    const calls = recorder({
+      data: [
+        {
+          driver_id: 'driver-1',
+          pay_type: 'per_trip',
+          monthly_salary: null,
+          salary_trips: null,
+          outbound_pay: 100,
+          return_pay: 120,
+          done_outbound: 3,
+          done_return: 2,
+          absent_outbound: 1,
+          absent_return: 0,
+          recorded: 50,
+        },
+      ],
+      error: null,
+    });
+    const gateway = new SupabaseDriverGateway(calls.client);
+
+    const pay = await gateway.driverPay(
+      'org-north',
+      'driver-1',
+      { from: '2026-02-01', to: '2026-02-28' },
+      '2026-02-10',
+    );
+
+    expect(calls.filters).toEqual([['driver_id', 'driver-1']]);
+    expect(pay).toEqual({
+      driverId: 'driver-1',
+      payType: 'perTrip',
+      monthlySalary: null,
+      salaryTrips: null,
+      tripPay: { outbound: 100, return: 120 },
+      done: { outbound: 3, return: 2 },
+      absent: { outbound: 1, return: 0 },
+      recorded: 50,
+    });
+  });
+
+  it('has no pay for a driver without pay terms', async () => {
+    const calls = recorder({ data: [], error: null });
+    const gateway = new SupabaseDriverGateway(calls.client);
+
+    await expect(
+      gateway.driverPay('org-north', 'driver-1', { from: '2026-02-01', to: '2026-02-28' }, '2026-02-10'),
+    ).resolves.toBeNull();
+  });
+
   it('reports that the app is not connected when there is no client', async () => {
     const gateway = new SupabaseDriverGateway(null);
 
@@ -303,6 +440,7 @@ describe('SupabaseDriverGateway', () => {
 
 function recorder(result: Result, signing?: Result) {
   const filters: [string, string][] = [];
+  const rpcs: [string, unknown][] = [];
   const signed: string[][] = [];
   let inserted: unknown = null;
   let uploaded: unknown[] = [];
@@ -337,8 +475,17 @@ function recorder(result: Result, signing?: Result) {
     order: () => Promise.resolve(result),
     single: () => Promise.resolve(result),
   };
+  const rpcPage = {
+    order: () => rpcPage,
+    range: () => Promise.resolve(result),
+    eq: (column: string, value: string) => {
+      filters.push([column, value]);
+      return Promise.resolve(result);
+    },
+  };
   return {
     filters,
+    rpcs,
     signed,
     get inserted() {
       return inserted;
@@ -351,6 +498,10 @@ function recorder(result: Result, signing?: Result) {
     },
     client: {
       from: () => query,
+      rpc: (name: string, args: unknown) => {
+        rpcs.push([name, args]);
+        return rpcPage;
+      },
       storage: { from: () => bucket },
     } as unknown as SupabaseClient<Database>,
   };

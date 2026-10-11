@@ -1,11 +1,12 @@
 import { DriverAccessError } from '../application/driver-access-error';
-import { DriverRepository } from '../application/driver-repository';
+import { DriverRepository, DriverWork } from '../application/driver-repository';
 import {
   Driver,
   DriverDetails,
   DriverOrganization,
   memberOrganization,
 } from '../domain/driver';
+import { daysSoFar, DriverMonth, monthDays } from '../domain/driver-month';
 import { DriverGateway } from './driver-gateway';
 
 export class SupabaseDriverRepository extends DriverRepository {
@@ -24,6 +25,40 @@ export class SupabaseDriverRepository extends DriverRepository {
 
   list(organization: DriverOrganization): Promise<Driver[]> {
     return this.gateway.listDrivers(organization);
+  }
+
+  driver(
+    organization: DriverOrganization,
+    driverId: string,
+  ): Promise<Driver | null> {
+    return this.gateway.findDriver(organization, driverId);
+  }
+
+  async work(
+    organization: DriverOrganization,
+    driverId: string,
+  ): Promise<DriverWork> {
+    const [choices, routes] = await Promise.all([
+      this.gateway.workChoices(organization.id),
+      this.gateway.driverRoutes(organization.id, driverId),
+    ]);
+    return { choices, routes };
+  }
+
+  async month(
+    organization: DriverOrganization,
+    driverId: string,
+    month: string,
+    today: string,
+  ): Promise<DriverMonth> {
+    const range = monthDays(month);
+    const soFar = daysSoFar(month, today);
+    const [trips, pay, unopenedDays] = await Promise.all([
+      this.gateway.tripLog(organization.id, driverId, range, today),
+      this.gateway.driverPay(organization.id, driverId, range, today),
+      soFar ? this.gateway.unopenedDays(organization.id, soFar) : [],
+    ]);
+    return { trips, pay, unopenedDays };
   }
 
   add(

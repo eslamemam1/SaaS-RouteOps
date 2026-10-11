@@ -6,6 +6,8 @@ import {
   toAmountText,
   toMinorUnits,
 } from '@routeops/shared/money';
+import { toVehiclePay, VehiclePay } from '@routeops/shared/pay';
+import { allRows } from '@routeops/shared/supabase';
 import { VehicleAccessError } from '../application/vehicle-access-error';
 import {
   effectiveRentType,
@@ -18,12 +20,48 @@ import {
   VehicleOrganization,
   wholeNumber,
 } from '../domain/vehicle';
+import {
+  byCategory,
+  CategoryTotal,
+  ChangeReason,
+  DateRange,
+  isExpenseCategory,
+  isTripDirection,
+  isTripStatus,
+  VehicleRoute,
+  VehicleTrip,
+  WorkChoices,
+} from '../domain/vehicle-month';
 import { Database } from './database';
 
 export interface VehicleGateway {
   sessionUserId(): Promise<string | null>;
   membershipOrganizations(userId: string): Promise<VehicleOrganization[]>;
   listVehicles(organization: VehicleOrganization): Promise<Vehicle[]>;
+  findVehicle(
+    organization: VehicleOrganization,
+    vehicleId: string,
+  ): Promise<Vehicle | null>;
+  workChoices(organizationId: string): Promise<WorkChoices>;
+  vehicleRoutes(organizationId: string, vehicleId: string): Promise<VehicleRoute[]>;
+  tripLog(
+    organizationId: string,
+    vehicleId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<VehicleTrip[]>;
+  vehiclePay(
+    organizationId: string,
+    vehicleId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<VehiclePay | null>;
+  vehicleExpenses(
+    organizationId: string,
+    vehicleId: string,
+    range: DateRange,
+  ): Promise<CategoryTotal[]>;
+  unopenedDays(organizationId: string, range: DateRange): Promise<string[]>;
   insertVehicle(
     organization: VehicleOrganization,
     details: VehicleDetails,
@@ -67,6 +105,16 @@ const rentTypeColumns: Record<RentType, string> = {
   monthly: 'monthly',
   perTrip: 'per_trip',
 };
+
+const reasonColumns: Record<ChangeReason, string> = {
+  holiday: 'holiday',
+  vehicleBreakdown: 'vehicle_breakdown',
+  driverAbsent: 'driver_absent',
+  customerRequest: 'customer_request',
+  other: 'other',
+};
+
+type TripLogRow = Database['public']['Functions']['trip_log']['Returns'][number];
 
 export class SupabaseVehicleGateway implements VehicleGateway {
   constructor(private readonly client: SupabaseClient<Database> | null) {}
@@ -114,6 +162,169 @@ export class SupabaseVehicleGateway implements VehicleGateway {
       throw new VehicleAccessError('load');
     }
     return (data ?? []).map((row) => toVehicle(row, organization.currency));
+  }
+
+  async findVehicle(
+    organization: VehicleOrganization,
+    vehicleId: string,
+  ): Promise<Vehicle | null> {
+    const { data, error } = await this.requireClient()
+      .from('vehicles')
+      .select(vehicleColumns)
+      .eq('organization_id', organization.id)
+      .eq('id', vehicleId)
+      .maybeSingle();
+    if (error) {
+      throw new VehicleAccessError('load');
+    }
+    return data ? toVehicle(data, organization.currency) : null;
+  }
+
+  // Inactive records stay, because past trips may still use them.
+  async workChoices(organizationId: string): Promise<WorkChoices> {
+    const client = this.requireClient();
+    const [customers, routes, drivers] = await Promise.all([
+      allRows((from, to) =>
+        client
+          .from('customers')
+          .select('id, name')
+          .eq('organization_id', organizationId)
+          .order('id')
+          .range(from, to),
+      ),
+      allRows((from, to) =>
+        client
+          .from('routes')
+          .select('id, name')
+          .eq('organization_id', organizationId)
+          .order('id')
+          .range(from, to),
+      ),
+      allRows((from, to) =>
+        client
+          .from('drivers')
+          .select('id, full_name')
+          .eq('organization_id', organizationId)
+          .order('id')
+          .range(from, to),
+      ),
+    ]);
+    if (customers.error || routes.error || drivers.error) {
+      throw new VehicleAccessError('load');
+    }
+    return {
+      customers: (customers.data ?? []).map((row) => ({ id: row.id, label: row.name })),
+      routes: (routes.data ?? []).map((row) => ({ id: row.id, label: row.name })),
+      drivers: (drivers.data ?? []).map((row) => ({ id: row.id, label: row.full_name })),
+    };
+  }
+
+  async vehicleRoutes(
+    organizationId: string,
+    vehicleId: string,
+  ): Promise<VehicleRoute[]> {
+    const { data, error } = await this.requireClient()
+      .from('routes')
+      .select('id, name, customer_id, driver_id, outbound_time, return_time')
+      .eq('organization_id', organizationId)
+      .eq('vehicle_id', vehicleId)
+      .eq('is_active', true)
+      .order('name');
+    if (error) {
+      throw new VehicleAccessError('load');
+    }
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      name: row.name,
+      customerId: row.customer_id,
+      driverId: row.driver_id ?? '',
+      outboundTime: row.outbound_time?.slice(0, 5) ?? '',
+      returnTime: row.return_time?.slice(0, 5) ?? '',
+    }));
+  }
+
+  async tripLog(
+    organizationId: string,
+    vehicleId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<VehicleTrip[]> {
+    const client = this.requireClient();
+    const { data, error } = await allRows((from, to) =>
+      client
+        .rpc('trip_log', {
+          p_organization_id: organizationId,
+          p_from: range.from,
+          p_to: range.to,
+          p_today: today,
+          p_vehicle_id: vehicleId,
+        })
+        .order('service_date')
+        .order('departure_time')
+        .order('id')
+        .range(from, to),
+    );
+    if (error) {
+      throw new VehicleAccessError('load');
+    }
+    return (data ?? []).map(toTrip);
+  }
+
+  async vehiclePay(
+    organizationId: string,
+    vehicleId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<VehiclePay | null> {
+    const { data, error } = await this.requireClient()
+      .rpc('vehicle_pay', {
+        p_organization_id: organizationId,
+        p_from: range.from,
+        p_to: range.to,
+        p_today: today,
+      })
+      .eq('vehicle_id', vehicleId);
+    if (error) {
+      throw new VehicleAccessError('load');
+    }
+    const [row] = data ?? [];
+    return row ? toVehiclePay(row) : null;
+  }
+
+  async vehicleExpenses(
+    organizationId: string,
+    vehicleId: string,
+    range: DateRange,
+  ): Promise<CategoryTotal[]> {
+    const { data, error } = await this.requireClient()
+      .rpc('expense_totals', {
+        p_organization_id: organizationId,
+        p_from: range.from,
+        p_to: range.to,
+      })
+      .eq('vehicle_id', vehicleId);
+    if (error) {
+      throw new VehicleAccessError('load');
+    }
+    return byCategory(
+      (data ?? []).flatMap((row) =>
+        isExpenseCategory(row.category)
+          ? [{ category: row.category, total: Number(row.total) }]
+          : [],
+      ),
+    );
+  }
+
+  async unopenedDays(organizationId: string, range: DateRange): Promise<string[]> {
+    const { data, error } = await this.requireClient().rpc('unopened_days', {
+      p_organization_id: organizationId,
+      p_from: range.from,
+      p_to: range.to,
+    });
+    if (error) {
+      throw new VehicleAccessError('load');
+    }
+    return data ?? [];
   }
 
   async insertVehicle(
@@ -165,6 +376,39 @@ function saveError(error: PostgrestError | null): VehicleAccessError {
     return new VehicleAccessError('activeRoutes', routeNames(error.details));
   }
   return new VehicleAccessError(error?.code === uniqueViolation ? 'plateTaken' : 'save');
+}
+
+function toTrip(row: TripLogRow): VehicleTrip {
+  if (!isTripDirection(row.direction) || !isTripStatus(row.status)) {
+    throw new VehicleAccessError('load');
+  }
+  return {
+    id: row.id,
+    serviceDate: row.service_date,
+    departureTime: row.departure_time.slice(0, 5),
+    direction: row.direction,
+    customerId: row.customer_id,
+    routeId: row.route_id ?? '',
+    driverId: row.driver_id,
+    extra: row.is_extra,
+    status: row.status,
+    reason: toReason(row.change_reason),
+    notes: row.notes ?? '',
+    price: row.price === null ? null : Number(row.price),
+  };
+}
+
+function toReason(value: string | null): ChangeReason | '' {
+  if (value === null) {
+    return '';
+  }
+  const reason = (Object.keys(reasonColumns) as ChangeReason[]).find(
+    (key) => reasonColumns[key] === value,
+  );
+  if (!reason) {
+    throw new VehicleAccessError('load');
+  }
+  return reason;
 }
 
 function routeNames(details: string | null | undefined): string[] {

@@ -1,0 +1,46 @@
+.vehicle-month {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ro-space-4);
+}
+
+.vehicle-panels {
+  align-items: start;
+}
+
+.vehicle-routes {
+  display: grid;
+  gap: var(--ro-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vehicle-routes > li {
+  display: grid;
+  gap: var(--ro-space-2);
+  padding-block-end: var(--ro-space-3);
+  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+.vehicle-routes > li:last-child {
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+.vehicle-trip-day {
+  font-weight: var(--ro-font-medium);
+  white-space: nowrap;
+}
+
+.vehicle-reason {
+  font-weight: var(--ro-font-medium);
+}
+
+@media (width < 640px) {
+  .ro-table-stack td.vehicle-no-details {
+    display: none;
+  }
+}

@@ -97,18 +97,6 @@
   margin-inline-start: auto;
 }
 
-.operations-trip-cancelled .operations-time {
-  border-color: var(--ro-border-default);
-  background: var(--ro-bg-subtle);
-  color: var(--ro-text-muted);
-}
-
-.operations-trip-cancelled .operations-time > bdi,
-.operations-trip-cancelled .ro-entity-name {
-  color: var(--ro-text-muted);
-  text-decoration: line-through;
-}
-
 .operations-driver {
   font-weight: var(--ro-font-medium);
 }

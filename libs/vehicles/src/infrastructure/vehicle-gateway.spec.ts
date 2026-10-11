@@ -276,6 +276,120 @@ describe('SupabaseVehicleGateway', () => {
     ).rejects.toEqual(new VehicleAccessError('save'));
   });
 
+  it("lists the vehicle's trips of a period with the status the reports count them under", async () => {
+    const calls = recorder({
+      data: [
+        {
+          id: 'trip-1',
+          service_date: '2026-02-02',
+          departure_time: '16:00:00',
+          direction: 'return',
+          customer_id: 'customer-1',
+          route_id: 'route-1',
+          vehicle_id: 'vehicle-1',
+          driver_id: 'driver-1',
+          planned_driver_id: 'driver-1',
+          is_extra: false,
+          status: 'cancelled',
+          change_reason: 'vehicle_breakdown',
+          notes: 'Flat tyre',
+          price: null,
+        },
+      ],
+      error: null,
+    });
+    const gateway = new SupabaseVehicleGateway(calls.client);
+
+    await expect(
+      gateway.tripLog('org-north', 'vehicle-1', { from: '2026-02-01', to: '2026-02-28' }, '2026-02-10'),
+    ).resolves.toEqual([
+      {
+        id: 'trip-1',
+        serviceDate: '2026-02-02',
+        departureTime: '16:00',
+        direction: 'return',
+        customerId: 'customer-1',
+        routeId: 'route-1',
+        driverId: 'driver-1',
+        extra: false,
+        status: 'cancelled',
+        reason: 'vehicleBreakdown',
+        notes: 'Flat tyre',
+        price: null,
+      },
+    ]);
+    expect(calls.rpcs).toEqual([
+      [
+        'trip_log',
+        {
+          p_organization_id: 'org-north',
+          p_from: '2026-02-01',
+          p_to: '2026-02-28',
+          p_today: '2026-02-10',
+          p_vehicle_id: 'vehicle-1',
+        },
+      ],
+    ]);
+  });
+
+  it("adds up the vehicle's expenses of the month by category", async () => {
+    const calls = recorder({
+      data: [
+        { category: 'maintenance', vehicle_id: 'vehicle-1', driver_id: null, total: 300 },
+        { category: 'fuel', vehicle_id: 'vehicle-1', driver_id: 'driver-1', total: 1000 },
+        { category: 'fuel', vehicle_id: 'vehicle-1', driver_id: null, total: 500 },
+      ],
+      error: null,
+    });
+    const gateway = new SupabaseVehicleGateway(calls.client);
+
+    await expect(
+      gateway.vehicleExpenses('org-north', 'vehicle-1', { from: '2026-02-01', to: '2026-02-28' }),
+    ).resolves.toEqual([
+      { category: 'fuel', total: 1500 },
+      { category: 'maintenance', total: 300 },
+    ]);
+    expect(calls.filters).toEqual([['vehicle_id', 'vehicle-1']]);
+  });
+
+  it("reads only this vehicle's rent of the month", async () => {
+    const calls = recorder({
+      data: [
+        {
+          vehicle_id: 'vehicle-1',
+          ownership: 'contractor',
+          rent_type: 'monthly',
+          monthly_rent: 900000,
+          outbound_rent: null,
+          return_rent: null,
+          done_outbound: 20,
+          done_return: 20,
+          recorded: 0,
+        },
+      ],
+      error: null,
+    });
+    const gateway = new SupabaseVehicleGateway(calls.client);
+
+    const rent = await gateway.vehiclePay(
+      'org-north',
+      'vehicle-1',
+      { from: '2026-02-01', to: '2026-02-28' },
+      '2026-02-10',
+    );
+
+    expect(calls.filters).toEqual([['vehicle_id', 'vehicle-1']]);
+    expect(rent).toEqual({
+      vehicleId: 'vehicle-1',
+      contractor: true,
+      rentType: 'monthly',
+      monthlyRent: 900000,
+      tripRent: null,
+      done: { outbound: 20, return: 20 },
+      recorded: 0,
+    });
+  });
+
   it('reports that the app is not connected when there is no client', async () => {
     const gateway = new SupabaseVehicleGateway(null);
 
@@ -287,7 +401,16 @@ describe('SupabaseVehicleGateway', () => {
 
 function recorder(result: Result) {
   const filters: [string, string][] = [];
+  const rpcs: [string, unknown][] = [];
   let inserted: unknown = null;
+  const rpcPage = {
+    order: () => rpcPage,
+    range: () => Promise.resolve(result),
+    eq: (column: string, value: string) => {
+      filters.push([column, value]);
+      return Promise.resolve(result);
+    },
+  };
   const query = {
     select: () => query,
     insert: (value: unknown) => {
@@ -304,9 +427,16 @@ function recorder(result: Result) {
   };
   return {
     filters,
+    rpcs,
     get inserted() {
       return inserted;
     },
-    client: { from: () => query } as unknown as SupabaseClient<Database>,
+    client: {
+      from: () => query,
+      rpc: (name: string, args: unknown) => {
+        rpcs.push([name, args]);
+        return rpcPage;
+      },
+    } as unknown as SupabaseClient<Database>,
   };
 }

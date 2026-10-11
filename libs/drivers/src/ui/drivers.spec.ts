@@ -53,6 +53,16 @@ describe('Drivers', () => {
     expect(text(harness)).toContain(arabic.list.working);
   });
 
+  it("links each driver to the driver's page", async () => {
+    const harness = await open({ list: async () => [ahmed] });
+    await settle(harness);
+
+    const links = [
+      ...(harness.routeNativeElement?.querySelectorAll('a') ?? []),
+    ].map((link) => link.getAttribute('href'));
+    expect(links).toContain('/organizations/org-north/drivers/driver-1');
+  });
+
   it('marks a driving license whose expiry date has passed', async () => {
     const harness = await open({ list: async () => [ahmed] });
     await settle(harness);
@@ -148,6 +158,12 @@ async function open(overrides: Partial<DriverRepository>) {
   const repository: DriverRepository = {
     organization: async () => north,
     list: async () => [],
+    driver: async () => ahmed,
+    work: async () => ({
+      choices: { customers: [], routes: [], vehicles: [], drivers: [] },
+      routes: [],
+    }),
+    month: async () => ({ trips: [], pay: null, unopenedDays: [] }),
     add: async () => ahmed,
     update: async () => ahmed,
     setPhoto: async () => ahmed,

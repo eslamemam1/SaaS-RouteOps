@@ -23,39 +23,6 @@
   color: var(--ro-text-muted);
 }
 
-.routes-times {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ro-space-2);
-}
-
-.routes-time {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--ro-space-1);
-  padding-block: calc(var(--ro-space-1) / 2);
-  padding-inline: var(--ro-space-2);
-  border: var(--ro-border-width) solid var(--ro-border-brand-subtle);
-  border-radius: var(--ro-radius-sm);
-  background: var(--ro-bg-brand-subtle);
-  color: var(--ro-text-brand);
-  font-size: var(--ro-text-caption);
-  line-height: var(--ro-leading-caption);
-  white-space: nowrap;
-}
-
-.routes-time > bdi {
-  color: var(--ro-text-primary);
-  font-size: var(--ro-text-body-sm);
-  font-weight: var(--ro-font-semibold);
-}
-
-.routes-time[data-direction='return'] {
-  border-color: var(--ro-border-warning-subtle);
-  background: var(--ro-bg-accent-subtle);
-  color: var(--ro-text-accent);
-}
-
 @media (width < 640px) {
   .routes-filters {
     grid-template-columns: minmax(0, 1fr);

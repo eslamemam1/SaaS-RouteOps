@@ -33,7 +33,7 @@ import { tripChangeSchema } from './trip-change-fields';
   selector: 'app-trip-change-form',
   imports: [Alert, Button, ConflictList, Field, FormField],
   templateUrl: './trip-change-form.html',
-  styleUrl: './trip-time.css',
+  styleUrl: './trip-change-form.css',
 })
 export class TripChangeForm {
   private readonly repository = inject(OperationsRepository);

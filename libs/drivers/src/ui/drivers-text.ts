@@ -1,15 +1,81 @@
 import { Language } from '@routeops/shared/i18n';
 import { DriverProblem, PayType } from '../domain/driver';
+import {
+  ChangeReason,
+  DriverTripState,
+  TripDirection,
+} from '../domain/driver-month';
 
 export interface DriversText {
   readonly problems: Record<DriverProblem, string>;
   readonly payTypes: Record<PayType, string>;
+  readonly directions: Record<TripDirection, string>;
+  readonly states: Record<DriverTripState, string>;
+  readonly reasons: Record<ChangeReason, string>;
+  readonly page: {
+    readonly back: string;
+    readonly loading: string;
+    readonly notFound: string;
+    readonly licenseExpired: string;
+    readonly edit: string;
+    readonly monthTitle: string;
+    readonly previous: string;
+    readonly next: string;
+    readonly month: string;
+    readonly thisMonth: string;
+    readonly monthLoading: string;
+    readonly loadFailed: string;
+    readonly unopenedTitle: string;
+    readonly unopenedHint: string;
+    readonly separator: string;
+    readonly done: string;
+    readonly extra: string;
+    readonly extraDetail: string;
+    readonly absent: string;
+    readonly absentDetail: string;
+    readonly revenue: string;
+    readonly unpriced: string;
+    readonly countedHint: string;
+    readonly payTitle: string;
+    readonly payHint: string;
+    readonly salary: string;
+    readonly extraTrips: string;
+    readonly tripsPay: string;
+    readonly absence: string;
+    readonly suggested: string;
+    readonly recorded: string;
+    readonly remaining: string;
+    readonly payLink: string;
+    readonly noPay: string;
+    readonly detailsTitle: string;
+    readonly notSet: string;
+    readonly salaryTrips: string;
+    readonly outboundPay: string;
+    readonly returnPay: string;
+    readonly notes: string;
+    readonly routesTitle: string;
+    readonly routesHint: string;
+    readonly noRoutes: string;
+    readonly noVehicle: string;
+    readonly tripsTitle: string;
+    readonly tripsHint: string;
+    readonly noTrips: string;
+    readonly day: string;
+    readonly trip: string;
+    readonly vehicle: string;
+    readonly state: string;
+    readonly reason: string;
+    readonly extraTag: string;
+    readonly drivenBy: string;
+    readonly noRoute: string;
+  };
   readonly list: {
     readonly title: string;
     readonly add: string;
     readonly hint: string;
     readonly loading: string;
     readonly empty: string;
+    readonly open: string;
     readonly fullName: string;
     readonly phone: string;
     readonly nationalId: string;
@@ -86,12 +152,94 @@ export const driversText: Record<Language, DriversText> = {
       salary: 'موظف براتب شهري',
       perTrip: 'يعمل بالرحلة',
     },
+    directions: {
+      outbound: 'ذهاب',
+      return: 'عودة',
+    },
+    states: {
+      done: 'تمّت',
+      unrecorded: 'لم تُسجَّل بعد',
+      planned: 'مخططة',
+      cancelled: 'ملغاة',
+      absent: 'غاب عنها',
+      handedOver: 'قادها سائق آخر',
+    },
+    reasons: {
+      holiday: 'إجازة',
+      vehicleBreakdown: 'عطل في المركبة',
+      driverAbsent: 'غياب السائق',
+      customerRequest: 'طلب من الشركة المتعاقدة',
+      other: 'أخرى',
+    },
+    page: {
+      back: 'كل السائقين',
+      loading: 'جارٍ تحميل صفحة السائق...',
+      notFound: 'لم نجد هذا السائق. ربما فتحت رابطًا قديمًا.',
+      licenseExpired: 'الرخصة منتهية',
+      edit: 'تعديل البيانات',
+      monthTitle: 'شغل شهر',
+      previous: 'الشهر السابق',
+      next: 'الشهر التالي',
+      month: 'الشهر',
+      thisMonth: 'الشهر الحالي',
+      monthLoading: 'جارٍ تحميل رحلات الشهر...',
+      loadFailed: 'تعذّر تحميل بيانات الشهر. حاول مرة أخرى.',
+      unopenedTitle: 'أيام عمل لم تُفتح',
+      unopenedHint:
+        'لم يفتح أحد صفحة التشغيل اليومي في هذه الأيام، فلا توجد رحلات مسجّلة لها ولا تدخل في العدد. افتح كل يوم منها لتُضاف رحلاته:',
+      separator: '، ',
+      done: 'رحلات قادها',
+      extra: 'رحلات إضافية',
+      extraDetail: 'خارج الخطوط المعتادة',
+      absent: 'رحلات غاب عنها',
+      absentDetail: 'أُلغيت أو قادها غيره بسبب غيابه',
+      revenue: 'إيراد رحلاته',
+      unpriced: 'رحلة بلا سعر',
+      countedHint:
+        'تُحسب الرحلات بنفس طريقة التقارير: الرحلة المنفّذة فقط، ولا تُحسب الأيام التي لم تأتِ بعد.',
+      payTitle: 'أجر الشهر',
+      payHint:
+        'الأجر المقترح من الرحلات التي قادها فعلًا وشروط أجره في هذا الشهر. يُسجَّل الأجر من صفحة المصاريف، ويمكنك تعديل المبلغ قبل تسجيله.',
+      salary: 'الراتب الشهري',
+      extraTrips: 'رحلات فوق الراتب',
+      tripsPay: 'أجر الرحلات',
+      absence: 'خصم الغياب',
+      suggested: 'الأجر المقترح',
+      recorded: 'المسجّل في المصاريف',
+      remaining: 'المتبقي',
+      payLink: 'تسجيل الأجر من صفحة المصاريف',
+      noPay:
+        'لم تحدد طريقة حساب أجر هذا السائق، فلا يظهر أجر مقترح. اضغط "تعديل البيانات" لتحديدها.',
+      detailsTitle: 'بيانات السائق',
+      notSet: 'غير مسجّل',
+      salaryTrips: 'رحلات يغطيها الراتب',
+      outboundPay: 'مبلغ رحلة الذهاب',
+      returnPay: 'مبلغ رحلة العودة',
+      notes: 'ملاحظات',
+      routesTitle: 'خطوطه الحالية',
+      routesHint: 'الخطوط العاملة التي يقودها هذا السائق الآن.',
+      noRoutes: 'لا يقود أي خط عامل حاليًا.',
+      noVehicle: 'بدون مركبة',
+      tripsTitle: 'رحلات الشهر',
+      tripsHint:
+        'كل رحلة قادها في هذا الشهر، والرحلات التي كانت له وقادها سائق آخر.',
+      noTrips: 'لا توجد رحلات لهذا السائق في هذا الشهر.',
+      day: 'اليوم',
+      trip: 'الرحلة',
+      vehicle: 'المركبة',
+      state: 'الحالة',
+      reason: 'السبب والملاحظات',
+      extraTag: 'إضافية',
+      drivenBy: 'قادها:',
+      noRoute: 'رحلة بدون خط',
+    },
     list: {
       title: 'السائقون',
       add: 'إضافة سائق',
-      hint: 'السائقون الذين يعملون معك في نقل الموظفين.',
+      hint: 'السائقون الذين يعملون معك في نقل الموظفين. اضغط اسم السائق لترى صفحته ورحلاته في كل شهر.',
       loading: 'جارٍ التحميل...',
       empty: 'لم تضف أي سائق بعد. ابدأ بإضافة أول سائق.',
+      open: 'صفحة السائق',
       fullName: 'الاسم',
       phone: 'رقم الهاتف المحمول',
       nationalId: 'الرقم القومي',
@@ -173,13 +321,95 @@ export const driversText: Record<Language, DriversText> = {
       salary: 'Employee with a monthly salary',
       perTrip: 'Paid per trip',
     },
+    directions: {
+      outbound: 'Outbound',
+      return: 'Return',
+    },
+    states: {
+      done: 'Done',
+      unrecorded: 'Not recorded yet',
+      planned: 'Planned',
+      cancelled: 'Cancelled',
+      absent: 'Absent',
+      handedOver: 'Another driver drove it',
+    },
+    reasons: {
+      holiday: 'Holiday',
+      vehicleBreakdown: 'Vehicle breakdown',
+      driverAbsent: 'Driver absent',
+      customerRequest: 'Client company request',
+      other: 'Other',
+    },
+    page: {
+      back: 'All drivers',
+      loading: 'Loading the driver page...',
+      notFound: 'This driver was not found. The link may be old.',
+      licenseExpired: 'License expired',
+      edit: 'Edit details',
+      monthTitle: 'Work in',
+      previous: 'Previous month',
+      next: 'Next month',
+      month: 'Month',
+      thisMonth: 'This month',
+      monthLoading: "Loading the month's trips...",
+      loadFailed: "Could not load this month's figures. Please try again.",
+      unopenedTitle: 'Working days nobody opened',
+      unopenedHint:
+        'Nobody opened the daily operations page on these days, so they have no recorded trips and are not counted. Open each of them to add its trips:',
+      separator: ', ',
+      done: 'Trips driven',
+      extra: 'Extra trips',
+      extraDetail: 'Outside the usual routes',
+      absent: 'Trips missed',
+      absentDetail: 'Cancelled or driven by someone else because of absence',
+      revenue: 'Revenue of the trips',
+      unpriced: 'trips without a price',
+      countedHint:
+        'Trips are counted as in the reports: only done trips, and never days that have not come yet.',
+      payTitle: "This month's pay",
+      payHint:
+        "The suggested pay from the trips the driver actually drove and the driver's pay terms for this month. Pay is recorded on the expenses page, where you can change the amount first.",
+      salary: 'Monthly salary',
+      extraTrips: 'Trips beyond the salary',
+      tripsPay: 'Trip pay',
+      absence: 'Absence deduction',
+      suggested: 'Suggested pay',
+      recorded: 'Recorded in expenses',
+      remaining: 'Still due',
+      payLink: 'Record the pay on the expenses page',
+      noPay:
+        'This driver has no pay terms, so no pay is suggested. Choose "Edit details" to set them.',
+      detailsTitle: 'Driver details',
+      notSet: 'Not recorded',
+      salaryTrips: 'Trips the salary covers',
+      outboundPay: 'Outbound trip amount',
+      returnPay: 'Return trip amount',
+      notes: 'Notes',
+      routesTitle: 'Current routes',
+      routesHint: 'The active routes this driver drives now.',
+      noRoutes: 'This driver drives no active route now.',
+      noVehicle: 'No vehicle',
+      tripsTitle: "This month's trips",
+      tripsHint:
+        'Every trip the driver drove this month, and the trips planned for the driver that another driver drove.',
+      noTrips: 'This driver has no trips this month.',
+      day: 'Day',
+      trip: 'Trip',
+      vehicle: 'Vehicle',
+      state: 'Status',
+      reason: 'Reason and notes',
+      extraTag: 'Extra',
+      drivenBy: 'Driven by:',
+      noRoute: 'Trip without a route',
+    },
     list: {
       title: 'Drivers',
       add: 'Add driver',
-      hint: 'The drivers who work with you transporting staff.',
+      hint: "The drivers who work with you transporting staff. Choose a driver's name to see their page and their trips each month.",
       loading: 'Loading...',
       empty:
         'You have not added any driver yet. Start by adding the first one.',
+      open: 'Driver page',
       fullName: 'Name',
       phone: 'Mobile',
       nationalId: 'National ID',

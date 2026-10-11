@@ -250,10 +250,10 @@
         </thead>
         <tbody>
           @for (trip of visibleTrips(); track trip.id) {
-          <tr [class.operations-trip-cancelled]="trip.cancelled">
+          <tr [class.ro-trip-off]="trip.cancelled">
             <td [attr.data-label]="text().day.trip">
               <div class="ro-entity">
-                <span class="operations-time" [attr.data-direction]="trip.direction">
+                <span class="ro-trip-time" [attr.data-direction]="trip.direction">
                   <bdi class="ro-numeric">{{ trip.departureTime }}</bdi>
                   <span>{{ text().directions[trip.direction] }}</span>
                 </span>

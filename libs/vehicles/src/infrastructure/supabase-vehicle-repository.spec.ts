@@ -41,6 +41,32 @@ describe('SupabaseVehicleRepository', () => {
 
     expect(gateway.listVehicles).toHaveBeenCalledWith(north);
   });
+
+  it("reads the vehicle's trips, rent, and expenses for the whole month, and the unopened days up to today", async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseVehicleRepository(gateway);
+
+    await repository.month(north, 'vehicle-1', '2026-02', '2026-02-10');
+
+    const month = { from: '2026-02-01', to: '2026-02-28' };
+    expect(gateway.tripLog).toHaveBeenCalledWith('org-north', 'vehicle-1', month, '2026-02-10');
+    expect(gateway.vehiclePay).toHaveBeenCalledWith('org-north', 'vehicle-1', month, '2026-02-10');
+    expect(gateway.vehicleExpenses).toHaveBeenCalledWith('org-north', 'vehicle-1', month);
+    expect(gateway.unopenedDays).toHaveBeenCalledWith('org-north', {
+      from: '2026-02-01',
+      to: '2026-02-10',
+    });
+  });
+
+  it('looks for no unopened days in a month that has not started', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseVehicleRepository(gateway);
+
+    const month = await repository.month(north, 'vehicle-1', '2026-03', '2026-02-10');
+
+    expect(month.unopenedDays).toEqual([]);
+    expect(gateway.unopenedDays).not.toHaveBeenCalled();
+  });
 });
 
 function fakeGateway(
@@ -51,6 +77,13 @@ function fakeGateway(
     sessionUserId: vi.fn(async () => userId),
     membershipOrganizations: vi.fn(async () => memberships),
     listVehicles: vi.fn(async () => []),
+    findVehicle: vi.fn(async () => null),
+    workChoices: vi.fn(async () => ({ customers: [], routes: [], drivers: [] })),
+    vehicleRoutes: vi.fn(async () => []),
+    tripLog: vi.fn(async () => []),
+    vehiclePay: vi.fn(async () => null),
+    vehicleExpenses: vi.fn(async () => []),
+    unopenedDays: vi.fn(async () => []),
     insertVehicle: vi.fn(),
     updateVehicle: vi.fn(),
   };

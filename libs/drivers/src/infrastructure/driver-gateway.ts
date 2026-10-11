@@ -6,6 +6,8 @@ import {
   toAmountText,
   toMinorUnits,
 } from '@routeops/shared/money';
+import { DriverPay, toDriverPay } from '@routeops/shared/pay';
+import { allRows } from '@routeops/shared/supabase';
 import { DriverAccessError } from '../application/driver-access-error';
 import {
   Driver,
@@ -16,12 +18,40 @@ import {
   PayType,
   toTripCount,
 } from '../domain/driver';
+import {
+  ChangeReason,
+  DateRange,
+  DriverRoute,
+  DriverTrip,
+  isTripDirection,
+  isTripStatus,
+  WorkChoices,
+} from '../domain/driver-month';
 import { Database } from './database';
 
 export interface DriverGateway {
   sessionUserId(): Promise<string | null>;
   membershipOrganizations(userId: string): Promise<DriverOrganization[]>;
   listDrivers(organization: DriverOrganization): Promise<Driver[]>;
+  findDriver(
+    organization: DriverOrganization,
+    driverId: string,
+  ): Promise<Driver | null>;
+  workChoices(organizationId: string): Promise<WorkChoices>;
+  driverRoutes(organizationId: string, driverId: string): Promise<DriverRoute[]>;
+  tripLog(
+    organizationId: string,
+    driverId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<DriverTrip[]>;
+  driverPay(
+    organizationId: string,
+    driverId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<DriverPay | null>;
+  unopenedDays(organizationId: string, range: DateRange): Promise<string[]>;
   insertDriver(
     organization: DriverOrganization,
     details: DriverDetails,
@@ -75,6 +105,16 @@ const payTypeColumns: Record<PayType, string> = {
   perTrip: 'per_trip',
 };
 
+const reasonColumns: Record<ChangeReason, string> = {
+  holiday: 'holiday',
+  vehicleBreakdown: 'vehicle_breakdown',
+  driverAbsent: 'driver_absent',
+  customerRequest: 'customer_request',
+  other: 'other',
+};
+
+type TripLogRow = Database['public']['Functions']['trip_log']['Returns'][number];
+
 export class SupabaseDriverGateway implements DriverGateway {
   constructor(private readonly client: SupabaseClient<Database> | null) {}
 
@@ -119,6 +159,165 @@ export class SupabaseDriverGateway implements DriverGateway {
       throw new DriverAccessError('load');
     }
     return this.toDrivers(data ?? [], organization.currency);
+  }
+
+  async findDriver(
+    organization: DriverOrganization,
+    driverId: string,
+  ): Promise<Driver | null> {
+    const { data, error } = await this.requireClient()
+      .from('drivers')
+      .select(driverColumns)
+      .eq('organization_id', organization.id)
+      .eq('id', driverId)
+      .maybeSingle();
+    if (error) {
+      throw new DriverAccessError('load');
+    }
+    if (!data) {
+      return null;
+    }
+    const [driver] = await this.toDrivers([data], organization.currency);
+    return driver;
+  }
+
+  // Inactive records stay, because past trips may still use them.
+  async workChoices(organizationId: string): Promise<WorkChoices> {
+    const client = this.requireClient();
+    const [customers, routes, vehicles, drivers] = await Promise.all([
+      allRows((from, to) =>
+        client
+          .from('customers')
+          .select('id, name')
+          .eq('organization_id', organizationId)
+          .order('id')
+          .range(from, to),
+      ),
+      allRows((from, to) =>
+        client
+          .from('routes')
+          .select('id, name, customer_id')
+          .eq('organization_id', organizationId)
+          .order('id')
+          .range(from, to),
+      ),
+      allRows((from, to) =>
+        client
+          .from('vehicles')
+          .select('id, plate_number')
+          .eq('organization_id', organizationId)
+          .order('id')
+          .range(from, to),
+      ),
+      allRows((from, to) =>
+        client
+          .from('drivers')
+          .select('id, full_name')
+          .eq('organization_id', organizationId)
+          .order('id')
+          .range(from, to),
+      ),
+    ]);
+    if (customers.error || routes.error || vehicles.error || drivers.error) {
+      throw new DriverAccessError('load');
+    }
+    return {
+      customers: (customers.data ?? []).map((row) => ({ id: row.id, label: row.name })),
+      routes: (routes.data ?? []).map((row) => ({
+        id: row.id,
+        label: row.name,
+        customerId: row.customer_id,
+      })),
+      vehicles: (vehicles.data ?? []).map((row) => ({
+        id: row.id,
+        label: row.plate_number,
+      })),
+      drivers: (drivers.data ?? []).map((row) => ({ id: row.id, label: row.full_name })),
+    };
+  }
+
+  async driverRoutes(
+    organizationId: string,
+    driverId: string,
+  ): Promise<DriverRoute[]> {
+    const { data, error } = await this.requireClient()
+      .from('routes')
+      .select('id, name, customer_id, vehicle_id, outbound_time, return_time')
+      .eq('organization_id', organizationId)
+      .eq('driver_id', driverId)
+      .eq('is_active', true)
+      .order('name');
+    if (error) {
+      throw new DriverAccessError('load');
+    }
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      name: row.name,
+      customerId: row.customer_id,
+      vehicleId: row.vehicle_id ?? '',
+      outboundTime: row.outbound_time?.slice(0, 5) ?? '',
+      returnTime: row.return_time?.slice(0, 5) ?? '',
+    }));
+  }
+
+  async tripLog(
+    organizationId: string,
+    driverId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<DriverTrip[]> {
+    const client = this.requireClient();
+    const { data, error } = await allRows((from, to) =>
+      client
+        .rpc('trip_log', {
+          p_organization_id: organizationId,
+          p_from: range.from,
+          p_to: range.to,
+          p_today: today,
+          p_driver_id: driverId,
+        })
+        .order('service_date')
+        .order('departure_time')
+        .order('id')
+        .range(from, to),
+    );
+    if (error) {
+      throw new DriverAccessError('load');
+    }
+    return (data ?? []).map(toTrip);
+  }
+
+  async driverPay(
+    organizationId: string,
+    driverId: string,
+    range: DateRange,
+    today: string,
+  ): Promise<DriverPay | null> {
+    const { data, error } = await this.requireClient()
+      .rpc('driver_pay', {
+        p_organization_id: organizationId,
+        p_from: range.from,
+        p_to: range.to,
+        p_today: today,
+      })
+      .eq('driver_id', driverId);
+    if (error) {
+      throw new DriverAccessError('load');
+    }
+    const [row] = data ?? [];
+    return row ? toDriverPay(row) : null;
+  }
+
+  async unopenedDays(organizationId: string, range: DateRange): Promise<string[]> {
+    const { data, error } = await this.requireClient().rpc('unopened_days', {
+      p_organization_id: organizationId,
+      p_from: range.from,
+      p_to: range.to,
+    });
+    if (error) {
+      throw new DriverAccessError('load');
+    }
+    return data ?? [];
   }
 
   async insertDriver(
@@ -234,6 +433,41 @@ function saveError(error: PostgrestError | null): DriverAccessError {
     return new DriverAccessError('activeRoutes', routeNames(error.details));
   }
   return new DriverAccessError(error?.code === uniqueViolation ? 'nationalIdTaken' : 'save');
+}
+
+function toTrip(row: TripLogRow): DriverTrip {
+  if (!isTripDirection(row.direction) || !isTripStatus(row.status)) {
+    throw new DriverAccessError('load');
+  }
+  return {
+    id: row.id,
+    serviceDate: row.service_date,
+    departureTime: row.departure_time.slice(0, 5),
+    direction: row.direction,
+    customerId: row.customer_id,
+    routeId: row.route_id ?? '',
+    vehicleId: row.vehicle_id ?? '',
+    driverId: row.driver_id,
+    plannedDriverId: row.planned_driver_id ?? '',
+    extra: row.is_extra,
+    status: row.status,
+    reason: toReason(row.change_reason),
+    notes: row.notes ?? '',
+    price: row.price === null ? null : Number(row.price),
+  };
+}
+
+function toReason(value: string | null): ChangeReason | '' {
+  if (value === null) {
+    return '';
+  }
+  const reason = (Object.keys(reasonColumns) as ChangeReason[]).find(
+    (key) => reasonColumns[key] === value,
+  );
+  if (!reason) {
+    throw new DriverAccessError('load');
+  }
+  return reason;
 }
 
 function routeNames(details: string | null | undefined): string[] {

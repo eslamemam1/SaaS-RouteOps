@@ -113,6 +113,31 @@ describe('SupabaseDriverRepository', () => {
     expect(gateway.deletePhoto).not.toHaveBeenCalledWith(oldPhoto.path);
   });
 
+  it("reads the driver's trips and pay for the whole month, and the unopened days up to today", async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseDriverRepository(gateway);
+
+    await repository.month(north, 'driver-1', '2026-02', '2026-02-10');
+
+    const month = { from: '2026-02-01', to: '2026-02-28' };
+    expect(gateway.tripLog).toHaveBeenCalledWith('org-north', 'driver-1', month, '2026-02-10');
+    expect(gateway.driverPay).toHaveBeenCalledWith('org-north', 'driver-1', month, '2026-02-10');
+    expect(gateway.unopenedDays).toHaveBeenCalledWith('org-north', {
+      from: '2026-02-01',
+      to: '2026-02-10',
+    });
+  });
+
+  it('looks for no unopened days in a month that has not started', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseDriverRepository(gateway);
+
+    const month = await repository.month(north, 'driver-1', '2026-03', '2026-02-10');
+
+    expect(month.unopenedDays).toEqual([]);
+    expect(gateway.unopenedDays).not.toHaveBeenCalled();
+  });
+
   it('removes a photo from the driver and deletes its file', async () => {
     const gateway = fakeGateway('user-1', [north]);
     const repository = new SupabaseDriverRepository(gateway);
@@ -132,6 +157,17 @@ function fakeGateway(
     sessionUserId: vi.fn(async () => userId),
     membershipOrganizations: vi.fn(async () => memberships),
     listDrivers: vi.fn(async () => []),
+    findDriver: vi.fn(async () => ahmed),
+    workChoices: vi.fn(async () => ({
+      customers: [],
+      routes: [],
+      vehicles: [],
+      drivers: [],
+    })),
+    driverRoutes: vi.fn(async () => []),
+    tripLog: vi.fn(async () => []),
+    driverPay: vi.fn(async () => null),
+    unopenedDays: vi.fn(async () => []),
     insertDriver: vi.fn(),
     updateDriver: vi.fn(),
     uploadPhoto: vi.fn(async () => undefined),

@@ -56,7 +56,7 @@
               <div class="ro-entity">
                 <app-avatar size="sm" [src]="driver.photo?.url ?? null" />
                 <span class="ro-entity-text">
-                  <span class="ro-entity-name">{{ driver.fullName }}</span>
+                  <a class="ro-entity-name" [routerLink]="[driver.id]">{{ driver.fullName }}</a>
                   @if (driver.payType !== 'none') {
                   <span class="ro-entity-detail"
                     >{{ text().payTypes[driver.payType] }}</span
@@ -88,6 +88,9 @@
               </app-tag>
             </td>
             <td class="ro-actions">
+              <a appButton="secondary" size="sm" [routerLink]="[driver.id]">
+                {{ text().list.open }}
+              </a>
               <button
                 appButton="text"
                 size="sm"

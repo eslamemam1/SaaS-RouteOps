@@ -66,13 +66,32 @@ function readStoredLanguage(document: Document): Language {
 // A day stored as YYYY-MM-DD, written as people read it, such as
 // 11 أكتوبر 2026, with Latin digits as the rest of the interface uses.
 export function formatDay(day: string, language: Language): string {
-  return formatDate(day, language, {});
+  return formatDate(day, language, fullDate);
 }
 
 // The same, led by the weekday, such as الأحد، 11 أكتوبر 2026.
 export function formatDayWithWeekday(day: string, language: Language): string {
-  return formatDate(day, language, { weekday: 'long' });
+  return formatDate(day, language, { weekday: 'long', ...fullDate });
 }
+
+// A day of a month the page already names, such as الأحد، 11.
+export function formatWeekdayAndDay(day: string, language: Language): string {
+  return formatDate(day, language, { weekday: 'long', day: 'numeric' });
+}
+
+// A month stored as YYYY-MM, such as أكتوبر 2026.
+export function formatMonth(month: string, language: Language): string {
+  if (!/^\d{4}-\d{2}$/.test(month)) {
+    return month;
+  }
+  return formatDate(`${month}-01`, language, { month: 'long', year: 'numeric' });
+}
+
+const fullDate: Intl.DateTimeFormatOptions = {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+};
 
 function formatDate(
   day: string,
@@ -84,9 +103,6 @@ function formatDate(
   }
   return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB', {
     ...options,
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
     timeZone: 'UTC',
   }).format(new Date(`${day}T00:00:00Z`));
 }

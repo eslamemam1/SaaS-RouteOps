@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import { lucideBus, lucidePlus } from '@ng-icons/lucide';
 import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
@@ -40,6 +40,7 @@ import { vehiclesText } from './vehicles-text';
     NgIcon,
     PageHeader,
     PageState,
+    RouterLink,
     Tag,
     VehicleForm,
     ViewSwitch,

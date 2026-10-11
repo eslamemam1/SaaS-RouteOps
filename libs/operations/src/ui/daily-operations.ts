@@ -103,7 +103,7 @@ const statusTones: Record<TripStatus, Tone> = {
     ViewSwitch,
   ],
   templateUrl: './daily-operations.html',
-  styleUrls: ['./trip-time.css', './daily-operations.css'],
+  styleUrl: './daily-operations.css',
 })
 export class DailyOperations {
   private readonly repository = inject(OperationsRepository);

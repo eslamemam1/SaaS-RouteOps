@@ -123,14 +123,14 @@
               </span>
             </td>
             <td [attr.data-label]="text().list.times">
-              <span class="routes-times">
+              <span class="ro-time-chips">
                 @if (route.outboundTime) {
-                <span class="routes-time">
+                <span class="ro-time-chip">
                   <span>{{ text().list.outboundTime }}</span>
                   <bdi class="ro-numeric">{{ route.outboundTime }}</bdi>
                 </span>
                 } @if (route.returnTime) {
-                <span class="routes-time" data-direction="return">
+                <span class="ro-time-chip" data-direction="return">
                   <span>{{ text().list.returnTime }}</span>
                   <bdi class="ro-numeric">{{ route.returnTime }}</bdi>
                 </span>

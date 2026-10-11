@@ -1,0 +1,56 @@
+.driver-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ro-space-1);
+}
+
+.driver-month {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ro-space-4);
+}
+
+.driver-panels {
+  align-items: start;
+}
+
+.driver-routes {
+  display: grid;
+  gap: var(--ro-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.driver-routes > li {
+  display: grid;
+  gap: var(--ro-space-2);
+  padding-block-end: var(--ro-space-3);
+  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+.driver-routes > li:last-child {
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+.driver-trip-day {
+  font-weight: var(--ro-font-medium);
+  white-space: nowrap;
+}
+
+.driver-unset {
+  color: var(--ro-text-muted);
+}
+
+.driver-reason {
+  font-weight: var(--ro-font-medium);
+}
+
+@media (width < 640px) {
+  .ro-table-stack td.driver-no-details {
+    display: none;
+  }
+}

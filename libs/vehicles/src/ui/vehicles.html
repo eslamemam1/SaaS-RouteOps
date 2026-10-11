@@ -77,7 +77,9 @@
                 <span class="ro-entity-icon"
                   ><ng-icon [svg]="vehicleIcon" aria-hidden="true"
                 /></span>
-                <bdi class="ro-entity-name">{{ vehicle.plateNumber }}</bdi>
+                <a class="ro-entity-name" [routerLink]="[vehicle.id]"
+                  ><bdi>{{ vehicle.plateNumber }}</bdi></a
+                >
               </div>
             </td>
             <td [attr.data-label]="text().list.type">
@@ -117,6 +119,9 @@
               </app-tag>
             </td>
             <td class="ro-actions">
+              <a appButton="secondary" size="sm" [routerLink]="[vehicle.id]">
+                {{ text().list.open }}
+              </a>
               <button
                 appButton="text"
                 size="sm"

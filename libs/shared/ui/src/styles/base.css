@@ -386,6 +386,195 @@ label.ro-chip:has(input:focus-visible) {
   transform: scaleX(-1);
 }
 
+/* A trip's departure time with its direction under it; outbound is blue, return is amber. */
+.ro-trip-time {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  min-inline-size: var(--ro-time-badge-width);
+  padding-block: var(--ro-space-1);
+  padding-inline: var(--ro-space-2);
+  border: var(--ro-border-width) solid var(--ro-border-brand-subtle);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+  font-weight: var(--ro-font-medium);
+}
+
+.ro-trip-time > bdi {
+  color: var(--ro-text-primary);
+  font-size: var(--ro-text-heading-md);
+  line-height: var(--ro-leading-heading-md);
+  font-weight: var(--ro-font-bold);
+}
+
+/* A short direction and time on one line, such as a route's outbound and return times. */
+.ro-time-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ro-space-2);
+}
+
+.ro-time-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ro-space-1);
+  padding-block: calc(var(--ro-space-1) / 2);
+  padding-inline: var(--ro-space-2);
+  border: var(--ro-border-width) solid var(--ro-border-brand-subtle);
+  border-radius: var(--ro-radius-sm);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+  white-space: nowrap;
+}
+
+.ro-time-chip > bdi {
+  color: var(--ro-text-primary);
+  font-size: var(--ro-text-body-sm);
+  font-weight: var(--ro-font-semibold);
+}
+
+.ro-trip-time[data-direction='return'],
+.ro-time-chip[data-direction='return'] {
+  border-color: var(--ro-border-warning-subtle);
+  background: var(--ro-bg-accent-subtle);
+  color: var(--ro-text-accent);
+}
+
+/* A row of a trip that did not run, such as a cancelled one: its time and name are struck through. */
+.ro-trip-off .ro-trip-time {
+  border-color: var(--ro-border-default);
+  background: var(--ro-bg-subtle);
+  color: var(--ro-text-muted);
+}
+
+.ro-trip-off .ro-trip-time > bdi,
+.ro-trip-off .ro-entity-name {
+  color: var(--ro-text-muted);
+  text-decoration: line-through;
+}
+
+/* The link back to the list a page was opened from. */
+.ro-back {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--ro-space-1);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+  font-weight: var(--ro-font-medium);
+}
+
+/* The head of a page about one record: its photo or icon, its name, tags, and actions. */
+.ro-profile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-4);
+  padding: var(--ro-space-5);
+}
+
+.ro-profile-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--ro-avatar-lg);
+  block-size: var(--ro-avatar-lg);
+  border-radius: var(--ro-radius-lg);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-stat);
+}
+
+.ro-profile-text {
+  display: grid;
+  flex: 1;
+  gap: var(--ro-space-1);
+  min-inline-size: 0;
+}
+
+.ro-profile-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-2);
+}
+
+.ro-profile-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ro-space-1) var(--ro-space-4);
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}
+
+/* Labelled details of one record, two to a row where there is room. */
+.ro-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--ro-form-column-min-width), 1fr));
+  gap: var(--ro-space-4);
+}
+
+.ro-details > div {
+  display: grid;
+  align-content: start;
+  gap: var(--ro-space-1);
+  min-inline-size: 0;
+}
+
+.ro-details dt {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+  font-weight: var(--ro-font-medium);
+}
+
+.ro-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ro-details .ro-details-wide {
+  grid-column: 1 / -1;
+}
+
+/* How an amount adds up: one line per part, and its total in bold under a rule. */
+.ro-sum {
+  display: grid;
+  gap: var(--ro-space-2);
+}
+
+.ro-sum > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--ro-space-1) var(--ro-space-4);
+}
+
+.ro-sum dt {
+  color: var(--ro-text-secondary);
+}
+
+.ro-sum dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.ro-sum .ro-sum-total {
+  padding-block-start: var(--ro-space-2);
+  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+  font-weight: var(--ro-font-semibold);
+}
+
+.ro-sum .ro-sum-total dt {
+  color: var(--ro-text-primary);
+}
+
 .hint {
   max-inline-size: var(--ro-readable-width);
   color: var(--ro-text-secondary);
@@ -508,6 +697,12 @@ a.ro-card:hover,
   line-height: var(--ro-leading-stat);
   font-weight: var(--ro-font-bold);
   font-variant-numeric: tabular-nums;
+}
+
+.ro-stat-detail {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
 }
 
 .ro-form {

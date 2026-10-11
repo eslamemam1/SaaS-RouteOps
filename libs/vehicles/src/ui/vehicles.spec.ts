@@ -69,6 +69,16 @@ describe('Vehicles', () => {
     expect(text(harness)).toContain(arabic.list.expired);
   });
 
+  it("links each vehicle to its page", async () => {
+    const harness = await open({ list: async () => [hiace] });
+    await settle(harness);
+
+    const links = all<HTMLAnchorElement>(harness, 'a').map((link) =>
+      link.getAttribute('href'),
+    );
+    expect(links).toContain('/organizations/org-north/vehicles/vehicle-1');
+  });
+
   it('shows who owns a rented vehicle and filters by ownership', async () => {
     const harness = await open({ list: async () => [hiace, rentedBus] });
     await settle(harness);
@@ -181,6 +191,12 @@ async function open(overrides: Partial<VehicleRepository>) {
   const repository: VehicleRepository = {
     organization: async () => north,
     list: async () => [],
+    vehicle: async () => hiace,
+    work: async () => ({
+      choices: { customers: [], routes: [], drivers: [] },
+      routes: [],
+    }),
+    month: async () => ({ trips: [], rent: null, expenses: [], unopenedDays: [] }),
     add: async () => hiace,
     update: async () => hiace,
     ...overrides,

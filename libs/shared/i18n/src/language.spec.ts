@@ -1,6 +1,12 @@
 import { DOCUMENT } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { formatDay, formatDayWithWeekday, LanguageService } from './language';
+import {
+  formatDay,
+  formatDayWithWeekday,
+  formatMonth,
+  formatWeekdayAndDay,
+  LanguageService,
+} from './language';
 
 describe('LanguageService', () => {
   beforeEach(() => localStorage.clear());
@@ -56,5 +62,23 @@ describe('formatDayWithWeekday', () => {
     expect(formatDayWithWeekday('2026-10-11', 'en')).toBe(
       'Sunday, 11 October 2026',
     );
+  });
+});
+
+describe('formatWeekdayAndDay', () => {
+  it('writes the weekday and the day of the month only', () => {
+    expect(formatWeekdayAndDay('2026-10-11', 'ar')).toBe('الأحد، 11');
+    expect(formatWeekdayAndDay('2026-10-11', 'en')).toBe('Sunday 11');
+  });
+});
+
+describe('formatMonth', () => {
+  it('writes a month with its name and year', () => {
+    expect(formatMonth('2026-10', 'ar')).toBe('أكتوبر 2026');
+    expect(formatMonth('2026-10', 'en')).toBe('October 2026');
+  });
+
+  it('leaves an unknown month as it is', () => {
+    expect(formatMonth('2026-13-01', 'ar')).toBe('2026-13-01');
   });
 });

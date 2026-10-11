@@ -1,0 +1,6 @@
+.operations-trip-summary {
+  padding: var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-hover);
+}
