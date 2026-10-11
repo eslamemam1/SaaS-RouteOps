@@ -64,12 +64,18 @@
 
           <div class="ro-stats">
             @for (total of monthTotals(); track total.currency) {
-              <div class="ro-stat ro-stat-success ro-card">
+              <div class="ro-stat ro-card" data-tone="success">
+                <span class="ro-stat-icon">
+                  <ng-icon [svg]="statIcons.total" aria-hidden="true" />
+                </span>
                 <span class="ro-stat-label">{{ text().payments.monthTotal }}</span>
                 <strong class="ro-stat-value ro-numeric"><bdi>{{ money(total) }}</bdi></strong>
               </div>
             }
-            <div class="ro-stat ro-card">
+            <div class="ro-stat ro-card" data-tone="neutral">
+              <span class="ro-stat-icon">
+                <ng-icon [svg]="statIcons.count" aria-hidden="true" />
+              </span>
               <span class="ro-stat-label">{{ text().payments.monthCount }}</span>
               <strong class="ro-stat-value ro-numeric">{{ monthPayments().length }}</strong>
             </div>

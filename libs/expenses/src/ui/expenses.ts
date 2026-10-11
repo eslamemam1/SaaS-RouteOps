@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucidePlus } from '@ng-icons/lucide';
+import { lucideHash, lucideHourglass, lucidePlus, lucideReceipt } from '@ng-icons/lucide';
 import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
 import {
@@ -13,6 +13,7 @@ import {
   PageHeader,
   PageState,
   Tag,
+  Tone,
   paginate,
   Pager,
   ViewSwitch,
@@ -51,6 +52,13 @@ import { expensesText } from './expenses-text';
 
 const noChoices: ExpenseChoices = { vehicles: [], drivers: [] };
 const noMonth: ExpenseMonth = { expenses: [], pay: [], rent: [] };
+
+interface Stat {
+  readonly label: string;
+  readonly value: string;
+  readonly tone: Tone;
+  readonly icon: string;
+}
 
 @Component({
   selector: 'app-expenses',
@@ -114,11 +122,22 @@ export class Expenses {
     const unrecorded =
       pay.reduce((total, line) => total + remainingPay(line), 0) +
       rent.reduce((total, line) => total + remainingRent(line), 0);
-    return [
-      { label: text.total, value: this.money(expenseTotal(expenses)) },
-      { label: text.count, value: String(expenses.length) },
-      { label: text.unrecordedPay, value: this.money(unrecorded) },
+    const stats: Stat[] = [
+      {
+        label: text.total,
+        value: this.money(expenseTotal(expenses)),
+        tone: 'warning',
+        icon: lucideReceipt,
+      },
+      { label: text.count, value: String(expenses.length), tone: 'neutral', icon: lucideHash },
+      {
+        label: text.unrecordedPay,
+        value: this.money(unrecorded),
+        tone: unrecorded > 0 ? 'warning' : 'neutral',
+        icon: lucideHourglass,
+      },
     ];
+    return stats;
   });
 
   constructor() {

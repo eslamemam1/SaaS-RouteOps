@@ -66,7 +66,10 @@
   } } @case ('success') {
   <div class="ro-stats">
     @for (stat of stats(); track stat.label) {
-    <div class="ro-stat ro-card">
+    <div class="ro-stat ro-card" [attr.data-tone]="stat.tone">
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="stat.icon" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ stat.label }}</span>
       <strong class="ro-stat-value ro-numeric"
         ><bdi>{{ stat.value }}</bdi></strong

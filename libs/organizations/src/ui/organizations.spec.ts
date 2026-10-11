@@ -127,7 +127,7 @@ describe('Organizations', () => {
     const element: HTMLElement = fixture.nativeElement;
     expect(text(fixture)).toContain(arabic.dashboard.unopenedTitle);
     expect(text(fixture)).toContain(arabic.dashboard.loss);
-    expect(element.querySelector('.ro-stat-danger')).toBeTruthy();
+    expect(element.querySelector('.ro-stat[data-tone="danger"]')).toBeTruthy();
     expect(text(fixture)).toContain(arabic.dashboard.allClear);
   });
 

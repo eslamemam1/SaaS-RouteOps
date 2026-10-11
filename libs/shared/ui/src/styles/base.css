@@ -706,30 +706,35 @@ a.ro-card:hover,
   --ro-glow: var(--ro-glow-neutral);
   --ro-tone-subtle: var(--ro-bg-subtle);
   --ro-tone-border: var(--ro-border-default);
+  --ro-tone-text: var(--ro-text-secondary);
 }
 
 [data-tone='info'] {
   --ro-glow: var(--ro-glow-info);
   --ro-tone-subtle: var(--ro-bg-brand-subtle);
   --ro-tone-border: var(--ro-border-brand-subtle);
+  --ro-tone-text: var(--ro-text-brand);
 }
 
 [data-tone='success'] {
   --ro-glow: var(--ro-glow-success);
   --ro-tone-subtle: var(--ro-bg-success-subtle);
   --ro-tone-border: var(--ro-border-success-subtle);
+  --ro-tone-text: var(--ro-text-success);
 }
 
 [data-tone='warning'] {
   --ro-glow: var(--ro-glow-warning);
   --ro-tone-subtle: var(--ro-bg-warning-subtle);
   --ro-tone-border: var(--ro-border-warning-subtle);
+  --ro-tone-text: var(--ro-text-warning);
 }
 
 [data-tone='danger'] {
   --ro-glow: var(--ro-glow-danger);
   --ro-tone-subtle: var(--ro-bg-danger-subtle);
   --ro-tone-border: var(--ro-border-danger-subtle);
+  --ro-tone-text: var(--ro-text-danger);
 }
 
 .ro-stats {
@@ -738,8 +743,11 @@ a.ro-card:hover,
   gap: var(--ro-space-4);
 }
 
+/*
+ * A figure. With a data-tone and a .ro-stat-icon it shows what it is about at a glance: the icon
+ * sits in a tile of that tone beside the label, and the card glows in it on hover.
+ */
 .ro-stat {
-  --ro-glow: var(--ro-glow-info);
   position: relative;
   display: grid;
   align-content: start;
@@ -750,20 +758,35 @@ a.ro-card:hover,
     translate var(--ro-motion-fast);
 }
 
+.ro-stat:has(> .ro-stat-icon) {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--ro-space-3);
+}
+
+.ro-stat > :not(.ro-stat-icon, .ro-stat-label) {
+  grid-column: 1 / -1;
+}
+
 .ro-stat:hover {
   box-shadow: var(--ro-glow-shadow);
   translate: 0 var(--ro-hover-lift);
 }
 
-.ro-stat-success {
-  --ro-glow: var(--ro-glow-success);
+.ro-stat-icon {
+  display: inline-grid;
+  grid-row: 1;
+  grid-column: 2;
+  place-items: center;
+  inline-size: var(--ro-stat-icon-size);
+  block-size: var(--ro-stat-icon-size);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-tone-subtle, var(--ro-bg-subtle));
+  color: var(--ro-tone-text, var(--ro-text-secondary));
+  font-size: var(--ro-text-heading-lg);
 }
 
-.ro-stat-danger {
-  --ro-glow: var(--ro-glow-danger);
-}
-
-.ro-stat-danger .ro-stat-value {
+.ro-stat[data-tone='danger'] .ro-stat-value {
   color: var(--ro-text-danger);
 }
 

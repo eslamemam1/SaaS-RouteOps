@@ -2,7 +2,15 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucideArrowLeft, lucidePencil, lucidePhone } from '@ng-icons/lucide';
+import {
+  lucideArrowLeft,
+  lucideCircleCheck,
+  lucideCirclePlus,
+  lucidePencil,
+  lucidePhone,
+  lucideTrendingUp,
+  lucideUserX,
+} from '@ng-icons/lucide';
 import {
   formatDay,
   formatMonth,
@@ -90,6 +98,12 @@ export class DriverPage {
     back: lucideArrowLeft,
     edit: lucidePencil,
     phone: lucidePhone,
+  };
+  protected readonly statIcons = {
+    done: lucideCircleCheck,
+    extra: lucideCirclePlus,
+    absent: lucideUserX,
+    revenue: lucideTrendingUp,
   };
   protected readonly today = localDate(new Date());
   protected readonly thisMonth = monthOf(this.today);

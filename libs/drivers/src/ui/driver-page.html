@@ -109,7 +109,10 @@
   }
 
   <div class="ro-stats">
-    <div class="ro-stat ro-stat-success ro-card">
+    <div class="ro-stat ro-card" data-tone="success">
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="statIcons.done" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ text().page.done }}</span>
       <strong class="ro-stat-value ro-numeric">
         <bdi>{{ totals().done.outbound + totals().done.return }}</bdi>
@@ -120,7 +123,10 @@
         <bdi>{{ totals().done.return }}</bdi>
       </span>
     </div>
-    <div class="ro-stat ro-card">
+    <div class="ro-stat ro-card" data-tone="info">
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="statIcons.extra" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ text().page.extra }}</span>
       <strong class="ro-stat-value ro-numeric"
         ><bdi>{{ totals().extra }}</bdi></strong
@@ -129,15 +135,23 @@
     </div>
     <div
       class="ro-stat ro-card"
-      [class.ro-stat-danger]="totals().absent.outbound + totals().absent.return > 0"
+      [attr.data-tone]="
+        totals().absent.outbound + totals().absent.return > 0 ? 'danger' : 'neutral'
+      "
     >
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="statIcons.absent" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ text().page.absent }}</span>
       <strong class="ro-stat-value ro-numeric">
         <bdi>{{ totals().absent.outbound + totals().absent.return }}</bdi>
       </strong>
       <span class="ro-stat-detail">{{ text().page.absentDetail }}</span>
     </div>
-    <div class="ro-stat ro-card">
+    <div class="ro-stat ro-card" data-tone="success">
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="statIcons.revenue" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ text().page.revenue }}</span>
       <strong class="ro-stat-value ro-numeric">
         <bdi>{{ money(totals().revenue) }}</bdi>

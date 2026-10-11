@@ -2,7 +2,16 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucideArrowLeft, lucideBus, lucidePencil } from '@ng-icons/lucide';
+import {
+  lucideArrowLeft,
+  lucideBus,
+  lucideCircleCheck,
+  lucideCirclePlus,
+  lucidePencil,
+  lucideReceipt,
+  lucideTrendingUp,
+  lucideWallet,
+} from '@ng-icons/lucide';
 import {
   formatDay,
   formatMonth,
@@ -93,6 +102,13 @@ export class VehiclePage {
     back: lucideArrowLeft,
     vehicle: lucideBus,
     edit: lucidePencil,
+  };
+  protected readonly statIcons = {
+    done: lucideCircleCheck,
+    extra: lucideCirclePlus,
+    revenue: lucideTrendingUp,
+    expenses: lucideReceipt,
+    profit: lucideWallet,
   };
   protected readonly statusTones = statusTones;
   protected readonly today = localDate(new Date());

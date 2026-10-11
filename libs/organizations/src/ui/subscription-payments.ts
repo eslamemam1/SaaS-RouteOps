@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { NgIcon } from '@ng-icons/core';
-import { lucidePlus } from '@ng-icons/lucide';
+import { lucideBanknote, lucideHash, lucidePlus } from '@ng-icons/lucide';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
 import { Alert, Button, Field, FormDrawer, paginate, Pager } from '@routeops/shared/ui';
@@ -31,6 +31,7 @@ export class SubscriptionPayments {
 
   protected readonly text = injectText(organizationsText);
   protected readonly addIcon = lucidePlus;
+  protected readonly statIcons = { total: lucideBanknote, count: lucideHash };
   protected readonly today = localDate(new Date());
   protected readonly thisMonth = this.today.slice(0, 7);
 

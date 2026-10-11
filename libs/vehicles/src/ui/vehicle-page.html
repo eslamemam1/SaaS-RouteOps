@@ -109,7 +109,10 @@
   }
 
   <div class="ro-stats">
-    <div class="ro-stat ro-stat-success ro-card">
+    <div class="ro-stat ro-card" data-tone="success">
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="statIcons.done" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ text().page.done }}</span>
       <strong class="ro-stat-value ro-numeric">
         <bdi>{{ totals().done.outbound + totals().done.return }}</bdi>
@@ -120,14 +123,20 @@
         <bdi>{{ totals().done.return }}</bdi>
       </span>
     </div>
-    <div class="ro-stat ro-card">
+    <div class="ro-stat ro-card" data-tone="info">
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="statIcons.extra" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ text().page.extra }}</span>
       <strong class="ro-stat-value ro-numeric"
         ><bdi>{{ totals().extra }}</bdi></strong
       >
       <span class="ro-stat-detail">{{ text().page.extraDetail }}</span>
     </div>
-    <div class="ro-stat ro-card">
+    <div class="ro-stat ro-card" data-tone="success">
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="statIcons.revenue" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ text().page.revenue }}</span>
       <strong class="ro-stat-value ro-numeric">
         <bdi>{{ money(totals().revenue) }}</bdi>
@@ -138,7 +147,10 @@
       </span>
       }
     </div>
-    <div class="ro-stat ro-card">
+    <div class="ro-stat ro-card" data-tone="warning">
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="statIcons.expenses" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ text().page.expenses }}</span>
       <strong class="ro-stat-value ro-numeric"
         ><bdi>{{ money(expenses()) }}</bdi></strong
@@ -146,9 +158,11 @@
     </div>
     <div
       class="ro-stat ro-card"
-      [class.ro-stat-danger]="profit() < 0"
-      [class.ro-stat-success]="profit() >= 0"
+      [attr.data-tone]="profit() < 0 ? 'danger' : 'info'"
     >
+      <span class="ro-stat-icon">
+        <ng-icon [svg]="statIcons.profit" aria-hidden="true" />
+      </span>
       <span class="ro-stat-label">{{ text().page.profit }}</span>
       <strong class="ro-stat-value ro-numeric"
         ><bdi>{{ money(profit()) }}</bdi></strong

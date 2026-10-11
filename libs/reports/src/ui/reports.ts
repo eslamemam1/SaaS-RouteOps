@@ -1,5 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { NgIcon } from '@ng-icons/core';
+import {
+  lucideCircleCheck,
+  lucideCirclePlus,
+  lucideReceipt,
+  lucideTrendingUp,
+  lucideWallet,
+} from '@ng-icons/lucide';
 import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
 import {
@@ -11,6 +19,7 @@ import {
   paginate,
   Pager,
   Tag,
+  Tone,
 } from '@routeops/shared/ui';
 import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
@@ -41,9 +50,16 @@ const noReport: MonthReport = {
   unrecorded: { drivers: 0, vehicles: 0 },
 };
 
+interface Stat {
+  readonly label: string;
+  readonly value: string;
+  readonly tone: Tone;
+  readonly icon: string;
+}
+
 @Component({
   selector: 'app-reports',
-  imports: [Alert, Button, Field, PageHeader, PageState, Pager, RouterLink, Tag],
+  imports: [Alert, Button, Field, NgIcon, PageHeader, PageState, Pager, RouterLink, Tag],
   templateUrl: './reports.html',
   styleUrl: './reports.css',
 })
@@ -95,13 +111,29 @@ export class Reports {
   protected readonly stats = computed(() => {
     const text = this.text().report;
     const total = this.total();
-    return [
-      { label: text.revenueTotal, value: this.money(total.revenue) },
-      { label: text.expensesTotal, value: this.money(this.expenses()) },
-      { label: text.profitTotal, value: this.money(this.profit()) },
-      { label: text.doneTotal, value: String(total.done) },
-      { label: text.extraTotal, value: String(total.extra) },
+    const stats: Stat[] = [
+      {
+        label: text.revenueTotal,
+        value: this.money(total.revenue),
+        tone: 'success',
+        icon: lucideTrendingUp,
+      },
+      {
+        label: text.expensesTotal,
+        value: this.money(this.expenses()),
+        tone: 'warning',
+        icon: lucideReceipt,
+      },
+      {
+        label: text.profitTotal,
+        value: this.money(this.profit()),
+        tone: this.profit() < 0 ? 'danger' : 'info',
+        icon: lucideWallet,
+      },
+      { label: text.doneTotal, value: String(total.done), tone: 'success', icon: lucideCircleCheck },
+      { label: text.extraTotal, value: String(total.extra), tone: 'info', icon: lucideCirclePlus },
     ];
+    return stats;
   });
 
   constructor() {

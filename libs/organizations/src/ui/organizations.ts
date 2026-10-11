@@ -8,7 +8,9 @@ import {
   lucideChartColumn,
   lucideCircleCheck,
   lucideIdCard,
+  lucideReceipt,
   lucideRoute,
+  lucideTrendingUp,
   lucideWallet,
 } from '@ng-icons/lucide';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
@@ -72,6 +74,12 @@ export class Organizations {
   protected readonly text = injectText(organizationsText);
   protected readonly sections = sections;
   protected readonly doneIcon = lucideCircleCheck;
+  protected readonly statIcons = {
+    done: lucideCircleCheck,
+    revenue: lucideTrendingUp,
+    expenses: lucideReceipt,
+    profit: lucideWallet,
+  };
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
