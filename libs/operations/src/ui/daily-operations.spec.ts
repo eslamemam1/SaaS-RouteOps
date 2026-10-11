@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { LanguageService } from '@routeops/shared/i18n';
+import { DayPicker } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -423,9 +425,9 @@ describe('DailyOperations', () => {
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.day.isToday);
-    const day = harness.routeNativeElement!.querySelector<HTMLInputElement>('input[type="date"]')!;
-    day.value = '2000-01-02';
-    day.dispatchEvent(new Event('change'));
+    const picker = harness.routeDebugElement?.query(By.directive(DayPicker));
+    expect(picker).toBeTruthy();
+    (picker?.componentInstance as DayPicker).dayChange.emit('2000-01-02');
     await settle(harness);
 
     expect(text(harness)).toContain('الأحد، 2 يناير 2000');

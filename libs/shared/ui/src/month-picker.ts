@@ -42,15 +42,11 @@ export function addMonths(month: string, months: number): string {
   selector: 'app-month-picker',
   imports: [NgIcon],
   template: `
-    <div class="app-month-picker-control">
-      <div
-        class="app-month-picker-group"
-        role="group"
-        [attr.aria-label]="label()"
-      >
+    <div class="app-picker-control">
+      <div class="app-picker-group" role="group" [attr.aria-label]="label()">
         <button
           type="button"
-          class="app-month-picker-step"
+          class="app-picker-step"
           [attr.aria-label]="text().monthPicker.previous"
           [attr.title]="text().monthPicker.previous"
           (click)="step(-1)"
@@ -64,26 +60,26 @@ export function addMonths(month: string, months: number): string {
         <button
           #trigger
           type="button"
-          class="app-month-picker-trigger"
+          class="app-picker-trigger"
           aria-haspopup="dialog"
           [attr.aria-expanded]="open()"
           (click)="toggle()"
         >
           <ng-icon
-            class="app-month-picker-calendar"
+            class="app-picker-calendar"
             [svg]="icons.calendar"
             aria-hidden="true"
           />
-          <span class="app-month-picker-value">{{ shown() }}</span>
+          <span class="app-picker-value">{{ shown() }}</span>
           <ng-icon
-            class="app-month-picker-caret"
+            class="app-picker-caret"
             [svg]="icons.caret"
             aria-hidden="true"
           />
         </button>
         <button
           type="button"
-          class="app-month-picker-step"
+          class="app-picker-step"
           [attr.aria-label]="text().monthPicker.next"
           [attr.title]="text().monthPicker.next"
           (click)="step(1)"
@@ -95,15 +91,15 @@ export function addMonths(month: string, months: number): string {
       @if (open()) {
         <div
           #panel
-          class="app-month-panel"
+          class="app-picker-panel"
           role="dialog"
           [attr.aria-label]="label()"
           (keydown.escape)="close(true)"
         >
-          <div class="app-month-panel-year">
+          <div class="app-picker-panel-head">
             <button
               type="button"
-              class="app-month-picker-step"
+              class="app-picker-step"
               [attr.aria-label]="text().monthPicker.previousYear"
               [attr.title]="text().monthPicker.previousYear"
               (click)="moveYear(-1)"
@@ -117,7 +113,7 @@ export function addMonths(month: string, months: number): string {
             <strong class="ro-numeric" aria-live="polite">{{ year() }}</strong>
             <button
               type="button"
-              class="app-month-picker-step"
+              class="app-picker-step"
               [attr.aria-label]="text().monthPicker.nextYear"
               [attr.title]="text().monthPicker.nextYear"
               (click)="moveYear(1)"
@@ -129,12 +125,12 @@ export function addMonths(month: string, months: number): string {
               />
             </button>
           </div>
-          <div class="app-month-panel-months">
+          <div class="app-picker-months">
             @for (option of months(); track option.value) {
               <button
                 type="button"
-                class="app-month-panel-month"
-                [class.app-month-panel-today]="option.value === current()"
+                class="app-picker-option"
+                [class.app-picker-option-today]="option.value === current()"
                 [attr.aria-pressed]="option.value === month()"
                 [attr.aria-label]="option.label"
                 (click)="choose(option.value)"
@@ -146,7 +142,7 @@ export function addMonths(month: string, months: number): string {
           @if (current() && year() !== yearOf(current())) {
             <button
               type="button"
-              class="app-month-panel-shortcut"
+              class="app-picker-shortcut"
               (click)="choose(current())"
             >
               {{ text().monthPicker.thisMonth }}
@@ -159,17 +155,17 @@ export function addMonths(month: string, months: number): string {
     @if (current() && month() !== current()) {
       <button
         type="button"
-        class="app-month-picker-today"
+        class="app-picker-today"
         (click)="choose(current())"
       >
         {{ text().monthPicker.thisMonth }}
       </button>
     }
   `,
-  styleUrl: './month-picker.css',
+  styleUrl: './picker.css',
   encapsulation: ViewEncapsulation.None,
   host: {
-    class: 'app-month-picker',
+    class: 'app-picker',
     '(document:click)': 'onDocumentClick($event)',
   },
 })
@@ -236,8 +232,8 @@ export class MonthPicker {
     const panel = this.panel()?.nativeElement;
     const target = [
       '[aria-pressed="true"]',
-      '.app-month-panel-today',
-      '.app-month-panel-month',
+      '.app-picker-option-today',
+      '.app-picker-option',
     ]
       .map((selector) => panel?.querySelector<HTMLButtonElement>(selector))
       .find(Boolean);

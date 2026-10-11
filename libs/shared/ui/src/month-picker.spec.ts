@@ -65,7 +65,7 @@ describe('MonthPicker', () => {
     await fixture.whenStable();
 
     expect(fixture.componentInstance.month()).toBe('2025-03');
-    expect(element.querySelector('.app-month-panel')).toBeNull();
+    expect(element.querySelector('.app-picker-panel')).toBeNull();
   });
 
   it('closes the panel on Escape or a click outside it', async () => {
@@ -74,16 +74,16 @@ describe('MonthPicker', () => {
     trigger(element).click();
     await fixture.whenStable();
     element
-      .querySelector('.app-month-panel')
+      .querySelector('.app-picker-panel')
       ?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     await fixture.whenStable();
-    expect(element.querySelector('.app-month-panel')).toBeNull();
+    expect(element.querySelector('.app-picker-panel')).toBeNull();
 
     trigger(element).click();
     await fixture.whenStable();
     element.querySelector('p')?.click();
     await fixture.whenStable();
-    expect(element.querySelector('.app-month-panel')).toBeNull();
+    expect(element.querySelector('.app-picker-panel')).toBeNull();
     expect(fixture.componentInstance.month()).toBe('2026-10');
   });
 });
@@ -95,7 +95,7 @@ async function render() {
 }
 
 function trigger(element: HTMLElement): HTMLButtonElement {
-  return element.querySelector<HTMLButtonElement>('.app-month-picker-trigger')!;
+  return element.querySelector('.app-picker-trigger') as HTMLButtonElement;
 }
 
 function labelled(

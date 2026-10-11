@@ -49,14 +49,15 @@
       </button>
     </div>
     <div class="operations-day-footer">
-      <label class="operations-day-pick">
-        <span>{{ text().day.date }}</span>
-        <input
-          type="date"
-          [value]="serviceDate()"
-          (change)="chooseDate($any($event.target).value)"
+      <div class="operations-day-pick">
+        <span aria-hidden="true">{{ text().day.date }}</span>
+        <app-day-picker
+          [label]="text().day.date"
+          [day]="serviceDate()"
+          [today]="today"
+          (dayChange)="chooseDate($event)"
         />
-      </label>
+      </div>
       <p class="operations-recording">
         <ng-icon [svg]="icons.info" aria-hidden="true" />
         <span>

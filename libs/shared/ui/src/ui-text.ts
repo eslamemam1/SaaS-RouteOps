@@ -34,6 +34,11 @@ export interface UiText {
     readonly nextYear: string;
     readonly thisMonth: string;
   };
+  readonly dayPicker: {
+    readonly previousMonth: string;
+    readonly nextMonth: string;
+    readonly today: string;
+  };
 }
 
 export const uiText: Record<Language, UiText> = {
@@ -71,6 +76,11 @@ export const uiText: Record<Language, UiText> = {
       nextYear: 'السنة التالية',
       thisMonth: 'الشهر الحالي',
     },
+    dayPicker: {
+      previousMonth: 'الشهر السابق',
+      nextMonth: 'الشهر التالي',
+      today: 'اليوم',
+    },
   },
   en: {
     optional: '(optional)',
@@ -105,6 +115,11 @@ export const uiText: Record<Language, UiText> = {
       previousYear: 'Previous year',
       nextYear: 'Next year',
       thisMonth: 'This month',
+    },
+    dayPicker: {
+      previousMonth: 'Previous month',
+      nextMonth: 'Next month',
+      today: 'Today',
     },
   },
 };

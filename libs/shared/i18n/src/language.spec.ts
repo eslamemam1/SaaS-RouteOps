@@ -5,6 +5,7 @@ import {
   formatDayWithWeekday,
   formatMonth,
   formatMonthName,
+  formatWeekdayShort,
   formatTime,
   formatWeekdayAndDay,
   LanguageService,
@@ -89,6 +90,13 @@ describe('formatMonthName', () => {
   it('writes only the name of a month', () => {
     expect(formatMonthName('2026-10', 'ar')).toBe('أكتوبر');
     expect(formatMonthName('2026-01', 'en')).toBe('January');
+  });
+});
+
+describe('formatWeekdayShort', () => {
+  it('writes a weekday short enough to head a calendar column', () => {
+    expect(formatWeekdayShort('2026-10-10', 'ar')).toBe('س');
+    expect(formatWeekdayShort('2026-10-10', 'en')).toBe('Sat');
   });
 });
 

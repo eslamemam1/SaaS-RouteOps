@@ -24,6 +24,7 @@ import {
 import {
   Alert,
   Button,
+  DayPicker,
   Field,
   FormDrawer,
   injectListView,
@@ -96,6 +97,7 @@ const statusTones: Record<TripStatus, Tone> = {
     Alert,
     Button,
     ConflictList,
+    DayPicker,
     ExtraTripForm,
     Field,
     FormDrawer,

@@ -44,10 +44,6 @@
   white-space: nowrap;
 }
 
-.operations-day-pick input {
-  inline-size: auto;
-}
-
 .operations-recording {
   display: flex;
   flex: 1 1 var(--ro-form-max-width);

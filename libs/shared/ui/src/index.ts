@@ -1,6 +1,7 @@
 export { Alert } from './alert';
 export { Avatar, type AvatarSize } from './avatar';
 export { Button, type ButtonSize, type ButtonVariant } from './button';
+export { DayPicker } from './day-picker';
 export { Field, type FieldControl } from './field';
 export { FormDrawer } from './form-drawer';
 export { LanguageSwitch } from './language-switch';

@@ -1,18 +1,18 @@
-.app-month-picker {
+.app-picker {
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ro-space-2);
 }
 
-.app-month-picker-control {
+.app-picker-control {
   position: relative;
 }
 
-.app-month-picker-group {
+.app-picker-group {
   display: flex;
   align-items: stretch;
-  min-inline-size: var(--ro-month-picker-width);
+  min-inline-size: var(--ro-picker-width);
   min-block-size: var(--ro-control-height);
   overflow: hidden;
   border: var(--ro-border-width) solid var(--ro-border-default);
@@ -22,15 +22,15 @@
   transition: border-color var(--ro-motion-fast);
 }
 
-.app-month-picker-group:hover {
+.app-picker-group:hover {
   border-color: var(--ro-border-hover);
 }
 
-.app-month-picker-step,
-.app-month-picker-trigger,
-.app-month-panel-month,
-.app-month-panel-shortcut,
-.app-month-picker-today {
+.app-picker-step,
+.app-picker-trigger,
+.app-picker-option,
+.app-picker-shortcut,
+.app-picker-today {
   border: 0;
   background: transparent;
   color: var(--ro-text-secondary);
@@ -41,7 +41,7 @@
     color var(--ro-motion-fast);
 }
 
-.app-month-picker-step {
+.app-picker-step {
   display: inline-grid;
   flex: none;
   place-items: center;
@@ -50,15 +50,15 @@
   font-size: var(--ro-icon-size);
 }
 
-.app-month-picker-group > .app-month-picker-step:first-child {
+.app-picker-group > .app-picker-step:first-child {
   border-inline-end: var(--ro-border-width) solid var(--ro-border-default);
 }
 
-.app-month-picker-group > .app-month-picker-step:last-child {
+.app-picker-group > .app-picker-step:last-child {
   border-inline-start: var(--ro-border-width) solid var(--ro-border-default);
 }
 
-.app-month-picker-trigger {
+.app-picker-trigger {
   display: inline-flex;
   flex: 1;
   align-items: center;
@@ -70,42 +70,42 @@
   white-space: nowrap;
 }
 
-.app-month-picker-calendar {
+.app-picker-calendar {
   color: var(--ro-text-brand);
   font-size: var(--ro-icon-size);
 }
 
-.app-month-picker-caret {
+.app-picker-caret {
   color: var(--ro-text-muted);
   font-size: var(--ro-icon-size);
   transition: transform var(--ro-motion-fast);
 }
 
-.app-month-picker-trigger[aria-expanded='true'] {
+.app-picker-trigger[aria-expanded='true'] {
   background: var(--ro-bg-brand-subtle);
   color: var(--ro-text-brand);
 }
 
-.app-month-picker-trigger[aria-expanded='true'] .app-month-picker-caret {
+.app-picker-trigger[aria-expanded='true'] .app-picker-caret {
   transform: rotate(180deg);
 }
 
-.app-month-picker-step:hover,
-.app-month-picker-trigger:hover:not([aria-expanded='true']) {
+.app-picker-step:hover,
+.app-picker-trigger:hover:not([aria-expanded='true']) {
   background: var(--ro-bg-hover);
   color: var(--ro-text-primary);
 }
 
-.app-month-picker-step:focus-visible,
-.app-month-picker-trigger:focus-visible,
-.app-month-panel-month:focus-visible,
-.app-month-panel-shortcut:focus-visible,
-.app-month-picker-today:focus-visible {
+.app-picker-step:focus-visible,
+.app-picker-trigger:focus-visible,
+.app-picker-option:focus-visible,
+.app-picker-shortcut:focus-visible,
+.app-picker-today:focus-visible {
   outline: var(--ro-focus-width) solid var(--ro-border-focus);
   outline-offset: calc(var(--ro-focus-width) * -1);
 }
 
-.app-month-picker-today {
+.app-picker-today {
   min-block-size: var(--ro-touch-target);
   padding-inline: var(--ro-space-2);
   border-radius: var(--ro-radius-md);
@@ -113,11 +113,11 @@
   font-weight: var(--ro-font-semibold);
 }
 
-.app-month-picker-today:hover {
+.app-picker-today:hover {
   background: var(--ro-bg-brand-subtle);
 }
 
-.app-month-panel {
+.app-picker-panel {
   position: absolute;
   inset-block-start: calc(100% + var(--ro-space-2));
   inset-inline: 0;
@@ -131,29 +131,45 @@
   box-shadow: var(--ro-shadow-overlay);
 }
 
-.app-month-panel-year {
+.app-picker-panel-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.app-month-panel-year .app-month-picker-step {
+.app-picker-panel-head .app-picker-step {
   min-block-size: var(--ro-touch-target);
   border-radius: var(--ro-radius-md);
 }
 
-.app-month-panel-year strong {
+.app-picker-panel-head strong {
   font-size: var(--ro-text-heading-md);
   line-height: var(--ro-leading-heading-md);
 }
 
-.app-month-panel-months {
+.app-picker-months {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--ro-space-1);
 }
 
-.app-month-panel-month {
+.app-picker-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--ro-space-1);
+}
+
+.app-picker-weekday {
+  display: grid;
+  place-items: center;
+  min-block-size: var(--ro-space-6);
+  color: var(--ro-text-muted);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+  font-weight: var(--ro-font-semibold);
+}
+
+.app-picker-option {
   min-block-size: var(--ro-touch-target);
   padding-inline: var(--ro-space-1);
   border: var(--ro-border-width) solid transparent;
@@ -162,39 +178,39 @@
   font-weight: var(--ro-font-medium);
 }
 
-.app-month-panel-month:hover:not([aria-pressed='true']) {
+.app-picker-option:hover:not([aria-pressed='true']) {
   background: var(--ro-bg-hover);
 }
 
-.app-month-panel-today:not([aria-pressed='true']) {
+.app-picker-option-today:not([aria-pressed='true']) {
   border-color: var(--ro-border-brand-subtle);
   color: var(--ro-text-brand);
 }
 
-.app-month-panel-month[aria-pressed='true'] {
+.app-picker-option[aria-pressed='true'] {
   background: var(--ro-bg-brand);
   color: var(--ro-text-on-brand);
   font-weight: var(--ro-font-semibold);
 }
 
-.app-month-panel-shortcut {
+.app-picker-shortcut {
   min-block-size: var(--ro-touch-target);
   border-block-start: var(--ro-border-width) solid var(--ro-border-default);
   color: var(--ro-text-brand);
   font-weight: var(--ro-font-semibold);
 }
 
-.app-month-panel-shortcut:hover {
+.app-picker-shortcut:hover {
   background: var(--ro-bg-brand-subtle);
 }
 
 @media (width < 640px) {
-  .app-month-picker,
-  .app-month-picker-control {
+  .app-picker,
+  .app-picker-control {
     inline-size: 100%;
   }
 
-  .app-month-picker-group {
+  .app-picker-group {
     min-inline-size: 0;
   }
 }

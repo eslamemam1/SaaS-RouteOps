@@ -95,6 +95,14 @@ export function formatMonth(month: string, language: Language): string {
   });
 }
 
+// The weekday of a day stored as YYYY-MM-DD, as short as a calendar heads its
+// columns with, such as س in Arabic or Sat in English.
+export function formatWeekdayShort(day: string, language: Language): string {
+  return formatDate(day, language, {
+    weekday: language === 'ar' ? 'narrow' : 'short',
+  });
+}
+
 // Only the name of a month stored as YYYY-MM, such as أكتوبر.
 export function formatMonthName(month: string, language: Language): string {
   if (!/^\d{4}-\d{2}$/.test(month)) {
