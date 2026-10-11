@@ -142,7 +142,12 @@
             </td>
             <td class="ro-numeric" [attr.data-label]="text().list.tripPrice">
               @if (priceLabel(route); as price) {
-              <bdi>{{ price }}</bdi>
+              <span class="ro-entity-text">
+                <bdi>{{ price }}</bdi>
+                <span class="ro-entity-detail">
+                  {{ shift(route) ? text().list.perShift : text().list.perTrip }}
+                </span>
+              </span>
               } @else {
               <app-tag tone="warning">{{ text().list.notSet }}</app-tag>
               }

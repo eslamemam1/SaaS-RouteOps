@@ -17,6 +17,7 @@ import { RouteRepository } from '../application/route-repository';
 import {
   availableChoices,
   emptyTransportRouteDetails,
+  isShift,
   RouteChoices,
   RouteOrganization,
   RouteProblem,
@@ -74,6 +75,7 @@ export class RouteForm {
   protected readonly drivers = computed(() =>
     availableChoices(this.choices().drivers, this.model().driverId),
   );
+  protected readonly shift = computed(() => isShift(this.model()));
 
   constructor() {
     effect(() => {

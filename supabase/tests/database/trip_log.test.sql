@@ -25,7 +25,7 @@ insert into public.drivers (id, organization_id, full_name) values
 insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, trip_price, created_at) values
   ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001',
    '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '16:00', '{0,1,2,3,4}',
-   5000, '2026-01-01');
+   10000, '2026-01-01');
 
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-02-01');
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-02-02');
@@ -70,7 +70,7 @@ select is(
      p_vehicle_id => '12000000-0000-0000-0000-000000000001')
    where price = 5000),
   6,
-  'a vehicle sees its route trips at the route price, and not a trip that names no vehicle'
+  'a vehicle sees its route trips at half the shift price, and not a trip that names no vehicle'
 );
 select results_eq(
   $$select driver_id, count(*)::integer

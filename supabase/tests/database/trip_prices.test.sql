@@ -1,5 +1,6 @@
 -- Route prices, the prices copied onto daily trips, and monthly revenue.
--- Amounts are in piasters. 2026-02-01 is a Sunday; the route runs Sunday to Thursday.
+-- Amounts are in piasters. 2026-02-01 is a Sunday; the routes run Sunday to Thursday.
+-- Nasr City is a full trip, priced per shift; Airport Road runs outbound only.
 begin;
 create extension if not exists pgtap with schema extensions;
 select * from no_plan();
@@ -33,6 +34,9 @@ insert into public.routes (id, organization_id, name, customer_id, vehicle_id, d
   ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001',
    '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '16:00', '{0,1,2,3,4}',
    '2026-01-01');
+insert into public.routes (id, organization_id, name, customer_id, driver_id, start_point, end_point, outbound_time, operating_days, trip_price) values
+  ('14000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'Airport Road', '11000000-0000-0000-0000-000000000001',
+   '13000000-0000-0000-0000-000000000002', 'Ring Road', 'Airport', '05:00', '{0,1,2,3,4}', 4000);
 
 select throws_ok(
   $$insert into public.organizations (name, currency) values ('Dollar Transport', 'USD')$$,
@@ -68,13 +72,13 @@ select throws_ok(
 
 select is(
   (select array_agg(trip_price order by direction) from public.daily_trips where service_date = '2026-02-02'),
-  array[5000, 5000]::bigint[],
-  'a trip copies the price its route had on its day'
+  array[2500, 2500]::bigint[],
+  'each direction of a shift copies half the price its route had on its day'
 );
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-02-02');
 select is(
   (select array_agg(trip_price order by direction) from public.daily_trips where service_date = '2026-02-02'),
-  array[5000, 5000]::bigint[],
+  array[2500, 2500]::bigint[],
   'a new route price does not change a past trip'
 );
 
@@ -94,14 +98,21 @@ select lives_ok(
   'an extra trip without a route may have no price'
 );
 
--- February: day 1 at today's route price 6000 x 2, day 2 at 5000 x 2, the
--- evening extra at the route price 6000, the airport run at 12000, and one
--- trip without a price.
+-- February: day 1 at today's shift price 6000, day 2 at 5000, the evening
+-- extra at the outbound half of 6000, the airport run at 12000, and one trip
+-- without a price. Airport Road did not exist in February.
 select results_eq(
   $$select sum(done_trips)::integer, sum(revenue)::bigint, sum(unpriced_trips)::integer
     from public.trip_report('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-28', '2026-03-01')$$,
-  $$values (7, 40000::bigint, 1)$$,
+  $$values (7, 26000::bigint, 1)$$,
   'revenue adds up the price of every done trip and counts the trips without a price'
+);
+select results_eq(
+  $$select direction, price
+    from public.trip_log('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-01', '2026-03-01',
+      p_driver_id => '13000000-0000-0000-0000-000000000001')$$,
+  $$values ('outbound', 3000::bigint), ('return', 3000::bigint)$$,
+  'a trip without a price shows its direction''s share of the shift price'
 );
 
 -- A coming day follows its route's price, even after a one-day change.
@@ -112,14 +123,30 @@ where service_date = tests.sunday(2) and direction = 'return';
 update public.routes set trip_price = 7000 where id = '14000000-0000-0000-0000-000000000001';
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', tests.sunday(2));
 select is(
-  (select array_agg(trip_price order by direction) from public.daily_trips where service_date = tests.sunday(2)),
-  array[7000, 7000]::bigint[],
-  'a coming trip takes the new route price, even after its driver was changed'
+  (select array_agg(trip_price order by direction) from public.daily_trips
+   where service_date = tests.sunday(2) and route_id = '14000000-0000-0000-0000-000000000001'),
+  array[3500, 3500]::bigint[],
+  'a coming trip takes its share of the new route price, even after its driver was changed'
 );
 select is(
-  (select driver_id from public.daily_trips where service_date = tests.sunday(2) and direction = 'return'),
+  (select driver_id from public.daily_trips
+   where service_date = tests.sunday(2) and route_id = '14000000-0000-0000-0000-000000000001' and direction = 'return'),
   '13000000-0000-0000-0000-000000000002'::uuid,
   'the new price keeps the one-day change'
+);
+
+update public.routes set trip_price = 7001 where id = '14000000-0000-0000-0000-000000000001';
+select is(
+  (select array_agg(trip_price order by direction) from public.daily_trips
+   where service_date = tests.sunday(2) and route_id = '14000000-0000-0000-0000-000000000001'),
+  array[3501, 3500]::bigint[],
+  'the halves of a shift add up to its price, the outbound trip taking the odd piaster'
+);
+select is(
+  (select array_agg(trip_price) from public.daily_trips
+   where service_date = tests.sunday(2) and route_id = '14000000-0000-0000-0000-000000000002'),
+  array[4000]::bigint[],
+  'a route that runs one direction keeps its whole price for that trip'
 );
 
 select * from finish();

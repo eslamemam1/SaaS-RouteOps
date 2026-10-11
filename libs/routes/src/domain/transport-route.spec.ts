@@ -6,6 +6,7 @@ import {
   daysError,
   driverError,
   emptyTransportRouteDetails,
+  isShift,
   memberOrganization,
   RouteOrganization,
   routeNameError,
@@ -76,6 +77,12 @@ describe('trip times', () => {
     expect(tripError('', '')).toBe('trip');
     expect(tripError('07:00', '')).toBeNull();
     expect(tripError('', '16:00')).toBeNull();
+  });
+
+  it('prices a route with both trips as one shift', () => {
+    expect(isShift({ outboundTime: '07:00', returnTime: '16:00' })).toBe(true);
+    expect(isShift({ outboundTime: '07:00', returnTime: '' })).toBe(false);
+    expect(isShift({ outboundTime: '', returnTime: '16:00' })).toBe(false);
   });
 });
 

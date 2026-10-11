@@ -28,6 +28,7 @@ import { RouteRepository } from '../application/route-repository';
 import {
   choiceLabel,
   copyForAnotherCustomer,
+  isShift,
   RouteChoice,
   RouteChoices,
   RouteOrganization,
@@ -135,6 +136,10 @@ export class TransportRoutes {
     return currency && typeof minor === 'number'
       ? formatMoney(minor, currency, this.language())
       : '';
+  }
+
+  protected shift(route: TransportRoute): boolean {
+    return isShift(route);
   }
 
   protected daysLabel(route: TransportRoute): string {

@@ -249,7 +249,8 @@ export const operationsText: Record<Language, OperationsText> = {
       notSet: 'لم يُحدد',
       tripPrice: 'سعر الرحلة',
       tripPriceHint: 'المبلغ الذي تدفعه الشركة المتعاقدة عن هذه الرحلة. اتركه فارغًا إن لم يكن لها سعر.',
-      tripPriceRouteHint: 'اتركه فارغًا لتُحسب الرحلة بسعر الخط المختار.',
+      tripPriceRouteHint:
+        'اتركه فارغًا لتُحسب بسعر رحلة من الخط المختار: نصف سعر الوردية إذا كان الخط ذهابًا وعودة.',
       notes: 'ملاحظات',
       save: 'إضافة الرحلة',
       cancel: 'إلغاء',
@@ -416,7 +417,8 @@ export const operationsText: Record<Language, OperationsText> = {
       notSet: 'Not set',
       tripPrice: 'Trip price',
       tripPriceHint: 'What the client company pays for this trip. Leave it empty if it has no price.',
-      tripPriceRouteHint: "Leave it empty to count the trip at the chosen route's price.",
+      tripPriceRouteHint:
+        "Leave it empty to count it at one trip of the chosen route: half the shift price when the route runs out and back.",
       notes: 'Notes',
       save: 'Add trip',
       cancel: 'Cancel',

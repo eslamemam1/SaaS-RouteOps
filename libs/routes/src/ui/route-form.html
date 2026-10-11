@@ -99,8 +99,8 @@
     }
   </fieldset>
   <app-field
-    [label]="text().form.tripPrice"
-    [hint]="text().form.tripPriceHint"
+    [label]="shift() ? text().form.shiftPrice : text().form.tripPrice"
+    [hint]="shift() ? text().form.shiftPriceHint : text().form.tripPriceHint"
     [optional]="true"
     [control]="routeForm.tripPrice"
   >

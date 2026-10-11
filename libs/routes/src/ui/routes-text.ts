@@ -24,6 +24,8 @@ export interface RoutesText {
     readonly returnTime: string;
     readonly days: string;
     readonly tripPrice: string;
+    readonly perShift: string;
+    readonly perTrip: string;
     readonly everyDay: string;
     readonly daySeparator: string;
     readonly notSet: string;
@@ -69,6 +71,8 @@ export interface RoutesText {
     readonly everyDay: string;
     readonly tripPrice: string;
     readonly tripPriceHint: string;
+    readonly shiftPrice: string;
+    readonly shiftPriceHint: string;
     readonly notes: string;
     readonly notesHint: string;
     readonly active: string;
@@ -130,7 +134,9 @@ export const routesText: Record<Language, RoutesText> = {
       outboundTime: 'ذهاب',
       returnTime: 'عودة',
       days: 'الأيام',
-      tripPrice: 'سعر الرحلة',
+      tripPrice: 'السعر',
+      perShift: 'للوردية: ذهاب وعودة',
+      perTrip: 'للرحلة',
       everyDay: 'كل يوم',
       daySeparator: '، ',
       notSet: 'لم يُحدد',
@@ -176,7 +182,10 @@ export const routesText: Record<Language, RoutesText> = {
       everyDay: 'اختيار كل الأيام',
       tripPrice: 'سعر الرحلة',
       tripPriceHint:
-        'المبلغ الذي تدفعه الشركة المتعاقدة عن كل رحلة ذهاب أو عودة. يُستخدم لحساب الإيراد في التقارير. تغيير السعر لا يغيّر الرحلات التي مضت ولها سعر، أما الرحلات التي تمّت بلا سعر فتأخذ السعر الجديد.',
+        'المبلغ الذي تدفعه الشركة المتعاقدة عن هذه الرحلة في كل يوم. يُستخدم لحساب الإيراد في التقارير. تغيير السعر لا يغيّر الرحلات التي مضت ولها سعر، أما الرحلات التي تمّت بلا سعر فتأخذ السعر الجديد.',
+      shiftPrice: 'سعر الوردية (ذهاب وعودة)',
+      shiftPriceHint:
+        'المبلغ الذي تدفعه الشركة المتعاقدة عن الذهاب والعودة معًا في اليوم. إذا تمّ اتجاه واحد فقط يُحسب نصف السعر. تغيير السعر لا يغيّر الرحلات التي مضت ولها سعر، أما الرحلات التي تمّت بلا سعر فتأخذ السعر الجديد.',
       notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذا الخط.',
       active: 'الخط يعمل حاليًا',
@@ -236,7 +245,9 @@ export const routesText: Record<Language, RoutesText> = {
       outboundTime: 'Out',
       returnTime: 'Back',
       days: 'Days',
-      tripPrice: 'Trip price',
+      tripPrice: 'Price',
+      perShift: 'per shift: out and back',
+      perTrip: 'per trip',
       everyDay: 'Every day',
       daySeparator: ', ',
       notSet: 'Not set',
@@ -282,7 +293,10 @@ export const routesText: Record<Language, RoutesText> = {
       everyDay: 'Choose every day',
       tripPrice: 'Trip price',
       tripPriceHint:
-        'What the client company pays for each outbound or return trip. Reports use it to work out revenue. Changing it does not change past trips that have a price; done trips with no price take the new one.',
+        'What the client company pays for this trip each day. Reports use it to work out revenue. Changing it does not change past trips that have a price; done trips with no price take the new one.',
+      shiftPrice: 'Shift price (out and back)',
+      shiftPriceHint:
+        'What the client company pays for the outbound and return trips together each day. When only one of them runs, half the price counts. Changing it does not change past trips that have a price; done trips with no price take the new one.',
       notes: 'Notes',
       notesHint: 'Anything you want to remember about this route.',
       active: 'This route is currently running',

@@ -44,8 +44,9 @@ export interface TransportRouteDetails {
   readonly outboundTime: string;
   readonly returnTime: string;
   readonly days: WeekdaySelection;
-  // The price of one trip, outbound or return, as the member types it in the
-  // organization's currency, such as "150.50". Blank until a price is set.
+  // What the customer pays for one day of the route, as the member types it in
+  // the organization's currency, such as "150.50": a shift's whole price, or
+  // the one trip's. Blank until a price is set.
   readonly tripPrice: string;
   readonly notes: string;
   readonly active: boolean;
@@ -156,6 +157,15 @@ export function tripError(
   returnTime: string,
 ): RouteProblem | null {
   return outboundTime.length === 0 && returnTime.length === 0 ? 'trip' : null;
+}
+
+// A route with both an outbound and a return trip is a shift, and its price
+// is for the whole shift; otherwise its price is for its one trip.
+export function isShift(route: {
+  readonly outboundTime: string;
+  readonly returnTime: string;
+}): boolean {
+  return route.outboundTime.length > 0 && route.returnTime.length > 0;
 }
 
 export function selectedDays(days: WeekdaySelection): Weekday[] {
