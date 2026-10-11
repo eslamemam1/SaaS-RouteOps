@@ -6,6 +6,7 @@ import { lucideArrowLeft, lucidePencil, lucidePhone } from '@ng-icons/lucide';
 import {
   formatDay,
   formatMonth,
+  formatTime,
   formatWeekdayAndDay,
   injectText,
   LanguageService,
@@ -134,6 +135,10 @@ export class DriverPage {
     this.route.paramMap
       .pipe(takeUntilDestroyed())
       .subscribe((params) => void this.load(params.get('driverId') ?? ''));
+  }
+
+  protected time(value: string): string {
+    return formatTime(value, this.language());
   }
 
   protected day(value: string): string {

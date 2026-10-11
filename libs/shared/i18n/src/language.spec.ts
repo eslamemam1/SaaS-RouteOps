@@ -4,6 +4,7 @@ import {
   formatDay,
   formatDayWithWeekday,
   formatMonth,
+  formatTime,
   formatWeekdayAndDay,
   LanguageService,
 } from './language';
@@ -80,5 +81,20 @@ describe('formatMonth', () => {
 
   it('leaves an unknown month as it is', () => {
     expect(formatMonth('2026-13-01', 'ar')).toBe('2026-13-01');
+  });
+});
+
+describe('formatTime', () => {
+  it('writes a time on a 12-hour clock', () => {
+    expect(formatTime('07:30', 'ar')).toBe('7:30 ص');
+    expect(formatTime('13:05:00', 'ar')).toBe('1:05 م');
+    expect(formatTime('00:15', 'en')).toBe('12:15 AM');
+    expect(formatTime('12:00', 'en')).toBe('12:00 PM');
+    expect(formatTime('23:59', 'en')).toBe('11:59 PM');
+  });
+
+  it('leaves an empty or unknown time as it is', () => {
+    expect(formatTime('', 'ar')).toBe('');
+    expect(formatTime('7am', 'en')).toBe('7am');
   });
 });

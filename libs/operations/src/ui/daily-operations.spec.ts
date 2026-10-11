@@ -264,7 +264,7 @@ describe('DailyOperations', () => {
 
     expect(statusButton(harness, arabic.conflict.filter)?.textContent).toContain('2');
     expect(rows(harness)[0].textContent).toContain(arabic.conflict.vehicle);
-    expect(rows(harness)[0].textContent).toContain('07:30');
+    expect(rows(harness)[0].textContent).toContain('7:30 ص');
     expect(rows(harness)[2].textContent).not.toContain(arabic.conflict.vehicle);
 
     statusButton(harness, arabic.conflict.filter)?.click();

@@ -127,12 +127,12 @@
                 @if (route.outboundTime) {
                 <span class="ro-time-chip">
                   <span>{{ text().list.outboundTime }}</span>
-                  <bdi class="ro-numeric">{{ route.outboundTime }}</bdi>
+                  <bdi class="ro-numeric">{{ time(route.outboundTime) }}</bdi>
                 </span>
                 } @if (route.returnTime) {
                 <span class="ro-time-chip" data-direction="return">
                   <span>{{ text().list.returnTime }}</span>
-                  <bdi class="ro-numeric">{{ route.returnTime }}</bdi>
+                  <bdi class="ro-numeric">{{ time(route.returnTime) }}</bdi>
                 </span>
                 }
               </span>

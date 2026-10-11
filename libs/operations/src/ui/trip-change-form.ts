@@ -9,7 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
-import { injectText } from '@routeops/shared/i18n';
+import { formatTime, injectText, LanguageService } from '@routeops/shared/i18n';
 import { Alert, Button, Field } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
@@ -47,6 +47,7 @@ export class TripChangeForm {
   readonly cancelled = output<void>();
 
   protected readonly text = injectText(operationsText);
+  private readonly language = inject(LanguageService).language;
   private readonly problems = computed(() => this.text().problems);
 
   protected readonly reasons = changeReasons;
@@ -89,6 +90,10 @@ export class TripChangeForm {
         this.problem.set(null);
       });
     });
+  }
+
+  protected time(value: string): string {
+    return formatTime(value, this.language());
   }
 
   protected setCancelled(cancelled: boolean): void {

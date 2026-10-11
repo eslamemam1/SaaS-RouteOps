@@ -11,14 +11,19 @@ export type Language = 'ar' | 'en';
 
 export const defaultLanguage: Language = 'ar';
 
-export const productName: Record<Language, string> = { ar: 'حركة', en: 'Haraka' };
+export const productName: Record<Language, string> = {
+  ar: 'حركة',
+  en: 'Haraka',
+};
 
 const storageKey = 'routeops.language';
 
 @Service()
 export class LanguageService {
   private readonly document = inject(DOCUMENT);
-  private readonly current = signal<Language>(readStoredLanguage(this.document));
+  private readonly current = signal<Language>(
+    readStoredLanguage(this.document),
+  );
 
   readonly language = this.current.asReadonly();
   readonly direction = computed(() => directionOf(this.current()));
@@ -84,8 +89,31 @@ export function formatMonth(month: string, language: Language): string {
   if (!/^\d{4}-\d{2}$/.test(month)) {
     return month;
   }
-  return formatDate(`${month}-01`, language, { month: 'long', year: 'numeric' });
+  return formatDate(`${month}-01`, language, {
+    month: 'long',
+    year: 'numeric',
+  });
 }
+
+// A time stored as HH:MM or HH:MM:SS, on a 12-hour clock, such as 7:30 ص or 7:30 PM.
+export function formatTime(time: string, language: Language): string {
+  const match = /^(\d{2}):(\d{2})(:\d{2})?$/.exec(time);
+  if (!match) {
+    return time;
+  }
+  const hours = Number(match[1]);
+  const hour = hours % 12 === 0 ? 12 : hours % 12;
+  const period = hours < 12 ? dayPeriods[language].am : dayPeriods[language].pm;
+  return `${hour}:${match[2]} ${period}`;
+}
+
+const dayPeriods: Record<
+  Language,
+  { readonly am: string; readonly pm: string }
+> = {
+  ar: { am: 'ص', pm: 'م' },
+  en: { am: 'AM', pm: 'PM' },
+};
 
 const fullDate: Intl.DateTimeFormatOptions = {
   day: 'numeric',
@@ -101,8 +129,11 @@ function formatDate(
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
     return day;
   }
-  return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB', {
-    ...options,
-    timeZone: 'UTC',
-  }).format(new Date(`${day}T00:00:00Z`));
+  return new Intl.DateTimeFormat(
+    language === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB',
+    {
+      ...options,
+      timeZone: 'UTC',
+    },
+  ).format(new Date(`${day}T00:00:00Z`));
 }

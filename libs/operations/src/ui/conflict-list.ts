@@ -1,8 +1,12 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { NgIcon } from '@ng-icons/core';
 import { lucideTriangleAlert } from '@ng-icons/lucide';
-import { injectText } from '@routeops/shared/i18n';
-import { choiceLabel, OperationChoices, TripConflict } from '../domain/daily-trip';
+import { formatTime, injectText, LanguageService } from '@routeops/shared/i18n';
+import {
+  choiceLabel,
+  OperationChoices,
+  TripConflict,
+} from '../domain/daily-trip';
 import { operationsText } from './operations-text';
 
 @Component({
@@ -14,7 +18,7 @@ import { operationsText } from './operations-text';
         <ng-icon [svg]="warningIcon" aria-hidden="true" />
         <span>
           {{ text().conflict[conflict.kind] }}
-          <bdi>{{ conflict.trip.departureTime }}</bdi>
+          <bdi>{{ time(conflict.trip.departureTime) }}</bdi>
           ({{ routeName(conflict.trip.routeId) }})
         </span>
       </div>
@@ -28,8 +32,15 @@ export class ConflictList {
 
   protected readonly text = injectText(operationsText);
   protected readonly warningIcon = lucideTriangleAlert;
+  private readonly language = inject(LanguageService).language;
+
+  protected time(value: string): string {
+    return formatTime(value, this.language());
+  }
 
   protected routeName(routeId: string): string {
-    return choiceLabel(this.choices().routes, routeId) || this.text().day.noRoute;
+    return (
+      choiceLabel(this.choices().routes, routeId) || this.text().day.noRoute
+    );
   }
 }

@@ -1,7 +1,7 @@
 <form class="ro-form" (submit)="onSubmit($event)">
   <div class="ro-entity operations-trip-summary">
     <span class="ro-trip-time" [attr.data-direction]="trip().direction">
-      <bdi class="ro-numeric">{{ trip().departureTime }}</bdi>
+      <bdi class="ro-numeric">{{ time(trip().departureTime) }}</bdi>
       <span>{{ text().directions[trip().direction] }}</span>
     </span>
     <span class="ro-entity-text">

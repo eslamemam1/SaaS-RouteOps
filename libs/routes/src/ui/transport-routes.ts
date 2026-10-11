@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { formatTime, injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney, toMinorUnits } from '@routeops/shared/money';
 import { NgIcon } from '@ng-icons/core';
 import {
@@ -115,6 +115,10 @@ export class TransportRoutes {
 
   constructor() {
     void this.load();
+  }
+
+  protected time(value: string): string {
+    return formatTime(value, this.language());
   }
 
   protected retry(): void {

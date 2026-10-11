@@ -14,6 +14,7 @@ import {
 } from '@ng-icons/lucide';
 import {
   formatDayWithWeekday,
+  formatTime,
   injectText,
   LanguageService,
 } from '@routeops/shared/i18n';
@@ -210,6 +211,10 @@ export class DailyOperations {
 
   constructor() {
     void this.load();
+  }
+
+  protected time(value: string): string {
+    return formatTime(value, this.language());
   }
 
   protected label(choices: readonly OperationChoice[], id: string): string {

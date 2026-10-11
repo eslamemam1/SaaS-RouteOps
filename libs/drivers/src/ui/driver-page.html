@@ -314,12 +314,12 @@
               @if (route.outboundTime) {
               <span class="ro-time-chip">
                 {{ text().directions.outbound }}
-                <bdi class="ro-numeric">{{ route.outboundTime }}</bdi>
+                <bdi class="ro-numeric">{{ time(route.outboundTime) }}</bdi>
               </span>
               } @if (route.returnTime) {
               <span class="ro-time-chip" data-direction="return">
                 {{ text().directions.return }}
-                <bdi class="ro-numeric">{{ route.returnTime }}</bdi>
+                <bdi class="ro-numeric">{{ time(route.returnTime) }}</bdi>
               </span>
               }
             </span>
@@ -366,7 +366,7 @@
                   class="ro-trip-time"
                   [attr.data-direction]="trip.direction"
                 >
-                  <bdi class="ro-numeric">{{ trip.departureTime }}</bdi>
+                  <bdi class="ro-numeric">{{ time(trip.departureTime) }}</bdi>
                   <span>{{ text().directions[trip.direction] }}</span>
                 </span>
                 <span class="ro-entity-text">
