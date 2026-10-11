@@ -115,7 +115,7 @@
       </span>
       <span class="ro-stat-label">{{ text().page.done }}</span>
       <strong class="ro-stat-value ro-numeric">
-        <bdi>{{ totals().done.outbound + totals().done.return }}</bdi>
+        <bdi>{{ totals().full }}</bdi>
       </strong>
       <span class="ro-stat-detail">
         {{ text().directions.outbound }}
@@ -129,7 +129,7 @@
       </span>
       <span class="ro-stat-label">{{ text().page.extra }}</span>
       <strong class="ro-stat-value ro-numeric"
-        ><bdi>{{ totals().extra }}</bdi></strong
+        ><bdi>{{ totals().extraFull }}</bdi></strong
       >
       <span class="ro-stat-detail">{{ text().page.extraDetail }}</span>
     </div>

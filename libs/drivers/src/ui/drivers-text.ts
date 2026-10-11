@@ -189,7 +189,7 @@ export const driversText: Record<Language, DriversText> = {
       unopenedHint:
         'لم يفتح أحد صفحة التشغيل اليومي في هذه الأيام، فلا توجد رحلات مسجّلة لها ولا تدخل في العدد. افتح كل يوم منها لتُضاف رحلاته:',
       separator: '، ',
-      done: 'رحلات قادها',
+      done: 'رحلات كاملة قادها',
       extra: 'رحلات إضافية',
       extraDetail: 'خارج الخطوط المعتادة',
       absent: 'رحلات غاب عنها',
@@ -197,7 +197,7 @@ export const driversText: Record<Language, DriversText> = {
       revenue: 'إيراد رحلاته',
       unpriced: 'رحلة بلا سعر',
       countedHint:
-        'تُحسب الرحلات بنفس طريقة التقارير: الرحلة المنفّذة فقط، ولا تُحسب الأيام التي لم تأتِ بعد.',
+        'تُحسب الرحلات بنفس طريقة التقارير: الرحلة المنفّذة فقط، ولا تُحسب الأيام التي لم تأتِ بعد. الذهاب والعودة معًا رحلة كاملة، والاتجاه الواحد منها نصف رحلة.',
       payTitle: 'أجر الشهر',
       payHint:
         'الأجر المقترح من الرحلات التي قادها فعلًا وشروط أجره في هذا الشهر. يُسجَّل الأجر من صفحة المصاريف، ويمكنك تعديل المبلغ قبل تسجيله.',
@@ -360,7 +360,7 @@ export const driversText: Record<Language, DriversText> = {
       unopenedHint:
         'Nobody opened the daily operations page on these days, so they have no recorded trips and are not counted. Open each of them to add its trips:',
       separator: ', ',
-      done: 'Trips driven',
+      done: 'Full trips driven',
       extra: 'Extra trips',
       extraDetail: 'Outside the usual routes',
       absent: 'Trips missed',
@@ -368,7 +368,7 @@ export const driversText: Record<Language, DriversText> = {
       revenue: 'Revenue of the trips',
       unpriced: 'trips without a price',
       countedHint:
-        'Trips are counted as in the reports: only done trips, and never days that have not come yet.',
+        'Trips are counted as in the reports: only done trips, and never days that have not come yet. An outbound and a return trip together are one full trip, and one direction alone is half a trip.',
       payTitle: "This month's pay",
       payHint:
         "The suggested pay from the trips the driver actually drove and the driver's pay terms for this month. Pay is recorded on the expenses page, where you can change the amount first.",

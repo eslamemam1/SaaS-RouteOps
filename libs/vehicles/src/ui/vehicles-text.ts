@@ -218,7 +218,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       unopenedHint:
         'لم يفتح أحد صفحة التشغيل اليومي في هذه الأيام، فلا توجد رحلات مسجّلة لها ولا تدخل في العدد. افتح كل يوم منها لتُضاف رحلاته:',
       separator: '، ',
-      done: 'رحلات قامت بها',
+      done: 'رحلات كاملة قامت بها',
       extra: 'رحلات إضافية',
       extraDetail: 'خارج الخطوط المعتادة',
       revenue: 'إيراد رحلاتها',
@@ -227,7 +227,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       profit: 'ربحها',
       loss: 'خسارة',
       countedHint:
-        'تُحسب الرحلات والربح بنفس طريقة التقارير: الرحلة المنفّذة فقط، والمصاريف المسجّلة على هذه المركبة.',
+        'تُحسب الرحلات والربح بنفس طريقة التقارير: الرحلة المنفّذة فقط، والمصاريف المسجّلة على هذه المركبة. الذهاب والعودة معًا رحلة كاملة، والاتجاه الواحد منها نصف رحلة.',
       rentTitle: 'أجرة الشهر لصاحبها',
       rentHint:
         'الأجرة المقترحة من شروط إيجارها في هذا الشهر والرحلات التي قامت بها. تُسجَّل من صفحة المصاريف كمصروف إيجار مركبات.',
@@ -404,7 +404,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       unopenedHint:
         'Nobody opened the daily operations page on these days, so they have no recorded trips and are not counted. Open each of them to add its trips:',
       separator: ', ',
-      done: 'Trips made',
+      done: 'Full trips made',
       extra: 'Extra trips',
       extraDetail: 'Outside the usual routes',
       revenue: 'Revenue of the trips',
@@ -413,7 +413,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       profit: 'Profit',
       loss: 'Loss',
       countedHint:
-        'Trips and profit are counted as in the reports: only done trips, and the expenses recorded on this vehicle.',
+        'Trips and profit are counted as in the reports: only done trips, and the expenses recorded on this vehicle. An outbound and a return trip together are one full trip, and one direction alone is half a trip.',
       rentTitle: "This month's rent for the owner",
       rentHint:
         "The suggested rent from the vehicle's rent terms for this month and the trips it made. Record it on the expenses page as vehicle rent.",

@@ -454,6 +454,7 @@ function toTrip(row: TripLogRow): DriverTrip {
     reason: toReason(row.change_reason),
     notes: row.notes ?? '',
     price: row.price === null ? null : Number(row.price),
+    halves: row.halves,
   };
 }
 

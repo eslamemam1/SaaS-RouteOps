@@ -310,6 +310,7 @@ describe('SupabaseDriverGateway', () => {
           change_reason: 'driver_absent',
           notes: null,
           price: 5000,
+          halves: 2,
         },
       ],
       error: null,
@@ -334,6 +335,7 @@ describe('SupabaseDriverGateway', () => {
         reason: 'driverAbsent',
         notes: '',
         price: 5000,
+        halves: 2,
       },
     ]);
     expect(calls.rpcs).toEqual([

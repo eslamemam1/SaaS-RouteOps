@@ -87,7 +87,21 @@ export interface Database {
           p_to: string;
           p_today: string;
         };
-        Returns: { done_trips: number; revenue: number; unpriced_trips: number }[];
+        Returns: {
+          done_trips: number;
+          done_halves: number;
+          revenue: number;
+          unpriced_trips: number;
+        }[];
+      };
+      trip_log: {
+        Args: {
+          p_organization_id: string;
+          p_from: string;
+          p_to: string;
+          p_today: string;
+        };
+        Returns: { status: string; halves: number }[];
       };
       expense_totals: {
         Args: { p_organization_id: string; p_from: string; p_to: string };

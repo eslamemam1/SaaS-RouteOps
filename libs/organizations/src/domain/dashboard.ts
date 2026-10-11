@@ -5,8 +5,15 @@ export interface DateRange {
 
 // Amounts are in the smallest unit of the organization currency. Done trips
 // follow the done rule of trip_report, so they match the reports screen.
+// Trips are counted as full trips: halves is 1 for one direction of an
+// outbound-and-return route and 2 for any other trip.
+export interface DashboardTrip {
+  readonly cancelled: boolean;
+  readonly halves: number;
+}
+
 export interface DashboardFacts {
-  readonly todayTrips: readonly { readonly cancelled: boolean }[];
+  readonly todayTrips: readonly DashboardTrip[];
   readonly todayDone: number;
   readonly monthDone: number;
   readonly monthRevenue: number;
@@ -77,12 +84,12 @@ export function isSetUp(setup: SetupCounts): boolean {
 }
 
 export function dashboard(facts: DashboardFacts, today: string): Dashboard {
-  const cancelled = facts.todayTrips.filter((trip) => trip.cancelled).length;
+  const cancelled = fullTrips(facts.todayTrips.filter((trip) => trip.cancelled));
   const pastUnopened = facts.unopenedDays.filter((day) => day < today);
   return {
     today: {
       status: todayStatus(facts, today),
-      planned: facts.todayTrips.length - cancelled,
+      planned: fullTrips(facts.todayTrips) - cancelled,
       done: facts.todayDone,
       cancelled,
     },
@@ -106,6 +113,10 @@ export function dashboard(facts: DashboardFacts, today: string): Dashboard {
 
 export function needsAttention(summary: Dashboard): boolean {
   return Object.values(summary.attention).some((count) => count > 0);
+}
+
+function fullTrips(trips: readonly DashboardTrip[]): number {
+  return trips.reduce((halves, trip) => halves + trip.halves, 0) / 2;
 }
 
 function todayStatus(facts: DashboardFacts, today: string): TodayStatus {

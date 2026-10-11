@@ -22,6 +22,7 @@ const trip: VehicleTrip = {
   reason: '',
   notes: '',
   price: 5000,
+  halves: 1,
 };
 
 describe('vehicle month', () => {
@@ -57,7 +58,14 @@ describe('vehicle month', () => {
   it('counts only done trips, with their revenue and the ones without a price', () => {
     const totals = vehicleTotals([
       trip,
-      { ...trip, id: 'trip-2', direction: 'return', extra: true, price: null },
+      {
+        ...trip,
+        id: 'trip-2',
+        direction: 'return',
+        extra: true,
+        price: null,
+        halves: 2,
+      },
       {
         ...trip,
         id: 'trip-3',
@@ -71,6 +79,8 @@ describe('vehicle month', () => {
     expect(totals).toEqual({
       done: { outbound: 1, return: 1 },
       extra: 1,
+      full: 1.5,
+      extraFull: 1,
       revenue: 5000,
       unpriced: 1,
     });

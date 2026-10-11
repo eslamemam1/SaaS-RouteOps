@@ -108,6 +108,8 @@ export type Database = {
           extra_trips: number
           revenue: number
           unpriced_trips: number
+          done_halves: number
+          extra_halves: number
         }[]
       }
       unopened_days: {

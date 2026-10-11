@@ -6,7 +6,7 @@ import { SupabaseReportsGateway } from './reports-gateway';
 type Result = { data: unknown; error: { message: string } | null };
 
 describe('SupabaseReportsGateway', () => {
-  it('counts the month through the database function for the organization', async () => {
+  it('counts the month through the database function for the organization, in full trips from halves', async () => {
     const calls = recorder(() => ({
       data: [
         {
@@ -18,6 +18,8 @@ describe('SupabaseReportsGateway', () => {
           extra_trips: 1,
           revenue: 315000,
           unpriced_trips: 1,
+          done_halves: 23,
+          extra_halves: 2,
         },
       ],
       error: null,
@@ -38,6 +40,8 @@ describe('SupabaseReportsGateway', () => {
         driverId: '',
         done: 22,
         extra: 1,
+        full: 11.5,
+        extraFull: 1,
         revenue: 315000,
         unpriced: 1,
       },

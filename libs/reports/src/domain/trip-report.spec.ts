@@ -63,22 +63,22 @@ describe('report lines', () => {
     drivers: [{ id: 'ahmed', label: 'أحمد علي' }],
   };
   const counts: TripCount[] = [
-    { customerId: 'delta', routeId: 'delta-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, revenue: 400000, unpriced: 0 },
-    { customerId: 'nour', routeId: 'nour-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 10, extra: 2, revenue: 150000, unpriced: 0 },
-    { customerId: 'nour', routeId: '', vehicleId: 'van-2', driverId: '', done: 22, extra: 1, revenue: 210000, unpriced: 1 },
+    { customerId: 'delta', routeId: 'delta-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, full: 20, extraFull: 0, revenue: 400000, unpriced: 0 },
+    { customerId: 'nour', routeId: 'nour-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 10, extra: 2, full: 5, extraFull: 1, revenue: 150000, unpriced: 0 },
+    { customerId: 'nour', routeId: '', vehicleId: 'van-2', driverId: '', done: 22, extra: 1, full: 11, extraFull: 0.5, revenue: 210000, unpriced: 1 },
   ];
 
   it('adds up the trips of each client company, most trips first', () => {
     expect(reportLines(counts, 'customer', choices)).toEqual([
-      { id: 'delta', label: 'Delta Factory', done: 40, extra: 0, revenue: 400000, unpriced: 0, expenses: 0, driverCost: 0, vehicleCost: 0 },
-      { id: 'nour', label: 'Nour Company', done: 32, extra: 3, revenue: 360000, unpriced: 1, expenses: 0, driverCost: 0, vehicleCost: 0 },
+      { id: 'delta', label: 'Delta Factory', done: 40, extra: 0, full: 20, extraFull: 0, revenue: 400000, unpriced: 0, expenses: 0, driverCost: 0, vehicleCost: 0 },
+      { id: 'nour', label: 'Nour Company', done: 32, extra: 3, full: 16, extraFull: 1.5, revenue: 360000, unpriced: 1, expenses: 0, driverCost: 0, vehicleCost: 0 },
     ]);
   });
 
   it('adds up the trips of each vehicle', () => {
     expect(reportLines(counts, 'vehicle', choices)).toEqual([
-      { id: 'bus-1', label: 'أ ب ج 1234', done: 50, extra: 2, revenue: 550000, unpriced: 0, expenses: 0, driverCost: 0, vehicleCost: 0 },
-      { id: 'van-2', label: 'د هـ و 5678', done: 22, extra: 1, revenue: 210000, unpriced: 1, expenses: 0, driverCost: 0, vehicleCost: 0 },
+      { id: 'bus-1', label: 'أ ب ج 1234', done: 50, extra: 2, full: 25, extraFull: 1, revenue: 550000, unpriced: 0, expenses: 0, driverCost: 0, vehicleCost: 0 },
+      { id: 'van-2', label: 'د هـ و 5678', done: 22, extra: 1, full: 11, extraFull: 0.5, revenue: 210000, unpriced: 1, expenses: 0, driverCost: 0, vehicleCost: 0 },
     ]);
   });
 
@@ -104,8 +104,8 @@ describe('report lines', () => {
 
   it('keeps trips without a driver on their own line', () => {
     expect(reportLines(counts, 'driver', choices)).toEqual([
-      { id: 'ahmed', label: 'أحمد علي', done: 50, extra: 2, revenue: 550000, unpriced: 0, expenses: 0, driverCost: 0, vehicleCost: 0 },
-      { id: '', label: '', done: 22, extra: 1, revenue: 210000, unpriced: 1, expenses: 0, driverCost: 0, vehicleCost: 0 },
+      { id: 'ahmed', label: 'أحمد علي', done: 50, extra: 2, full: 25, extraFull: 1, revenue: 550000, unpriced: 0, expenses: 0, driverCost: 0, vehicleCost: 0 },
+      { id: '', label: '', done: 22, extra: 1, full: 11, extraFull: 0.5, revenue: 210000, unpriced: 1, expenses: 0, driverCost: 0, vehicleCost: 0 },
     ]);
   });
 
@@ -133,7 +133,7 @@ describe('report lines', () => {
 
   it('puts a salary on the driver and other costs of a vehicle on the vehicle', () => {
     const route: TripCount[] = [
-      { customerId: 'delta', routeId: 'delta-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 44, extra: 0, revenue: 2500000, unpriced: 0 },
+      { customerId: 'delta', routeId: 'delta-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 44, extra: 0, full: 22, extraFull: 0, revenue: 2500000, unpriced: 0 },
     ];
     const expenses: ExpenseTotal[] = [
       { category: 'salaries', vehicleId: 'bus-1', driverId: 'ahmed', total: 500000 },
@@ -162,6 +162,8 @@ describe('report lines', () => {
       driverId: 'ahmed',
       done: 1,
       extra: 0,
+      full: 0.5,
+      extraFull: 0,
       revenue: 0,
       unpriced: 0,
     }));
@@ -180,8 +182,8 @@ describe('report lines', () => {
   });
 
   it('totals the month', () => {
-    expect(reportTotal(counts)).toEqual({ done: 72, extra: 3, revenue: 760000, unpriced: 1 });
-    expect(reportTotal([])).toEqual({ done: 0, extra: 0, revenue: 0, unpriced: 0 });
+    expect(reportTotal(counts)).toEqual({ done: 72, extra: 3, full: 36, extraFull: 1.5, revenue: 760000, unpriced: 1 });
+    expect(reportTotal([])).toEqual({ done: 0, extra: 0, full: 0, extraFull: 0, revenue: 0, unpriced: 0 });
   });
 });
 

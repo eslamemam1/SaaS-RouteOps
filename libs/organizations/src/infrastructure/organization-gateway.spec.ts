@@ -171,20 +171,24 @@ describe('SupabaseOrganizationGateway', () => {
       ],
     };
     const client = fakeClient({
-      onEq(column, value) {
-        return column === 'service_date' && value === '2026-10-08'
-          ? { data: [{ is_cancelled: false }, { is_cancelled: true }], error: null }
-          : { data: [], error: null };
-      },
       onRpc(name, args) {
         calls.push({ name, args });
+        if (name === 'trip_log') {
+          return {
+            data: [
+              { status: 'done', halves: 1 },
+              { status: 'cancelled', halves: 1 },
+            ],
+            error: null,
+          };
+        }
         if (name === 'trip_report') {
           return args?.['p_from'] === '2026-10-08'
-            ? { data: [{ done_trips: 1, revenue: 5000, unpriced_trips: 0 }], error: null }
+            ? { data: [{ done_trips: 1, done_halves: 1, revenue: 5000, unpriced_trips: 0 }], error: null }
             : {
                 data: [
-                  { done_trips: 20, revenue: 100000, unpriced_trips: 2 },
-                  { done_trips: 5, revenue: 25000, unpriced_trips: 0 },
+                  { done_trips: 20, done_halves: 40, revenue: 100000, unpriced_trips: 2 },
+                  { done_trips: 5, done_halves: 10, revenue: 25000, unpriced_trips: 0 },
                 ],
                 error: null,
               };
@@ -202,8 +206,11 @@ describe('SupabaseOrganizationGateway', () => {
     );
 
     expect(facts).toEqual({
-      todayTrips: [{ cancelled: false }, { cancelled: true }],
-      todayDone: 1,
+      todayTrips: [
+        { cancelled: false, halves: 1 },
+        { cancelled: true, halves: 1 },
+      ],
+      todayDone: 0.5,
       monthDone: 25,
       monthRevenue: 125000,
       monthUnpriced: 2,
@@ -219,6 +226,15 @@ describe('SupabaseOrganizationGateway', () => {
         p_organization_id: 'org-north',
         p_from: '2026-09-01',
         p_to: '2026-09-30',
+        p_today: '2026-10-08',
+      },
+    });
+    expect(calls).toContainEqual({
+      name: 'trip_log',
+      args: {
+        p_organization_id: 'org-north',
+        p_from: '2026-10-08',
+        p_to: '2026-10-08',
         p_today: '2026-10-08',
       },
     });

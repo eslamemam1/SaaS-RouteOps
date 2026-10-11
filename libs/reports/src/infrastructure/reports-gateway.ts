@@ -159,6 +159,8 @@ export class SupabaseReportsGateway implements ReportsGateway {
       driverId: row.driver_id ?? '',
       done: row.done_trips,
       extra: row.extra_trips,
+      full: row.done_halves / 2,
+      extraFull: row.extra_halves / 2,
       revenue: Number(row.revenue),
       unpriced: row.unpriced_trips,
     }));

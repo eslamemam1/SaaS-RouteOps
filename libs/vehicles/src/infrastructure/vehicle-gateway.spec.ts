@@ -294,6 +294,7 @@ describe('SupabaseVehicleGateway', () => {
           change_reason: 'vehicle_breakdown',
           notes: 'Flat tyre',
           price: null,
+          halves: 1,
         },
       ],
       error: null,
@@ -316,6 +317,7 @@ describe('SupabaseVehicleGateway', () => {
         reason: 'vehicleBreakdown',
         notes: 'Flat tyre',
         price: null,
+        halves: 1,
       },
     ]);
     expect(calls.rpcs).toEqual([

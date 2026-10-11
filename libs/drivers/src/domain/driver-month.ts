@@ -28,7 +28,9 @@ export type ChangeReason = (typeof changeReasons)[number];
 
 // A trip of the month that the driver drove, or that was planned for the
 // driver and given to someone else. An id is empty when the trip names none;
-// price is null when neither the trip nor its route has one.
+// price is null when neither the trip nor its route has one. halves is how
+// many halves of a full trip it is: 1 for one direction of an
+// outbound-and-return route, 2 for any other trip.
 export interface DriverTrip {
   readonly id: string;
   readonly serviceDate: string;
@@ -44,6 +46,7 @@ export interface DriverTrip {
   readonly reason: ChangeReason | '';
   readonly notes: string;
   readonly price: number | null;
+  readonly halves: number;
 }
 
 // What the page shows for each trip from the driver's side: 'absent' when the
@@ -88,10 +91,15 @@ export interface DriverMonth {
   readonly unopenedDays: readonly string[];
 }
 
+// done and absent count each direction, as pay does; full, extraFull, and
+// absentFull count full trips.
 export interface DriverMonthTotals {
   readonly done: PerDirection;
   readonly extra: number;
   readonly absent: PerDirection;
+  readonly full: number;
+  readonly extraFull: number;
+  readonly absentFull: number;
   readonly revenue: number;
   readonly unpriced: number;
 }
@@ -182,24 +190,41 @@ export function driverTotals(
   const done = { outbound: 0, return: 0 };
   const absent = { outbound: 0, return: 0 };
   let extra = 0;
+  let halves = 0;
+  let extraHalves = 0;
+  let absentHalves = 0;
   let revenue = 0;
   let unpriced = 0;
   for (const trip of trips) {
     if (missedThroughAbsence(trip, driverId, today)) {
       absent[trip.direction] += 1;
+      absentHalves += trip.halves;
     }
     if (trip.driverId !== driverId || trip.status !== 'done') {
       continue;
     }
     done[trip.direction] += 1;
-    extra += trip.extra ? 1 : 0;
+    halves += trip.halves;
+    if (trip.extra) {
+      extra += 1;
+      extraHalves += trip.halves;
+    }
     if (trip.price === null) {
       unpriced += 1;
     } else {
       revenue += trip.price;
     }
   }
-  return { done, extra, absent, revenue, unpriced };
+  return {
+    done,
+    extra,
+    absent,
+    full: halves / 2,
+    extraFull: extraHalves / 2,
+    absentFull: absentHalves / 2,
+    revenue,
+    unpriced,
+  };
 }
 
 export function choiceLabel(

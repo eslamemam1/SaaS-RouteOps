@@ -107,6 +107,21 @@ select results_eq(
   $$values (7, 26000::bigint, 1)$$,
   'revenue adds up the price of every done trip and counts the trips without a price'
 );
+-- Four directions of Nasr City are two full trips, the evening extra on it is
+-- half of one, and the two extra trips without a route are a full trip each.
+select results_eq(
+  $$select sum(done_halves)::integer, sum(extra_halves)::integer
+    from public.trip_report('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-28', '2026-03-01')$$,
+  $$values (9, 5)$$,
+  'trips are counted in halves of a full trip'
+);
+select results_eq(
+  $$select direction, halves
+    from public.trip_log('10000000-0000-0000-0000-000000000001', '2026-02-03', '2026-02-03', '2026-03-01')
+    where is_extra$$,
+  $$values ('outbound', 1)$$,
+  'the trip log gives each trip its halves of a full trip'
+);
 select results_eq(
   $$select direction, price
     from public.trip_log('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-01', '2026-03-01',

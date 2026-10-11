@@ -37,17 +37,22 @@ describe('dashboard', () => {
     expect(isSetUp({ customers: 1, drivers: 1, routes: 1 })).toBe(true);
   });
 
-  it('counts today’s trips apart from the cancelled ones', () => {
+  it('counts today’s trips as full trips, apart from the cancelled ones', () => {
     const summary = dashboard(
       {
         ...quiet,
-        todayTrips: [{ cancelled: false }, { cancelled: true }, { cancelled: false }],
+        todayTrips: [
+          { cancelled: false, halves: 1 },
+          { cancelled: false, halves: 1 },
+          { cancelled: true, halves: 1 },
+          { cancelled: false, halves: 2 },
+        ],
         todayDone: 1,
       },
       '2026-10-08',
     );
 
-    expect(summary.today).toEqual({ status: 'open', planned: 2, done: 1, cancelled: 1 });
+    expect(summary.today).toEqual({ status: 'open', planned: 2, done: 1, cancelled: 0.5 });
   });
 
   it('tells an unopened working day from a day with no routes', () => {

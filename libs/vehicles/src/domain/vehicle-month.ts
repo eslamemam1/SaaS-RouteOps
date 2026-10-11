@@ -42,7 +42,8 @@ export type ExpenseCategory = (typeof expenseCategories)[number];
 
 // A trip of the month the vehicle made or was planned to make. An id is empty
 // when the trip names none; price is null when neither the trip nor its route
-// has one.
+// has one. halves is how many halves of a full trip it is: 1 for one direction
+// of an outbound-and-return route, 2 for any other trip.
 export interface VehicleTrip {
   readonly id: string;
   readonly serviceDate: string;
@@ -56,6 +57,7 @@ export interface VehicleTrip {
   readonly reason: ChangeReason | '';
   readonly notes: string;
   readonly price: number | null;
+  readonly halves: number;
 }
 
 export interface WorkChoice {
@@ -98,9 +100,13 @@ export interface VehicleMonth {
   readonly unopenedDays: readonly string[];
 }
 
+// done counts each direction, as per-trip rent does; full and extraFull count
+// full trips.
 export interface VehicleMonthTotals {
   readonly done: PerDirection;
   readonly extra: number;
+  readonly full: number;
+  readonly extraFull: number;
   readonly revenue: number;
   readonly unpriced: number;
 }
@@ -162,6 +168,8 @@ export function vehicleTotals(
 ): VehicleMonthTotals {
   const done = { outbound: 0, return: 0 };
   let extra = 0;
+  let halves = 0;
+  let extraHalves = 0;
   let revenue = 0;
   let unpriced = 0;
   for (const trip of trips) {
@@ -169,14 +177,25 @@ export function vehicleTotals(
       continue;
     }
     done[trip.direction] += 1;
-    extra += trip.extra ? 1 : 0;
+    halves += trip.halves;
+    if (trip.extra) {
+      extra += 1;
+      extraHalves += trip.halves;
+    }
     if (trip.price === null) {
       unpriced += 1;
     } else {
       revenue += trip.price;
     }
   }
-  return { done, extra, revenue, unpriced };
+  return {
+    done,
+    extra,
+    full: halves / 2,
+    extraFull: extraHalves / 2,
+    revenue,
+    unpriced,
+  };
 }
 
 // Adds up expense rows by category, in the order of the categories.

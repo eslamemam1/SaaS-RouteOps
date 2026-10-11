@@ -130,8 +130,8 @@ export class Reports {
         tone: this.profit() < 0 ? 'danger' : 'info',
         icon: lucideWallet,
       },
-      { label: text.doneTotal, value: String(total.done), tone: 'success', icon: lucideCircleCheck },
-      { label: text.extraTotal, value: String(total.extra), tone: 'info', icon: lucideCirclePlus },
+      { label: text.doneTotal, value: String(total.full), tone: 'success', icon: lucideCircleCheck },
+      { label: text.extraTotal, value: String(total.extraFull), tone: 'info', icon: lucideCirclePlus },
     ];
     return stats;
   });

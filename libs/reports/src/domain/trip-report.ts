@@ -44,6 +44,8 @@ export interface ReportChoices {
 
 // Done trips of one customer, route, vehicle, and driver. An id is empty when
 // the trips had no route, no vehicle, or no driver.
+// done and extra count each direction; full and extraFull count full trips,
+// where one direction of an outbound-and-return route is half of one.
 // revenue is in the smallest unit of the organization currency; unpriced trips
 // had no price of their own and no route price, so revenue leaves them out.
 export interface TripCount {
@@ -53,6 +55,8 @@ export interface TripCount {
   readonly driverId: string;
   readonly done: number;
   readonly extra: number;
+  readonly full: number;
+  readonly extraFull: number;
   readonly revenue: number;
   readonly unpriced: number;
 }
@@ -94,6 +98,8 @@ export interface ReportLine {
   readonly label: string;
   readonly done: number;
   readonly extra: number;
+  readonly full: number;
+  readonly extraFull: number;
   readonly revenue: number;
   readonly unpriced: number;
   readonly expenses: number;
@@ -117,6 +123,8 @@ export interface CostShares {
 export interface ReportTotal {
   readonly done: number;
   readonly extra: number;
+  readonly full: number;
+  readonly extraFull: number;
   readonly revenue: number;
   readonly unpriced: number;
 }
@@ -303,12 +311,21 @@ export function expenseSum(expenses: readonly ExpenseTotal[]): number {
   return expenses.reduce((total, expense) => total + expense.total, 0);
 }
 
-const emptyTotal: ReportTotal = { done: 0, extra: 0, revenue: 0, unpriced: 0 };
+const emptyTotal: ReportTotal = {
+  done: 0,
+  extra: 0,
+  full: 0,
+  extraFull: 0,
+  revenue: 0,
+  unpriced: 0,
+};
 
 function addCount(total: ReportTotal, count: TripCount): ReportTotal {
   return {
     done: total.done + count.done,
     extra: total.extra + count.extra,
+    full: total.full + count.full,
+    extraFull: total.extraFull + count.extraFull,
     revenue: total.revenue + count.revenue,
     unpriced: total.unpriced + count.unpriced,
   };

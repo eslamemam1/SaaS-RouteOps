@@ -65,6 +65,7 @@ const trip: DriverTrip = {
   reason: '',
   notes: '',
   price: 50000,
+  halves: 1,
 };
 const february: DriverMonth = {
   trips: [
@@ -104,8 +105,8 @@ describe('DriverPage', () => {
     const page = text(harness);
     expect(page).toContain('أحمد محمد');
     expect(page).toContain(`${arabic.page.monthTitle} فبراير 2026`);
-    expect(statValue(harness, arabic.page.done)).toBe('2');
-    expect(statValue(harness, arabic.page.absent)).toBe('1');
+    expect(statValue(harness, arabic.page.done)).toBe('1');
+    expect(statValue(harness, arabic.page.absent)).toBe('0.5');
     expect(page).toContain(arabic.states.absent);
     expect(page).toContain('كريم علي');
     expect(page).toContain('التجمع الخامس');
@@ -186,7 +187,7 @@ describe('DriverPage', () => {
     button(harness, 'إعادة المحاولة')?.click();
     await settle(harness);
 
-    expect(statValue(harness, arabic.page.done)).toBe('2');
+    expect(statValue(harness, arabic.page.done)).toBe('1');
   });
 });
 

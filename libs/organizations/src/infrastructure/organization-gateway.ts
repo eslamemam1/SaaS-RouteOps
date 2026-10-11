@@ -265,11 +265,7 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       driverCount,
       routeCount,
     ] = await Promise.all([
-        client
-          .from('daily_trips')
-          .select('is_cancelled')
-          .eq('organization_id', organizationId)
-          .eq('service_date', today),
+        client.rpc('trip_log', { ...monthArgs, p_from: today, p_to: today }),
         client.rpc('trip_report', { ...monthArgs, p_from: today, p_to: today }),
         allRows((from, to) =>
           client
@@ -313,9 +309,12 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
     }
     const counts = monthCounts.data ?? [];
     return {
-      todayTrips: (trips.data ?? []).map((row) => ({ cancelled: row.is_cancelled })),
-      todayDone: sum((todayCounts.data ?? []).map((row) => row.done_trips)),
-      monthDone: sum(counts.map((row) => row.done_trips)),
+      todayTrips: (trips.data ?? []).map((row) => ({
+        cancelled: row.status === 'cancelled',
+        halves: row.halves,
+      })),
+      todayDone: sum((todayCounts.data ?? []).map((row) => row.done_halves)) / 2,
+      monthDone: sum(counts.map((row) => row.done_halves)) / 2,
       monthRevenue: sum(counts.map((row) => Number(row.revenue))),
       monthUnpriced: sum(counts.map((row) => row.unpriced_trips)),
       monthExpenses: sum((expenses.data ?? []).map((row) => Number(row.total))),

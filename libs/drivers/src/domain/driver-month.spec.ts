@@ -23,6 +23,7 @@ const trip: DriverTrip = {
   reason: '',
   notes: '',
   price: 5000,
+  halves: 1,
 };
 
 describe('driverTripState', () => {
@@ -64,7 +65,7 @@ describe('driverTotals', () => {
       [
         trip,
         { ...trip, id: 'trip-2', direction: 'return', price: null },
-        { ...trip, id: 'trip-3', extra: true, price: 7000 },
+        { ...trip, id: 'trip-3', extra: true, price: 7000, halves: 2 },
         { ...trip, id: 'trip-4', status: 'unrecorded' },
         { ...trip, id: 'trip-5', driverId: 'karim', reason: 'driverAbsent' },
       ],
@@ -76,6 +77,9 @@ describe('driverTotals', () => {
       done: { outbound: 2, return: 1 },
       extra: 1,
       absent: { outbound: 1, return: 0 },
+      full: 2,
+      extraFull: 1,
+      absentFull: 0.5,
       revenue: 12000,
       unpriced: 1,
     });

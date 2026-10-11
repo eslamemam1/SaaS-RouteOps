@@ -115,7 +115,7 @@
       </span>
       <span class="ro-stat-label">{{ text().page.done }}</span>
       <strong class="ro-stat-value ro-numeric">
-        <bdi>{{ totals().done.outbound + totals().done.return }}</bdi>
+        <bdi>{{ totals().full }}</bdi>
       </strong>
       <span class="ro-stat-detail">
         {{ text().directions.outbound }}
@@ -129,14 +129,14 @@
       </span>
       <span class="ro-stat-label">{{ text().page.extra }}</span>
       <strong class="ro-stat-value ro-numeric"
-        ><bdi>{{ totals().extra }}</bdi></strong
+        ><bdi>{{ totals().extraFull }}</bdi></strong
       >
       <span class="ro-stat-detail">{{ text().page.extraDetail }}</span>
     </div>
     <div
       class="ro-stat ro-card"
       [attr.data-tone]="
-        totals().absent.outbound + totals().absent.return > 0 ? 'danger' : 'neutral'
+        totals().absentFull > 0 ? 'danger' : 'neutral'
       "
     >
       <span class="ro-stat-icon">
@@ -144,7 +144,7 @@
       </span>
       <span class="ro-stat-label">{{ text().page.absent }}</span>
       <strong class="ro-stat-value ro-numeric">
-        <bdi>{{ totals().absent.outbound + totals().absent.return }}</bdi>
+        <bdi>{{ totals().absentFull }}</bdi>
       </strong>
       <span class="ro-stat-detail">{{ text().page.absentDetail }}</span>
     </div>
