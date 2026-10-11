@@ -1,16 +1,26 @@
-import { Component, computed, input, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  computed,
+  input,
+  signal,
+  ViewEncapsulation,
+} from '@angular/core';
+import { NgIcon } from '@ng-icons/core';
+import { lucideUserRound } from '@ng-icons/lucide';
 
 export type AvatarSize = 'sm' | 'md' | 'lg';
 
-// The person's photo, or the first letters of the name when there is none.
-// It is decorative because the name is always written next to it.
+// The person's photo, or a person icon when there is none or it fails to load,
+// such as after its signed link expires. It is decorative because the name is
+// always written next to it.
 @Component({
   selector: 'app-avatar',
+  imports: [NgIcon],
   template: `
-    @if (src(); as photo) {
-      <img [src]="photo" alt="" />
+    @if (photo(); as url) {
+      <img [src]="url" alt="" (error)="failed.set(url)" />
     } @else {
-      {{ initials() }}
+      <ng-icon class="app-avatar-placeholder" [svg]="placeholderIcon" />
     }
   `,
   styleUrl: './avatar.css',
@@ -22,21 +32,13 @@ export type AvatarSize = 'sm' | 'md' | 'lg';
   },
 })
 export class Avatar {
-  readonly name = input.required<string>();
   readonly src = input<string | null>(null);
   readonly size = input<AvatarSize>('md');
 
-  protected readonly initials = computed(() => initialsOf(this.name()));
-}
-
-export function initialsOf(name: string): string {
-  const words = name
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
-  return words
-    .slice(0, 2)
-    .map((word) => Array.from(word)[0])
-    .join('')
-    .toLocaleUpperCase();
+  protected readonly placeholderIcon = lucideUserRound;
+  protected readonly failed = signal<string | null>(null);
+  protected readonly photo = computed(() => {
+    const url = this.src();
+    return url && url !== this.failed() ? url : null;
+  });
 }

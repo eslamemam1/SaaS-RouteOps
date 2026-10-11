@@ -108,7 +108,7 @@ describe('Drivers', () => {
     expect(text(harness)).toContain(arabic.problems.load);
   });
 
-  it("shows a driver's photo, or the initials of a driver without one", async () => {
+  it("shows a driver's photo, or a person icon for a driver without one", async () => {
     const omar: Driver = {
       ...ahmed,
       id: 'driver-2',
@@ -125,7 +125,8 @@ describe('Drivers', () => {
       ...(harness.routeNativeElement?.querySelectorAll('app-avatar') ?? []),
     ];
     expect(avatars).toHaveLength(2);
-    expect(avatars[0].textContent?.trim()).toBe('أم');
+    expect(avatars[0].querySelector('img')).toBeNull();
+    expect(avatars[0].querySelector('.app-avatar-placeholder')).not.toBeNull();
     expect(avatars[1].querySelector('img')?.getAttribute('src')).toBe(
       'https://example.test/omar.webp',
     );

@@ -49,11 +49,7 @@
           <tr>
             <td [attr.data-label]="text().list.fullName">
               <div class="ro-entity">
-                <app-avatar
-                  size="sm"
-                  [name]="driver.fullName"
-                  [src]="driver.photo?.url ?? null"
-                />
+                <app-avatar size="sm" [src]="driver.photo?.url ?? null" />
                 <span class="ro-entity-text">
                   <span class="ro-entity-name">{{ driver.fullName }}</span>
                   @if (driver.payType !== 'none') {
