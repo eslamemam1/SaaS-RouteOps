@@ -8,9 +8,11 @@ import {
   Button,
   Field,
   FormDrawer,
+  injectListView,
   PageHeader,
   PageState,
   Tag,
+  ViewSwitch,
 } from '@routeops/shared/ui';
 import { VehicleAccessError } from '../application/vehicle-access-error';
 import { VehicleRepository } from '../application/vehicle-repository';
@@ -40,6 +42,7 @@ import { vehiclesText } from './vehicles-text';
     PageState,
     Tag,
     VehicleForm,
+    ViewSwitch,
   ],
   templateUrl: './vehicles.html',
 })
@@ -50,6 +53,7 @@ export class Vehicles {
 
   protected readonly text = injectText(vehiclesText);
   protected readonly addIcon = lucidePlus;
+  protected readonly view = injectListView('vehicles');
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );

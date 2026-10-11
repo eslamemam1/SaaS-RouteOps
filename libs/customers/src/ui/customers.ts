@@ -7,9 +7,11 @@ import {
   Alert,
   Button,
   FormDrawer,
+  injectListView,
   PageHeader,
   PageState,
   Tag,
+  ViewSwitch,
 } from '@routeops/shared/ui';
 import { CustomerAccessError } from '../application/customer-access-error';
 import { CustomerRepository } from '../application/customer-repository';
@@ -33,6 +35,7 @@ import { customersText } from './customers-text';
     PageHeader,
     PageState,
     Tag,
+    ViewSwitch,
   ],
   templateUrl: './customers.html',
 })
@@ -42,6 +45,7 @@ export class Customers {
 
   protected readonly text = injectText(customersText);
   protected readonly addIcon = lucidePlus;
+  protected readonly view = injectListView('customers');
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );

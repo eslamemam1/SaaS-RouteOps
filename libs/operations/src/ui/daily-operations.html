@@ -28,6 +28,9 @@
         }
       </div>
     }
+    @if (status() === 'success') {
+      <app-view-switch [(view)]="view" />
+    }
   </app-page-header>
 
   @if (actionProblem(); as current) {
@@ -140,7 +143,7 @@
           <app-page-state kind="empty" [message]="text().filter.noMatch" />
         } @else {
           <div class="ro-table-scroll">
-            <table class="ro-table-stack">
+            <table class="ro-table-stack" [class.ro-table-cards]="view() === 'cards'">
               <thead>
                 <tr>
                   <th>{{ text().day.time }}</th>

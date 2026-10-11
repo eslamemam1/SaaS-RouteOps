@@ -17,7 +17,7 @@ Multi-tenant operations app for staff transportation companies.
 - `libs/reports` counts the trips done each month and their revenue per client company, route, vehicle, and driver, subtracts the month's expenses to show net profit, each vehicle's profit, and each route's driver, vehicle, and company shares, and lists the days nobody opened.
 - `libs/shared/supabase` holds the single Supabase client, the signed-in route guard, and the guard that sends a signed-in visitor from a public page to the dashboard.
 - `libs/shared/i18n` holds the current language and `injectText`.
-- `libs/shared/ui` is the design system: tokens from the Figma file, base styles, and the shared field, button, tag, alert, page states, form drawer, language switch, public site layout, and the dark public hero that the home, contact, sign-in, and sign-out pages share. Run `npm run lint:styles` to check that styles use the tokens.
+- `libs/shared/ui` is the design system: tokens from the Figma file, base styles, and the shared field, button, tag, alert, page states, form drawer, language switch, table or cards view switch for lists, public site layout, and the dark public hero that the home, contact, sign-in, and sign-out pages share. Run `npm run lint:styles` to check that styles use the tokens.
 - `libs/shared/money` holds the supported currencies and converts amounts to and from minor units.
 - Tag feature libraries `scope:<feature>` and `type:feature`.
 - `supabase/migrations` is the database source of truth. Local Supabase needs Docker.

@@ -346,6 +346,88 @@ tbody tr:last-child td {
   white-space: nowrap;
 }
 
+/* A .ro-table-stack that also has .ro-table-cards shows each row as a card; on a phone the stack rules below apply instead. */
+@media (width >= 640px) {
+  .ro-table-cards thead {
+    display: none;
+  }
+
+  .ro-table-cards {
+    display: block;
+    border-collapse: separate;
+  }
+
+  .ro-table-cards tbody {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--ro-list-card-min-width), 1fr));
+    gap: var(--ro-space-4);
+    padding: var(--ro-space-4);
+    background: var(--ro-bg-canvas);
+  }
+
+  .ro-table-cards tr {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ro-space-2);
+    padding: var(--ro-space-4);
+    border: var(--ro-border-width) solid var(--ro-border-default);
+    border-radius: var(--ro-radius-lg);
+    background: var(--ro-bg-surface);
+    box-shadow: var(--ro-shadow-card);
+    transition:
+      border-color var(--ro-motion-fast),
+      box-shadow var(--ro-motion-fast);
+  }
+
+  .ro-table-cards tbody tr:hover {
+    border-color: var(--ro-border-brand-subtle);
+    background: var(--ro-bg-surface);
+    box-shadow: var(--ro-shadow-raised);
+  }
+
+  .ro-table-cards td {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--ro-space-1) var(--ro-space-3);
+    padding: 0;
+    border-block-end: 0;
+  }
+
+  .ro-table-cards td:empty,
+  .ro-table-cards td:has(> bdi:only-child:empty) {
+    display: none;
+  }
+
+  .ro-table-cards td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 var(--ro-table-label-width);
+    color: var(--ro-text-secondary);
+    font-size: var(--ro-text-caption);
+    line-height: var(--ro-leading-caption);
+    font-weight: var(--ro-font-medium);
+  }
+
+  .ro-table-cards td:first-child {
+    padding-block-end: var(--ro-space-2);
+    border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+    font-size: var(--ro-text-heading-md);
+    line-height: var(--ro-leading-heading-md);
+    font-weight: var(--ro-font-semibold);
+  }
+
+  .ro-table-cards td:first-child::before {
+    display: none;
+  }
+
+  .ro-table-cards td.ro-actions {
+    margin-block-start: auto;
+    padding-block-start: var(--ro-space-3);
+    border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+    white-space: normal;
+  }
+}
+
 @media (width < 640px) {
   .ro-date-nav {
     display: grid;

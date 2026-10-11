@@ -9,9 +9,11 @@ import {
   Button,
   Field,
   FormDrawer,
+  injectListView,
   PageHeader,
   PageState,
   Tag,
+  ViewSwitch,
 } from '@routeops/shared/ui';
 import { ExpenseAccessError } from '../application/expense-access-error';
 import { ExpenseRepository } from '../application/expense-repository';
@@ -61,6 +63,7 @@ const noMonth: ExpenseMonth = { expenses: [], pay: [], rent: [] };
     PageState,
     RouterLink,
     Tag,
+    ViewSwitch,
   ],
   templateUrl: './expenses.html',
 })
@@ -71,6 +74,7 @@ export class Expenses {
 
   protected readonly text = injectText(expensesText);
   protected readonly addIcon = lucidePlus;
+  protected readonly view = injectListView('expenses');
   protected readonly today = localDate(new Date());
   protected readonly thisMonth = monthOf(this.today);
   protected readonly month = signal(this.thisMonth);

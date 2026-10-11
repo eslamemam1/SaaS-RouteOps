@@ -7,9 +7,11 @@ import {
   Alert,
   Button,
   FormDrawer,
+  injectListView,
   PageHeader,
   PageState,
   Tag,
+  ViewSwitch,
 } from '@routeops/shared/ui';
 import { DriverAccessError } from '../application/driver-access-error';
 import { DriverRepository } from '../application/driver-repository';
@@ -34,6 +36,7 @@ import { driversText } from './drivers-text';
     PageHeader,
     PageState,
     Tag,
+    ViewSwitch,
   ],
   templateUrl: './drivers.html',
 })
@@ -44,6 +47,7 @@ export class Drivers {
 
   protected readonly text = injectText(driversText);
   protected readonly addIcon = lucidePlus;
+  protected readonly view = injectListView('drivers');
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );

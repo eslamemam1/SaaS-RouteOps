@@ -1,0 +1,49 @@
+.app-view-switch {
+  display: inline-flex;
+  gap: var(--ro-space-1);
+  padding: var(--ro-space-1);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-surface);
+}
+
+.app-view-switch-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  min-block-size: calc(var(--ro-control-height) - var(--ro-space-2) - var(--ro-border-width) * 2);
+  padding-inline: var(--ro-space-3);
+  border: 0;
+  border-radius: var(--ro-radius-sm);
+  background: transparent;
+  color: var(--ro-text-secondary);
+  font: inherit;
+  font-size: var(--ro-text-body-sm);
+  font-weight: var(--ro-font-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--ro-motion-fast),
+    color var(--ro-motion-fast);
+}
+
+.app-view-switch-option:hover {
+  background: var(--ro-bg-hover);
+  color: var(--ro-text-primary);
+}
+
+.app-view-switch-option[aria-pressed='true'] {
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+}
+
+.app-view-switch-option:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-border-focus);
+  outline-offset: calc(var(--ro-focus-width) * -1);
+}
+
+/* On a phone every list already shows each row as a card. */
+@media (width < 640px) {
+  .app-view-switch {
+    display: none;
+  }
+}

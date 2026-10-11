@@ -8,6 +8,10 @@
   align-items: center;
 }
 
+.ro-table-cards .operations-no-reason {
+  display: none;
+}
+
 @media (width < 640px) {
   .operations-filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));

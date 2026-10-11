@@ -1,5 +1,8 @@
 <div class="ro-stack">
   <app-page-header [title]="text().list.title" [hint]="text().list.hint">
+    @if (status() === 'success') {
+      <app-view-switch [(view)]="view" />
+    }
     @if (status() === 'success' || status() === 'empty') {
       <button appButton type="button" (click)="add()">
         <ng-icon [svg]="addIcon" aria-hidden="true" />
@@ -32,7 +35,7 @@
     @case ('success') {
       <section class="ro-card">
         <div class="ro-table-scroll">
-          <table class="ro-table-stack">
+          <table class="ro-table-stack" [class.ro-table-cards]="view() === 'cards'">
             <thead>
               <tr>
                 <th>{{ text().list.fullName }}</th>

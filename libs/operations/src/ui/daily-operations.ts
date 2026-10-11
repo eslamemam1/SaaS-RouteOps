@@ -8,10 +8,12 @@ import {
   Button,
   Field,
   FormDrawer,
+  injectListView,
   PageHeader,
   PageState,
   Tag,
   Tone,
+  ViewSwitch,
 } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
@@ -78,6 +80,7 @@ const statusTones: Record<TripStatus, Tone> = {
     PageState,
     Tag,
     TripChangeForm,
+    ViewSwitch,
   ],
   templateUrl: './daily-operations.html',
   styleUrl: './daily-operations.css',
@@ -88,6 +91,7 @@ export class DailyOperations {
 
   protected readonly text = injectText(operationsText);
   protected readonly addIcon = lucidePlus;
+  protected readonly view = injectListView('operations');
   protected readonly today = localDate(new Date());
   protected readonly serviceDate = signal(this.today);
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(

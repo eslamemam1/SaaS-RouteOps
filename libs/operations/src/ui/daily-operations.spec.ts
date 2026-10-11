@@ -494,7 +494,7 @@ function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
 function pressed(harness: RouterTestingHarness): string {
   return (
     harness.routeNativeElement
-      ?.querySelector('[role="group"] button[aria-pressed="true"]')
+      ?.querySelector('.ro-card-body [role="group"] button[aria-pressed="true"]')
       ?.textContent?.trim() ?? ''
   );
 }

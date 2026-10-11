@@ -9,9 +9,11 @@ import {
   Button,
   Field,
   FormDrawer,
+  injectListView,
   PageHeader,
   PageState,
   Tag,
+  ViewSwitch,
 } from '@routeops/shared/ui';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
@@ -47,6 +49,7 @@ const noChoices: RouteChoices = { customers: [], vehicles: [], drivers: [] };
     RouteForm,
     RouterLink,
     Tag,
+    ViewSwitch,
   ],
   templateUrl: './transport-routes.html',
 })
@@ -56,6 +59,7 @@ export class TransportRoutes {
 
   protected readonly text = injectText(routesText);
   protected readonly addIcon = lucidePlus;
+  protected readonly view = injectListView('routes');
   private readonly language = inject(LanguageService).language;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
