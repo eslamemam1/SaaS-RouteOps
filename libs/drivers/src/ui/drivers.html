@@ -51,7 +51,7 @@
         </thead>
         <tbody>
           @for (driver of pages.items(); track driver.id) {
-          <tr>
+          <tr [attr.data-tone]="driver.active ? 'success' : 'neutral'">
             <td [attr.data-label]="text().list.fullName">
               <div class="ro-entity">
                 <app-avatar size="sm" [src]="driver.photo?.url ?? null" />
@@ -83,7 +83,7 @@
               </div>
             </td>
             <td class="ro-cell-status" [attr.data-label]="text().list.work">
-              <app-tag [tone]="driver.active ? 'success' : 'neutral'">
+              <app-tag dot [tone]="driver.active ? 'success' : 'neutral'">
                 {{ driver.active ? text().list.working : text().list.stopped }}
               </app-tag>
             </td>

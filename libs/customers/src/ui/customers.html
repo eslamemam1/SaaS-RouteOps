@@ -51,7 +51,7 @@
         </thead>
         <tbody>
           @for (customer of pages.items(); track customer.id) {
-          <tr>
+          <tr [attr.data-tone]="customer.active ? 'success' : 'neutral'">
             <td [attr.data-label]="text().list.name">
               <div class="ro-entity">
                 <span class="ro-entity-icon"
@@ -73,7 +73,7 @@
               {{ customer.address }}
             </td>
             <td class="ro-cell-status" [attr.data-label]="text().list.dealing">
-              <app-tag [tone]="customer.active ? 'success' : 'neutral'">
+              <app-tag dot [tone]="customer.active ? 'success' : 'neutral'">
                 {{ customer.active ? text().list.current : text().list.stopped
                 }}
               </app-tag>

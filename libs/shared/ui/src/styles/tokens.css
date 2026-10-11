@@ -175,6 +175,15 @@
   --ro-avatar-md: 44px;
   --ro-avatar-lg: 72px;
   --ro-card-status-room: 104px;
+  --ro-hover-lift: -2px;
+  --ro-glow-offset: 10px;
+  --ro-glow-blur: 32px;
+  --ro-glow-spread: -4px;
+  --ro-glow-neutral: color-mix(in srgb, var(--ro-slate-400) 40%, transparent);
+  --ro-glow-info: color-mix(in srgb, var(--ro-blue-600) 35%, transparent);
+  --ro-glow-success: color-mix(in srgb, var(--ro-green-600) 40%, transparent);
+  --ro-glow-warning: color-mix(in srgb, var(--ro-amber-500) 45%, transparent);
+  --ro-glow-danger: color-mix(in srgb, var(--ro-red-600) 35%, transparent);
   --ro-filter-min-width: 180px;
   --ro-card-min-height: 160px;
   --ro-table-label-width: 112px;
@@ -183,7 +192,8 @@
   --ro-pill-height: 34px;
   --ro-pill-count-on-brand: color-mix(in srgb, var(--ro-slate-0) 22%, transparent);
   --ro-dot-size: 8px;
-  --ro-time-badge-width: 64px;
+  /* Wide enough for the widest 12-hour time, such as 10:08 AM, so every badge is the same size. */
+  --ro-time-badge-width: 100px;
   --ro-site-width: 1120px;
   --ro-content-max-width: 1440px;
   --ro-headline-width: 20ch;

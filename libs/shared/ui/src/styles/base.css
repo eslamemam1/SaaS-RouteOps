@@ -413,7 +413,10 @@ label.ro-chip:has(input:focus-visible) {
   transform: scaleX(-1);
 }
 
-/* A trip's departure time with its direction under it; outbound is blue, return is amber. */
+/*
+ * A trip's departure time with its direction under it. The badge stays grey so a status keeps
+ * the colour; only the direction word is blue for outbound and amber for return.
+ */
 .ro-trip-time {
   display: inline-grid;
   flex: none;
@@ -421,9 +424,9 @@ label.ro-chip:has(input:focus-visible) {
   min-inline-size: var(--ro-time-badge-width);
   padding-block: var(--ro-space-1);
   padding-inline: var(--ro-space-2);
-  border: var(--ro-border-width) solid var(--ro-border-brand-subtle);
+  border: var(--ro-border-width) solid var(--ro-border-default);
   border-radius: var(--ro-radius-md);
-  background: var(--ro-bg-brand-subtle);
+  background: var(--ro-bg-hover);
   color: var(--ro-text-brand);
   font-size: var(--ro-text-caption);
   line-height: var(--ro-leading-caption);
@@ -432,6 +435,7 @@ label.ro-chip:has(input:focus-visible) {
 
 .ro-trip-time > bdi {
   color: var(--ro-text-primary);
+  white-space: nowrap;
   font-size: var(--ro-text-heading-md);
   line-height: var(--ro-leading-heading-md);
   font-weight: var(--ro-font-bold);
@@ -450,9 +454,9 @@ label.ro-chip:has(input:focus-visible) {
   gap: var(--ro-space-1);
   padding-block: calc(var(--ro-space-1) / 2);
   padding-inline: var(--ro-space-2);
-  border: var(--ro-border-width) solid var(--ro-border-brand-subtle);
+  border: var(--ro-border-width) solid var(--ro-border-default);
   border-radius: var(--ro-radius-sm);
-  background: var(--ro-bg-brand-subtle);
+  background: var(--ro-bg-hover);
   color: var(--ro-text-brand);
   font-size: var(--ro-text-caption);
   line-height: var(--ro-leading-caption);
@@ -467,8 +471,6 @@ label.ro-chip:has(input:focus-visible) {
 
 .ro-trip-time[data-direction='return'],
 .ro-time-chip[data-direction='return'] {
-  border-color: var(--ro-border-warning-subtle);
-  background: var(--ro-bg-accent-subtle);
   color: var(--ro-text-accent);
 }
 
@@ -687,6 +689,49 @@ a.ro-card:hover,
   min-block-size: var(--ro-card-min-height);
 }
 
+/*
+ * Something with a tone, such as a trip card, a figure, or an alert, shows it as a soft glow
+ * behind it on hover rather than as a coloured edge. --ro-glow-shadow is declared on the
+ * element itself, because a custom property takes the values of the element it is declared on.
+ */
+[data-tone],
+.ro-stat {
+  --ro-glow-shadow:
+    0 var(--ro-glow-offset) var(--ro-glow-blur) var(--ro-glow-spread)
+      var(--ro-glow, var(--ro-glow-neutral)),
+    var(--ro-shadow-card);
+}
+
+[data-tone='neutral'] {
+  --ro-glow: var(--ro-glow-neutral);
+  --ro-tone-subtle: var(--ro-bg-subtle);
+  --ro-tone-border: var(--ro-border-default);
+}
+
+[data-tone='info'] {
+  --ro-glow: var(--ro-glow-info);
+  --ro-tone-subtle: var(--ro-bg-brand-subtle);
+  --ro-tone-border: var(--ro-border-brand-subtle);
+}
+
+[data-tone='success'] {
+  --ro-glow: var(--ro-glow-success);
+  --ro-tone-subtle: var(--ro-bg-success-subtle);
+  --ro-tone-border: var(--ro-border-success-subtle);
+}
+
+[data-tone='warning'] {
+  --ro-glow: var(--ro-glow-warning);
+  --ro-tone-subtle: var(--ro-bg-warning-subtle);
+  --ro-tone-border: var(--ro-border-warning-subtle);
+}
+
+[data-tone='danger'] {
+  --ro-glow: var(--ro-glow-danger);
+  --ro-tone-subtle: var(--ro-bg-danger-subtle);
+  --ro-tone-border: var(--ro-border-danger-subtle);
+}
+
 .ro-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--ro-card-min-width), 1fr));
@@ -694,29 +739,28 @@ a.ro-card:hover,
 }
 
 .ro-stat {
+  --ro-glow: var(--ro-glow-info);
   position: relative;
   display: grid;
   align-content: start;
   gap: var(--ro-space-2);
-  overflow: hidden;
   padding: var(--ro-space-5);
+  transition:
+    box-shadow var(--ro-motion-fast),
+    translate var(--ro-motion-fast);
 }
 
-.ro-stat::before {
-  content: '';
-  position: absolute;
-  inset-block-start: 0;
-  inset-inline: 0;
-  block-size: var(--ro-indicator-width);
-  background: var(--ro-bg-brand);
+.ro-stat:hover {
+  box-shadow: var(--ro-glow-shadow);
+  translate: 0 var(--ro-hover-lift);
 }
 
-.ro-stat-success::before {
-  background: var(--ro-bg-success);
+.ro-stat-success {
+  --ro-glow: var(--ro-glow-success);
 }
 
-.ro-stat-danger::before {
-  background: var(--ro-bg-danger);
+.ro-stat-danger {
+  --ro-glow: var(--ro-glow-danger);
 }
 
 .ro-stat-danger .ro-stat-value {
@@ -878,17 +922,22 @@ a.ro-entity-name:hover {
   .ro-table-cards tbody {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(var(--ro-list-card-min-width), 1fr));
-    align-items: start;
     gap: var(--ro-space-4);
     padding: var(--ro-space-4);
     background: var(--ro-bg-canvas);
   }
 
+  /*
+   * Cards in a row are as tall as the tallest, and each footer stays at the bottom: the fields fill
+   * the first rows, the spare height goes to the 1fr row, and .ro-actions takes the last one.
+   * Rows have no gap, because empty rows would still keep theirs; each field pads its own top.
+   */
   .ro-table-cards tr {
     position: relative;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--ro-space-4);
+    grid-template-rows: repeat(12, auto) 1fr auto;
+    column-gap: var(--ro-space-4);
     padding: var(--ro-space-5);
     border: var(--ro-border-width) solid var(--ro-border-default);
     border-radius: var(--ro-radius-lg);
@@ -896,13 +945,24 @@ a.ro-entity-name:hover {
     box-shadow: var(--ro-shadow-card);
     transition:
       border-color var(--ro-motion-fast),
-      box-shadow var(--ro-motion-fast);
+      box-shadow var(--ro-motion-fast),
+      translate var(--ro-motion-fast);
   }
 
+  /*
+   * Cards stay white; the status tag is the only colour at rest. On hover a card rises, and
+   * one whose row carries a data-tone, such as a trip's status, takes that tone's border and glow.
+   */
   .ro-table-cards tbody tr:hover {
     border-color: var(--ro-border-brand-subtle);
     background: var(--ro-bg-surface);
     box-shadow: var(--ro-shadow-raised);
+    translate: 0 var(--ro-hover-lift);
+  }
+
+  .ro-table-cards tbody tr[data-tone]:hover {
+    border-color: var(--ro-tone-border);
+    box-shadow: var(--ro-glow-shadow);
   }
 
   .ro-table-cards td {
@@ -912,6 +972,7 @@ a.ro-entity-name:hover {
     gap: var(--ro-space-1);
     min-inline-size: 0;
     padding: 0;
+    padding-block-start: var(--ro-space-4);
     border-block-end: 0;
     overflow-wrap: anywhere;
   }
@@ -932,6 +993,7 @@ a.ro-entity-name:hover {
   .ro-table-cards td:first-child {
     grid-column: 1 / -1;
     align-items: stretch;
+    padding-block-start: 0;
     padding-block-end: var(--ro-space-4);
     border-block-end: var(--ro-border-width) solid var(--ro-border-default);
     font-size: var(--ro-text-heading-md);
@@ -950,6 +1012,7 @@ a.ro-entity-name:hover {
 
   .ro-table-cards td.ro-cell-status {
     position: absolute;
+    padding-block-start: 0;
     inset-block-start: var(--ro-space-5);
     inset-inline-end: var(--ro-space-5);
   }
@@ -958,13 +1021,21 @@ a.ro-entity-name:hover {
     grid-column: 1 / -1;
   }
 
+  /* The footer is a grey strip that reaches the card's edges. */
   .ro-table-cards td.ro-actions {
+    grid-row: -2;
     grid-column: 1 / -1;
+    margin-block: var(--ro-space-4) calc(-1 * var(--ro-space-5));
+    margin-inline: calc(-1 * var(--ro-space-5));
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    padding-block-start: var(--ro-space-3);
+    padding-block: var(--ro-space-3);
+    padding-inline: var(--ro-space-5);
     border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+    border-end-start-radius: calc(var(--ro-radius-lg) - var(--ro-border-width));
+    border-end-end-radius: calc(var(--ro-radius-lg) - var(--ro-border-width));
+    background: var(--ro-bg-hover);
     white-space: normal;
   }
 
@@ -972,6 +1043,13 @@ a.ro-entity-name:hover {
   .ro-table-cards .ro-entity-icon {
     inline-size: var(--ro-avatar-md);
     block-size: var(--ro-avatar-md);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ro-table-cards tbody tr:hover,
+  .ro-stat:hover {
+    translate: none;
   }
 }
 

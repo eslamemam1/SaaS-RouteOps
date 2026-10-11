@@ -12,6 +12,14 @@
   white-space: nowrap;
 }
 
+.dot {
+  flex: none;
+  inline-size: var(--ro-dot-size);
+  block-size: var(--ro-dot-size);
+  border-radius: var(--ro-radius-full);
+  background: currentColor;
+}
+
 :host([data-tone='neutral']) {
   background: var(--ro-bg-subtle);
   border-color: var(--ro-border-default);

@@ -6,11 +6,14 @@ import {
   lucideCheck,
   lucideChevronLeft,
   lucideChevronRight,
+  lucideBus,
   lucideInfo,
+  lucideMessageSquareText,
   lucidePencil,
   lucidePlus,
   lucideTrash2,
   lucideTriangleAlert,
+  lucideUserRound,
 } from '@ng-icons/lucide';
 import {
   formatDayWithWeekday,
@@ -125,6 +128,9 @@ export class DailyOperations {
     change: lucidePencil,
     remove: lucideTrash2,
     conflict: lucideTriangleAlert,
+    driver: lucideUserRound,
+    vehicle: lucideBus,
+    notes: lucideMessageSquareText,
   };
   protected readonly view = injectListView('operations');
   protected readonly today = localDate(new Date());

@@ -31,20 +31,20 @@
 /* How many notifications there are; red when one is urgent, such as an expired license. */
 .notification-bell-count {
   position: absolute;
-  inset-block-start: var(--ro-space-1);
-  inset-inline-end: var(--ro-space-1);
+  inset-block-start: calc(var(--ro-space-1) / 2);
+  inset-inline-end: calc(var(--ro-space-1) / 2);
   display: inline-grid;
   place-items: center;
   min-inline-size: var(--ro-count-badge-size);
   block-size: var(--ro-count-badge-size);
-  padding-inline: var(--ro-space-1);
+  padding-inline: calc(var(--ro-space-1) / 2);
   border: var(--ro-focus-width) solid var(--ro-bg-surface);
   border-radius: var(--ro-radius-full);
   background: var(--ro-bg-accent);
   color: var(--ro-text-on-accent);
   font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
   font-weight: var(--ro-font-bold);
-  box-sizing: content-box;
 }
 
 .notification-bell-count-urgent {

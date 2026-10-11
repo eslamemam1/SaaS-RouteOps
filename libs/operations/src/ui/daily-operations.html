@@ -250,7 +250,7 @@
         </thead>
         <tbody>
           @for (trip of pages.items(); track trip.id) {
-          <tr [class.ro-trip-off]="trip.cancelled">
+          <tr [class.ro-trip-off]="trip.cancelled" [attr.data-tone]="statusTone(trip)">
             <td [attr.data-label]="text().day.trip">
               <div class="ro-entity">
                 <span class="ro-trip-time" [attr.data-direction]="trip.direction">
@@ -271,12 +271,24 @@
                 </span>
               </div>
             </td>
-            <td [attr.data-label]="text().day.crew">
-              <span class="ro-entity-text">
-                <span class="operations-driver" [class.operations-unset]="!trip.driverId">
-                  {{ label(choices().drivers, trip.driverId) }}
+            <td class="ro-cell-wide operations-crew" [attr.data-label]="text().day.crew">
+              <span class="operations-crew-list">
+                <span class="operations-crew-item operations-driver">
+                  <ng-icon
+                    [svg]="icons.driver"
+                    [attr.title]="text().extra.driver"
+                    aria-hidden="true"
+                  />
+                  <bdi [class.operations-unset]="!trip.driverId">{{
+                    label(choices().drivers, trip.driverId)
+                  }}</bdi>
                 </span>
-                <span class="ro-entity-detail operations-vehicle">
+                <span class="operations-crew-item operations-vehicle">
+                  <ng-icon
+                    [svg]="icons.vehicle"
+                    [attr.title]="text().extra.vehicle"
+                    aria-hidden="true"
+                  />
                   <bdi [class.operations-unset]="!trip.vehicleId">{{
                     label(choices().vehicles, trip.vehicleId)
                   }}</bdi>
@@ -288,12 +300,12 @@
               </span>
             </td>
             <td class="ro-cell-status" [attr.data-label]="text().day.status">
-              <app-tag [tone]="statusTone(trip)"
+              <app-tag dot [tone]="statusTone(trip)"
                 >{{ text().statuses[statusOf(trip)] }}</app-tag
               >
             </td>
             <td
-              class="ro-cell-wide"
+              class="ro-cell-wide operations-details"
               [attr.data-label]="text().day.details"
               [class.operations-no-details]="
                 !trip.reason && !trip.notes && conflictsOf(trip).length === 0
@@ -301,9 +313,15 @@
             >
               <div class="ro-cell-stack">
                 @if (trip.reason) {
-                <span class="operations-reason">{{ text().reasons[trip.reason] }}</span>
+                <span class="operations-reason">
+                  <ng-icon [svg]="icons.info" aria-hidden="true" />
+                  {{ text().reasons[trip.reason] }}
+                </span>
                 } @if (trip.notes) {
-                <span class="hint">{{ trip.notes }}</span>
+                <span class="hint operations-notes">
+                  <ng-icon [svg]="icons.notes" aria-hidden="true" />
+                  {{ trip.notes }}
+                </span>
                 }
                 <app-conflict-list
                   [conflicts]="conflictsOf(trip)"

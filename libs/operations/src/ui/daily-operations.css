@@ -97,20 +97,45 @@
   margin-inline-start: auto;
 }
 
-.operations-driver {
-  font-weight: var(--ro-font-medium);
+.operations-crew-list {
+  display: grid;
+  gap: var(--ro-space-1);
 }
 
-.operations-vehicle {
+.operations-crew-item {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ro-space-2);
 }
 
+.operations-crew-item > ng-icon,
+.operations-reason > ng-icon,
+.operations-notes > ng-icon {
+  flex: none;
+  color: var(--ro-text-muted);
+}
+
+.operations-driver {
+  font-weight: var(--ro-font-medium);
+}
+
+.operations-vehicle {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}
+
 .operations-unset {
   color: var(--ro-text-muted);
   font-weight: var(--ro-font-regular);
+}
+
+.operations-reason,
+.operations-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ro-space-2);
 }
 
 .operations-reason {
@@ -141,6 +166,43 @@ td.operations-actions {
   font-size: var(--ro-text-heading-md);
 }
 
+/* On a card the icons say what each line is, so the crew and the details drop their labels. */
+.ro-table-cards td.operations-crew::before,
+.ro-table-cards td.operations-details::before {
+  display: none;
+}
+
+.ro-table-cards .operations-crew-list {
+  inline-size: 100%;
+  gap: var(--ro-space-2);
+  padding: var(--ro-space-3);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-hover);
+}
+
+.ro-table-cards .operations-vehicle {
+  color: var(--ro-text-primary);
+  font-size: var(--ro-text-body-md);
+  line-height: var(--ro-leading-body-md);
+}
+
+.ro-table-cards .operations-crew-item > ng-icon {
+  color: var(--ro-text-brand);
+}
+
+.ro-table-cards .ro-cell-stack {
+  inline-size: 100%;
+  justify-items: stretch;
+}
+
+.ro-table-cards .operations-reason,
+.ro-table-cards .operations-notes {
+  padding-inline: var(--ro-space-3);
+}
+
+.ro-table-cards .operations-reason {
+  color: var(--ro-text-secondary);
+}
 @media (width < 640px) {
   .operations-day-nav {
     padding-inline: var(--ro-space-4);

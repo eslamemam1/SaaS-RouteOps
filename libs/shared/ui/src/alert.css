@@ -5,11 +5,15 @@
   padding-block: var(--ro-space-3);
   padding-inline: var(--ro-space-4);
   border: var(--ro-border-width) solid var(--alert-border, transparent);
-  border-inline-start: var(--ro-indicator-width) solid var(--alert-accent);
   border-radius: var(--ro-radius-md);
   font-size: var(--ro-text-body-sm);
   line-height: var(--ro-leading-body-sm);
   color: var(--ro-text-primary);
+  transition: box-shadow var(--ro-motion-fast);
+}
+
+:host(:hover) {
+  box-shadow: var(--ro-glow-shadow);
 }
 
 :host([data-tone='info']),

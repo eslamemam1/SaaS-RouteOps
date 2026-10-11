@@ -71,7 +71,7 @@
         </thead>
         <tbody>
           @for (vehicle of pages.items(); track vehicle.id) {
-          <tr>
+          <tr [attr.data-tone]="vehicle.active ? 'success' : 'neutral'">
             <td [attr.data-label]="text().list.plateNumber">
               <div class="ro-entity">
                 <span class="ro-entity-icon"
@@ -113,7 +113,7 @@
               </div>
             </td>
             <td class="ro-cell-status" [attr.data-label]="text().list.service">
-              <app-tag [tone]="vehicle.active ? 'success' : 'neutral'">
+              <app-tag dot [tone]="vehicle.active ? 'success' : 'neutral'">
                 {{ vehicle.active ? text().list.inService :
                 text().list.outOfService }}
               </app-tag>

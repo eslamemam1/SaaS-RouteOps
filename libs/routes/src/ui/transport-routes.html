@@ -91,7 +91,7 @@
         </thead>
         <tbody>
           @for (route of pages.items(); track route.id) {
-          <tr>
+          <tr [attr.data-tone]="route.active ? 'success' : 'neutral'">
             <td [attr.data-label]="text().list.name">
               <div class="ro-entity">
                 <span class="ro-entity-icon"
@@ -148,7 +148,7 @@
               }
             </td>
             <td class="ro-cell-status" [attr.data-label]="text().list.work">
-              <app-tag [tone]="route.active ? 'success' : 'neutral'">
+              <app-tag dot [tone]="route.active ? 'success' : 'neutral'">
                 {{ route.active ? text().list.working : text().list.stopped }}
               </app-tag>
             </td>
