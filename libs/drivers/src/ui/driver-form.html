@@ -1,4 +1,46 @@
 <form class="ro-form" (submit)="onSubmit($event)">
+  <div class="driver-photo">
+    <app-avatar size="lg" [name]="model().fullName" [src]="photoPreview()" />
+    <div class="driver-photo-text">
+      <span class="driver-photo-label">
+        {{ text().form.photo }}
+        <span class="hint">{{ text().form.optional }}</span>
+      </span>
+      <p class="hint">{{ text().form.photoHint }}</p>
+      <div class="ro-toolbar">
+        <input
+          #photoPicker
+          class="driver-photo-picker"
+          type="file"
+          accept="image/*"
+          (change)="onPhotoPicked($event)"
+        />
+        <button
+          appButton="secondary"
+          size="sm"
+          type="button"
+          [disabled]="shrinking()"
+          (click)="photoPicker.click()"
+        >
+          {{ photoPreview() ? text().form.changePhoto : text().form.choosePhoto
+          }}
+        </button>
+        @if (photoPreview()) {
+        <button
+          appButton="text"
+          size="sm"
+          type="button"
+          (click)="removePhoto()"
+        >
+          {{ text().form.removePhoto }}
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+  @if (photoProblem(); as current) {
+  <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+  }
   <app-field
     [label]="text().form.fullName"
     [hint]="text().form.fullNameHint"
@@ -6,7 +48,11 @@
   >
     <input type="text" [formField]="driverForm.fullName" />
   </app-field>
-  <app-field [label]="text().form.phone" [optional]="true" [control]="driverForm.phone">
+  <app-field
+    [label]="text().form.phone"
+    [optional]="true"
+    [control]="driverForm.phone"
+  >
     <input type="tel" dir="ltr" [formField]="driverForm.phone" />
   </app-field>
   <app-field
@@ -15,7 +61,12 @@
     [optional]="true"
     [control]="driverForm.nationalId"
   >
-    <input type="text" inputmode="numeric" dir="ltr" [formField]="driverForm.nationalId" />
+    <input
+      type="text"
+      inputmode="numeric"
+      dir="ltr"
+      [formField]="driverForm.nationalId"
+    />
   </app-field>
   <app-field
     [label]="text().form.licenseNumber"
@@ -38,48 +89,69 @@
     <app-field [label]="text().form.payType">
       <select [formField]="driverForm.payType">
         @for (payType of payTypes; track payType) {
-          <option [value]="payType">{{ text().payTypes[payType] }}</option>
+        <option [value]="payType">{{ text().payTypes[payType] }}</option>
         }
       </select>
     </app-field>
     @if (model().payType === 'salary') {
-      <app-field
-        [label]="text().form.monthlySalary"
-        [hint]="text().form.amountHint"
-        [control]="driverForm.monthlySalary"
-      >
-        <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.monthlySalary" />
-        <bdi>{{ organization().currency }}</bdi>
-      </app-field>
-      <app-field
-        [label]="text().form.salaryTrips"
-        [hint]="text().form.salaryTripsHint"
-        [optional]="true"
-        [control]="driverForm.salaryTrips"
-      >
-        <input type="text" inputmode="numeric" dir="ltr" [formField]="driverForm.salaryTrips" />
-      </app-field>
-    }
-    @if (model().payType === 'perTrip' || (model().payType === 'salary' && model().salaryTrips.trim())) {
-      <p class="hint">
-        {{ model().payType === 'salary' ? text().form.extraPayHint : text().form.perTripHint }}
-      </p>
-      <app-field
-        [label]="text().form.outboundPay"
-        [hint]="text().form.amountHint"
-        [control]="driverForm.outboundPay"
-      >
-        <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.outboundPay" />
-        <bdi>{{ organization().currency }}</bdi>
-      </app-field>
-      <app-field
-        [label]="text().form.returnPay"
-        [hint]="text().form.amountHint"
-        [control]="driverForm.returnPay"
-      >
-        <input type="text" inputmode="decimal" dir="ltr" [formField]="driverForm.returnPay" />
-        <bdi>{{ organization().currency }}</bdi>
-      </app-field>
+    <app-field
+      [label]="text().form.monthlySalary"
+      [hint]="text().form.amountHint"
+      [control]="driverForm.monthlySalary"
+    >
+      <input
+        type="text"
+        inputmode="decimal"
+        dir="ltr"
+        [formField]="driverForm.monthlySalary"
+      />
+      <bdi>{{ organization().currency }}</bdi>
+    </app-field>
+    <app-field
+      [label]="text().form.salaryTrips"
+      [hint]="text().form.salaryTripsHint"
+      [optional]="true"
+      [control]="driverForm.salaryTrips"
+    >
+      <input
+        type="text"
+        inputmode="numeric"
+        dir="ltr"
+        [formField]="driverForm.salaryTrips"
+      />
+    </app-field>
+    } @if (model().payType === 'perTrip' || (model().payType === 'salary' &&
+    model().salaryTrips.trim())) {
+    <p class="hint">
+      {{ model().payType === 'salary' ? text().form.extraPayHint :
+      text().form.perTripHint }}
+    </p>
+    <app-field
+      [label]="text().form.outboundPay"
+      [hint]="text().form.amountHint"
+      [control]="driverForm.outboundPay"
+    >
+      <input
+        type="text"
+        inputmode="decimal"
+        dir="ltr"
+        [formField]="driverForm.outboundPay"
+      />
+      <bdi>{{ organization().currency }}</bdi>
+    </app-field>
+    <app-field
+      [label]="text().form.returnPay"
+      [hint]="text().form.amountHint"
+      [control]="driverForm.returnPay"
+    >
+      <input
+        type="text"
+        inputmode="decimal"
+        dir="ltr"
+        [formField]="driverForm.returnPay"
+      />
+      <bdi>{{ organization().currency }}</bdi>
+    </app-field>
     }
   </fieldset>
   <app-field
@@ -95,10 +167,10 @@
     {{ text().form.active }}
   </label>
   @if (problem(); as current) {
-    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+  <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
   <div class="ro-toolbar">
-    <button appButton type="submit" [disabled]="submitting()">
+    <button appButton type="submit" [disabled]="submitting() || shrinking()">
       {{ driver() ? text().form.save : text().form.add }}
     </button>
     <button appButton="secondary" type="button" (click)="cancelled.emit()">

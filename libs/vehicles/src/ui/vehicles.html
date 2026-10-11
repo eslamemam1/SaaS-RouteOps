@@ -1,128 +1,147 @@
 <div class="ro-stack">
   <app-page-header [title]="text().list.title" [hint]="text().list.hint">
     @if (status() === 'success') {
-      <app-view-switch [(view)]="view" />
-    }
-    @if (status() === 'success' || status() === 'empty') {
-      <button appButton type="button" (click)="add()">
-        <ng-icon [svg]="addIcon" aria-hidden="true" />
-        {{ text().list.add }}
-      </button>
+    <app-view-switch [(view)]="view" />
+    } @if (status() === 'success' || status() === 'empty') {
+    <button appButton type="button" (click)="add()">
+      <ng-icon [svg]="addIcon" aria-hidden="true" />
+      {{ text().list.add }}
+    </button>
     }
   </app-page-header>
 
   @if (outcome(); as done) {
-    <app-alert tone="success" [dismissible]="true" (dismissed)="outcome.set(null)">
-      {{ text().form[done] }}
-    </app-alert>
-  }
-
-  @switch (status()) {
-    @case ('loading') {
-      <app-page-state kind="loading" [message]="text().list.loading" />
-    }
-    @case ('error') {
-      <app-page-state kind="error" [message]="text().problems[problem()]" />
-    }
-    @case ('empty') {
-      <app-page-state kind="empty" [message]="text().list.empty">
-        <button appButton type="button" (click)="add()">
-          <ng-icon [svg]="addIcon" aria-hidden="true" />
-          {{ text().list.add }}
-        </button>
-      </app-page-state>
-    }
-    @case ('success') {
-      <section class="ro-card">
-        <div class="ro-card-header ro-toolbar">
-          <app-field class="ro-filter" [label]="text().list.filter">
-            <select [value]="ownershipFilter()" (change)="filterBy($any($event.target).value)">
-              <option value="">{{ text().list.allOwnerships }}</option>
-              @for (ownership of ownerships; track ownership) {
-                <option [value]="ownership">{{ text().ownerships[ownership] }}</option>
-              }
-            </select>
-          </app-field>
-        </div>
-        @if (visibleVehicles().length === 0) {
-          <app-page-state kind="empty" [message]="text().list.noMatch" />
-        } @else {
-          <div class="ro-table-scroll">
-            <table class="ro-table-stack" [class.ro-table-cards]="view() === 'cards'">
-              <thead>
-                <tr>
-                  <th>{{ text().list.plateNumber }}</th>
-                  <th>{{ text().list.type }}</th>
-                  <th>{{ text().list.ownership }}</th>
-                  <th>{{ text().list.model }}</th>
-                  <th>{{ text().list.year }}</th>
-                  <th>{{ text().list.seats }}</th>
-                  <th>{{ text().list.licenseExpiry }}</th>
-                  <th>{{ text().list.service }}</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (vehicle of visibleVehicles(); track vehicle.id) {
-                  <tr>
-                    <td [attr.data-label]="text().list.plateNumber">
-                      <bdi>{{ vehicle.plateNumber }}</bdi>
-                    </td>
-                    <td [attr.data-label]="text().list.type">{{ text().types[vehicle.type] }}</td>
-                    <td [attr.data-label]="text().list.ownership">
-                      <div class="ro-cell-stack">
-                        <app-tag>{{ text().ownerships[vehicle.ownership] }}</app-tag>
-                        @if (vehicle.ownerName) {
-                          <span class="hint">{{ vehicle.ownerName }}</span>
-                        }
-                        @if (vehicle.ownerPhone) {
-                          <span class="hint ro-numeric"><bdi>{{ vehicle.ownerPhone }}</bdi></span>
-                        }
-                      </div>
-                    </td>
-                    <td [attr.data-label]="text().list.model">{{ vehicle.model }}</td>
-                    <td class="ro-numeric" [attr.data-label]="text().list.year">
-                      <bdi>{{ vehicle.year }}</bdi>
-                    </td>
-                    <td class="ro-numeric" [attr.data-label]="text().list.seats">
-                      <bdi>{{ vehicle.seats }}</bdi>
-                    </td>
-                    <td [attr.data-label]="text().list.licenseExpiry">
-                      <div class="ro-cell-stack">
-                        <bdi class="ro-numeric">{{ vehicle.licenseExpiry }}</bdi>
-                        @if (expired(vehicle)) {
-                          <app-tag tone="danger">{{ text().list.expired }}</app-tag>
-                        }
-                      </div>
-                    </td>
-                    <td [attr.data-label]="text().list.service">
-                      <app-tag [tone]="vehicle.active ? 'success' : 'neutral'">
-                        {{ vehicle.active ? text().list.inService : text().list.outOfService }}
-                      </app-tag>
-                    </td>
-                    <td class="ro-actions">
-                      <button appButton="text" size="sm" type="button" (click)="edit(vehicle)">
-                        {{ text().list.edit }}
-                      </button>
-                    </td>
-                  </tr>
+  <app-alert
+    tone="success"
+    [dismissible]="true"
+    (dismissed)="outcome.set(null)"
+  >
+    {{ text().form[done] }}
+  </app-alert>
+  } @switch (status()) { @case ('loading') {
+  <app-page-state kind="loading" [message]="text().list.loading" />
+  } @case ('error') {
+  <app-page-state kind="error" [message]="text().problems[problem()]" />
+  } @case ('empty') {
+  <app-page-state kind="empty" [message]="text().list.empty">
+    <button appButton type="button" (click)="add()">
+      <ng-icon [svg]="addIcon" aria-hidden="true" />
+      {{ text().list.add }}
+    </button>
+  </app-page-state>
+  } @case ('success') {
+  <section class="ro-card">
+    <div class="ro-card-header ro-toolbar">
+      <app-field class="ro-filter" [label]="text().list.filter">
+        <select
+          [value]="ownershipFilter()"
+          (change)="filterBy($any($event.target).value)"
+        >
+          <option value="">{{ text().list.allOwnerships }}</option>
+          @for (ownership of ownerships; track ownership) {
+          <option [value]="ownership">
+            {{ text().ownerships[ownership] }}
+          </option>
+          }
+        </select>
+      </app-field>
+    </div>
+    @if (visibleVehicles().length === 0) {
+    <app-page-state kind="empty" [message]="text().list.noMatch" />
+    } @else {
+    <div class="ro-table-scroll">
+      <table class="ro-table-stack" [class.ro-table-cards]="view() === 'cards'">
+        <thead>
+          <tr>
+            <th>{{ text().list.plateNumber }}</th>
+            <th>{{ text().list.type }}</th>
+            <th>{{ text().list.ownership }}</th>
+            <th>{{ text().list.model }}</th>
+            <th>{{ text().list.year }}</th>
+            <th>{{ text().list.seats }}</th>
+            <th>{{ text().list.licenseExpiry }}</th>
+            <th>{{ text().list.service }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (vehicle of visibleVehicles(); track vehicle.id) {
+          <tr>
+            <td [attr.data-label]="text().list.plateNumber">
+              <div class="ro-entity">
+                <span class="ro-entity-icon"
+                  ><ng-icon [svg]="vehicleIcon" aria-hidden="true"
+                /></span>
+                <bdi class="ro-entity-name">{{ vehicle.plateNumber }}</bdi>
+              </div>
+            </td>
+            <td [attr.data-label]="text().list.type">
+              {{ text().types[vehicle.type] }}
+            </td>
+            <td [attr.data-label]="text().list.ownership">
+              <div class="ro-cell-stack">
+                <app-tag>{{ text().ownerships[vehicle.ownership] }}</app-tag>
+                @if (vehicle.ownerName) {
+                <span class="hint">{{ vehicle.ownerName }}</span>
+                } @if (vehicle.ownerPhone) {
+                <span class="hint ro-numeric"
+                  ><bdi>{{ vehicle.ownerPhone }}</bdi></span
+                >
                 }
-              </tbody>
-            </table>
-          </div>
-        }
-      </section>
+              </div>
+            </td>
+            <td [attr.data-label]="text().list.model">{{ vehicle.model }}</td>
+            <td class="ro-numeric" [attr.data-label]="text().list.year">
+              <bdi>{{ vehicle.year }}</bdi>
+            </td>
+            <td class="ro-numeric" [attr.data-label]="text().list.seats">
+              <bdi>{{ vehicle.seats }}</bdi>
+            </td>
+            <td [attr.data-label]="text().list.licenseExpiry">
+              <div class="ro-cell-stack">
+                <bdi class="ro-numeric">{{ vehicle.licenseExpiry }}</bdi>
+                @if (expired(vehicle)) {
+                <app-tag tone="danger">{{ text().list.expired }}</app-tag>
+                }
+              </div>
+            </td>
+            <td class="ro-cell-status" [attr.data-label]="text().list.service">
+              <app-tag [tone]="vehicle.active ? 'success' : 'neutral'">
+                {{ vehicle.active ? text().list.inService :
+                text().list.outOfService }}
+              </app-tag>
+            </td>
+            <td class="ro-actions">
+              <button
+                appButton="text"
+                size="sm"
+                type="button"
+                (click)="edit(vehicle)"
+              >
+                {{ text().list.edit }}
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
     }
-  }
+  </section>
+  } }
 </div>
 
 @if (organization(); as current) {
-  <app-form-drawer [title]="formTitle()" [open]="formOpen()" (openChange)="onDrawer($event)">
-    <app-vehicle-form
-      [organization]="current"
-      [vehicle]="editing()"
-      (saved)="onSaved($event)"
-      (cancelled)="stopEditing()"
-    />
-  </app-form-drawer>
+<app-form-drawer
+  [title]="formTitle()"
+  [open]="formOpen()"
+  (openChange)="onDrawer($event)"
+>
+  <app-vehicle-form
+    [organization]="current"
+    [vehicle]="editing()"
+    (saved)="onSaved($event)"
+    (cancelled)="stopEditing()"
+  />
+</app-form-drawer>
 }

@@ -1,89 +1,108 @@
 <div class="ro-stack">
   <app-page-header [title]="text().list.title" [hint]="text().list.hint">
     @if (status() === 'success') {
-      <app-view-switch [(view)]="view" />
-    }
-    @if (status() === 'success' || status() === 'empty') {
-      <button appButton type="button" (click)="add()">
-        <ng-icon [svg]="addIcon" aria-hidden="true" />
-        {{ text().list.add }}
-      </button>
+    <app-view-switch [(view)]="view" />
+    } @if (status() === 'success' || status() === 'empty') {
+    <button appButton type="button" (click)="add()">
+      <ng-icon [svg]="addIcon" aria-hidden="true" />
+      {{ text().list.add }}
+    </button>
     }
   </app-page-header>
 
   @if (outcome(); as done) {
-    <app-alert tone="success" [dismissible]="true" (dismissed)="outcome.set(null)">
-      {{ text().form[done] }}
-    </app-alert>
-  }
-
-  @switch (status()) {
-    @case ('loading') {
-      <app-page-state kind="loading" [message]="text().list.loading" />
-    }
-    @case ('error') {
-      <app-page-state kind="error" [message]="text().problems[problem()]" />
-    }
-    @case ('empty') {
-      <app-page-state kind="empty" [message]="text().list.empty">
-        <button appButton type="button" (click)="add()">
-          <ng-icon [svg]="addIcon" aria-hidden="true" />
-          {{ text().list.add }}
-        </button>
-      </app-page-state>
-    }
-    @case ('success') {
-      <section class="ro-card">
-        <div class="ro-table-scroll">
-          <table class="ro-table-stack" [class.ro-table-cards]="view() === 'cards'">
-            <thead>
-              <tr>
-                <th>{{ text().list.name }}</th>
-                <th>{{ text().list.contactName }}</th>
-                <th>{{ text().list.phone }}</th>
-                <th>{{ text().list.email }}</th>
-                <th>{{ text().list.address }}</th>
-                <th>{{ text().list.dealing }}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (customer of customers(); track customer.id) {
-                <tr>
-                  <td [attr.data-label]="text().list.name">{{ customer.name }}</td>
-                  <td [attr.data-label]="text().list.contactName">{{ customer.contactName }}</td>
-                  <td class="ro-numeric" [attr.data-label]="text().list.phone">
-                    <bdi>{{ customer.phone }}</bdi>
-                  </td>
-                  <td [attr.data-label]="text().list.email"><bdi>{{ customer.email }}</bdi></td>
-                  <td [attr.data-label]="text().list.address">{{ customer.address }}</td>
-                  <td [attr.data-label]="text().list.dealing">
-                    <app-tag [tone]="customer.active ? 'success' : 'neutral'">
-                      {{ customer.active ? text().list.current : text().list.stopped }}
-                    </app-tag>
-                  </td>
-                  <td class="ro-actions">
-                    <button appButton="text" size="sm" type="button" (click)="edit(customer)">
-                      {{ text().list.edit }}
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </section>
-    }
-  }
+  <app-alert
+    tone="success"
+    [dismissible]="true"
+    (dismissed)="outcome.set(null)"
+  >
+    {{ text().form[done] }}
+  </app-alert>
+  } @switch (status()) { @case ('loading') {
+  <app-page-state kind="loading" [message]="text().list.loading" />
+  } @case ('error') {
+  <app-page-state kind="error" [message]="text().problems[problem()]" />
+  } @case ('empty') {
+  <app-page-state kind="empty" [message]="text().list.empty">
+    <button appButton type="button" (click)="add()">
+      <ng-icon [svg]="addIcon" aria-hidden="true" />
+      {{ text().list.add }}
+    </button>
+  </app-page-state>
+  } @case ('success') {
+  <section class="ro-card">
+    <div class="ro-table-scroll">
+      <table class="ro-table-stack" [class.ro-table-cards]="view() === 'cards'">
+        <thead>
+          <tr>
+            <th>{{ text().list.name }}</th>
+            <th>{{ text().list.contactName }}</th>
+            <th>{{ text().list.phone }}</th>
+            <th>{{ text().list.email }}</th>
+            <th>{{ text().list.address }}</th>
+            <th>{{ text().list.dealing }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (customer of customers(); track customer.id) {
+          <tr>
+            <td [attr.data-label]="text().list.name">
+              <div class="ro-entity">
+                <span class="ro-entity-icon"
+                  ><ng-icon [svg]="customerIcon" aria-hidden="true"
+                /></span>
+                <span class="ro-entity-name">{{ customer.name }}</span>
+              </div>
+            </td>
+            <td [attr.data-label]="text().list.contactName">
+              {{ customer.contactName }}
+            </td>
+            <td class="ro-numeric" [attr.data-label]="text().list.phone">
+              <bdi>{{ customer.phone }}</bdi>
+            </td>
+            <td [attr.data-label]="text().list.email">
+              <bdi>{{ customer.email }}</bdi>
+            </td>
+            <td class="ro-cell-wide" [attr.data-label]="text().list.address">
+              {{ customer.address }}
+            </td>
+            <td class="ro-cell-status" [attr.data-label]="text().list.dealing">
+              <app-tag [tone]="customer.active ? 'success' : 'neutral'">
+                {{ customer.active ? text().list.current : text().list.stopped
+                }}
+              </app-tag>
+            </td>
+            <td class="ro-actions">
+              <button
+                appButton="text"
+                size="sm"
+                type="button"
+                (click)="edit(customer)"
+              >
+                {{ text().list.edit }}
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  } }
 </div>
 
 @if (organization(); as current) {
-  <app-form-drawer [title]="formTitle()" [open]="formOpen()" (openChange)="onDrawer($event)">
-    <app-customer-form
-      [organization]="current"
-      [customer]="editing()"
-      (saved)="onSaved($event)"
-      (cancelled)="stopEditing()"
-    />
-  </app-form-drawer>
+<app-form-drawer
+  [title]="formTitle()"
+  [open]="formOpen()"
+  (openChange)="onDrawer($event)"
+>
+  <app-customer-form
+    [organization]="current"
+    [customer]="editing()"
+    (saved)="onSaved($event)"
+    (cancelled)="stopEditing()"
+  />
+</app-form-drawer>
 }

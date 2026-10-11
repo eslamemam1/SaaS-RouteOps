@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucidePlus } from '@ng-icons/lucide';
+import { lucideBuilding2, lucidePlus } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
 import {
   Alert,
@@ -45,6 +45,7 @@ export class Customers {
 
   protected readonly text = injectText(customersText);
   protected readonly addIcon = lucidePlus;
+  protected readonly customerIcon = lucideBuilding2;
   protected readonly view = injectListView('customers');
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',

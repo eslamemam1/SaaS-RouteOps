@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   input,
@@ -10,7 +11,7 @@ import {
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
-import { Alert, Button, Field } from '@routeops/shared/ui';
+import { Alert, Avatar, Button, Field } from '@routeops/shared/ui';
 import { DriverAccessError } from '../application/driver-access-error';
 import { DriverRepository } from '../application/driver-repository';
 import {
@@ -22,19 +23,33 @@ import {
   payTypes,
 } from '../domain/driver';
 import { driverDetailsSchema } from './driver-fields';
+import { shrinkPhoto } from './driver-photo';
 import { driversText } from './drivers-text';
+
+// null keeps the current photo.
+type PhotoChoice =
+  | { readonly photo: Blob; readonly preview: string }
+  | 'remove'
+  | null;
+
+// photoSaved is false when the details were saved but the photo was not.
+export interface DriverSaved {
+  readonly driver: Driver;
+  readonly photoSaved: boolean;
+}
 
 @Component({
   selector: 'app-driver-form',
-  imports: [Alert, Button, Field, FormField],
+  imports: [Alert, Avatar, Button, Field, FormField],
   templateUrl: './driver-form.html',
+  styleUrl: './driver-form.css',
 })
 export class DriverForm {
   private readonly repository = inject(DriverRepository);
 
   readonly organization = input.required<DriverOrganization>();
   readonly driver = input<Driver | null>(null);
-  readonly saved = output<Driver>();
+  readonly saved = output<DriverSaved>();
   readonly cancelled = output<void>();
 
   protected readonly text = injectText(driversText);
@@ -44,6 +59,16 @@ export class DriverForm {
   protected readonly submitting = signal(false);
   protected readonly problem = signal<DriverProblem | null>(null);
   protected readonly model = signal<DriverDetails>(emptyDriverDetails);
+  protected readonly photoChoice = signal<PhotoChoice>(null);
+  protected readonly shrinking = signal(false);
+  protected readonly photoProblem = signal<DriverProblem | null>(null);
+  protected readonly photoPreview = computed(() => {
+    const choice = this.photoChoice();
+    if (choice === 'remove') {
+      return null;
+    }
+    return choice ? choice.preview : (this.driver()?.photo?.url ?? null);
+  });
   protected readonly driverForm = form(this.model, (field) => {
     apply(
       field,
@@ -60,8 +85,34 @@ export class DriverForm {
       untracked(() => {
         this.driverForm().reset(details);
         this.problem.set(null);
+        this.choosePhotoOf(null);
+        this.photoProblem.set(null);
       });
     });
+    inject(DestroyRef).onDestroy(() => this.choosePhotoOf(null));
+  }
+
+  protected async onPhotoPicked(event: Event): Promise<void> {
+    const picker = event.target as HTMLInputElement;
+    const file = picker.files?.[0];
+    picker.value = '';
+    if (!file) {
+      return;
+    }
+    this.shrinking.set(true);
+    this.photoProblem.set(null);
+    const photo = await shrinkPhoto(file);
+    this.shrinking.set(false);
+    if (!photo) {
+      this.photoProblem.set('photo');
+      return;
+    }
+    this.choosePhotoOf({ photo, preview: URL.createObjectURL(photo) });
+  }
+
+  protected removePhoto(): void {
+    this.photoProblem.set(null);
+    this.choosePhotoOf('remove');
   }
 
   protected onSubmit(event: Event): void {
@@ -78,8 +129,10 @@ export class DriverForm {
               this.model(),
             )
           : await this.repository.add(this.organization(), this.model());
+        const result = await this.savePhoto(saved);
         this.driverForm().reset(emptyDriverDetails);
-        this.saved.emit(saved);
+        this.choosePhotoOf(null);
+        this.saved.emit(result);
         return undefined;
       } catch (error) {
         const problem =
@@ -90,6 +143,41 @@ export class DriverForm {
         this.submitting.set(false);
       }
     });
+  }
+
+  private async savePhoto(driver: Driver): Promise<DriverSaved> {
+    const choice = this.photoChoice();
+    try {
+      if (choice === 'remove') {
+        return {
+          driver: driver.photo
+            ? await this.repository.removePhoto(this.organization(), driver)
+            : driver,
+          photoSaved: true,
+        };
+      }
+      if (choice) {
+        return {
+          driver: await this.repository.setPhoto(
+            this.organization(),
+            driver,
+            choice.photo,
+          ),
+          photoSaved: true,
+        };
+      }
+      return { driver, photoSaved: true };
+    } catch {
+      return { driver, photoSaved: false };
+    }
+  }
+
+  private choosePhotoOf(choice: PhotoChoice): void {
+    const previous = this.photoChoice();
+    if (previous && previous !== 'remove') {
+      URL.revokeObjectURL(previous.preview);
+    }
+    this.photoChoice.set(choice);
   }
 }
 

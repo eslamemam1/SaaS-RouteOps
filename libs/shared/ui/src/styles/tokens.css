@@ -169,6 +169,10 @@
   --ro-drawer-width: 460px;
   --ro-card-min-width: 240px;
   --ro-list-card-min-width: 300px;
+  --ro-avatar-sm: 32px;
+  --ro-avatar-md: 44px;
+  --ro-avatar-lg: 72px;
+  --ro-card-status-room: 104px;
   --ro-filter-min-width: 180px;
   --ro-card-min-height: 160px;
   --ro-table-label-width: 112px;

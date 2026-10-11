@@ -10,14 +10,14 @@ Multi-tenant operations app for staff transportation companies.
 - `libs/organizations` signs users in, shows the dashboard at `/dashboard` (today's trips, the month's figures, and what still needs recording), and, for the site operator, lists and creates companies, stops and resumes their accounts, sets a new password for a company login, and records the subscriptions companies pay.
 - `libs/customers` keeps each organization's customers.
 - `libs/vehicles` keeps each organization's vehicles and how the owner of a rented or contractor vehicle is paid.
-- `libs/drivers` keeps each organization's drivers.
+- `libs/drivers` keeps each organization's drivers, with an optional photo that the browser shrinks to a small square before it is stored in the private `driver-photos` bucket.
 - `libs/routes` keeps each organization's routes: the customer, vehicle, driver, trip times, working days, and trip price.
 - `libs/operations` keeps each day's trips as they happened: swapped vehicles or drivers, cancellations, holidays, and priced extra trips.
 - `libs/expenses` records what each organization spends and suggests each driver's monthly pay and each rented or contractor vehicle's pay from their terms and done trips.
 - `libs/reports` counts the trips done each month and their revenue per client company, route, vehicle, and driver, subtracts the month's expenses to show net profit, each vehicle's profit, and each route's driver, vehicle, and company shares, and lists the days nobody opened.
 - `libs/shared/supabase` holds the single Supabase client, the signed-in route guard, and the guard that sends a signed-in visitor from a public page to the dashboard.
 - `libs/shared/i18n` holds the current language and `injectText`.
-- `libs/shared/ui` is the design system: tokens from the Figma file, base styles, and the shared field, button, tag, alert, page states, form drawer, language switch, table or cards view switch for lists, public site layout, and the dark public hero that the home, contact, sign-in, and sign-out pages share. Run `npm run lint:styles` to check that styles use the tokens.
+- `libs/shared/ui` is the design system: tokens from the Figma file, base styles, and the shared field, button, tag, alert, page states, form drawer, language switch, avatar, table or cards view switch for lists, public site layout, and the dark public hero that the home, contact, sign-in, and sign-out pages share. Run `npm run lint:styles` to check that styles use the tokens.
 - `libs/shared/money` holds the supported currencies and converts amounts to and from minor units.
 - Tag feature libraries `scope:<feature>` and `type:feature`.
 - `supabase/migrations` is the database source of truth. Local Supabase needs Docker.

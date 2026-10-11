@@ -5,6 +5,7 @@ import { lucidePlus } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
 import {
   Alert,
+  Avatar,
   Button,
   FormDrawer,
   injectListView,
@@ -22,13 +23,14 @@ import {
   licenseExpired,
   sortByName,
 } from '../domain/driver';
-import { DriverForm } from './driver-form';
+import { DriverForm, DriverSaved } from './driver-form';
 import { driversText } from './drivers-text';
 
 @Component({
   selector: 'app-drivers',
   imports: [
     Alert,
+    Avatar,
     Button,
     DriverForm,
     FormDrawer,
@@ -56,7 +58,9 @@ export class Drivers {
   protected readonly drivers = signal<Driver[]>([]);
   protected readonly editing = signal<Driver | null>(null);
   protected readonly formOpen = signal(false);
-  protected readonly outcome = signal<'added' | 'saved' | null>(null);
+  protected readonly outcome = signal<'added' | 'saved' | 'photoFailed' | null>(
+    null,
+  );
   protected readonly formTitle = computed(() =>
     this.editing() ? this.text().form.editTitle : this.text().form.addTitle,
   );
@@ -88,10 +92,12 @@ export class Drivers {
     this.editing.set(null);
   }
 
-  protected onSaved(driver: Driver): void {
+  protected onSaved({ driver, photoSaved }: DriverSaved): void {
     const others = this.drivers().filter((item) => item.id !== driver.id);
     this.drivers.set(sortByName([...others, driver]));
-    this.outcome.set(this.editing() ? 'saved' : 'added');
+    this.outcome.set(
+      !photoSaved ? 'photoFailed' : this.editing() ? 'saved' : 'added',
+    );
     this.stopEditing();
     this.status.set('success');
   }

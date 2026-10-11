@@ -1,100 +1,121 @@
 <div class="ro-stack">
   <app-page-header [title]="text().list.title" [hint]="text().list.hint">
     @if (status() === 'success') {
-      <app-view-switch [(view)]="view" />
-    }
-    @if (status() === 'success' || status() === 'empty') {
-      <button appButton type="button" (click)="add()">
-        <ng-icon [svg]="addIcon" aria-hidden="true" />
-        {{ text().list.add }}
-      </button>
+    <app-view-switch [(view)]="view" />
+    } @if (status() === 'success' || status() === 'empty') {
+    <button appButton type="button" (click)="add()">
+      <ng-icon [svg]="addIcon" aria-hidden="true" />
+      {{ text().list.add }}
+    </button>
     }
   </app-page-header>
 
   @if (outcome(); as done) {
-    <app-alert tone="success" [dismissible]="true" (dismissed)="outcome.set(null)">
-      {{ text().form[done] }}
-    </app-alert>
-  }
-
-  @switch (status()) {
-    @case ('loading') {
-      <app-page-state kind="loading" [message]="text().list.loading" />
-    }
-    @case ('error') {
-      <app-page-state kind="error" [message]="text().problems[problem()]" />
-    }
-    @case ('empty') {
-      <app-page-state kind="empty" [message]="text().list.empty">
-        <button appButton type="button" (click)="add()">
-          <ng-icon [svg]="addIcon" aria-hidden="true" />
-          {{ text().list.add }}
-        </button>
-      </app-page-state>
-    }
-    @case ('success') {
-      <section class="ro-card">
-        <div class="ro-table-scroll">
-          <table class="ro-table-stack" [class.ro-table-cards]="view() === 'cards'">
-            <thead>
-              <tr>
-                <th>{{ text().list.fullName }}</th>
-                <th>{{ text().list.phone }}</th>
-                <th>{{ text().list.nationalId }}</th>
-                <th>{{ text().list.licenseNumber }}</th>
-                <th>{{ text().list.licenseExpiry }}</th>
-                <th>{{ text().list.work }}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (driver of drivers(); track driver.id) {
-                <tr>
-                  <td [attr.data-label]="text().list.fullName">{{ driver.fullName }}</td>
-                  <td class="ro-numeric" [attr.data-label]="text().list.phone">
-                    <bdi>{{ driver.phone }}</bdi>
-                  </td>
-                  <td class="ro-numeric" [attr.data-label]="text().list.nationalId">
-                    <bdi>{{ driver.nationalId }}</bdi>
-                  </td>
-                  <td [attr.data-label]="text().list.licenseNumber">
-                    <bdi>{{ driver.licenseNumber }}</bdi>
-                  </td>
-                  <td [attr.data-label]="text().list.licenseExpiry">
-                    <div class="ro-cell-stack">
-                      <bdi class="ro-numeric">{{ driver.licenseExpiry }}</bdi>
-                      @if (expired(driver)) {
-                        <app-tag tone="danger">{{ text().list.expired }}</app-tag>
-                      }
-                    </div>
-                  </td>
-                  <td [attr.data-label]="text().list.work">
-                    <app-tag [tone]="driver.active ? 'success' : 'neutral'">
-                      {{ driver.active ? text().list.working : text().list.stopped }}
-                    </app-tag>
-                  </td>
-                  <td class="ro-actions">
-                    <button appButton="text" size="sm" type="button" (click)="edit(driver)">
-                      {{ text().list.edit }}
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </section>
-    }
-  }
+  <app-alert
+    [tone]="done === 'photoFailed' ? 'warning' : 'success'"
+    [dismissible]="true"
+    (dismissed)="outcome.set(null)"
+  >
+    {{ text().form[done] }}
+  </app-alert>
+  } @switch (status()) { @case ('loading') {
+  <app-page-state kind="loading" [message]="text().list.loading" />
+  } @case ('error') {
+  <app-page-state kind="error" [message]="text().problems[problem()]" />
+  } @case ('empty') {
+  <app-page-state kind="empty" [message]="text().list.empty">
+    <button appButton type="button" (click)="add()">
+      <ng-icon [svg]="addIcon" aria-hidden="true" />
+      {{ text().list.add }}
+    </button>
+  </app-page-state>
+  } @case ('success') {
+  <section class="ro-card">
+    <div class="ro-table-scroll">
+      <table class="ro-table-stack" [class.ro-table-cards]="view() === 'cards'">
+        <thead>
+          <tr>
+            <th>{{ text().list.fullName }}</th>
+            <th>{{ text().list.phone }}</th>
+            <th>{{ text().list.nationalId }}</th>
+            <th>{{ text().list.licenseNumber }}</th>
+            <th>{{ text().list.licenseExpiry }}</th>
+            <th>{{ text().list.work }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (driver of drivers(); track driver.id) {
+          <tr>
+            <td [attr.data-label]="text().list.fullName">
+              <div class="ro-entity">
+                <app-avatar
+                  size="sm"
+                  [name]="driver.fullName"
+                  [src]="driver.photo?.url ?? null"
+                />
+                <span class="ro-entity-text">
+                  <span class="ro-entity-name">{{ driver.fullName }}</span>
+                  @if (driver.payType !== 'none') {
+                  <span class="ro-entity-detail"
+                    >{{ text().payTypes[driver.payType] }}</span
+                  >
+                  }
+                </span>
+              </div>
+            </td>
+            <td class="ro-numeric" [attr.data-label]="text().list.phone">
+              <bdi>{{ driver.phone }}</bdi>
+            </td>
+            <td class="ro-numeric" [attr.data-label]="text().list.nationalId">
+              <bdi>{{ driver.nationalId }}</bdi>
+            </td>
+            <td [attr.data-label]="text().list.licenseNumber">
+              <bdi>{{ driver.licenseNumber }}</bdi>
+            </td>
+            <td [attr.data-label]="text().list.licenseExpiry">
+              <div class="ro-cell-stack">
+                <bdi class="ro-numeric">{{ driver.licenseExpiry }}</bdi>
+                @if (expired(driver)) {
+                <app-tag tone="danger">{{ text().list.expired }}</app-tag>
+                }
+              </div>
+            </td>
+            <td class="ro-cell-status" [attr.data-label]="text().list.work">
+              <app-tag [tone]="driver.active ? 'success' : 'neutral'">
+                {{ driver.active ? text().list.working : text().list.stopped }}
+              </app-tag>
+            </td>
+            <td class="ro-actions">
+              <button
+                appButton="text"
+                size="sm"
+                type="button"
+                (click)="edit(driver)"
+              >
+                {{ text().list.edit }}
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  } }
 </div>
 
 @if (organization(); as current) {
-  <app-form-drawer [title]="formTitle()" [open]="formOpen()" (openChange)="onDrawer($event)">
-    <app-driver-form
-      [organization]="current"
-      [driver]="editing()"
-      (saved)="onSaved($event)"
-      (cancelled)="stopEditing()"
-    />
-  </app-form-drawer>
+<app-form-drawer
+  [title]="formTitle()"
+  [open]="formOpen()"
+  (openChange)="onDrawer($event)"
+>
+  <app-driver-form
+    [organization]="current"
+    [driver]="editing()"
+    (saved)="onSaved($event)"
+    (cancelled)="stopEditing()"
+  />
+</app-form-drawer>
 }

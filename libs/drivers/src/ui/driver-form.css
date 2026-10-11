@@ -1,0 +1,19 @@
+.driver-photo {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-4);
+}
+
+.driver-photo-text {
+  display: grid;
+  gap: var(--ro-space-1);
+  min-inline-size: 0;
+}
+
+.driver-photo-label {
+  font-weight: var(--ro-font-semibold);
+}
+
+.driver-photo-picker {
+  display: none;
+}

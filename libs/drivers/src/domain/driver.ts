@@ -34,8 +34,16 @@ export interface DriverDetails {
   readonly active: boolean;
 }
 
+// Where the photo is kept and an address the browser can show it from for a
+// while; the address is not stored.
+export interface DriverPhoto {
+  readonly path: string;
+  readonly url: string;
+}
+
 export interface Driver extends DriverDetails {
   readonly id: string;
+  readonly photo: DriverPhoto | null;
 }
 
 export const driverLimits = {
@@ -55,6 +63,7 @@ export const driverProblems = [
   'amount',
   'required',
   'trips',
+  'photo',
   'load',
   'save',
   'organization',
@@ -121,7 +130,8 @@ export function salaryTripsError(
   if (count === undefined) {
     return 'trips';
   }
-  const amountsTyped = outboundPay.trim().length > 0 || returnPay.trim().length > 0;
+  const amountsTyped =
+    outboundPay.trim().length > 0 || returnPay.trim().length > 0;
   return count === null && amountsTyped ? 'required' : null;
 }
 
@@ -156,7 +166,9 @@ function amountProblem(
 }
 
 function toLatinDigits(value: string): string {
-  return value.replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660));
+  return value.replace(/[٠-٩]/g, (digit) =>
+    String(digit.charCodeAt(0) - 0x0660),
+  );
 }
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -201,8 +213,7 @@ export function dateError(value: string): DriverProblem | null {
     return 'date';
   }
   const date = new Date(`${value}T00:00:00Z`);
-  return !Number.isNaN(date.getTime()) &&
-    date.toISOString().startsWith(value)
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value)
     ? null
     : 'date';
 }

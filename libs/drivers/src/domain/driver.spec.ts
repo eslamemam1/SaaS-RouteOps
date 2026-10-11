@@ -109,7 +109,9 @@ describe('memberOrganization', () => {
   ];
 
   it('returns the organization when it is one of the memberships', () => {
-    expect(memberOrganization(memberships, 'org-north')).toEqual(memberships[0]);
+    expect(memberOrganization(memberships, 'org-north')).toEqual(
+      memberships[0],
+    );
   });
 
   it('returns null for an organization the user does not belong to', () => {
@@ -123,6 +125,7 @@ describe('sortByName', () => {
       ...emptyDriverDetails,
       id,
       fullName,
+      photo: null,
     });
 
     expect(

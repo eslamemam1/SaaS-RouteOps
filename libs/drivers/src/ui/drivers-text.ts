@@ -45,12 +45,19 @@ export interface DriversText {
     readonly returnPay: string;
     readonly notes: string;
     readonly notesHint: string;
+    readonly photo: string;
+    readonly optional: string;
+    readonly photoHint: string;
+    readonly choosePhoto: string;
+    readonly changePhoto: string;
+    readonly removePhoto: string;
     readonly active: string;
     readonly add: string;
     readonly save: string;
     readonly cancel: string;
     readonly added: string;
     readonly saved: string;
+    readonly photoFailed: string;
   };
 }
 
@@ -65,6 +72,7 @@ export const driversText: Record<Language, DriversText> = {
       amount: 'أدخل المبلغ بالأرقام فقط، مثل 5000 أو 5000.50',
       required: 'هذه الخانة مطلوبة.',
       trips: 'اكتب عدد الرحلات بالأرقام فقط، مثل 26.',
+      photo: 'تعذّر فتح هذه الصورة. اختر صورة بصيغة JPG أو PNG أو WebP.',
       load: 'تعذّر تحميل السائقين. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
@@ -113,30 +121,43 @@ export const driversText: Record<Language, DriversText> = {
       salaryTrips: 'الراتب يغطي كم رحلة ذهاب وعودة في الشهر؟',
       salaryTripsHint:
         'مثال: 26 يعني 26 ذهاب و26 عودة. لو طلع أكثر يأخذ عن كل رحلة زيادة، ولو غاب يُخصم عنه عن كل رحلة. اتركه فارغًا لو راتبه ثابت مهما طلع.',
-      extraPayHint: 'المبلغ عن كل رحلة زيادة على العدد، ونفس المبلغ يُخصم عن كل رحلة غابها.',
+      extraPayHint:
+        'المبلغ عن كل رحلة زيادة على العدد، ونفس المبلغ يُخصم عن كل رحلة غابها.',
       perTripHint: 'يأخذ عن كل رحلة يطلعها.',
       outboundPay: 'مبلغ رحلة الذهاب',
       returnPay: 'مبلغ رحلة العودة',
       notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذا السائق.',
+      photo: 'صورة السائق',
+      optional: '(اختياري)',
+      photoHint:
+        'تُصغَّر الصورة تلقائيًا قبل رفعها، فلا تشغل إلا مساحة صغيرة جدًا.',
+      choosePhoto: 'اختيار صورة',
+      changePhoto: 'تغيير الصورة',
+      removePhoto: 'إزالة الصورة',
       active: 'السائق يعمل حاليًا',
       add: 'إضافة السائق',
       save: 'حفظ التعديلات',
       cancel: 'إلغاء',
       added: 'تمت إضافة السائق.',
       saved: 'تم حفظ التعديلات.',
+      photoFailed:
+        'تم حفظ بيانات السائق، لكن تعذّر رفع الصورة. افتح تعديل السائق وحاول مرة أخرى.',
     },
   },
   en: {
     problems: {
       name: 'Enter the driver name.',
       tooLong: 'This text is too long.',
-      nationalId: 'The national ID can contain only digits and English letters.',
+      nationalId:
+        'The national ID can contain only digits and English letters.',
       nationalIdTaken: 'This national ID is already used by another driver.',
       date: 'Enter a valid date.',
       amount: 'Enter the amount in digits only, like 5000 or 5000.50',
       required: 'This field is required.',
       trips: 'Enter the number of trips in digits only, like 26.',
+      photo:
+        'This photo could not be opened. Choose a JPG, PNG, or WebP photo.',
       load: 'Could not load your drivers. Please try again.',
       save: 'Could not save. Please try again.',
       organization: 'You cannot open this page from your account.',
@@ -153,7 +174,8 @@ export const driversText: Record<Language, DriversText> = {
       add: 'Add driver',
       hint: 'The drivers who work with you transporting staff.',
       loading: 'Loading...',
-      empty: 'You have not added any driver yet. Start by adding the first one.',
+      empty:
+        'You have not added any driver yet. Start by adding the first one.',
       fullName: 'Name',
       phone: 'Mobile',
       nationalId: 'National ID',
@@ -182,21 +204,32 @@ export const driversText: Record<Language, DriversText> = {
       payType: 'How is the driver paid?',
       monthlySalary: 'Monthly salary',
       amountHint: 'Digits only, like 5000 or 5000.50',
-      salaryTrips: 'How many outbound and return trips does the salary cover each month?',
+      salaryTrips:
+        'How many outbound and return trips does the salary cover each month?',
       salaryTripsHint:
         'Example: 26 means 26 outbound and 26 return trips. Each trip beyond them earns extra, and each trip missed through absence is taken off. Leave it blank if the salary is fixed whatever the driver does.',
-      extraPayHint: 'What each trip beyond that number earns; the same amount is taken off for each trip missed through absence.',
+      extraPayHint:
+        'What each trip beyond that number earns; the same amount is taken off for each trip missed through absence.',
       perTripHint: 'What the driver earns for each trip.',
       outboundPay: 'Outbound trip amount',
       returnPay: 'Return trip amount',
       notes: 'Notes',
       notesHint: 'Anything you want to remember about this driver.',
+      photo: 'Driver photo',
+      optional: '(optional)',
+      photoHint:
+        'The photo is shrunk automatically before upload, so it takes very little space.',
+      choosePhoto: 'Choose a photo',
+      changePhoto: 'Change photo',
+      removePhoto: 'Remove photo',
       active: 'This driver is currently working',
       add: 'Add driver',
       save: 'Save changes',
       cancel: 'Cancel',
       added: 'The driver was added.',
       saved: 'Your changes were saved.',
+      photoFailed:
+        'The driver was saved, but the photo could not be uploaded. Open the driver and try again.',
     },
   },
 };

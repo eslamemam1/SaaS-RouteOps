@@ -11,6 +11,7 @@ import {
   Driver,
   DriverDetails,
   DriverOrganization,
+  DriverPhoto,
   normalizeNationalId,
   PayType,
   toTripCount,
@@ -30,6 +31,13 @@ export interface DriverGateway {
     driverId: string,
     details: DriverDetails,
   ): Promise<Driver>;
+  uploadPhoto(path: string, photo: Blob): Promise<void>;
+  setPhotoPath(
+    organization: DriverOrganization,
+    driverId: string,
+    path: string | null,
+  ): Promise<Driver>;
+  deletePhoto(path: string): Promise<void>;
 }
 
 type DriverRow = Pick<
@@ -47,10 +55,15 @@ type DriverRow = Pick<
   | 'return_pay'
   | 'notes'
   | 'is_active'
+  | 'photo_path'
 >;
 
 const driverColumns =
-  'id, full_name, phone, national_id, license_number, license_expires_on, pay_type, monthly_salary, salary_trips, outbound_pay, return_pay, notes, is_active';
+  'id, full_name, phone, national_id, license_number, license_expires_on, pay_type, monthly_salary, salary_trips, outbound_pay, return_pay, notes, is_active, photo_path';
+
+const photoBucket = 'driver-photos';
+const photoUrlSeconds = 60 * 60;
+const photoCacheSeconds = String(60 * 60 * 24 * 365);
 
 const uniqueViolation = '23505';
 
@@ -103,7 +116,7 @@ export class SupabaseDriverGateway implements DriverGateway {
     if (error) {
       throw new DriverAccessError('load');
     }
-    return (data ?? []).map((row) => toDriver(row, organization.currency));
+    return this.toDrivers(data ?? [], organization.currency);
   }
 
   async insertDriver(
@@ -121,7 +134,8 @@ export class SupabaseDriverGateway implements DriverGateway {
     if (error || !data) {
       throw new DriverAccessError(saveProblem(error));
     }
-    return toDriver(data, organization.currency);
+    const [driver] = await this.toDrivers([data], organization.currency);
+    return driver;
   }
 
   async updateDriver(
@@ -139,7 +153,70 @@ export class SupabaseDriverGateway implements DriverGateway {
     if (error || !data) {
       throw new DriverAccessError(saveProblem(error));
     }
-    return toDriver(data, organization.currency);
+    const [driver] = await this.toDrivers([data], organization.currency);
+    return driver;
+  }
+
+  async uploadPhoto(path: string, photo: Blob): Promise<void> {
+    const { error } = await this.requireClient()
+      .storage.from(photoBucket)
+      .upload(path, photo, {
+        contentType: photo.type,
+        cacheControl: photoCacheSeconds,
+        upsert: false,
+      });
+    if (error) {
+      throw new DriverAccessError('save');
+    }
+  }
+
+  async setPhotoPath(
+    organization: DriverOrganization,
+    driverId: string,
+    path: string | null,
+  ): Promise<Driver> {
+    const { data, error } = await this.requireClient()
+      .from('drivers')
+      .update({ photo_path: path })
+      .eq('id', driverId)
+      .eq('organization_id', organization.id)
+      .select(driverColumns)
+      .single();
+    if (error || !data) {
+      throw new DriverAccessError('save');
+    }
+    const [driver] = await this.toDrivers([data], organization.currency);
+    return driver;
+  }
+
+  // A file left behind costs a few kilobytes; it must not undo a saved change.
+  async deletePhoto(path: string): Promise<void> {
+    await this.requireClient().storage.from(photoBucket).remove([path]);
+  }
+
+  // One request signs every photo of the list. A photo that cannot be signed
+  // shows the driver's initials instead.
+  private async toDrivers(
+    rows: readonly DriverRow[],
+    currency: Currency,
+  ): Promise<Driver[]> {
+    const paths = rows.flatMap((row) =>
+      row.photo_path ? [row.photo_path] : [],
+    );
+    const urls = new Map<string, string>();
+    if (paths.length > 0) {
+      const { data } = await this.requireClient()
+        .storage.from(photoBucket)
+        .createSignedUrls(paths, photoUrlSeconds);
+      for (const signed of data ?? []) {
+        if (signed.path && signed.signedUrl) {
+          urls.set(signed.path, signed.signedUrl);
+        }
+      }
+    }
+    return rows.map((row) =>
+      toDriver(row, currency, photoOf(row.photo_path, urls)),
+    );
   }
 
   private requireClient(): SupabaseClient<Database> {
@@ -154,7 +231,19 @@ function saveProblem(error: PostgrestError | null) {
   return error?.code === uniqueViolation ? 'nationalIdTaken' : 'save';
 }
 
-function toDriver(row: DriverRow, currency: Currency): Driver {
+function photoOf(
+  path: string | null,
+  urls: ReadonlyMap<string, string>,
+): DriverPhoto | null {
+  const url = path ? urls.get(path) : undefined;
+  return path && url ? { path, url } : null;
+}
+
+function toDriver(
+  row: DriverRow,
+  currency: Currency,
+  photo: DriverPhoto | null,
+): Driver {
   return {
     id: row.id,
     fullName: row.full_name,
@@ -169,6 +258,7 @@ function toDriver(row: DriverRow, currency: Currency): Driver {
     returnPay: toAmountText(row.return_pay, currency),
     notes: row.notes ?? '',
     active: row.is_active,
+    photo,
   };
 }
 

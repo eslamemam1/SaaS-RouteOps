@@ -8,7 +8,11 @@ import { Driver, DriverOrganization } from '../domain/driver';
 import { Drivers } from './drivers';
 import { driversText } from './drivers-text';
 
-const north: DriverOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
+const north: DriverOrganization = {
+  id: 'org-north',
+  name: 'North',
+  currency: 'EGP',
+};
 const ahmed: Driver = {
   id: 'driver-1',
   fullName: 'أحمد محمد',
@@ -23,6 +27,7 @@ const ahmed: Driver = {
   returnPay: '',
   notes: '',
   active: true,
+  photo: null,
 };
 const arabic = driversText.ar;
 
@@ -103,6 +108,29 @@ describe('Drivers', () => {
     expect(text(harness)).toContain(arabic.problems.load);
   });
 
+  it("shows a driver's photo, or the initials of a driver without one", async () => {
+    const omar: Driver = {
+      ...ahmed,
+      id: 'driver-2',
+      fullName: 'عمر خالد',
+      photo: {
+        path: 'org-north/driver-2/photo.webp',
+        url: 'https://example.test/omar.webp',
+      },
+    };
+    const harness = await open({ list: async () => [ahmed, omar] });
+    await settle(harness);
+
+    const avatars = [
+      ...(harness.routeNativeElement?.querySelectorAll('app-avatar') ?? []),
+    ];
+    expect(avatars).toHaveLength(2);
+    expect(avatars[0].textContent?.trim()).toBe('أم');
+    expect(avatars[1].querySelector('img')?.getAttribute('src')).toBe(
+      'https://example.test/omar.webp',
+    );
+  });
+
   it('shows the list in English after switching language', async () => {
     const harness = await open({ list: async () => [ahmed] });
     await settle(harness);
@@ -121,6 +149,8 @@ async function open(overrides: Partial<DriverRepository>) {
     list: async () => [],
     add: async () => ahmed,
     update: async () => ahmed,
+    setPhoto: async () => ahmed,
+    removePhoto: async () => ahmed,
     ...overrides,
   };
   TestBed.configureTestingModule({
@@ -148,7 +178,9 @@ function button(
   label: string,
 ): HTMLButtonElement | undefined {
   return [
-    ...(harness.routeNativeElement?.querySelectorAll<HTMLButtonElement>('button') ?? []),
+    ...(harness.routeNativeElement?.querySelectorAll<HTMLButtonElement>(
+      'button',
+    ) ?? []),
   ].find((item) => item.textContent?.trim() === label);
 }
 

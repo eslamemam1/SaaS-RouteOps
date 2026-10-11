@@ -1,0 +1,32 @@
+.app-avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  inline-size: var(--ro-avatar-md);
+  block-size: var(--ro-avatar-md);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-body-sm);
+  font-weight: var(--ro-font-semibold);
+  user-select: none;
+}
+
+.app-avatar[data-size='sm'] {
+  inline-size: var(--ro-avatar-sm);
+  block-size: var(--ro-avatar-sm);
+  font-size: var(--ro-text-caption);
+}
+
+.app-avatar[data-size='lg'] {
+  inline-size: var(--ro-avatar-lg);
+  block-size: var(--ro-avatar-lg);
+  font-size: var(--ro-text-heading-lg);
+}
+
+.app-avatar img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}

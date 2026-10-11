@@ -1,4 +1,5 @@
 export { Alert } from './alert';
+export { Avatar, type AvatarSize } from './avatar';
 export { Button, type ButtonSize, type ButtonVariant } from './button';
 export { Field, type FieldControl } from './field';
 export { FormDrawer } from './form-drawer';

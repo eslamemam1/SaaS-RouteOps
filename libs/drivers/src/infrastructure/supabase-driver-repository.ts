@@ -26,7 +26,10 @@ export class SupabaseDriverRepository extends DriverRepository {
     return this.gateway.listDrivers(organization);
   }
 
-  add(organization: DriverOrganization, details: DriverDetails): Promise<Driver> {
+  add(
+    organization: DriverOrganization,
+    details: DriverDetails,
+  ): Promise<Driver> {
     return this.gateway.insertDriver(organization, details);
   }
 
@@ -36,5 +39,43 @@ export class SupabaseDriverRepository extends DriverRepository {
     details: DriverDetails,
   ): Promise<Driver> {
     return this.gateway.updateDriver(organization, driverId, details);
+  }
+
+  // A new photo gets a new name, so no browser shows a cached old photo; the
+  // old file is deleted once the driver points at the new one.
+  async setPhoto(
+    organization: DriverOrganization,
+    driver: Driver,
+    photo: Blob,
+  ): Promise<Driver> {
+    const extension = photo.type === 'image/webp' ? 'webp' : 'jpg';
+    const path = `${organization.id}/${driver.id}/${crypto.randomUUID()}.${extension}`;
+    await this.gateway.uploadPhoto(path, photo);
+    let saved: Driver;
+    try {
+      saved = await this.gateway.setPhotoPath(organization, driver.id, path);
+    } catch (error) {
+      await this.gateway.deletePhoto(path);
+      throw error;
+    }
+    if (driver.photo) {
+      await this.gateway.deletePhoto(driver.photo.path);
+    }
+    return saved;
+  }
+
+  async removePhoto(
+    organization: DriverOrganization,
+    driver: Driver,
+  ): Promise<Driver> {
+    const saved = await this.gateway.setPhotoPath(
+      organization,
+      driver.id,
+      null,
+    );
+    if (driver.photo) {
+      await this.gateway.deletePhoto(driver.photo.path);
+    }
+    return saved;
   }
 }

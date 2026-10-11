@@ -1,9 +1,29 @@
 import { DriverAccessError } from '../application/driver-access-error';
-import { DriverOrganization } from '../domain/driver';
+import {
+  Driver,
+  DriverOrganization,
+  emptyDriverDetails,
+} from '../domain/driver';
 import { DriverGateway } from './driver-gateway';
 import { SupabaseDriverRepository } from './supabase-driver-repository';
 
-const north: DriverOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
+const north: DriverOrganization = {
+  id: 'org-north',
+  name: 'North',
+  currency: 'EGP',
+};
+const oldPhoto = {
+  path: 'org-north/driver-1/old.webp',
+  url: 'https://example.test/old',
+};
+const ahmed: Driver = {
+  ...emptyDriverDetails,
+  id: 'driver-1',
+  fullName: 'Ahmed',
+  photo: null,
+};
+const webp = new Blob(['photo'], { type: 'image/webp' });
+const photoPath = /^org-north\/driver-1\/[0-9a-f-]{36}\.webp$/;
 
 describe('SupabaseDriverRepository', () => {
   it('resolves the organization from the signed-in user memberships', async () => {
@@ -41,6 +61,67 @@ describe('SupabaseDriverRepository', () => {
 
     expect(gateway.listDrivers).toHaveBeenCalledWith(north);
   });
+
+  it('files a new photo under the organization and driver, then points the driver at it', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseDriverRepository(gateway);
+
+    await repository.setPhoto(north, ahmed, webp);
+
+    const [path, photo] = vi.mocked(gateway.uploadPhoto).mock.calls[0];
+    expect(path).toMatch(photoPath);
+    expect(photo).toBe(webp);
+    expect(gateway.setPhotoPath).toHaveBeenCalledWith(north, 'driver-1', path);
+    expect(gateway.deletePhoto).not.toHaveBeenCalled();
+  });
+
+  it('names a JPEG photo .jpg', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseDriverRepository(gateway);
+
+    await repository.setPhoto(
+      north,
+      ahmed,
+      new Blob(['photo'], { type: 'image/jpeg' }),
+    );
+
+    expect(vi.mocked(gateway.uploadPhoto).mock.calls[0][0]).toMatch(/\.jpg$/);
+  });
+
+  it('deletes the old photo once the new one is in place', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseDriverRepository(gateway);
+
+    await repository.setPhoto(north, { ...ahmed, photo: oldPhoto }, webp);
+
+    expect(gateway.deletePhoto).toHaveBeenCalledWith(oldPhoto.path);
+  });
+
+  it('deletes the uploaded file when the driver cannot point at it', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    vi.mocked(gateway.setPhotoPath).mockRejectedValue(
+      new DriverAccessError('save'),
+    );
+    const repository = new SupabaseDriverRepository(gateway);
+
+    await expect(
+      repository.setPhoto(north, { ...ahmed, photo: oldPhoto }, webp),
+    ).rejects.toEqual(new DriverAccessError('save'));
+
+    const uploaded = vi.mocked(gateway.uploadPhoto).mock.calls[0][0];
+    expect(gateway.deletePhoto).toHaveBeenCalledWith(uploaded);
+    expect(gateway.deletePhoto).not.toHaveBeenCalledWith(oldPhoto.path);
+  });
+
+  it('removes a photo from the driver and deletes its file', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseDriverRepository(gateway);
+
+    await repository.removePhoto(north, { ...ahmed, photo: oldPhoto });
+
+    expect(gateway.setPhotoPath).toHaveBeenCalledWith(north, 'driver-1', null);
+    expect(gateway.deletePhoto).toHaveBeenCalledWith(oldPhoto.path);
+  });
 });
 
 function fakeGateway(
@@ -53,5 +134,8 @@ function fakeGateway(
     listDrivers: vi.fn(async () => []),
     insertDriver: vi.fn(),
     updateDriver: vi.fn(),
+    uploadPhoto: vi.fn(async () => undefined),
+    setPhotoPath: vi.fn(async () => ahmed),
+    deletePhoto: vi.fn(async () => undefined),
   };
 }
