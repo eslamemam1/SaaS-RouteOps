@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import { lucideCircleCheck } from '@ng-icons/lucide';
 import { injectText, productName } from '@routeops/shared/i18n';
-import { Alert, Button, Field, Logo, PublicLayout } from '@routeops/shared/ui';
+import { Alert, Button, Field, Logo, PublicHero, PublicLayout } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -13,7 +13,17 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-sign-in',
-  imports: [Alert, Button, Field, FormField, Logo, NgIcon, PublicLayout, RouterLink],
+  imports: [
+    Alert,
+    Button,
+    Field,
+    FormField,
+    Logo,
+    NgIcon,
+    PublicHero,
+    PublicLayout,
+    RouterLink,
+  ],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.css',
 })

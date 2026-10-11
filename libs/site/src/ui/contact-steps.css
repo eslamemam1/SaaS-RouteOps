@@ -1,0 +1,97 @@
+:host {
+  display: grid;
+  gap: var(--ro-space-10);
+}
+
+.contact-titles {
+  display: grid;
+  justify-items: center;
+  gap: var(--ro-space-2);
+  text-align: center;
+}
+
+.contact-titles h2 {
+  font-size: var(--ro-text-display);
+  line-height: var(--ro-leading-display);
+  font-weight: var(--ro-font-bold);
+}
+
+.contact-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ro-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact-steps li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--ro-space-4);
+  text-align: center;
+}
+
+.contact-steps li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  inset-block-start: calc(var(--ro-touch-target) / 2 + var(--ro-space-2));
+  inset-inline-start: calc(50% + var(--ro-touch-target) / 2 + var(--ro-space-4));
+  inline-size: calc(100% + var(--ro-space-6) - var(--ro-touch-target) - var(--ro-space-4) * 2);
+  border-block-start: calc(var(--ro-border-width) * 2) dashed var(--ro-amber-400);
+}
+
+.contact-stop {
+  display: inline-grid;
+  place-items: center;
+  inline-size: calc(var(--ro-touch-target) + var(--ro-space-4));
+  block-size: calc(var(--ro-touch-target) + var(--ro-space-4));
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-inverse);
+  color: var(--ro-amber-400);
+  font-size: var(--ro-text-heading-lg);
+  font-weight: var(--ro-font-bold);
+  box-shadow:
+    0 0 0 var(--ro-space-2) var(--ro-bg-accent-subtle),
+    var(--ro-shadow-raised);
+}
+
+.contact-step-text {
+  max-inline-size: var(--ro-headline-width);
+  font-size: var(--ro-text-body-md);
+  font-weight: var(--ro-font-medium);
+}
+
+@media (width < 760px) {
+  .contact-titles h2 {
+    font-size: var(--ro-text-heading-xl);
+    line-height: var(--ro-leading-heading-xl);
+  }
+
+  .contact-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ro-space-10);
+  }
+
+  .contact-steps li {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    justify-items: start;
+    text-align: start;
+  }
+
+  .contact-step-text {
+    align-self: center;
+    max-inline-size: none;
+  }
+
+  .contact-steps li:not(:last-child)::after {
+    inset-block: calc(var(--ro-touch-target) + var(--ro-space-4) + var(--ro-space-2))
+      calc(var(--ro-space-10) * -1 + var(--ro-space-2));
+    inset-inline-start: calc(var(--ro-touch-target) / 2 + var(--ro-space-2));
+    inline-size: 0;
+    border-block-start: 0;
+    border-inline-start: calc(var(--ro-border-width) * 2) dashed var(--ro-amber-400);
+  }
+}

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { injectText } from '@routeops/shared/i18n';
-import { Button, PageState } from '@routeops/shared/ui';
+import { Button, PageState, PublicHero } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -9,20 +9,24 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-sign-out',
-  imports: [Button, PageState, RouterLink],
+  imports: [Button, PageState, PublicHero, RouterLink],
   template: `
-    @if (problem(); as problem) {
-      <app-page-state kind="error" [message]="text().problems[problem]">
-        <div class="ro-toolbar">
-          <button appButton type="button" (click)="signOut()">
-            {{ text().signOut.retry }}
-          </button>
-          <a appButton="secondary" routerLink="/dashboard">{{ text().signOut.backHome }}</a>
-        </div>
-      </app-page-state>
-    } @else {
-      <app-page-state kind="loading" [message]="text().signOut.busy" />
-    }
+    <app-public-hero class="sign-out-hero">
+      <div class="sign-out-card ro-card">
+        @if (problem(); as problem) {
+          <app-page-state kind="error" [message]="text().problems[problem]">
+            <div class="ro-toolbar">
+              <button appButton type="button" (click)="signOut()">
+                {{ text().signOut.retry }}
+              </button>
+              <a appButton="secondary" routerLink="/dashboard">{{ text().signOut.backHome }}</a>
+            </div>
+          </app-page-state>
+        } @else {
+          <app-page-state kind="loading" [message]="text().signOut.busy" />
+        }
+      </div>
+    </app-public-hero>
   `,
   styleUrl: './sign-out.css',
 })

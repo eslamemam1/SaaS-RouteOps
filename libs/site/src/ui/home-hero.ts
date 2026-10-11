@@ -7,6 +7,7 @@ import {
   lucideSparkles,
 } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
+import { PublicHero } from '@routeops/shared/ui';
 import { ProductPreview } from './product-preview';
 import { SiteActions } from './site-actions';
 import { PromiseKey, promiseKeys, siteText } from './site-text';
@@ -19,7 +20,7 @@ const promiseIcons: Record<PromiseKey, string> = {
 
 @Component({
   selector: 'app-home-hero',
-  imports: [NgIcon, ProductPreview, SiteActions],
+  imports: [NgIcon, ProductPreview, PublicHero, SiteActions],
   templateUrl: './home-hero.html',
   styleUrl: './home-hero.css',
 })

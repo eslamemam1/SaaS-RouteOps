@@ -6,5 +6,6 @@ export { LanguageSwitch } from './language-switch';
 export { Logo, type LogoSize, type LogoVariant } from './logo';
 export { PageHeader } from './page-header';
 export { PageState, type PageStateKind } from './page-state';
+export { PublicHero } from './public-hero';
 export { PublicLayout } from './public-layout';
 export { Tag, type Tone } from './tag';

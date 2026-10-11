@@ -21,8 +21,10 @@
   position: sticky;
   inset-block-start: 0;
   z-index: var(--ro-z-sticky);
-  background: var(--ro-bg-surface);
-  box-shadow: var(--ro-shadow-topbar);
+  border-block-end: var(--ro-border-width) solid var(--ro-hero-border);
+  background: var(--ro-public-bar-bg);
+  color: var(--ro-text-on-inverse);
+  backdrop-filter: blur(var(--ro-blur-glass));
 }
 
 .app-public-header .app-public-bar {
@@ -34,7 +36,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--ro-space-2);
-  color: var(--ro-text-brand);
+  color: var(--ro-text-on-inverse);
   font-weight: var(--ro-font-semibold);
   text-decoration: none;
 }
@@ -70,19 +72,33 @@
   min-block-size: var(--ro-touch-target);
   padding-inline: var(--ro-space-3);
   border-radius: var(--ro-radius-md);
-  color: var(--ro-text-secondary);
+  color: var(--ro-text-on-inverse-muted);
   font-weight: var(--ro-font-medium);
   text-decoration: none;
+  transition:
+    background-color var(--ro-motion-fast),
+    color var(--ro-motion-fast);
 }
 
 .app-public-link:hover {
-  background: var(--ro-bg-subtle);
-  color: var(--ro-text-primary);
+  background: var(--ro-hero-surface);
+  color: var(--ro-text-on-inverse);
 }
 
 .app-public-link-active {
-  background: var(--ro-bg-brand-subtle);
-  color: var(--ro-text-brand);
+  background: var(--ro-hero-surface-hover);
+  color: var(--ro-text-on-inverse);
+  box-shadow: inset 0 calc(var(--ro-indicator-width) * -1) 0 var(--ro-bg-accent);
+}
+
+.app-public-header .app-button[data-variant='secondary'] {
+  border-color: var(--ro-hero-border);
+  background: var(--ro-hero-surface);
+  color: var(--ro-text-on-inverse);
+}
+
+.app-public-header .app-button[data-variant='secondary']:hover {
+  background: var(--ro-hero-surface-hover);
 }
 
 .app-public-actions {
@@ -102,13 +118,13 @@
   border: 0;
   border-radius: var(--ro-radius-md);
   background: transparent;
-  color: var(--ro-text-primary);
+  color: var(--ro-text-on-inverse);
   font-size: var(--ro-text-heading-lg);
   cursor: pointer;
 }
 
 .app-public-menu-toggle:hover {
-  background: var(--ro-bg-subtle);
+  background: var(--ro-hero-surface);
 }
 
 .app-public-menu-toggle:focus-visible {
@@ -123,13 +139,19 @@
 }
 
 .app-public-main-full {
+  display: flex;
+  flex-direction: column;
   max-inline-size: none;
   padding: 0;
 }
 
 .app-public-footer {
-  background: var(--ro-bg-surface);
-  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+  background: var(--ro-bg-inverse);
+  color: var(--ro-text-on-inverse-muted);
+}
+
+.app-public-footer .hint {
+  color: var(--ro-text-on-inverse-muted);
 }
 
 .app-public-footer .app-public-bar {
@@ -161,8 +183,8 @@
     align-items: stretch;
     gap: var(--ro-space-3);
     padding: var(--ro-space-3) var(--ro-space-4) var(--ro-space-4);
-    border-block-start: var(--ro-border-width) solid var(--ro-border-default);
-    background: var(--ro-bg-surface);
+    border-block: var(--ro-border-width) solid var(--ro-hero-border);
+    background: var(--ro-bg-inverse);
     box-shadow: var(--ro-shadow-overlay);
   }
 

@@ -1,34 +1,39 @@
+.sign-in-hero {
+  display: grid;
+  flex: 1;
+  align-items: center;
+  padding-block: var(--ro-space-8);
+}
+
 .sign-in {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--ro-card-min-width), 1fr));
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   align-items: center;
-  gap: var(--ro-space-10);
-  min-block-size: 100%;
+  gap: var(--ro-space-16);
 }
 
 .sign-in-intro {
   display: grid;
-  gap: var(--ro-space-4);
+  justify-items: start;
+  gap: var(--ro-space-5);
 }
 
-.sign-in-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--ro-space-3);
-  color: var(--ro-text-brand);
+.sign-in-intro .app-hero-title {
   font-size: var(--ro-text-display);
   line-height: var(--ro-leading-display);
 }
 
-.sign-in-welcome {
-  color: var(--ro-text-secondary);
-  font-size: var(--ro-text-heading-md);
-  line-height: var(--ro-leading-heading-md);
+.sign-in-intro > :nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.sign-in-intro > :nth-child(3) {
+  animation-delay: 160ms;
 }
 
 .sign-in-points {
   display: grid;
-  gap: var(--ro-space-3);
+  gap: var(--ro-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -37,11 +42,14 @@
 .sign-in-points li {
   display: flex;
   align-items: center;
-  gap: var(--ro-space-2);
+  gap: var(--ro-space-3);
+  padding: var(--ro-space-3) var(--ro-space-4);
+  animation-delay: 240ms;
 }
 
 .sign-in-points ng-icon {
-  color: var(--ro-text-success);
+  color: var(--ro-amber-400);
+  font-size: var(--ro-text-heading-md);
 }
 
 .sign-in-card {
@@ -51,11 +59,20 @@
   inline-size: 100%;
   max-inline-size: var(--ro-form-max-width);
   padding: var(--ro-space-8);
+  border: 0;
+  color: var(--ro-text-primary);
+  box-shadow: var(--ro-shadow-mockup);
+  animation-delay: 200ms;
 }
 
 .sign-in-titles {
   display: grid;
   gap: var(--ro-space-1);
+}
+
+.sign-in-titles h2 {
+  font-size: var(--ro-text-heading-xl);
+  line-height: var(--ro-leading-heading-xl);
 }
 
 .sign-in-submit {
@@ -66,14 +83,20 @@
   text-align: center;
 }
 
-@media (width < 640px) {
+@media (width < 1000px) {
   .sign-in {
-    gap: var(--ro-space-6);
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ro-space-10);
   }
 
-  .sign-in-brand {
-    font-size: var(--ro-text-heading-xl);
-    line-height: var(--ro-leading-heading-xl);
+  .sign-in-card {
+    order: -1;
+  }
+}
+
+@media (width < 640px) {
+  .sign-in {
+    gap: var(--ro-space-8);
   }
 
   .sign-in-card {

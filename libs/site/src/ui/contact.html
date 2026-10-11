@@ -1,50 +1,70 @@
-<app-public-layout>
-  <div class="ro-stack">
-    <app-page-header [title]="text().contact.title" [hint]="text().contact.hint" />
+<app-public-layout fullWidth>
+  <app-public-hero>
+    <div class="contact-hero">
+      <p class="app-hero-eyebrow app-hero-rise">
+        <ng-icon [svg]="eyebrowIcon" aria-hidden="true" />
+        {{ text().contact.title }}
+      </p>
+      <h1 class="app-hero-title app-hero-rise">
+        {{ text().contact.headline }}
+        <span class="app-hero-highlight">{{ text().contact.headlineHighlight }}</span>
+      </h1>
+      <p class="app-hero-lead app-hero-rise">{{ text().contact.hint }}</p>
+      <ul class="contact-facts app-hero-rise">
+        <li class="app-hero-glass">
+          <ng-icon [svg]="hoursIcon" aria-hidden="true" />
+          <span>
+            <strong>{{ text().contact.hours }}:</strong>
+            {{ text().contact.hoursText }}
+          </span>
+        </li>
+        <li class="app-hero-glass">
+          <ng-icon [svg]="addressIcon" aria-hidden="true" />
+          <span>
+            <strong>{{ text().contact.address }}:</strong>
+            {{ text().contact.addressText }}
+          </span>
+        </li>
+      </ul>
+    </div>
 
     <ul class="contact-channels">
       @for (channel of channels(); track channel.label) {
-        <li>
+        <li class="app-hero-rise">
           <a
-            class="ro-card contact-channel"
+            class="app-hero-glass contact-channel"
             [href]="channel.href"
             [attr.target]="channel.external ? '_blank' : null"
             [attr.rel]="channel.external ? 'noopener' : null"
           >
             <span class="contact-icon"><ng-icon [svg]="channel.icon" aria-hidden="true" /></span>
-            <span class="contact-label">{{ channel.label }}</span>
-            <bdi class="contact-value" dir="ltr">{{ channel.value }}</bdi>
-            <span class="hint">{{ channel.hint }}</span>
+            <span class="contact-text">
+              <span class="contact-label">{{ channel.label }}</span>
+              <bdi class="contact-value" dir="ltr">{{ channel.value }}</bdi>
+              <span class="contact-hint">{{ channel.hint }}</span>
+            </span>
+            <span class="contact-action">
+              {{ channel.action }}
+              <ng-icon class="contact-arrow" [svg]="arrowIcon" aria-hidden="true" />
+            </span>
           </a>
         </li>
       }
     </ul>
+  </app-public-hero>
 
-    <div class="contact-details">
-      <section class="ro-card contact-info">
-        <h2 class="ro-card-title">
-          <ng-icon [svg]="hoursIcon" aria-hidden="true" />
-          {{ text().contact.hours }}
-        </h2>
-        <p>{{ text().contact.hoursText }}</p>
-        <h2 class="ro-card-title">
-          <ng-icon [svg]="addressIcon" aria-hidden="true" />
-          {{ text().contact.address }}
-        </h2>
-        <p>{{ text().contact.addressText }}</p>
-      </section>
-      <section class="ro-card contact-info">
-        <h2 class="ro-card-title">{{ text().contact.accountTitle }}</h2>
-        <ol class="contact-steps">
-          @for (step of text().contact.accountSteps; track step) {
-            <li>{{ step }}</li>
-          }
-        </ol>
-        <p class="contact-sign-in">
-          <span class="hint">{{ text().contact.signInHint }}</span>
-          <a appButton="secondary" size="sm" routerLink="/sign-in">{{ text().contact.signIn }}</a>
-        </p>
-      </section>
-    </div>
+  <div class="contact-body">
+    <app-contact-steps />
+
+    <section class="contact-sign-in" aria-labelledby="contact-sign-in">
+      <div class="contact-sign-in-copy">
+        <h2 id="contact-sign-in">{{ text().contact.signInHint }}</h2>
+        <p>{{ text().contact.signInText }}</p>
+      </div>
+      <a appButton class="contact-sign-in-button" routerLink="/sign-in">
+        {{ text().contact.signIn }}
+        <ng-icon class="contact-arrow" [svg]="arrowIcon" aria-hidden="true" />
+      </a>
+    </section>
   </div>
 </app-public-layout>

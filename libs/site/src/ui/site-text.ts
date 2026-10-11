@@ -71,22 +71,29 @@ export interface SiteText {
   };
   readonly contact: {
     readonly title: string;
+    readonly headline: string;
+    readonly headlineHighlight: string;
     readonly hint: string;
     readonly phone: string;
     readonly phoneHint: string;
+    readonly phoneAction: string;
     readonly whatsapp: string;
     readonly whatsappHint: string;
+    readonly whatsappAction: string;
     readonly whatsappMessage: string;
     readonly email: string;
     readonly emailHint: string;
+    readonly emailAction: string;
     readonly emailSubject: string;
     readonly hours: string;
     readonly hoursText: string;
     readonly address: string;
     readonly addressText: string;
     readonly accountTitle: string;
+    readonly accountHint: string;
     readonly accountSteps: readonly string[];
     readonly signInHint: string;
+    readonly signInText: string;
     readonly signIn: string;
   };
 }
@@ -207,26 +214,33 @@ export const siteText: Record<Language, SiteText> = {
     },
     contact: {
       title: 'تواصل معنا',
+      headline: 'نحن هنا',
+      headlineHighlight: 'لنساعدك',
       hint: 'نجهّز حساب كل شركة بأنفسنا. تواصل معنا لطلب حساب أو لأي سؤال، ونرد عليك في مواعيد العمل.',
       phone: 'الهاتف',
       phoneHint: 'اتصل بنا مباشرة.',
+      phoneAction: 'اتصل الآن',
       whatsapp: 'واتساب',
       whatsappHint: 'أرسل لنا رسالة، وسنرد عليك هناك.',
+      whatsappAction: 'افتح المحادثة',
       whatsappMessage: 'مرحبًا، أريد حسابًا على حركة لشركتي.',
       email: 'البريد الإلكتروني',
       emailHint: 'اكتب لنا اسم شركتك ورقم هاتفك.',
+      emailAction: 'اكتب رسالة',
       emailSubject: 'طلب حساب على حركة',
       hours: 'مواعيد العمل',
       hoursText: 'من الأحد إلى الخميس، من 9 صباحًا حتى 5 مساءً.',
       address: 'العنوان',
       addressText: 'القاهرة، مصر.',
       accountTitle: 'كيف تحصل على حساب؟',
+      accountHint: 'ثلاث خطوات فقط، ونحن نتولى إعداد الحساب.',
       accountSteps: [
         'تواصل معنا بأي طريقة من الطرق السابقة.',
         'نتفق معك على الاشتراك الشهري.',
         'ننشئ حساب شركتك ونرسل لك البريد الإلكتروني وكلمة المرور.',
       ],
       signInHint: 'لديك حساب بالفعل؟',
+      signInText: 'ادخل لمتابعة رحلات اليوم وحسابات الشهر.',
       signIn: 'تسجيل الدخول',
     },
   },
@@ -345,26 +359,33 @@ export const siteText: Record<Language, SiteText> = {
     },
     contact: {
       title: 'Contact us',
+      headline: "We're here",
+      headlineHighlight: 'to help',
       hint: 'We set up every company account ourselves. Contact us to request an account or ask anything, and we will reply during working hours.',
       phone: 'Phone',
       phoneHint: 'Call us directly.',
+      phoneAction: 'Call now',
       whatsapp: 'WhatsApp',
       whatsappHint: 'Send us a message and we will reply there.',
+      whatsappAction: 'Open the chat',
       whatsappMessage: 'Hello, I would like a Haraka account for my company.',
       email: 'Email',
       emailHint: 'Write us your company name and phone number.',
+      emailAction: 'Write an email',
       emailSubject: 'Haraka account request',
       hours: 'Working hours',
       hoursText: 'Sunday to Thursday, 9 am to 5 pm.',
       address: 'Address',
       addressText: 'Cairo, Egypt.',
       accountTitle: 'How do you get an account?',
+      accountHint: 'Just three steps, and we set the account up for you.',
       accountSteps: [
         'Contact us in any of the ways above.',
         'We agree with you on the monthly subscription.',
         'We create your company account and send you the email and password.',
       ],
       signInHint: 'Already have an account?',
+      signInText: "Sign in to follow today's trips and the month's accounts.",
       signIn: 'Sign in',
     },
   },

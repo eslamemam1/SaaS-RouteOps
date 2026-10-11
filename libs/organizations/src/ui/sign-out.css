@@ -1,11 +1,17 @@
 :host {
-  display: grid;
-  place-items: center;
-  min-block-size: 100dvh;
-  padding: var(--ro-space-4);
+  display: block;
 }
 
-app-page-state {
+.sign-out-hero {
+  display: grid;
+  align-items: center;
+  min-block-size: 100dvh;
+}
+
+.sign-out-card {
   inline-size: 100%;
   max-inline-size: var(--ro-form-max-width);
+  margin-inline: auto;
+  border: 0;
+  box-shadow: var(--ro-shadow-mockup);
 }

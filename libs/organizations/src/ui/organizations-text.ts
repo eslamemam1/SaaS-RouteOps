@@ -12,6 +12,8 @@ export interface OrganizationsText {
     readonly email: string;
     readonly password: string;
     readonly submit: string;
+    readonly headline: string;
+    readonly headlineHighlight: string;
     readonly welcome: string;
     readonly points: readonly string[];
     readonly noAccount: string;
@@ -201,6 +203,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       email: 'البريد الإلكتروني',
       password: 'كلمة المرور',
       submit: 'دخول',
+      headline: 'كل عمل شركتك',
+      headlineHighlight: 'في شاشة واحدة',
       welcome: 'مرحبًا بعودتك. ادخل لمتابعة عمل شركتك.',
       points: [
         'رحلات اليوم وما تغيّر فيها',
@@ -403,6 +407,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       email: 'Email',
       password: 'Password',
       submit: 'Sign in',
+      headline: "All your company's work",
+      headlineHighlight: 'on one screen',
       welcome: 'Welcome back. Sign in to follow your company\'s work.',
       points: [
         'Today\'s trips and what changed',
