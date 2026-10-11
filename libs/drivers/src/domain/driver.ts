@@ -224,6 +224,22 @@ export function licenseExpired(licenseExpiry: string, today: string): boolean {
   return licenseExpiry.length > 0 && licenseExpiry < today;
 }
 
+// The same warning period as the notifications bell.
+export const licenseWarningDays = 30;
+
+export function licenseExpiresSoon(
+  licenseExpiry: string,
+  today: string,
+): boolean {
+  const last = new Date(`${today}T00:00:00Z`);
+  last.setUTCDate(last.getUTCDate() + licenseWarningDays);
+  return (
+    licenseExpiry.length > 0 &&
+    licenseExpiry >= today &&
+    licenseExpiry <= last.toISOString().slice(0, 10)
+  );
+}
+
 export function memberOrganization(
   memberships: readonly DriverOrganization[],
   requestedId: string,

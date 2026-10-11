@@ -1,7 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucidePlus } from '@ng-icons/lucide';
+import {
+  lucideCalendarClock,
+  lucideCreditCard,
+  lucideIdCard,
+  lucidePhone,
+  lucidePlus,
+} from '@ng-icons/lucide';
 import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import {
   Alert,
@@ -12,6 +18,7 @@ import {
   PageHeader,
   PageState,
   Tag,
+  Tone,
   paginate,
   Pager,
   ViewSwitch,
@@ -23,6 +30,7 @@ import {
   DriverOrganization,
   DriverProblem,
   licenseExpired,
+  licenseExpiresSoon,
   sortByName,
 } from '../domain/driver';
 import { DriverForm, DriverSaved } from './driver-form';
@@ -54,6 +62,12 @@ export class Drivers {
   private readonly language = inject(LanguageService).language;
   protected readonly text = injectText(driversText);
   protected readonly addIcon = lucidePlus;
+  protected readonly icons = {
+    phone: lucidePhone,
+    nationalId: lucideIdCard,
+    license: lucideCreditCard,
+    expiry: lucideCalendarClock,
+  };
   protected readonly view = injectListView('drivers');
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
@@ -83,8 +97,13 @@ export class Drivers {
     void this.load();
   }
 
-  protected expired(driver: Driver): boolean {
-    return licenseExpired(driver.licenseExpiry, this.today);
+  protected licenseTone(driver: Driver): Tone | null {
+    if (licenseExpired(driver.licenseExpiry, this.today)) {
+      return 'danger';
+    }
+    return licenseExpiresSoon(driver.licenseExpiry, this.today)
+      ? 'warning'
+      : null;
   }
 
   protected add(): void {

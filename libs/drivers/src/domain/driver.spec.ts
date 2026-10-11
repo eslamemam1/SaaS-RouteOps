@@ -5,6 +5,7 @@ import {
   DriverOrganization,
   emptyDriverDetails,
   licenseExpired,
+  licenseExpiresSoon,
   memberOrganization,
   nationalIdError,
   normalizeNationalId,
@@ -69,6 +70,19 @@ describe('licenseExpired', () => {
     expect(licenseExpired('2026-10-03', '2026-10-04')).toBe(true);
     expect(licenseExpired('2026-10-04', '2026-10-04')).toBe(false);
     expect(licenseExpired('', '2026-10-04')).toBe(false);
+  });
+});
+
+describe('licenseExpiresSoon', () => {
+  it('warns from today until 30 days ahead, across a month end', () => {
+    expect(licenseExpiresSoon('2026-10-04', '2026-10-04')).toBe(true);
+    expect(licenseExpiresSoon('2026-11-03', '2026-10-04')).toBe(true);
+    expect(licenseExpiresSoon('2026-11-04', '2026-10-04')).toBe(false);
+  });
+
+  it('leaves an expired or missing license to the expired check', () => {
+    expect(licenseExpiresSoon('2026-10-03', '2026-10-04')).toBe(false);
+    expect(licenseExpiresSoon('', '2026-10-04')).toBe(false);
   });
 });
 

@@ -65,22 +65,54 @@
                 </span>
               </div>
             </td>
-            <td class="ro-numeric" [attr.data-label]="text().list.phone">
-              <bdi>{{ driver.phone }}</bdi>
+            <td class="ro-cell-tile" [attr.data-label]="text().list.phone">
+              @if (driver.phone) {
+              <span class="ro-field">
+                <ng-icon [svg]="icons.phone" aria-hidden="true" />
+                <a class="ro-numeric" [href]="'tel:' + driver.phone">
+                  <bdi>{{ driver.phone }}</bdi>
+                </a>
+              </span>
+              }
             </td>
-            <td class="ro-numeric" [attr.data-label]="text().list.nationalId">
-              <bdi>{{ driver.nationalId }}</bdi>
+            <td class="ro-cell-tile" [attr.data-label]="text().list.nationalId">
+              @if (driver.nationalId) {
+              <span class="ro-field">
+                <ng-icon [svg]="icons.nationalId" aria-hidden="true" />
+                <bdi class="ro-numeric">{{ driver.nationalId }}</bdi>
+              </span>
+              }
             </td>
-            <td [attr.data-label]="text().list.licenseNumber">
-              <bdi>{{ driver.licenseNumber }}</bdi>
+            <td
+              class="ro-cell-tile"
+              [attr.data-label]="text().list.licenseNumber"
+            >
+              @if (driver.licenseNumber) {
+              <span class="ro-field">
+                <ng-icon [svg]="icons.license" aria-hidden="true" />
+                <bdi>{{ driver.licenseNumber }}</bdi>
+              </span>
+              }
             </td>
-            <td [attr.data-label]="text().list.licenseExpiry">
-              <div class="ro-cell-stack">
-                <bdi class="ro-numeric">{{ day(driver.licenseExpiry) }}</bdi>
-                @if (expired(driver)) {
-                <app-tag tone="danger">{{ text().list.expired }}</app-tag>
+            <td
+              class="ro-cell-tile"
+              [attr.data-label]="text().list.licenseExpiry"
+            >
+              @if (driver.licenseExpiry) { @let tone = licenseTone(driver);
+              <div class="ro-cell-stack" [attr.data-tone]="tone">
+                <span class="ro-field">
+                  <ng-icon [svg]="icons.expiry" aria-hidden="true" />
+                  <bdi class="ro-numeric">{{ day(driver.licenseExpiry) }}</bdi>
+                </span>
+                @if (tone === 'danger') {
+                <app-tag dot tone="danger">{{ text().list.expired }}</app-tag>
+                } @else if (tone === 'warning') {
+                <app-tag dot tone="warning">
+                  {{ text().list.expiresSoon }}
+                </app-tag>
                 }
               </div>
+              }
             </td>
             <td class="ro-cell-status" [attr.data-label]="text().list.work">
               <app-tag dot [tone]="driver.active ? 'success' : 'neutral'">

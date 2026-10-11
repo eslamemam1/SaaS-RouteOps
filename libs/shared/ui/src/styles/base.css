@@ -1044,6 +1044,23 @@ a.ro-entity-name:hover {
     grid-column: 1 / -1;
   }
 
+  /* .ro-cell-tile fields are grey tiles, so a card's details read as a grid of facts. */
+  .ro-table-cards tr:has(> .ro-cell-tile) {
+    column-gap: var(--ro-space-3);
+  }
+
+  .ro-table-stack:not(.ro-table-cards) .ro-field {
+    min-inline-size: max-content;
+    white-space: nowrap;
+  }
+
+  .ro-table-cards td.ro-cell-tile {
+    margin-block-start: var(--ro-space-3);
+    padding: var(--ro-space-3);
+    border-radius: var(--ro-radius-md);
+    background: var(--ro-bg-hover);
+  }
+
   /* The footer is a grey strip that reaches the card's edges. */
   .ro-table-cards td.ro-actions {
     grid-row: -2;
@@ -1180,4 +1197,29 @@ a.ro-entity-name:hover {
   display: grid;
   justify-items: start;
   gap: var(--ro-space-1);
+}
+
+/*
+ * A value led by a small grey icon. The icon takes a tone only from a data-tone on the field's
+ * own parent, so a card's tone does not colour every icon in it.
+ */
+.ro-field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  min-inline-size: 0;
+}
+
+.ro-field > ng-icon {
+  flex: none;
+  color: var(--ro-text-muted);
+  font-size: var(--ro-text-body-md);
+}
+
+[data-tone] > .ro-field > ng-icon {
+  color: var(--ro-tone-text);
+}
+
+.ro-field > a:hover {
+  text-decoration: underline;
 }

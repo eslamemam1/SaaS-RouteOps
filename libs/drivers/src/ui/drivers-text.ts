@@ -82,6 +82,7 @@ export interface DriversText {
     readonly licenseNumber: string;
     readonly licenseExpiry: string;
     readonly expired: string;
+    readonly expiresSoon: string;
     readonly work: string;
     readonly working: string;
     readonly stopped: string;
@@ -246,6 +247,7 @@ export const driversText: Record<Language, DriversText> = {
       licenseNumber: 'رقم الرخصة',
       licenseExpiry: 'انتهاء الرخصة',
       expired: 'منتهية',
+      expiresSoon: 'تنتهي قريبًا',
       work: 'الحالة',
       working: 'يعمل',
       stopped: 'لا يعمل حاليًا',
@@ -261,7 +263,8 @@ export const driversText: Record<Language, DriversText> = {
       nationalIdHint: 'الرقم المكتوب في بطاقة الهوية.',
       licenseNumber: 'رقم رخصة القيادة',
       licenseExpiry: 'تاريخ انتهاء رخصة القيادة',
-      licenseExpiryHint: 'تظهر كلمة "منتهية" في القائمة بعد هذا التاريخ.',
+      licenseExpiryHint:
+        'تظهر في القائمة "تنتهي قريبًا" قبل هذا التاريخ بثلاثين يومًا، و"منتهية" بعده.',
       payTitle: 'أجر السائق',
       payHint:
         'يُستخدم لحساب راتب السائق المقترح كل شهر في صفحة المصاريف من الرحلات التي قادها فعلًا، ويمكنك تعديل المبلغ قبل تسجيله. أي تغيير هنا يسري من الشهر الحالي، وتبقى الشهور السابقة على حسابها القديم.',
@@ -416,6 +419,7 @@ export const driversText: Record<Language, DriversText> = {
       licenseNumber: 'License number',
       licenseExpiry: 'License expiry',
       expired: 'Expired',
+      expiresSoon: 'Expires soon',
       work: 'Status',
       working: 'Working',
       stopped: 'Stopped',
@@ -431,7 +435,8 @@ export const driversText: Record<Language, DriversText> = {
       nationalIdHint: 'The number written on the ID card.',
       licenseNumber: 'Driving license number',
       licenseExpiry: 'Driving license expiry date',
-      licenseExpiryHint: 'The list shows "Expired" after this date.',
+      licenseExpiryHint:
+        'The list shows "Expires soon" from 30 days before this date, and "Expired" after it.',
       payTitle: 'Driver pay',
       payHint:
         "Used to suggest the driver's salary each month on the expenses page from the trips the driver actually drove, and you can change the amount before recording it. A change here applies from the current month; past months keep their old terms.",
