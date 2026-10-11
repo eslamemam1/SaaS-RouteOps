@@ -66,6 +66,8 @@ const photoUrlSeconds = 60 * 60;
 const photoCacheSeconds = String(60 * 60 * 24 * 365);
 
 const uniqueViolation = '23505';
+// Raised by the database when an active route still uses the driver.
+const activeRoutes = 'active_routes';
 
 const payTypeColumns: Record<PayType, string> = {
   none: 'none',
@@ -132,7 +134,7 @@ export class SupabaseDriverGateway implements DriverGateway {
       .select(driverColumns)
       .single();
     if (error || !data) {
-      throw new DriverAccessError(saveProblem(error));
+      throw saveError(error);
     }
     const [driver] = await this.toDrivers([data], organization.currency);
     return driver;
@@ -151,7 +153,7 @@ export class SupabaseDriverGateway implements DriverGateway {
       .select(driverColumns)
       .single();
     if (error || !data) {
-      throw new DriverAccessError(saveProblem(error));
+      throw saveError(error);
     }
     const [driver] = await this.toDrivers([data], organization.currency);
     return driver;
@@ -227,8 +229,15 @@ export class SupabaseDriverGateway implements DriverGateway {
   }
 }
 
-function saveProblem(error: PostgrestError | null) {
-  return error?.code === uniqueViolation ? 'nationalIdTaken' : 'save';
+function saveError(error: PostgrestError | null): DriverAccessError {
+  if (error?.message === activeRoutes) {
+    return new DriverAccessError('activeRoutes', routeNames(error.details));
+  }
+  return new DriverAccessError(error?.code === uniqueViolation ? 'nationalIdTaken' : 'save');
+}
+
+function routeNames(details: string | null | undefined): string[] {
+  return (details ?? '').split('\n').filter((name) => name !== '');
 }
 
 function photoOf(

@@ -3,6 +3,7 @@ import { Language } from '@routeops/shared/i18n';
 export interface UiText {
   readonly optional: string;
   readonly close: string;
+  readonly retry: string;
   readonly site: {
     readonly navigation: string;
     readonly home: string;
@@ -23,6 +24,7 @@ export const uiText: Record<Language, UiText> = {
   ar: {
     optional: '(اختياري)',
     close: 'إغلاق',
+    retry: 'إعادة المحاولة',
     site: {
       navigation: 'روابط الموقع',
       home: 'الرئيسية',
@@ -41,6 +43,7 @@ export const uiText: Record<Language, UiText> = {
   en: {
     optional: '(optional)',
     close: 'Close',
+    retry: 'Try again',
     site: {
       navigation: 'Site links',
       home: 'Home',

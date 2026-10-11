@@ -41,7 +41,17 @@ export class HolidayPanel {
   protected readonly selected = signal<ReadonlySet<string>>(new Set());
   protected readonly submitting = signal(false);
   protected readonly done = signal(false);
+  protected readonly confirming = signal(false);
   protected readonly problem = signal<OperationsProblem | null>(null);
+
+  // Trips already marked done happened, so a holiday leaves them alone.
+  protected readonly toCancel = computed(
+    () =>
+      this.trips().filter(
+        (trip) =>
+          this.selected().has(trip.customerId) && !trip.cancelled && !trip.done,
+      ).length,
+  );
 
   protected readonly customers = computed(() =>
     customersWithRunningTrips(this.trips()).map((id) => ({
@@ -56,6 +66,7 @@ export class HolidayPanel {
       untracked(() => {
         this.selected.set(new Set());
         this.done.set(false);
+        this.confirming.set(false);
         this.problem.set(null);
       });
     });
@@ -70,9 +81,15 @@ export class HolidayPanel {
     }
     this.selected.set(next);
     this.done.set(false);
+    this.confirming.set(false);
   }
 
   protected async record(): Promise<void> {
+    if (!this.confirming()) {
+      this.confirming.set(true);
+      return;
+    }
+    this.confirming.set(false);
     this.submitting.set(true);
     this.problem.set(null);
     try {

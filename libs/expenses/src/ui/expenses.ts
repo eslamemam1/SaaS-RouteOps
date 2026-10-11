@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import { lucidePlus } from '@ng-icons/lucide';
-import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
 import {
   Alert,
@@ -87,11 +87,16 @@ export class Expenses {
   protected readonly data = signal<ExpenseMonth>(noMonth);
   protected readonly formOpen = signal(false);
   protected readonly editingId = signal<string | null>(null);
+  protected readonly payMonth = signal<string | null>(null);
   protected readonly formDetails = signal<ExpenseDetails>(emptyExpenseDetails(''));
   protected readonly outcome = signal<'added' | 'saved' | 'removed' | null>(null);
-  protected readonly formTitle = computed(() =>
-    this.editingId() ? this.text().form.editTitle : this.text().form.addTitle,
-  );
+  protected readonly formTitle = computed(() => {
+    const form = this.text().form;
+    if (this.payMonth()) {
+      return form.recordPayTitle;
+    }
+    return this.editingId() ? form.editTitle : form.addTitle;
+  });
   protected readonly categories = computed(() =>
     categoryTotals(this.data().expenses),
   );
@@ -109,6 +114,14 @@ export class Expenses {
   });
 
   constructor() {
+    void this.load();
+  }
+
+  protected day(value: string): string {
+    return formatDay(value, this.language());
+  }
+
+  protected retry(): void {
     void this.load();
   }
 
@@ -185,6 +198,7 @@ export class Expenses {
           organization.currency,
           this.payNote(pay),
         ),
+        this.month(),
       );
     }
   }
@@ -200,6 +214,7 @@ export class Expenses {
           organization.currency,
           this.rentNote(rent),
         ),
+        this.month(),
       );
     }
   }
@@ -259,9 +274,14 @@ export class Expenses {
     void this.loadMonth();
   }
 
-  private open(expenseId: string | null, details: ExpenseDetails): void {
+  private open(
+    expenseId: string | null,
+    details: ExpenseDetails,
+    payMonth: string | null = null,
+  ): void {
     this.outcome.set(null);
     this.editingId.set(expenseId);
+    this.payMonth.set(payMonth);
     this.formDetails.set(details);
     this.formOpen.set(true);
   }
@@ -279,6 +299,11 @@ export class Expenses {
       }
       this.choices.set(await this.repository.choices(organization));
       this.organization.set(organization);
+      const requestedMonth =
+        this.activatedRoute.snapshot.queryParamMap.get('month') ?? '';
+      if (isExpenseMonth(requestedMonth)) {
+        this.month.set(requestedMonth);
+      }
       await this.loadMonth();
     } catch (error) {
       this.fail(error);

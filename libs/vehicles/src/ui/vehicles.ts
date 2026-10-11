@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import { lucideBus, lucidePlus } from '@ng-icons/lucide';
-import { injectText } from '@routeops/shared/i18n';
+import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import {
   Alert,
   Button,
@@ -51,6 +51,7 @@ export class Vehicles {
   private readonly route = inject(ActivatedRoute);
   private readonly today = localDate(new Date());
 
+  private readonly language = inject(LanguageService).language;
   protected readonly text = injectText(vehiclesText);
   protected readonly addIcon = lucidePlus;
   protected readonly vehicleIcon = lucideBus;
@@ -74,6 +75,14 @@ export class Vehicles {
   );
 
   constructor() {
+    void this.load();
+  }
+
+  protected day(value: string): string {
+    return formatDay(value, this.language());
+  }
+
+  protected retry(): void {
     void this.load();
   }
 

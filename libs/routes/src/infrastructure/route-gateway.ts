@@ -12,6 +12,7 @@ import {
   RouteChoice,
   RouteChoices,
   RouteOrganization,
+  RouteProblem,
   selectedDays,
   TransportRoute,
   TransportRouteDetails,
@@ -58,6 +59,8 @@ const routeColumns =
   'id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, trip_price, notes, is_active';
 
 const uniqueViolation = '23505';
+// Raised by the database when an active route names an inactive choice.
+const inactiveChoice = 'inactive_choice';
 
 // PostgreSQL day-of-week numbers, which the routes table stores.
 const dayNumbers: Record<Weekday, number> = {
@@ -195,7 +198,10 @@ export class SupabaseRouteGateway implements RouteGateway {
   }
 }
 
-function saveProblem(error: PostgrestError | null) {
+function saveProblem(error: PostgrestError | null): RouteProblem {
+  if (error?.message === inactiveChoice) {
+    return 'inactiveChoice';
+  }
   return error?.code === uniqueViolation ? 'nameTaken' : 'save';
 }
 

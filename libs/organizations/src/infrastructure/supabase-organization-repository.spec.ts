@@ -46,8 +46,10 @@ describe('SupabaseOrganizationRepository', () => {
       'org-north',
       { from: '2026-10-01', to: '2026-10-31' },
       '2026-10-08',
+      { from: '2026-09-01', to: '2026-09-30' },
     );
     expect(summary.month.profit).toBe(-20000);
+    expect(summary.payMonth).toBe('2026-09');
   });
 
   it('records a payment in the smallest unit of the company currency', async () => {
@@ -108,6 +110,7 @@ const facts: DashboardFacts = {
   unopenedDays: [],
   unrecordedDriverPay: 0,
   unrecordedVehiclePay: 0,
+  setup: { customers: 1, drivers: 1, routes: 1 },
 };
 
 function fakeGateway(options: {

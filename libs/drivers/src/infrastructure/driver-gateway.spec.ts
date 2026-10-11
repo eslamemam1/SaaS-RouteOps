@@ -265,6 +265,18 @@ describe('SupabaseDriverGateway', () => {
     ).rejects.toEqual(new DriverAccessError('nationalIdTaken'));
   });
 
+  it('names the active routes that keep a driver from being made inactive', async () => {
+    const calls = recorder({
+      data: null,
+      error: { message: 'active_routes', code: 'P0001', details: 'Nasr City\nShubra' },
+    });
+    const gateway = new SupabaseDriverGateway(calls.client);
+
+    await expect(
+      gateway.updateDriver(north, 'driver-1', { ...emptyDriverDetails, fullName: 'أحمد', active: false }),
+    ).rejects.toMatchObject({ problem: 'activeRoutes', routes: ['Nasr City', 'Shubra'] });
+  });
+
   it('replaces any other database error with a safe code', async () => {
     const calls = recorder({
       data: null,

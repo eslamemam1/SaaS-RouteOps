@@ -120,24 +120,28 @@ describe('SupabaseOperationsGateway', () => {
     expect(trip.done).toBe(true);
   });
 
-  it('reads automatic recording when the organization has not chosen yet', async () => {
-    const calls = recorder(() => ({ data: null, error: null }));
+  it('reads no recording periods when the organization has not chosen yet', async () => {
+    const calls = recorder(() => ({ data: [], error: null }));
     const gateway = new SupabaseOperationsGateway(calls.client);
 
-    await expect(gateway.readTripRecording('org-north')).resolves.toBe(
-      'automatic',
-    );
+    await expect(gateway.listTripRecordings('org-north')).resolves.toEqual([]);
     expect(calls.filters).toEqual([['organization_id', 'org-north']]);
   });
 
-  it('reads the recording the organization chose', async () => {
+  it('reads each recording the organization chose with the day it starts', async () => {
     const calls = recorder(() => ({
-      data: { trip_recording: 'manual' },
+      data: [
+        { starts_on: '2026-09-01', trip_recording: 'automatic' },
+        { starts_on: '2026-10-05', trip_recording: 'manual' },
+      ],
       error: null,
     }));
     const gateway = new SupabaseOperationsGateway(calls.client);
 
-    await expect(gateway.readTripRecording('org-north')).resolves.toBe('manual');
+    await expect(gateway.listTripRecordings('org-north')).resolves.toEqual([
+      { startsOn: '2026-09-01', recording: 'automatic' },
+      { startsOn: '2026-10-05', recording: 'manual' },
+    ]);
   });
 
   it('saves the recording through the database function for the organization', async () => {
@@ -241,6 +245,7 @@ describe('SupabaseOperationsGateway', () => {
     expect(calls.filters).toEqual([
       ['organization_id', 'org-north'],
       ['service_date', '2026-10-06'],
+      ['is_done', false],
     ]);
     expect(calls.inFilters).toEqual([['customer_id', ['delta', 'nour']]]);
   });

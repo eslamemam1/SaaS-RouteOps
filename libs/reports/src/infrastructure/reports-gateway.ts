@@ -1,5 +1,12 @@
+import { allRows } from '@routeops/shared/supabase';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { defaultCurrency, isCurrency } from '@routeops/shared/money';
+import {
+  remainingPay,
+  remainingRent,
+  toDriverPay,
+  toVehiclePay,
+} from '@routeops/shared/pay';
 import { ReportsAccessError } from '../application/reports-access-error';
 import {
   DateRange,
@@ -126,12 +133,22 @@ export class SupabaseReportsGateway implements ReportsGateway {
     range: DateRange,
     today: string,
   ): Promise<TripCount[]> {
-    const { data, error } = await this.requireClient().rpc('trip_report', {
-      p_organization_id: organizationId,
-      p_from: range.from,
-      p_to: range.to,
-      p_today: today,
-    });
+    const client = this.requireClient();
+    const { data, error } = await allRows((from, to) =>
+      client
+        .rpc('trip_report', {
+          p_organization_id: organizationId,
+          p_from: range.from,
+          p_to: range.to,
+          p_today: today,
+        })
+        .order('customer_id')
+        .order('route_id')
+        .order('vehicle_id')
+        .order('driver_id')
+        .order('direction')
+        .range(from, to),
+    );
     if (error) {
       throw new ReportsAccessError('load');
     }
@@ -182,8 +199,8 @@ export class SupabaseReportsGateway implements ReportsGateway {
     }));
   }
 
-  // A salary is due every month and a monthly rent too; pay for trips is due
-  // only once there are done trips.
+  // The same rule as the expenses screen: pay counts as unrecorded while any
+  // of what it suggests is left.
   async unrecordedPay(
     organizationId: string,
     range: DateRange,
@@ -204,16 +221,14 @@ export class SupabaseReportsGateway implements ReportsGateway {
       throw new ReportsAccessError('load');
     }
     return {
-      drivers: (drivers.data ?? []).filter(
-        (row) =>
-          Number(row.recorded) === 0 &&
-          (row.pay_type === 'salary' || row.done_outbound + row.done_return > 0),
-      ).length,
-      vehicles: (vehicles.data ?? []).filter(
-        (row) =>
-          Number(row.recorded) === 0 &&
-          (row.rent_type === 'monthly' || row.done_outbound + row.done_return > 0),
-      ).length,
+      drivers: (drivers.data ?? []).filter((row) => {
+        const pay = toDriverPay(row);
+        return pay !== null && remainingPay(pay) > 0;
+      }).length,
+      vehicles: (vehicles.data ?? []).filter((row) => {
+        const rent = toVehiclePay(row);
+        return rent !== null && remainingRent(rent) > 0;
+      }).length,
     };
   }
 

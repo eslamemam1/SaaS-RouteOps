@@ -55,7 +55,7 @@
     [control]="extraForm.tripPrice"
   >
     <input type="text" inputmode="decimal" dir="ltr" [formField]="extraForm.tripPrice" />
-    <bdi>{{ organization().currency }}</bdi>
+    <bdi>{{ currencyLabel() }}</bdi>
   </app-field>
   <app-field [label]="text().extra.notes" [optional]="true" [control]="extraForm.notes">
     <textarea [formField]="extraForm.notes"></textarea>

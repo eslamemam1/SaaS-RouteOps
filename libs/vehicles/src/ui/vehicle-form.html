@@ -77,6 +77,7 @@
         [control]="vehicleForm.monthlyRent"
       >
         <input type="text" inputmode="decimal" dir="ltr" [formField]="vehicleForm.monthlyRent" />
+        <bdi>{{ currencyLabel() }}</bdi>
       </app-field>
     }
     @if (model().rentType === 'perTrip') {
@@ -87,6 +88,7 @@
         [control]="vehicleForm.outboundRent"
       >
         <input type="text" inputmode="decimal" dir="ltr" [formField]="vehicleForm.outboundRent" />
+        <bdi>{{ currencyLabel() }}</bdi>
       </app-field>
       <app-field
         [label]="text().form.returnRent"
@@ -94,6 +96,7 @@
         [control]="vehicleForm.returnRent"
       >
         <input type="text" inputmode="decimal" dir="ltr" [formField]="vehicleForm.returnRent" />
+        <bdi>{{ currencyLabel() }}</bdi>
       </app-field>
     }
   }
@@ -109,8 +112,18 @@
     <input type="checkbox" [formField]="vehicleForm.active" />
     {{ text().form.active }}
   </label>
+  <p class="hint">{{ text().form.activeHint }}</p>
   @if (problem(); as current) {
-    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+    <app-alert tone="danger">
+      {{ text().problems[current] }}
+      @if (blockingRoutes().length > 0) {
+        <ul>
+          @for (name of blockingRoutes(); track name) {
+            <li><bdi>{{ name }}</bdi></li>
+          }
+        </ul>
+      }
+    </app-alert>
   }
   <div class="ro-toolbar">
     <button appButton type="submit" [disabled]="submitting()">

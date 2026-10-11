@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
 import { Alert, Button, Field, PageHeader, PageState, Tag } from '@routeops/shared/ui';
 import { ReportsAccessError } from '../application/reports-access-error';
@@ -96,6 +96,14 @@ export class Reports {
     void this.load();
   }
 
+  protected day(value: string): string {
+    return formatDay(value, this.language());
+  }
+
+  protected retry(): void {
+    void this.load();
+  }
+
   protected money(minor: number): string {
     const organization = this.organization();
     return organization
@@ -142,6 +150,11 @@ export class Reports {
       }
       this.choices.set(await this.repository.choices(organization));
       this.organization.set(organization);
+      const requestedMonth =
+        this.activatedRoute.snapshot.queryParamMap.get('month') ?? '';
+      if (isReportMonth(requestedMonth)) {
+        this.month.set(requestedMonth);
+      }
       await this.loadMonth();
     } catch (error) {
       this.fail(error);

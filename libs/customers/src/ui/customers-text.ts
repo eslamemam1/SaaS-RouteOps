@@ -32,6 +32,7 @@ export interface CustomersText {
     readonly notes: string;
     readonly notesHint: string;
     readonly active: string;
+    readonly activeHint: string;
     readonly add: string;
     readonly save: string;
     readonly cancel: string;
@@ -46,6 +47,7 @@ export const customersText: Record<Language, CustomersText> = {
       name: 'أدخل اسم الشركة أو المصنع.',
       tooLong: 'النص أطول من المسموح.',
       emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا، مثل name@company.com',
+      activeRoutes: 'لا يمكن إيقاف هذه الشركة لأن هذه الخطوط العاملة تتبعها. أوقف الخطوط أولًا من صفحة الخطوط، ثم أوقف الشركة:',
       load: 'تعذّر تحميل الشركات المتعاقدة. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
@@ -54,7 +56,7 @@ export const customersText: Record<Language, CustomersText> = {
     },
     list: {
       title: 'الشركات المتعاقدة',
-      add: 'إضافة شركة',
+      add: 'إضافة شركة متعاقدة',
       hint: 'الشركات والمصانع التي تنقل موظفيها. سجّل هنا كل شركة تتعامل معها.',
       loading: 'جارٍ التحميل...',
       empty: 'لم تضف أي شركة بعد. ابدأ بإضافة أول شركة.',
@@ -82,6 +84,7 @@ export const customersText: Record<Language, CustomersText> = {
       notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذه الشركة.',
       active: 'ما زلنا نتعامل مع هذه الشركة',
+      activeHint: 'لا تظهر الشركة الموقوفة عند إضافة خط جديد، وتبقى رحلاتها وحساباتها السابقة كما هي.',
       add: 'إضافة الشركة',
       save: 'حفظ التعديلات',
       cancel: 'إلغاء',
@@ -94,6 +97,7 @@ export const customersText: Record<Language, CustomersText> = {
       name: 'Enter the company or factory name.',
       tooLong: 'This text is too long.',
       emailFormat: 'Enter a valid email, like name@company.com',
+      activeRoutes: 'This company cannot be made inactive because these active routes belong to it. Stop the routes first on the routes page, then the company:',
       load: 'Could not load your client companies. Please try again.',
       save: 'Could not save. Please try again.',
       organization: 'You cannot open this page from your account.',
@@ -130,6 +134,7 @@ export const customersText: Record<Language, CustomersText> = {
       notes: 'Notes',
       notesHint: 'Anything you want to remember about this company.',
       active: 'We still work with this company',
+      activeHint: 'An inactive company is not offered for new routes, and its past trips and figures stay as they are.',
       add: 'Add company',
       save: 'Save changes',
       cancel: 'Cancel',

@@ -96,6 +96,17 @@ export function formatMoney(
   ).format(minor / 10 ** decimals);
 }
 
+// The currency as people write it next to an amount, such as ج.م. in Arabic.
+export function currencySymbol(currency: Currency, language: 'ar' | 'en'): string {
+  const part = new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', {
+    style: 'currency',
+    currency,
+  })
+    .formatToParts(0)
+    .find((item) => item.type === 'currency');
+  return part?.value.trim() || currency;
+}
+
 function normalizeDigits(text: string): string {
   return text
     .replace(/[\u0660-\u0669]/g, (digit) =>

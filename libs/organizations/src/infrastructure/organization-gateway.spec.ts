@@ -154,14 +154,20 @@ describe('SupabaseOrganizationGateway', () => {
       expense_totals: [{ total: 150000 }, { total: 50000 }],
       unopened_days: ['2026-10-04', '2026-10-08'],
       driver_pay: [
-        { pay_type: 'salary', done_outbound: 0, done_return: 0, recorded: 0 },
-        { pay_type: 'salary', done_outbound: 10, done_return: 10, recorded: 700000 },
-        { pay_type: 'perTrip', done_outbound: 0, done_return: 0, recorded: 0 },
-        { pay_type: 'perTrip', done_outbound: 3, done_return: 0, recorded: 0 },
+        driverPay({ pay_type: 'salary', monthly_salary: 500000 }),
+        driverPay({ pay_type: 'salary', monthly_salary: 700000, recorded: 700000 }),
+        driverPay({ pay_type: 'per_trip', outbound_pay: 10000, return_pay: 10000 }),
+        driverPay({
+          pay_type: 'per_trip',
+          outbound_pay: 10000,
+          return_pay: 10000,
+          done_outbound: 3,
+          recorded: 10000,
+        }),
       ],
       vehicle_pay: [
-        { rent_type: 'monthly', done_outbound: 0, done_return: 0, recorded: 0 },
-        { rent_type: 'perTrip', done_outbound: 0, done_return: 0, recorded: 0 },
+        vehiclePay({ rent_type: 'monthly', monthly_rent: 300000 }),
+        vehiclePay({ rent_type: 'per_trip', outbound_rent: 20000, return_rent: 20000 }),
       ],
     };
     const client = fakeClient({
@@ -192,6 +198,7 @@ describe('SupabaseOrganizationGateway', () => {
       'org-north',
       { from: '2026-10-01', to: '2026-10-31' },
       '2026-10-08',
+      { from: '2026-09-01', to: '2026-09-30' },
     );
 
     expect(facts).toEqual({
@@ -204,6 +211,16 @@ describe('SupabaseOrganizationGateway', () => {
       unopenedDays: ['2026-10-04', '2026-10-08'],
       unrecordedDriverPay: 2,
       unrecordedVehiclePay: 1,
+      setup: { customers: 2, drivers: 2, routes: 2 },
+    });
+    expect(calls).toContainEqual({
+      name: 'driver_pay',
+      args: {
+        p_organization_id: 'org-north',
+        p_from: '2026-09-01',
+        p_to: '2026-09-30',
+        p_today: '2026-10-08',
+      },
     });
     expect(calls).toContainEqual({
       name: 'unopened_days',
@@ -222,7 +239,12 @@ describe('SupabaseOrganizationGateway', () => {
     const gateway = new SupabaseOrganizationGateway(client);
 
     await expect(
-      gateway.dashboardFacts('org-north', { from: '2026-10-01', to: '2026-10-31' }, '2026-10-08'),
+      gateway.dashboardFacts(
+        'org-north',
+        { from: '2026-10-01', to: '2026-10-31' },
+        '2026-10-08',
+        { from: '2026-09-01', to: '2026-09-30' },
+      ),
     ).rejects.toEqual(new OrganizationAccessError('load'));
   });
 
@@ -260,7 +282,10 @@ function fakeClient(handlers: {
     },
     eq(column: string, value: string) {
       const result = (name: string, current: string) =>
-        Promise.resolve(handlers.onEq?.(name, current) ?? { data: [], error: null });
+        Promise.resolve({
+          count: 2,
+          ...(handlers.onEq?.(name, current) ?? { data: [], error: null }),
+        });
       return Object.assign(result(column, value), { eq: result });
     },
     in(column: string, value: readonly string[]) {
@@ -274,9 +299,14 @@ function fakeClient(handlers: {
       return query;
     },
     rpc(name: string, args?: Record<string, unknown>) {
-      return Promise.resolve(
+      const result = Promise.resolve(
         handlers.onRpc?.(name, args) ?? { data: [], error: null },
       );
+      const page = Object.assign(result, {
+        order: () => page,
+        range: () => result,
+      });
+      return page;
     },
   } as unknown as SupabaseClient<Database>;
 }
@@ -416,4 +446,34 @@ function paymentClient(results: {
     },
   } as unknown as SupabaseClient<Database>;
   return { client, inserts, invocations };
+}
+
+function driverPay(row: Record<string, unknown>) {
+  return {
+    driver_id: 'driver',
+    monthly_salary: null,
+    salary_trips: null,
+    outbound_pay: null,
+    return_pay: null,
+    done_outbound: 0,
+    done_return: 0,
+    absent_outbound: 0,
+    absent_return: 0,
+    recorded: 0,
+    ...row,
+  };
+}
+
+function vehiclePay(row: Record<string, unknown>) {
+  return {
+    vehicle_id: 'vehicle',
+    ownership: 'rented',
+    monthly_rent: null,
+    outbound_rent: null,
+    return_rent: null,
+    done_outbound: 0,
+    done_return: 0,
+    recorded: 0,
+    ...row,
+  };
 }

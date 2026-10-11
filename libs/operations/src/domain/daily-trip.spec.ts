@@ -13,6 +13,7 @@ import {
   isServiceDate,
   notesError,
   reasonError,
+  recordingOn,
   shiftDate,
   sortByTime,
   tripChangeError,
@@ -20,6 +21,7 @@ import {
   TripFilter,
   TripRecording,
   tripStatus,
+  withRecordingFrom,
   withRoute,
 } from './daily-trip';
 
@@ -354,5 +356,35 @@ describe('availableChoices', () => {
       'a',
       'b',
     ]);
+  });
+});
+
+describe('trip recording periods', () => {
+  const periods = [
+    { startsOn: '2026-09-01', recording: 'automatic' as const },
+    { startsOn: '2026-10-05', recording: 'manual' as const },
+  ];
+
+  it('records each day the way chosen on or before it', () => {
+    expect(recordingOn(periods, '2026-10-04')).toBe('automatic');
+    expect(recordingOn(periods, '2026-10-05')).toBe('manual');
+    expect(recordingOn(periods, '2026-11-01')).toBe('manual');
+  });
+
+  it('records automatically before any choice', () => {
+    expect(recordingOn([], '2026-10-05')).toBe('automatic');
+    expect(recordingOn(periods, '2026-08-31')).toBe('automatic');
+  });
+
+  it('changes the recording from a day on, leaving the days before it', () => {
+    const changed = withRecordingFrom(periods, '2026-10-05', 'automatic');
+
+    expect(changed).toEqual([
+      { startsOn: '2026-09-01', recording: 'automatic' },
+      { startsOn: '2026-10-05', recording: 'automatic' },
+    ]);
+    const later = withRecordingFrom(periods, '2026-10-20', 'automatic');
+    expect(recordingOn(later, '2026-10-10')).toBe('manual');
+    expect(recordingOn(later, '2026-10-20')).toBe('automatic');
   });
 });

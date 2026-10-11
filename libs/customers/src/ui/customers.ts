@@ -64,6 +64,10 @@ export class Customers {
     void this.load();
   }
 
+  protected retry(): void {
+    void this.load();
+  }
+
   protected add(): void {
     this.open(null);
   }

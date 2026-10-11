@@ -57,6 +57,7 @@ export interface VehiclesText {
     readonly notes: string;
     readonly notesHint: string;
     readonly active: string;
+    readonly activeHint: string;
     readonly add: string;
     readonly save: string;
     readonly cancel: string;
@@ -78,6 +79,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       year: 'أدخل سنة صحيحة من 1950 حتى العام القادم، مثل 2020.',
       seats: 'أدخل عدد مقاعد صحيحًا من 1 إلى 100.',
       date: 'أدخل تاريخًا صحيحًا.',
+      activeRoutes: 'لا يمكن إيقاف هذه المركبة لأنها تعمل على هذه الخطوط. اختر لها مركبة أخرى أو أوقفها من صفحة الخطوط أولًا:',
       load: 'تعذّر تحميل المركبات. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
@@ -93,7 +95,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
     ownerships: {
       owned: 'ملك الشركة',
       rented: 'إيجار',
-      contractor: 'متعاقد بمركبته',
+      contractor: 'مركبة مقاول',
     },
     rentTypes: {
       none: 'لم يُحدَّد بعد',
@@ -103,10 +105,10 @@ export const vehiclesText: Record<Language, VehiclesText> = {
     list: {
       title: 'المركبات',
       add: 'إضافة مركبة',
-      hint: 'الأتوبيسات والميكروباصات والسيارات التي تنقل بها الموظفين، سواء كانت ملكك أو إيجارًا أو تخص متعاقدًا يعمل معك.',
+      hint: 'الأتوبيسات والميكروباصات والسيارات التي تنقل بها الموظفين، سواء كانت ملكك أو إيجارًا أو تخص مقاولًا يعمل معك.',
       loading: 'جارٍ التحميل...',
       empty: 'لم تضف أي مركبة بعد. ابدأ بإضافة أول مركبة.',
-      filter: 'عرض',
+      filter: 'عرض حسب الملكية',
       allOwnerships: 'كل المركبات',
       noMatch: 'لا توجد مركبات من هذا النوع.',
       plateNumber: 'رقم اللوحة',
@@ -137,20 +139,21 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       licenseExpiry: 'تاريخ انتهاء الرخصة',
       licenseExpiryHint: 'تظهر كلمة "منتهية" في القائمة بعد هذا التاريخ.',
       ownership: 'ملكية المركبة',
-      ownershipHint: 'إيجار: مركبة تستأجرها من صاحبها أو من مكتب. متعاقد بمركبته: شخص يعمل معك بمركبته.',
+      ownershipHint: 'إيجار: مركبة تستأجرها من صاحبها أو من مكتب. مركبة مقاول: مقاول يعمل معك بمركبته ويأخذ أجرته منك.',
       ownerName: 'اسم صاحب المركبة أو المكتب',
       ownerNameHint: 'الشخص الذي تحاسبه على هذه المركبة.',
-      ownerPhone: 'رقم موبايله',
-      rentType: 'صاحب المركبة يتحاسب إزاي؟',
-      rentTypeHint: 'تقترح صفحة المصاريف أجرته كل شهر، وتظهر في حساب كل خط.',
+      ownerPhone: 'رقم هاتف صاحبها',
+      rentType: 'طريقة حساب أجرة المركبة',
+      rentTypeHint: 'تقترح صفحة المصاريف أجرته كل شهر، وتظهر في حساب كل خط. أي تغيير هنا يسري من الشهر الحالي، وتبقى الشهور السابقة على حسابها القديم.',
       monthlyRent: 'الأجرة الشهرية',
       amountHint: 'بالأرقام فقط، مثل 12000 أو 12000.50',
-      tripRentHint: 'يأخذ عن كل رحلة طلعتها المركبة مبلغ اتجاهها، وقد يختلف الذهاب عن العودة.',
+      tripRentHint: 'يأخذ صاحبها عن كل رحلة قامت بها المركبة مبلغ اتجاهها، وقد يختلف الذهاب عن العودة.',
       outboundRent: 'مبلغ رحلة الذهاب',
       returnRent: 'مبلغ رحلة العودة',
       notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذه المركبة.',
       active: 'المركبة في الخدمة',
+      activeHint: 'لا تظهر المركبة الموقوفة عند اختيار مركبة لخط أو رحلة، وتبقى رحلاتها ومصاريفها السابقة كما هي.',
       add: 'إضافة المركبة',
       save: 'حفظ التعديلات',
       cancel: 'إلغاء',
@@ -170,6 +173,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       year: 'Enter a valid year from 1950 to next year, e.g. 2020.',
       seats: 'Enter a seat count from 1 to 100.',
       date: 'Enter a valid date.',
+      activeRoutes: 'This vehicle cannot be made inactive because it runs these active routes. Give them another vehicle or stop them on the routes page first:',
       load: 'Could not load your vehicles. Please try again.',
       save: 'Could not save. Please try again.',
       organization: 'You cannot open this page from your account.',
@@ -198,7 +202,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       hint: 'The buses, microbuses, and cars you use to transport staff, whether you own them, rent them, or a contractor brings them.',
       loading: 'Loading...',
       empty: 'You have not added any vehicle yet. Start by adding the first one.',
-      filter: 'Show',
+      filter: 'Show by ownership',
       allOwnerships: 'All vehicles',
       noMatch: 'There are no vehicles of this kind.',
       plateNumber: 'Plate number',
@@ -234,7 +238,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       ownerNameHint: 'The person you settle with for this vehicle.',
       ownerPhone: 'Their mobile number',
       rentType: 'How is the owner paid?',
-      rentTypeHint: 'The expenses page suggests this pay every month, and it shows in each route\'s account.',
+      rentTypeHint: 'The expenses page suggests this pay every month, and it shows in each route\'s account. A change here applies from the current month; past months keep their old terms.',
       monthlyRent: 'Monthly rent',
       amountHint: 'Digits only, like 12000 or 12000.50',
       tripRentHint: 'Each trip the vehicle makes earns its direction\'s amount; outbound and return may differ.',
@@ -243,6 +247,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       notes: 'Notes',
       notesHint: 'Anything you want to remember about this vehicle.',
       active: 'This vehicle is in service',
+      activeHint: 'An inactive vehicle is not offered for routes or trips, and its past trips and expenses stay as they are.',
       add: 'Add vehicle',
       save: 'Save changes',
       cancel: 'Cancel',

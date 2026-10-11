@@ -52,6 +52,7 @@ export interface DriversText {
     readonly changePhoto: string;
     readonly removePhoto: string;
     readonly active: string;
+    readonly activeHint: string;
     readonly add: string;
     readonly save: string;
     readonly cancel: string;
@@ -73,6 +74,7 @@ export const driversText: Record<Language, DriversText> = {
       required: 'هذه الخانة مطلوبة.',
       trips: 'اكتب عدد الرحلات بالأرقام فقط، مثل 26.',
       photo: 'تعذّر فتح هذه الصورة. اختر صورة بصيغة JPG أو PNG أو WebP.',
+      activeRoutes: 'لا يمكن إيقاف هذا السائق لأنه سائق هذه الخطوط العاملة. اختر لها سائقًا آخر أو أوقفها من صفحة الخطوط أولًا:',
       load: 'تعذّر تحميل السائقين. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
@@ -91,14 +93,14 @@ export const driversText: Record<Language, DriversText> = {
       loading: 'جارٍ التحميل...',
       empty: 'لم تضف أي سائق بعد. ابدأ بإضافة أول سائق.',
       fullName: 'الاسم',
-      phone: 'رقم الموبايل',
+      phone: 'رقم الهاتف المحمول',
       nationalId: 'الرقم القومي',
       licenseNumber: 'رقم الرخصة',
       licenseExpiry: 'انتهاء الرخصة',
       expired: 'منتهية',
       work: 'الحالة',
       working: 'يعمل',
-      stopped: 'موقوف',
+      stopped: 'لا يعمل حاليًا',
       edit: 'تعديل',
     },
     form: {
@@ -106,7 +108,7 @@ export const driversText: Record<Language, DriversText> = {
       editTitle: 'تعديل بيانات السائق',
       fullName: 'اسم السائق',
       fullNameHint: 'الاسم كما في البطاقة، مثل: أحمد محمد علي.',
-      phone: 'رقم الموبايل',
+      phone: 'رقم الهاتف المحمول',
       nationalId: 'الرقم القومي',
       nationalIdHint: 'الرقم المكتوب في بطاقة الهوية.',
       licenseNumber: 'رقم رخصة القيادة',
@@ -114,16 +116,16 @@ export const driversText: Record<Language, DriversText> = {
       licenseExpiryHint: 'تظهر كلمة "منتهية" في القائمة بعد هذا التاريخ.',
       payTitle: 'أجر السائق',
       payHint:
-        'يُستخدم لحساب راتب السائق المقترح كل شهر في صفحة المصاريف من الرحلات التي طلعها فعلًا. ويمكنك تعديل المبلغ قبل تسجيله.',
-      payType: 'يتحاسب إزاي؟',
+        'يُستخدم لحساب راتب السائق المقترح كل شهر في صفحة المصاريف من الرحلات التي قادها فعلًا، ويمكنك تعديل المبلغ قبل تسجيله. أي تغيير هنا يسري من الشهر الحالي، وتبقى الشهور السابقة على حسابها القديم.',
+      payType: 'طريقة حساب الأجر',
       monthlySalary: 'الراتب الشهري',
       amountHint: 'بالأرقام فقط، مثل 5000 أو 5000.50',
       salaryTrips: 'الراتب يغطي كم رحلة ذهاب وعودة في الشهر؟',
       salaryTripsHint:
-        'مثال: 26 يعني 26 ذهاب و26 عودة. لو طلع أكثر يأخذ عن كل رحلة زيادة، ولو غاب يُخصم عنه عن كل رحلة. اتركه فارغًا لو راتبه ثابت مهما طلع.',
+        'مثال: 26 تعني 26 رحلة ذهاب و26 رحلة عودة. إذا قاد أكثر يأخذ عن كل رحلة إضافية، وإذا غاب يُخصم منه عن كل رحلة. اتركه فارغًا إذا كان راتبه ثابتًا مهما كان عدد رحلاته.',
       extraPayHint:
-        'المبلغ عن كل رحلة زيادة على العدد، ونفس المبلغ يُخصم عن كل رحلة غابها.',
-      perTripHint: 'يأخذ عن كل رحلة يطلعها.',
+        'المبلغ عن كل رحلة إضافية فوق العدد، ويُخصم المبلغ نفسه عن كل رحلة غاب عنها.',
+      perTripHint: 'يأخذ مبلغًا عن كل رحلة يقودها.',
       outboundPay: 'مبلغ رحلة الذهاب',
       returnPay: 'مبلغ رحلة العودة',
       notes: 'ملاحظات',
@@ -136,6 +138,7 @@ export const driversText: Record<Language, DriversText> = {
       changePhoto: 'تغيير الصورة',
       removePhoto: 'إزالة الصورة',
       active: 'السائق يعمل حاليًا',
+      activeHint: 'لا يظهر السائق الموقوف عند اختيار سائق لخط أو رحلة، وتبقى رحلاته ورواتبه السابقة كما هي.',
       add: 'إضافة السائق',
       save: 'حفظ التعديلات',
       cancel: 'إلغاء',
@@ -158,6 +161,7 @@ export const driversText: Record<Language, DriversText> = {
       trips: 'Enter the number of trips in digits only, like 26.',
       photo:
         'This photo could not be opened. Choose a JPG, PNG, or WebP photo.',
+      activeRoutes: 'This driver cannot be made inactive because they drive these active routes. Give them another driver or stop them on the routes page first:',
       load: 'Could not load your drivers. Please try again.',
       save: 'Could not save. Please try again.',
       organization: 'You cannot open this page from your account.',
@@ -200,7 +204,7 @@ export const driversText: Record<Language, DriversText> = {
       licenseExpiryHint: 'The list shows "Expired" after this date.',
       payTitle: 'Driver pay',
       payHint:
-        "Used to suggest the driver's salary each month on the expenses page from the trips the driver actually did. You can change the amount before recording it.",
+        "Used to suggest the driver's salary each month on the expenses page from the trips the driver actually drove, and you can change the amount before recording it. A change here applies from the current month; past months keep their old terms.",
       payType: 'How is the driver paid?',
       monthlySalary: 'Monthly salary',
       amountHint: 'Digits only, like 5000 or 5000.50',
@@ -223,6 +227,7 @@ export const driversText: Record<Language, DriversText> = {
       changePhoto: 'Change photo',
       removePhoto: 'Remove photo',
       active: 'This driver is currently working',
+      activeHint: 'An inactive driver is not offered for routes or trips, and their past trips and pay stay as they are.',
       add: 'Add driver',
       save: 'Save changes',
       cancel: 'Cancel',

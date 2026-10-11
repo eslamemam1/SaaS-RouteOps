@@ -31,7 +31,13 @@
     }
   </app-page-header>
 
-  @if (actionProblem(); as current) {
+  @if (organization() && dayRecording() !== recording()) {
+  <app-alert tone="info">{{ text().recording.pastDay[dayRecording()] }}</app-alert>
+  } @if (notice(); as current) {
+  <app-alert tone="success" [dismissible]="true" (dismissed)="notice.set(null)">
+    {{ text().day.notices[current] }}
+  </app-alert>
+  } @if (actionProblem(); as current) {
   <app-alert
     tone="danger"
     [dismissible]="true"
@@ -42,9 +48,20 @@
   } @switch (status()) { @case ('loading') {
   <app-page-state kind="loading" [message]="text().day.loading" />
   } @case ('error') {
-  <app-page-state kind="error" [message]="text().problems[problem()]" />
+  <app-page-state
+    kind="error"
+    [message]="text().problems[problem()]"
+    [retryable]="true"
+    (retry)="retry()"
+  />
   } @case ('empty') {
-  <app-page-state kind="empty" [message]="text().day.empty" />
+  <app-page-state kind="empty" [message]="text().day.empty">
+    @if (organization(); as current) {
+    <a appButton="secondary" [routerLink]="['/organizations', current.id, 'routes']">
+      {{ text().day.emptyAction }}
+    </a>
+    }
+  </app-page-state>
   } @case ('success') { @if (conflicts().size > 0) {
   <app-alert tone="warning">
     {{ text().conflict.count }} <bdi>{{ conflicts().size }}</bdi>
@@ -150,6 +167,16 @@
           (click)="clearFilter()"
         >
           {{ text().filter.clear }}
+        </button>
+        } @if (markable().length > 1) {
+        <button
+          appButton="secondary"
+          size="sm"
+          type="button"
+          [disabled]="markingAll()"
+          (click)="markAllDone()"
+        >
+          {{ text().day.markAllDone }} (<bdi>{{ markable().length }}</bdi>)
         </button>
         }
       </div>

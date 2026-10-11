@@ -1,4 +1,30 @@
 import { Currency, toAmountText, toMinorUnits } from '@routeops/shared/money';
+import {
+  DriverPay,
+  remainingPay,
+  remainingRent,
+  VehiclePay,
+} from '@routeops/shared/pay';
+
+export {
+  payBreakdown,
+  payTypes,
+  remainingPay,
+  remainingRent,
+  rentTypes,
+  suggestedPay,
+  suggestedRent,
+  tripDirections,
+} from '@routeops/shared/pay';
+export type {
+  DriverPay,
+  PayBreakdown,
+  PayType,
+  PerDirection,
+  RentType,
+  TripDirection,
+  VehiclePay,
+} from '@routeops/shared/pay';
 
 export interface ExpenseOrganization {
   readonly id: string;
@@ -55,65 +81,6 @@ export interface Expense {
   readonly description: string;
 }
 
-// How a driver is paid: 'salary' for an employee with a monthly salary, or
-// 'perTrip' for a driver paid for each trip.
-export const payTypes = ['salary', 'perTrip'] as const;
-
-export type PayType = (typeof payTypes)[number];
-
-export const tripDirections = ['outbound', 'return'] as const;
-
-export type TripDirection = (typeof tripDirections)[number];
-
-export type PerDirection = Readonly<Record<TripDirection, number>>;
-
-// A driver's pay terms and trips for a month, and the salary already recorded
-// for them as expenses. done counts the trips the driver did; absent counts
-// trips of the driver's own routes cancelled or given to another driver
-// because the driver was absent. A salary covers salaryTrips outbound and as
-// many return trips; without salaryTrips it is fixed. Amounts are in the
-// smallest currency unit.
-export interface DriverPay {
-  readonly driverId: string;
-  readonly payType: PayType;
-  readonly monthlySalary: number | null;
-  readonly salaryTrips: number | null;
-  readonly tripPay: PerDirection | null;
-  readonly done: PerDirection;
-  readonly absent: PerDirection;
-  readonly recorded: number;
-}
-
-// How a suggested pay adds up. extra are the trips paid on top of the salary,
-// or every trip of a driver paid per trip; missed are the trips taken off.
-export interface PayBreakdown {
-  readonly salary: number;
-  readonly extra: PerDirection;
-  readonly extraAmount: number;
-  readonly missed: PerDirection;
-  readonly deduction: number;
-  readonly total: number;
-}
-
-// How the owner of a rented or contractor vehicle is paid: a fixed monthly
-// rent, or an amount for each done outbound and return trip of the vehicle.
-export const rentTypes = ['monthly', 'perTrip'] as const;
-
-export type RentType = (typeof rentTypes)[number];
-
-// A vehicle's rent terms and done trips for a month, and the rent or
-// contractor pay already recorded for it as expenses. Amounts are in the
-// smallest currency unit.
-export interface VehiclePay {
-  readonly vehicleId: string;
-  readonly contractor: boolean;
-  readonly rentType: RentType;
-  readonly monthlyRent: number | null;
-  readonly tripRent: PerDirection | null;
-  readonly done: PerDirection;
-  readonly recorded: number;
-}
-
 export interface ExpenseMonth {
   readonly expenses: readonly Expense[];
   readonly pay: readonly DriverPay[];
@@ -140,6 +107,7 @@ export const expenseProblems = [
   'amount',
   'description',
   'tooLong',
+  'payMonth',
   'load',
   'save',
   'remove',
@@ -250,75 +218,6 @@ export function descriptionError(
   return category === 'other' && description.length === 0
     ? 'description'
     : null;
-}
-
-export function isPayType(value: string): value is PayType {
-  return (payTypes as readonly string[]).includes(value);
-}
-
-// Beyond the trips the salary covers, each done trip earns its direction's
-// amount. Below them, only trips missed through absence are taken off, so a
-// holiday or a breakdown costs the driver nothing, and absences first use up
-// any trips beyond the salary.
-export function payBreakdown(pay: DriverPay): PayBreakdown {
-  const salary = pay.monthlySalary ?? 0;
-  const rates = pay.tripPay ?? { outbound: 0, return: 0 };
-  const covered = pay.payType === 'salary' ? pay.salaryTrips : 0;
-  if (covered === null) {
-    return {
-      salary,
-      extra: noTrips,
-      extraAmount: 0,
-      missed: noTrips,
-      deduction: 0,
-      total: salary,
-    };
-  }
-  const extra = perDirection((direction) =>
-    Math.max(0, pay.done[direction] - covered),
-  );
-  const missed = perDirection((direction) =>
-    Math.min(Math.max(0, covered - pay.done[direction]), pay.absent[direction]),
-  );
-  const extraAmount = priced(extra, rates);
-  const deduction = priced(missed, rates);
-  return {
-    salary,
-    extra,
-    extraAmount,
-    missed,
-    deduction,
-    total: Math.max(0, salary + extraAmount - deduction),
-  };
-}
-
-export function suggestedPay(pay: DriverPay): number {
-  return payBreakdown(pay).total;
-}
-
-const noTrips: PerDirection = { outbound: 0, return: 0 };
-
-function perDirection(count: (direction: TripDirection) => number): PerDirection {
-  return { outbound: count('outbound'), return: count('return') };
-}
-
-function priced(trips: PerDirection, rates: PerDirection): number {
-  return trips.outbound * rates.outbound + trips.return * rates.return;
-}
-
-export function remainingPay(pay: DriverPay): number {
-  return Math.max(0, suggestedPay(pay) - pay.recorded);
-}
-
-export function suggestedRent(rent: VehiclePay): number {
-  if (rent.rentType === 'monthly') {
-    return rent.monthlyRent ?? 0;
-  }
-  return rent.tripRent ? priced(rent.done, rent.tripRent) : 0;
-}
-
-export function remainingRent(rent: VehiclePay): number {
-  return Math.max(0, suggestedRent(rent) - rent.recorded);
 }
 
 export function expenseTotal(expenses: readonly Expense[]): number {

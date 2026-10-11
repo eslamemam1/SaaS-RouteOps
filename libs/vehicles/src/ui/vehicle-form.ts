@@ -9,7 +9,8 @@ import {
   untracked,
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
-import { injectText } from '@routeops/shared/i18n';
+import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { currencySymbol } from '@routeops/shared/money';
 import { Alert, Button, Field } from '@routeops/shared/ui';
 import { VehicleAccessError } from '../application/vehicle-access-error';
 import { VehicleRepository } from '../application/vehicle-repository';
@@ -35,6 +36,10 @@ export class VehicleForm {
   private readonly repository = inject(VehicleRepository);
 
   readonly organization = input.required<VehicleOrganization>();
+  private readonly language = inject(LanguageService).language;
+  protected readonly currencyLabel = computed(() =>
+    currencySymbol(this.organization().currency, this.language()),
+  );
   readonly vehicle = input<Vehicle | null>(null);
   readonly saved = output<Vehicle>();
   readonly cancelled = output<void>();
@@ -47,6 +52,7 @@ export class VehicleForm {
   protected readonly rentTypes = rentTypes;
   protected readonly submitting = signal(false);
   protected readonly problem = signal<VehicleProblem | null>(null);
+  protected readonly blockingRoutes = signal<readonly string[]>([]);
   protected readonly model = signal<VehicleDetails>(emptyVehicleDetails);
   protected readonly vehicleForm = form(this.model, (field) => {
     apply(
@@ -90,6 +96,7 @@ export class VehicleForm {
         const problem =
           error instanceof VehicleAccessError ? error.problem : 'save';
         this.problem.set(problem);
+        this.blockingRoutes.set(error instanceof VehicleAccessError ? error.routes : []);
         return [{ kind: 'server', message: this.problems()[problem] }];
       } finally {
         this.submitting.set(false);

@@ -8,8 +8,9 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { apply, form, FormField, submit } from '@angular/forms/signals';
-import { injectText } from '@routeops/shared/i18n';
+import { apply, disabled, form, FormField, submit, validate } from '@angular/forms/signals';
+import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { currencySymbol } from '@routeops/shared/money';
 import { Alert, Button, Field } from '@routeops/shared/ui';
 import { ExpenseAccessError } from '../application/expense-access-error';
 import { ExpenseRepository } from '../application/expense-repository';
@@ -35,10 +36,18 @@ export class ExpenseForm {
   private readonly repository = inject(ExpenseRepository);
 
   readonly organization = input.required<ExpenseOrganization>();
+  private readonly language = inject(LanguageService).language;
+  protected readonly currencyLabel = computed(() =>
+    currencySymbol(this.organization().currency, this.language()),
+  );
   readonly choices = input.required<ExpenseChoices>();
   readonly details = input.required<ExpenseDetails>();
   // The expense being edited, or null when adding one.
   readonly expenseId = input<string | null>(null);
+  // The month, as YYYY-MM, of the pay being recorded. Its category, driver,
+  // and vehicle stay as suggested and its day within that month, so it counts
+  // as that month's pay.
+  readonly payMonth = input<string | null>(null);
   readonly saved = output<Expense>();
   readonly removed = output<void>();
   readonly cancelled = output<void>();
@@ -59,6 +68,16 @@ export class ExpenseForm {
         computed(() => this.organization().currency),
       ),
     );
+    const recordingPay = () => this.payMonth() !== null;
+    disabled(field.category, recordingPay);
+    disabled(field.vehicleId, recordingPay);
+    disabled(field.driverId, recordingPay);
+    validate(field.spentOn, ({ value }) => {
+      const month = this.payMonth();
+      return month && value() && !value().startsWith(`${month}-`)
+        ? { kind: 'payMonth', message: this.problems().payMonth }
+        : undefined;
+    });
   });
   protected readonly vehicles = computed(() =>
     availableChoices(this.choices().vehicles, this.model().vehicleId),

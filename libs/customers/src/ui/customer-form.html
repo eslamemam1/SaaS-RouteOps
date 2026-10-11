@@ -31,8 +31,18 @@
     <input type="checkbox" [formField]="customerForm.active" />
     {{ text().form.active }}
   </label>
+  <p class="hint">{{ text().form.activeHint }}</p>
   @if (problem(); as current) {
-    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+    <app-alert tone="danger">
+      {{ text().problems[current] }}
+      @if (blockingRoutes().length > 0) {
+        <ul>
+          @for (name of blockingRoutes(); track name) {
+            <li><bdi>{{ name }}</bdi></li>
+          }
+        </ul>
+      }
+    </app-alert>
   }
   <div class="ro-toolbar">
     <button appButton type="submit" [disabled]="submitting()">

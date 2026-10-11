@@ -18,18 +18,30 @@
   >
     {{ text().form[done] }}
   </app-alert>
-  } @if (organization(); as current) { @if (status() !== 'loading' &&
-  choices().customers.length === 0) {
+  } @if (organization(); as current) { @if (status() === 'success' || status() === 'empty') { @if
+  (missing().customers) {
   <app-alert tone="warning">
     {{ text().form.noCustomers }}
     <a [routerLink]="['/organizations', current.id, 'customers']">
       {{ text().form.customersLink }}
     </a>
   </app-alert>
-  } } @switch (status()) { @case ('loading') {
+  } @if (missing().drivers) {
+  <app-alert tone="warning">
+    {{ text().form.noDrivers }}
+    <a [routerLink]="['/organizations', current.id, 'drivers']">
+      {{ text().form.driversLink }}
+    </a>
+  </app-alert>
+  } } } @switch (status()) { @case ('loading') {
   <app-page-state kind="loading" [message]="text().list.loading" />
   } @case ('error') {
-  <app-page-state kind="error" [message]="text().problems[problem()]" />
+  <app-page-state
+    kind="error"
+    [message]="text().problems[problem()]"
+    [retryable]="problem() === 'load'"
+    (retry)="retry()"
+  />
   } @case ('empty') {
   <app-page-state kind="empty" [message]="text().list.empty">
     <button appButton type="button" (click)="add()">

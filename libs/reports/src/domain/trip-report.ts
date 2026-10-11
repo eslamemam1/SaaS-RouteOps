@@ -216,39 +216,79 @@ export function costShares(
       add(vehicleCosts, expense.vehicleId, expense.total);
     }
   }
-  const driverTrips = new Map<string, number>();
-  const vehicleTrips = new Map<string, number>();
+  const driverTrips = new Map<string, Map<string, number>>();
+  const vehicleTrips = new Map<string, Map<string, number>>();
   for (const count of counts) {
     if (count.driverId) {
-      add(driverTrips, count.driverId, count.done);
+      addTrips(driverTrips, count.driverId, count.routeId, count.done);
     }
     if (count.vehicleId) {
-      add(vehicleTrips, count.vehicleId, count.done);
+      addTrips(vehicleTrips, count.vehicleId, count.routeId, count.done);
     }
   }
-  const driverShares = new Map<string, number>();
-  const vehicleShares = new Map<string, number>();
-  for (const count of counts) {
-    const driverCost = driverCosts.get(count.driverId);
-    if (driverCost) {
-      add(driverShares, count.routeId, (driverCost * count.done) / (driverTrips.get(count.driverId) ?? count.done));
-    }
-    const vehicleCost = vehicleCosts.get(count.vehicleId);
-    if (vehicleCost) {
-      add(vehicleShares, count.routeId, (vehicleCost * count.done) / (vehicleTrips.get(count.vehicleId) ?? count.done));
-    }
-  }
+  const driverShares = spread(driverCosts, driverTrips);
+  const vehicleShares = spread(vehicleCosts, vehicleTrips);
   const routes = new Map<string, RouteCosts>();
   let carried = 0;
   for (const id of new Set([...driverShares.keys(), ...vehicleShares.keys()])) {
     const costs = {
-      driver: Math.round(driverShares.get(id) ?? 0),
-      vehicle: Math.round(vehicleShares.get(id) ?? 0),
+      driver: driverShares.get(id) ?? 0,
+      vehicle: vehicleShares.get(id) ?? 0,
     };
     routes.set(id, costs);
     carried += costs.driver + costs.vehicle;
   }
   return { routes, other: expenseSum(expenses) - carried };
+}
+
+function addTrips(
+  trips: Map<string, Map<string, number>>,
+  ownerId: string,
+  routeId: string,
+  done: number,
+): void {
+  const routes = trips.get(ownerId) ?? new Map<string, number>();
+  add(routes, routeId, done);
+  trips.set(ownerId, routes);
+}
+
+// Splits each cost over its routes by trips in whole minor units, giving the
+// units left by rounding down to the largest remainders, so a cost is carried
+// in full and nothing is rounded away.
+function spread(
+  costs: ReadonlyMap<string, number>,
+  trips: ReadonlyMap<string, ReadonlyMap<string, number>>,
+): Map<string, number> {
+  const shares = new Map<string, number>();
+  for (const [ownerId, cost] of costs) {
+    const routes = [...(trips.get(ownerId) ?? [])].filter(([, done]) => done > 0);
+    const total = routes.reduce((sum, [, done]) => sum + done, 0);
+    if (total === 0) {
+      continue;
+    }
+    const parts = routes.map(([routeId, done]) => ({
+      routeId,
+      amount: Math.floor((cost * done) / total),
+      remainder: (cost * done) % total,
+    }));
+    let left = cost - parts.reduce((sum, part) => sum + part.amount, 0);
+    parts
+      .slice()
+      .sort(
+        (first, second) =>
+          second.remainder - first.remainder || first.routeId.localeCompare(second.routeId),
+      )
+      .forEach((part) => {
+        if (left > 0) {
+          part.amount += 1;
+          left -= 1;
+        }
+      });
+    for (const part of parts) {
+      add(shares, part.routeId, part.amount);
+    }
+  }
+  return shares;
 }
 
 function add(totals: Map<string, number>, id: string, amount: number): void {

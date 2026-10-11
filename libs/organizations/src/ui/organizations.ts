@@ -6,15 +6,16 @@ import {
   lucideBus,
   lucideCalendarDays,
   lucideChartColumn,
+  lucideCircleCheck,
   lucideIdCard,
   lucideRoute,
   lucideWallet,
 } from '@ng-icons/lucide';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
-import { Alert, Button, PageHeader, PageState, Tag } from '@routeops/shared/ui';
+import { Alert, Button, PageHeader, PageState, ShellOrganization, Tag } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
-import { Dashboard, needsAttention } from '../domain/dashboard';
+import { Dashboard, isSetUp, needsAttention } from '../domain/dashboard';
 import { activeOrganization, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -40,6 +41,12 @@ const attentionItems = [
   { key: 'unpriced', hint: 'unpricedHint', path: 'routes' },
 ] as const;
 
+const setupSteps = [
+  { key: 'customers', hint: 'customersHint', path: 'customers', icon: lucideBuilding2 },
+  { key: 'drivers', hint: 'driversHint', path: 'drivers', icon: lucideIdCard },
+  { key: 'routes', hint: 'routesHint', path: 'routes', icon: lucideRoute },
+] as const;
+
 @Component({
   selector: 'app-organizations',
   imports: [
@@ -59,10 +66,12 @@ const attentionItems = [
 })
 export class Organizations {
   private readonly repository = inject(OrganizationRepository);
+  private readonly shellOrganization = inject(ShellOrganization);
   private readonly language = inject(LanguageService).language;
   private readonly today = localDate(new Date());
   protected readonly text = injectText(organizationsText);
   protected readonly sections = sections;
+  protected readonly doneIcon = lucideCircleCheck;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -76,13 +85,36 @@ export class Organizations {
     const summary = this.summary();
     return summary
       ? attentionItems
-          .map((item) => ({ ...item, count: summary.attention[item.key] }))
+          .map((item) => ({
+            ...item,
+            count: summary.attention[item.key],
+            query: this.attentionQuery(item.key, summary),
+          }))
           .filter((item) => item.count > 0)
       : [];
   });
+  protected readonly setUp = computed(() => {
+    const summary = this.summary();
+    return summary === null || isSetUp(summary.setup);
+  });
+  protected readonly setupSteps = computed(() => {
+    const summary = this.summary();
+    return setupSteps.map((step) => ({
+      ...step,
+      done: summary !== null && summary.setup[step.key] > 0,
+    }));
+  });
   protected readonly allClear = computed(() => {
     const summary = this.summary();
-    return summary !== null && !needsAttention(summary);
+    return summary !== null && this.setUp() && !needsAttention(summary);
+  });
+  protected readonly payMonthLabel = computed(() => {
+    const summary = this.summary();
+    return summary
+      ? dateFormat(this.language(), { month: 'long', year: 'numeric' }).format(
+          noon(`${summary.payMonth}-01`),
+        )
+      : '';
   });
   protected readonly todayLabel = computed(() =>
     dateFormat(this.language(), { weekday: 'long', day: 'numeric', month: 'long' }).format(
@@ -104,9 +136,27 @@ export class Organizations {
     void this.load();
   }
 
+  protected retry(): void {
+    void this.load();
+  }
+
   protected choose(organizationId: string): void {
     this.active.set(activeOrganization(this.organizations(), organizationId));
+    this.shellOrganization.set(this.active()?.id ?? null);
     void this.loadDashboard();
+  }
+
+  private attentionQuery(
+    key: (typeof attentionItems)[number]['key'],
+    summary: Dashboard,
+  ): Record<string, string> {
+    if (key === 'unopenedDays' && summary.firstUnopenedDay) {
+      return { date: summary.firstUnopenedDay };
+    }
+    if (key === 'driverPay' || key === 'vehiclePay') {
+      return { month: summary.payMonth };
+    }
+    return {};
   }
 
   protected money(minor: number): string {
@@ -148,7 +198,11 @@ export class Organizations {
       const organizations = await this.repository.listMine();
       this.organizations.set(organizations);
       this.operator.set(await this.repository.currentUserIsOperator());
-      this.active.set(activeOrganization(organizations, null));
+      this.active.set(
+        activeOrganization(organizations, this.shellOrganization.id()) ??
+          activeOrganization(organizations, null),
+      );
+      this.shellOrganization.set(this.active()?.id ?? null);
       this.status.set(organizations.length === 0 ? 'empty' : 'success');
       void this.loadDashboard();
     } catch (error) {

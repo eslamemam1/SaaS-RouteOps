@@ -18,14 +18,19 @@
         </label>
       }
     </div>
+    @if (selected().size > 0) {
+      <p class="hint">
+        {{ text().holiday.willCancel }} <bdi class="ro-numeric">{{ toCancel() }}</bdi>
+      </p>
+    }
     <div class="ro-toolbar">
       <button
         appButton="danger"
         type="button"
-        [disabled]="submitting() || selected().size === 0"
+        [disabled]="submitting() || toCancel() === 0"
         (click)="record()"
       >
-        {{ text().holiday.submit }}
+        {{ confirming() ? text().holiday.confirm : text().holiday.submit }}
       </button>
     </div>
   }

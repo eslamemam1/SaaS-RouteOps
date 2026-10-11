@@ -30,7 +30,7 @@ import {
   lucideMenu,
 } from '@ng-icons/lucide';
 import { injectText, LanguageService, productName } from '@routeops/shared/i18n';
-import { Button, LanguageSwitch, Logo } from '@routeops/shared/ui';
+import { Button, LanguageSwitch, Logo, ShellOrganization } from '@routeops/shared/ui';
 import { filter, map } from 'rxjs';
 import { shellSections } from './shell-sections';
 import { shellText } from './shell-text';
@@ -47,6 +47,7 @@ const sidebarStorageKey = 'routeops.sidebar';
 })
 export class App {
   private readonly router = inject(Router);
+  private readonly shellOrganization = inject(ShellOrganization);
   private readonly injector = inject(Injector);
   private readonly storage = inject(DOCUMENT).defaultView?.localStorage;
   private readonly direction = inject(LanguageService).direction;
@@ -89,7 +90,7 @@ export class App {
     const page = this.page();
     return page !== null && routeChain(page).every((route) => route.data['shell'] !== false);
   });
-  protected readonly organizationId = computed(() => {
+  private readonly pageOrganizationId = computed(() => {
     const page = this.page();
     if (!page) {
       return null;
@@ -97,11 +98,20 @@ export class App {
     const route = routeChain(page).find((item) => item.paramMap.has('organizationId'));
     return route?.paramMap.get('organizationId') ?? null;
   });
+  protected readonly organizationId = computed(
+    () => this.pageOrganizationId() ?? this.shellOrganization.id(),
+  );
 
   constructor() {
     effect(() => {
       this.page();
       untracked(() => this.menuOpen.set(false));
+    });
+    effect(() => {
+      const id = this.pageOrganizationId();
+      if (id) {
+        untracked(() => this.shellOrganization.set(id));
+      }
     });
   }
 

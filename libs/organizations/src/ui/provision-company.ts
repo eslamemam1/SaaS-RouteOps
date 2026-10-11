@@ -3,7 +3,12 @@ import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
 import { currencies, Currency, defaultCurrency } from '@routeops/shared/money';
 import { Alert, Button, Field } from '@routeops/shared/ui';
-import { CompanyAccountProblem } from '../domain/company-account';
+import {
+  CompanyAccountProblem,
+  defaultTimeZone,
+  TimeZone,
+  timeZones,
+} from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
 import {
@@ -30,16 +35,19 @@ export class ProvisionCompanyForm {
   protected readonly succeeded = signal(false);
   protected readonly problem = signal<CompanyAccountProblem | null>(null);
   protected readonly currencies = currencies;
+  protected readonly timeZones = timeZones;
   protected readonly model = signal<{
     organizationName: string;
     email: string;
     password: string;
     currency: Currency;
+    timeZone: TimeZone;
   }>({
     organizationName: '',
     email: '',
     password: '',
     currency: defaultCurrency,
+    timeZone: defaultTimeZone,
   });
   protected readonly companyForm = form(this.model, (field) => {
     apply(field.organizationName, organizationNameField(this.problems));
@@ -60,12 +68,14 @@ export class ProvisionCompanyForm {
           email: value.email,
           password: value.password,
           currency: value.currency,
+          timeZone: value.timeZone,
         });
         this.companyForm().reset({
           organizationName: '',
           email: '',
           password: '',
           currency: defaultCurrency,
+          timeZone: defaultTimeZone,
         });
         this.succeeded.set(true);
         this.created.emit();

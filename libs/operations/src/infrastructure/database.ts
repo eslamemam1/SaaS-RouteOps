@@ -93,9 +93,10 @@ export type Database = {
         is_active: boolean
         organization_id: string
       }>
-      operations_settings: ReadOnlyTable<{
+      trip_recording_periods: ReadOnlyTable<{
         created_at: string
         organization_id: string
+        starts_on: string
         trip_recording: string
         updated_at: string
       }>

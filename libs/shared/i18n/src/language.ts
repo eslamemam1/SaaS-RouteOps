@@ -62,3 +62,17 @@ function readStoredLanguage(document: Document): Language {
     return defaultLanguage;
   }
 }
+
+// A day stored as YYYY-MM-DD, written as people read it, such as
+// 11 أكتوبر 2026, with Latin digits as the rest of the interface uses.
+export function formatDay(day: string, language: Language): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+    return day;
+  }
+  return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${day}T00:00:00Z`));
+}

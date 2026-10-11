@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { LanguageService } from './language';
+import { formatDay, LanguageService } from './language';
 
 describe('LanguageService', () => {
   beforeEach(() => localStorage.clear());
@@ -34,5 +34,16 @@ describe('LanguageService', () => {
     localStorage.setItem('routeops.language', 'fr');
 
     expect(TestBed.inject(LanguageService).language()).toBe('ar');
+  });
+});
+
+describe('formatDay', () => {
+  it('writes a day with the month name and Latin digits', () => {
+    expect(formatDay('2026-10-11', 'ar')).toBe('11 أكتوبر 2026');
+    expect(formatDay('2026-10-11', 'en')).toBe('11 October 2026');
+  });
+
+  it('leaves an empty or unknown day as it is', () => {
+    expect(formatDay('', 'ar')).toBe('');
   });
 });

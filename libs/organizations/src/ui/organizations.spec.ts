@@ -14,13 +14,17 @@ const north: Organization = { id: 'org-north', name: 'North', currency: 'EGP', i
 const busy: Dashboard = {
   today: { status: 'open', planned: 12, done: 7, cancelled: 1 },
   month: { done: 180, revenue: 9_000_000, expenses: 6_500_000, profit: 2_500_000 },
-  attention: { unopenedDays: 0, driverPay: 2, vehiclePay: 0, unpriced: 3 },
+  attention: { unopenedDays: 1, driverPay: 2, vehiclePay: 0, unpriced: 3 },
+  firstUnopenedDay: '2026-10-03',
+  payMonth: '2026-09',
+  setup: { customers: 2, drivers: 3, routes: 4 },
 };
 const calm: Dashboard = {
   ...busy,
   today: { status: 'unopened', planned: 0, done: 0, cancelled: 0 },
   month: { done: 10, revenue: 100_000, expenses: 400_000, profit: -300_000 },
   attention: { unopenedDays: 0, driverPay: 0, vehiclePay: 0, unpriced: 0 },
+  firstUnopenedDay: null,
 };
 const gulf: CompanyAccount = {
   id: 'org-gulf',
@@ -89,11 +93,30 @@ describe('Organizations', () => {
     expect(text(fixture)).toContain('25,000.00');
     const attention = [...element.querySelectorAll('.dashboard-attention a')];
     expect(attention.map((link) => link.getAttribute('href'))).toEqual([
-      '/organizations/org-north/expenses',
+      '/organizations/org-north/operations?date=2026-10-03',
+      '/organizations/org-north/expenses?month=2026-09',
       '/organizations/org-north/routes',
     ]);
-    expect(attention[0].textContent).toContain(arabic.dashboard.driverPay);
-    expect(attention[0].textContent).toContain('2');
+    expect(attention[1].textContent).toContain(arabic.dashboard.driverPay);
+    expect(attention[1].textContent).toContain('2');
+    expect(text(fixture)).not.toContain(arabic.setup.title);
+  });
+
+  it('guides a new company through its first customer, driver, and route', async () => {
+    const fixture = await render({
+      listMine: async () => [north],
+      dashboard: async () => ({ ...calm, setup: { customers: 1, drivers: 0, routes: 0 } }),
+    });
+    await settle(fixture);
+    await settle(fixture);
+
+    const element: HTMLElement = fixture.nativeElement;
+    expect(text(fixture)).toContain(arabic.setup.title);
+    expect(element.querySelectorAll('.dashboard-setup-done')).toHaveLength(1);
+    expect(
+      [...element.querySelectorAll('.dashboard-setup a')].map((link) => link.getAttribute('href')),
+    ).toEqual(['/organizations/org-north/drivers', '/organizations/org-north/routes']);
+    expect(text(fixture)).not.toContain(arabic.dashboard.allClear);
   });
 
   it('asks to open today, marks a loss, and says when everything is recorded', async () => {
@@ -188,6 +211,10 @@ describe('Organizations', () => {
     fill(password, 'secret1');
     currency.value = 'SAR';
     currency.dispatchEvent(new Event('input'));
+    const timeZone = element.querySelectorAll('app-provision-company select')[1] as HTMLSelectElement;
+    expect(timeZone.value).toBe('Africa/Cairo');
+    timeZone.value = 'Asia/Riyadh';
+    timeZone.dispatchEvent(new Event('input'));
     (element.querySelector('app-provision-company form') as HTMLFormElement)
       .dispatchEvent(new Event('submit'));
     await settle(fixture);
@@ -197,6 +224,7 @@ describe('Organizations', () => {
       email: 'gulf@example.com',
       password: 'secret1',
       currency: 'SAR',
+      timeZone: 'Asia/Riyadh',
     });
   });
 

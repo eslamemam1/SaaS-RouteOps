@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import { lucidePlus } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
@@ -31,6 +31,8 @@ import {
   OperationChoices,
   OperationsOrganization,
   OperationsProblem,
+  RecordingPeriod,
+  recordingOn,
   shiftDate,
   sortByTime,
   TripConflict,
@@ -44,6 +46,7 @@ import {
   VehicleOwnership,
   vehicleOwnership,
   vehicleOwnerships,
+  withRecordingFrom,
 } from '../domain/daily-trip';
 import { ConflictList } from './conflict-list';
 import { ExtraTripForm } from './extra-trip-form';
@@ -57,6 +60,8 @@ const noChoices: OperationChoices = {
   drivers: [],
   routes: [],
 };
+
+type Notice = 'changed' | 'added' | 'removed' | 'allDone';
 
 const statusTones: Record<TripStatus, Tone> = {
   done: 'success',
@@ -78,6 +83,7 @@ const statusTones: Record<TripStatus, Tone> = {
     NgIcon,
     PageHeader,
     PageState,
+    RouterLink,
     Tag,
     TripChangeForm,
     ViewSwitch,
@@ -103,10 +109,18 @@ export class DailyOperations {
   protected readonly choices = signal<OperationChoices>(noChoices);
   protected readonly editing = signal<DailyTrip | null>(null);
   protected readonly recordings = tripRecordings;
-  protected readonly recording = signal<TripRecording>('automatic');
+  private readonly recordingPeriods = signal<RecordingPeriod[]>([]);
+  protected readonly recording = computed(() =>
+    recordingOn(this.recordingPeriods(), this.today),
+  );
+  protected readonly dayRecording = computed(() =>
+    recordingOn(this.recordingPeriods(), this.serviceDate()),
+  );
   protected readonly savingRecording = signal(false);
   protected readonly markingTripId = signal<string | null>(null);
   protected readonly actionProblem = signal<OperationsProblem | null>(null);
+  protected readonly notice = signal<Notice | null>(null);
+  protected readonly markingAll = signal(false);
   protected readonly addingExtra = signal(false);
   protected readonly confirmingRemoveId = signal<string | null>(null);
   protected readonly directions = tripDirections;
@@ -117,12 +131,12 @@ export class DailyOperations {
       this.filter(),
       this.choices(),
       this.today,
-      this.recording(),
+      this.dayRecording(),
     ),
   );
   protected readonly conflicts = computed(() => conflictsByTrip(this.trips()));
   protected readonly counts = computed(() =>
-    countByStatus(this.trips(), this.today, this.recording()),
+    countByStatus(this.trips(), this.today, this.dayRecording()),
   );
   protected readonly statusChoices = computed(() =>
     tripStatuses.filter(
@@ -147,6 +161,11 @@ export class DailyOperations {
         filter.ownership,
     );
   });
+  protected readonly markable = computed(() =>
+    this.visibleTrips().filter(
+      (trip) => !trip.done && this.canMarkDone(trip),
+    ),
+  );
   protected readonly ownerships = vehicleOwnerships;
   protected readonly hasOtherOwnerships = computed(() =>
     this.choices().vehicles.some((vehicle) => vehicle.ownership !== 'owned'),
@@ -165,7 +184,7 @@ export class DailyOperations {
   }
 
   protected statusOf(trip: DailyTrip): TripStatus {
-    return tripStatus(trip, this.today, this.recording());
+    return tripStatus(trip, this.today, this.dayRecording());
   }
 
   protected statusTone(trip: DailyTrip): Tone {
@@ -177,22 +196,24 @@ export class DailyOperations {
   }
 
   protected canMarkDone(trip: DailyTrip): boolean {
-    return this.recording() === 'manual' && canMarkDone(trip, this.today);
+    return this.dayRecording() === 'manual' && canMarkDone(trip, this.today);
   }
 
   protected async chooseRecording(recording: TripRecording): Promise<void> {
     const organization = this.organization();
-    const previous = this.recording();
-    if (!organization || recording === previous) {
+    const previous = this.recordingPeriods();
+    if (!organization || recording === this.recording()) {
       return;
     }
-    this.recording.set(recording);
+    this.recordingPeriods.set(
+      withRecordingFrom(previous, this.today, recording),
+    );
     this.savingRecording.set(true);
     this.actionProblem.set(null);
     try {
       await this.repository.chooseTripRecording(organization, recording);
     } catch (error) {
-      this.recording.set(previous);
+      this.recordingPeriods.set(previous);
       this.actionProblem.set(problemOf(error, 'save'));
     } finally {
       this.savingRecording.set(false);
@@ -216,6 +237,33 @@ export class DailyOperations {
     } finally {
       this.markingTripId.set(null);
     }
+  }
+
+  protected async markAllDone(): Promise<void> {
+    const organization = this.organization();
+    if (!organization) {
+      return;
+    }
+    this.markingAll.set(true);
+    this.actionProblem.set(null);
+    this.notice.set(null);
+    try {
+      for (const trip of this.markable()) {
+        const saved = await this.repository.markDone(organization, trip.id, true);
+        this.trips.update((trips) =>
+          trips.map((item) => (item.id === saved.id ? saved : item)),
+        );
+      }
+      this.notice.set('allDone');
+    } catch (error) {
+      this.actionProblem.set(problemOf(error, 'save'));
+    } finally {
+      this.markingAll.set(false);
+    }
+  }
+
+  protected retry(): void {
+    void (this.organization() ? this.loadDay() : this.load());
   }
 
   protected chooseDate(value: string): void {
@@ -263,6 +311,7 @@ export class DailyOperations {
       sortByTime([...this.trips().filter((item) => item.id !== trip.id), trip]),
     );
     this.editing.set(null);
+    this.notice.set('changed');
   }
 
   protected startExtra(): void {
@@ -274,6 +323,7 @@ export class DailyOperations {
     this.trips.set(sortByTime([...this.trips(), trip]));
     this.status.set('success');
     this.addingExtra.set(false);
+    this.notice.set('added');
   }
 
   protected async remove(trip: DailyTrip): Promise<void> {
@@ -297,6 +347,7 @@ export class DailyOperations {
       if (trips.length === 0) {
         this.status.set('empty');
       }
+      this.notice.set('removed');
     } catch (error) {
       this.actionProblem.set(problemOf(error, 'save'));
     } finally {
@@ -321,13 +372,18 @@ export class DailyOperations {
         this.status.set('error');
         return;
       }
-      const [choices, recording] = await Promise.all([
+      const [choices, periods] = await Promise.all([
         this.repository.choices(organization),
-        this.repository.tripRecording(organization),
+        this.repository.tripRecordings(organization),
       ]);
       this.choices.set(choices);
-      this.recording.set(recording);
+      this.recordingPeriods.set(periods);
       this.organization.set(organization);
+      const requestedDate =
+        this.activatedRoute.snapshot.queryParamMap.get('date') ?? '';
+      if (isServiceDate(requestedDate)) {
+        this.serviceDate.set(requestedDate);
+      }
       await this.loadDay();
     } catch (error) {
       this.fail(error);
@@ -345,6 +401,7 @@ export class DailyOperations {
     this.addingExtra.set(false);
     this.confirmingRemoveId.set(null);
     this.actionProblem.set(null);
+    this.notice.set(null);
     try {
       const trips = await this.repository.day(organization, serviceDate);
       if (serviceDate !== this.serviceDate()) {

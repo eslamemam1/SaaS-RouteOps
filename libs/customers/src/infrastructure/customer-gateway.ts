@@ -7,6 +7,9 @@ import {
 } from '../domain/customer';
 import { Database } from './database';
 
+// Raised by the database when an active route still uses the customer.
+const activeRoutes = 'active_routes';
+
 export interface CustomerGateway {
   sessionUserId(): Promise<string | null>;
   membershipOrganizations(userId: string): Promise<CustomerOrganization[]>;
@@ -104,6 +107,9 @@ export class SupabaseCustomerGateway implements CustomerGateway {
       .eq('organization_id', organizationId)
       .select(customerColumns)
       .single();
+    if (error?.message === activeRoutes) {
+      throw new CustomerAccessError('activeRoutes', routeNames(error.details));
+    }
     if (error || !data) {
       throw new CustomerAccessError('save');
     }
@@ -146,4 +152,8 @@ function toColumns(details: CustomerDetails) {
 function blankToNull(value: string): string | null {
   const trimmed = value.trim();
   return trimmed.length === 0 ? null : trimmed;
+}
+
+function routeNames(details: string | null | undefined): string[] {
+  return (details ?? '').split('\n').filter((name) => name !== '');
 }

@@ -94,7 +94,7 @@ describe('DailyOperations', () => {
   it('lets a member mark each trip done when recording is manual', async () => {
     const markDone = vi.fn(async () => ({ ...outbound, done: true }));
     const harness = await open({
-      tripRecording: async () => 'manual',
+      tripRecordings: async () => [{ startsOn: '2026-01-01', recording: 'manual' as const }],
       day: async () => [outbound, cancelledReturn],
       markDone,
     });
@@ -447,7 +447,7 @@ async function open(overrides: Partial<OperationsRepository>) {
     organization: async () => north,
     day: async () => [],
     choices: async () => choices,
-    tripRecording: async () => 'automatic',
+    tripRecordings: async () => [],
     chooseTripRecording: async () => undefined,
     changeTrip: async () => outbound,
     markDone: async () => outbound,

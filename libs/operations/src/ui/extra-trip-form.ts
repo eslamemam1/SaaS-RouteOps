@@ -1,6 +1,14 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
-import { injectText } from '@routeops/shared/i18n';
+import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { currencySymbol } from '@routeops/shared/money';
 import { Alert, Button, Field } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
@@ -30,6 +38,10 @@ export class ExtraTripForm {
   private readonly repository = inject(OperationsRepository);
 
   readonly organization = input.required<OperationsOrganization>();
+  private readonly language = inject(LanguageService).language;
+  protected readonly currencyLabel = computed(() =>
+    currencySymbol(this.organization().currency, this.language()),
+  );
   readonly serviceDate = input.required<string>();
   readonly choices = input.required<OperationChoices>();
   // The trips of the day, to warn about vehicle and driver conflicts.

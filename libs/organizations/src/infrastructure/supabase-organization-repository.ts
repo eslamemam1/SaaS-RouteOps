@@ -1,4 +1,4 @@
-import { Dashboard, dashboard, monthDays } from '../domain/dashboard';
+import { Dashboard, dashboard, monthDays, previousMonthDays } from '../domain/dashboard';
 import { toMinorUnits } from '@routeops/shared/money';
 import { CompanyAccount, Organization } from '../domain/organization';
 import {
@@ -93,7 +93,12 @@ export class SupabaseOrganizationRepository extends OrganizationRepository {
   }
 
   async dashboard(organizationId: string, today: string): Promise<Dashboard> {
-    const facts = await this.gateway.dashboardFacts(organizationId, monthDays(today), today);
+    const facts = await this.gateway.dashboardFacts(
+      organizationId,
+      monthDays(today),
+      today,
+      previousMonthDays(today),
+    );
     return dashboard(facts, today);
   }
 }

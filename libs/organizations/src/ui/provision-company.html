@@ -24,6 +24,13 @@
       }
     </select>
   </app-field>
+  <app-field [label]="text().provision.timeZone" [hint]="text().provision.timeZoneHint">
+    <select [formField]="companyForm.timeZone">
+      @for (zone of timeZones; track zone) {
+        <option [value]="zone">{{ text().timeZones[zone] }}</option>
+      }
+    </select>
+  </app-field>
   @if (succeeded()) {
     <app-alert tone="success">{{ text().provision.created }}</app-alert>
   }

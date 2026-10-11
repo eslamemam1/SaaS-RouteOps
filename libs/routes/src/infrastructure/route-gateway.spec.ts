@@ -225,6 +225,26 @@ describe('SupabaseRouteGateway', () => {
     ).rejects.toEqual(new RouteAccessError('nameTaken'));
   });
 
+  it('reports an active route that names an inactive choice', async () => {
+    const calls = recorder(() => ({
+      data: null,
+      error: { message: 'inactive_choice', code: 'P0001' },
+    }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+
+    await expect(
+      gateway.insertRoute(north, {
+        ...emptyTransportRouteDetails,
+        name: 'Nasr City',
+        customerId: 'customer-1',
+        driverId: 'driver-1',
+        startPoint: 'A',
+        endPoint: 'B',
+        outboundTime: '07:00',
+      }),
+    ).rejects.toEqual(new RouteAccessError('inactiveChoice'));
+  });
+
   it('replaces a database error with a safe code', async () => {
     const calls = recorder(() => ({
       data: null,

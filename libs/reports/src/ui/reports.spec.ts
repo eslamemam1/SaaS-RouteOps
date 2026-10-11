@@ -181,8 +181,13 @@ describe('Reports', () => {
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.report.unopenedTitle);
-    expect(text(harness)).toContain('2026-10-02');
-    expect(text(harness)).toContain('2026-10-03');
+    expect(text(harness)).toContain('2 أكتوبر 2026');
+    expect(text(harness)).toContain('3 أكتوبر 2026');
+    const days = [...harness.routeNativeElement!.querySelectorAll('a[href*="operations"]')];
+    expect(days.map((link) => link.getAttribute('href'))).toEqual([
+      expect.stringMatching(/\/operations\?date=2026-10-02$/),
+      expect.stringMatching(/\/operations\?date=2026-10-03$/),
+    ]);
   });
 
   it('loads the previous month', async () => {

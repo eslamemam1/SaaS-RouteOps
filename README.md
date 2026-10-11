@@ -15,14 +15,15 @@ Multi-tenant operations app for staff transportation companies.
 - `libs/operations` keeps each day's trips as they happened: swapped vehicles or drivers, cancellations, holidays, and priced extra trips.
 - `libs/expenses` records what each organization spends and suggests each driver's monthly pay and each rented or contractor vehicle's pay from their terms and done trips.
 - `libs/reports` counts the trips done each month and their revenue per client company, route, vehicle, and driver, subtracts the month's expenses to show net profit, each vehicle's profit, and each route's driver, vehicle, and company shares, and lists the days nobody opened.
-- `libs/shared/supabase` holds the single Supabase client, the signed-in route guard, and the guard that sends a signed-in visitor from a public page to the dashboard.
-- `libs/shared/i18n` holds the current language and `injectText`.
-- `libs/shared/ui` is the design system: tokens from the Figma file, base styles, and the shared field, button, tag, alert, page states, form drawer, language switch, avatar, table or cards view switch for lists, public site layout, and the dark public hero that the home, contact, sign-in, and sign-out pages share. Run `npm run lint:styles` to check that styles use the tokens.
-- `libs/shared/money` holds the supported currencies and converts amounts to and from minor units.
+- `libs/shared/supabase` holds the single Supabase client, the signed-in route guard, the guard that sends a signed-in visitor from a public page to the dashboard, and `allRows`, which reads a list page by page past the 1000-row limit of the API.
+- `libs/shared/i18n` holds the current language, `injectText`, and `formatDay` for showing a date.
+- `libs/shared/ui` is the design system: tokens from the Figma file, base styles, and the shared field, button, tag, alert, page states with a retry button, form drawer, language switch, avatar, table or cards view switch for lists, public site layout, the dark public hero that the home, contact, sign-in, and sign-out pages share, and `ShellOrganization`, which remembers the last organization so the sidebar keeps its sections. Run `npm run lint:styles` to check that styles use the tokens.
+- `libs/shared/money` holds the supported currencies, converts amounts to and from minor units, and gives the currency's short label.
+- `libs/shared/pay` holds the pay rule that expenses, reports, and the dashboard share: what a driver or vehicle earned in a month and what is still not recorded.
 - Tag feature libraries `scope:<feature>` and `type:feature`.
 - `supabase/migrations` is the database source of truth. Local Supabase needs Docker.
 - `supabase/functions` holds the server functions that need the service-role key: `provision-company` creates a company and its login, and `set-company-password` gives a company login a new password. Deploy one with `npx supabase functions deploy <name>`.
-- `supabase/tests/database` holds pgTAP tests for tenant isolation, daily operations, vehicle ownership, the trip report, trip prices, the operator's company list, and subscription payments. They run against the local database only.
+- `supabase/tests/database` holds pgTAP tests for tenant isolation, daily operations, vehicle ownership, the trip report, trip prices, the operator's company list, subscription payments, and the rules that keep a month's figures right (`month_accuracy.test.sql`). They run against the local database only.
 
 ## Tasks
 

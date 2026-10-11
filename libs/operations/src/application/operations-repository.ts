@@ -3,6 +3,7 @@ import {
   ExtraTripDetails,
   OperationChoices,
   OperationsOrganization,
+  RecordingPeriod,
   TripChange,
   TripRecording,
 } from '../domain/daily-trip';
@@ -19,9 +20,10 @@ export abstract class OperationsRepository {
     serviceDate: string,
   ): Promise<DailyTrip[]>;
   abstract choices(organization: OperationsOrganization): Promise<OperationChoices>;
-  abstract tripRecording(
+  abstract tripRecordings(
     organization: OperationsOrganization,
-  ): Promise<TripRecording>;
+  ): Promise<RecordingPeriod[]>;
+  // Applies from the organization's today on; past days keep their way.
   abstract chooseTripRecording(
     organization: OperationsOrganization,
     recording: TripRecording,

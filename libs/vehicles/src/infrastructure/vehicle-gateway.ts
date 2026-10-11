@@ -59,6 +59,8 @@ const vehicleColumns =
   'id, plate_number, vehicle_type, model, model_year, seats, license_expires_on, ownership, owner_name, owner_phone, rent_type, monthly_rent, outbound_rent, return_rent, notes, is_active';
 
 const uniqueViolation = '23505';
+// Raised by the database when an active route still uses the vehicle.
+const activeRoutes = 'active_routes';
 
 const rentTypeColumns: Record<RentType, string> = {
   none: 'none',
@@ -127,7 +129,7 @@ export class SupabaseVehicleGateway implements VehicleGateway {
       .select(vehicleColumns)
       .single();
     if (error || !data) {
-      throw new VehicleAccessError(saveProblem(error));
+      throw saveError(error);
     }
     return toVehicle(data, organization.currency);
   }
@@ -145,7 +147,7 @@ export class SupabaseVehicleGateway implements VehicleGateway {
       .select(vehicleColumns)
       .single();
     if (error || !data) {
-      throw new VehicleAccessError(saveProblem(error));
+      throw saveError(error);
     }
     return toVehicle(data, organization.currency);
   }
@@ -158,8 +160,15 @@ export class SupabaseVehicleGateway implements VehicleGateway {
   }
 }
 
-function saveProblem(error: PostgrestError | null) {
-  return error?.code === uniqueViolation ? 'plateTaken' : 'save';
+function saveError(error: PostgrestError | null): VehicleAccessError {
+  if (error?.message === activeRoutes) {
+    return new VehicleAccessError('activeRoutes', routeNames(error.details));
+  }
+  return new VehicleAccessError(error?.code === uniqueViolation ? 'plateTaken' : 'save');
+}
+
+function routeNames(details: string | null | undefined): string[] {
+  return (details ?? '').split('\n').filter((name) => name !== '');
 }
 
 function toVehicle(row: VehicleRow, currency: Currency): Vehicle {

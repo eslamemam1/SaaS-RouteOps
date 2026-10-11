@@ -73,6 +73,8 @@ export interface ExpensesText {
   readonly form: {
     readonly addTitle: string;
     readonly editTitle: string;
+    readonly recordPayTitle: string;
+    readonly recordPayHint: string;
     readonly spentOn: string;
     readonly category: string;
     readonly chooseCategory: string;
@@ -104,6 +106,7 @@ export const expensesText: Record<Language, ExpensesText> = {
       amount: 'أدخل مبلغًا أكبر من صفر بالأرقام فقط، مثل 250 أو 250.50',
       description: 'اكتب وصفًا قصيرًا لهذا المصروف.',
       tooLong: 'النص أطول من المسموح.',
+      payMonth: 'اختر يومًا داخل الشهر الذي تسجّل أجره.',
       load: 'تعذّر تحميل المصاريف. حاول مرة أخرى.',
       save: 'تعذّر حفظ المصروف. حاول مرة أخرى.',
       remove: 'تعذّر حذف المصروف. حاول مرة أخرى.',
@@ -152,12 +155,12 @@ export const expensesText: Record<Language, ExpensesText> = {
         perTrip: 'بالرحلة',
       },
       title: 'رواتب السائقين',
-      hint: 'الموظف يأخذ راتبه، وعن كل رحلة زيادة على العدد الذي يغطيه الراتب يأخذ مبلغها. ومن يعمل بالرحلة يأخذ عن كل رحلة طلعها. لا يُحسب الراتب مصروفًا حتى تسجّله، ويمكنك تعديل المبلغ قبل التسجيل.',
+      hint: 'الموظف يأخذ راتبه، وعن كل رحلة إضافية فوق العدد الذي يغطيه الراتب يأخذ مبلغها. ومن يعمل بالرحلة يأخذ عن كل رحلة قادها. لا يُحسب الأجر مصروفًا حتى تسجّله من زر التسجيل، ويمكنك تعديل المبلغ قبل التسجيل.',
       absenceHint: 'يُخصم من الموظف فقط عن رحلات خطه التي غيّرتها أو ألغيتها في التشغيل اليومي بسبب "غياب السائق"، وبشرط ألا يكمل العدد الذي يغطيه الراتب. الإجازات وأعطال المركبات لا تُخصم.',
-      none: 'لتظهر هنا رواتب السائقين المقترحة كل شهر، حدّد في صفحة السائقين كيف يتحاسب كل سائق.',
+      none: 'لتظهر هنا رواتب السائقين المقترحة كل شهر، حدّد في صفحة السائقين طريقة حساب أجر كل سائق.',
       driversLink: 'فتح صفحة السائقين',
       driver: 'السائق',
-      trips: 'الرحلات التي طلعها',
+      trips: 'الرحلات التي قادها',
       outbound: 'ذهاب',
       return: 'عودة',
       covered: 'يغطيها الراتب:',
@@ -165,7 +168,7 @@ export const expensesText: Record<Language, ExpensesText> = {
       absent: 'غاب عن:',
       breakdown: 'الحساب',
       salaryPart: 'الراتب',
-      extraPart: 'رحلات زيادة',
+      extraPart: 'رحلات إضافية',
       tripsPart: 'الرحلات',
       missedPart: 'خصم غياب',
       suggested: 'المقترح',
@@ -182,11 +185,11 @@ export const expensesText: Record<Language, ExpensesText> = {
         perTrip: 'بالرحلة',
       },
       title: 'أجرة المركبات',
-      hint: 'أجرة المركبات المؤجّرة ومركبات المتعاقدين: المبلغ الشهري، أو عدد رحلات المركبة في مبلغ كل رحلة. لا تُحسب مصروفًا حتى تسجّلها، ويمكنك تعديل المبلغ قبل التسجيل.',
-      none: 'لتظهر هنا أجرة المركبات المؤجّرة ومركبات المتعاقدين كل شهر، حدّد في صفحة المركبات كيف يتحاسب صاحب كل مركبة.',
+      hint: 'أجرة المركبات المؤجّرة ومركبات المقاولين: المبلغ الشهري، أو عدد رحلات المركبة في مبلغ كل رحلة. لا تُحسب مصروفًا حتى تسجّلها، ويمكنك تعديل المبلغ قبل التسجيل.',
+      none: 'لتظهر هنا أجرة المركبات المؤجّرة ومركبات المقاولين كل شهر، حدّد في صفحة المركبات طريقة حساب أجرة كل مركبة.',
       vehiclesLink: 'فتح صفحة المركبات',
       vehicle: 'المركبة',
-      trips: 'الرحلات التي طلعتها',
+      trips: 'الرحلات التي قامت بها',
       suggested: 'المقترح',
       recorded: 'المسجَّل',
       remaining: 'المتبقي',
@@ -197,6 +200,8 @@ export const expensesText: Record<Language, ExpensesText> = {
     form: {
       addTitle: 'إضافة مصروف',
       editTitle: 'تعديل المصروف',
+      recordPayTitle: 'تسجيل أجر الشهر',
+      recordPayHint: 'النوع والسائق أو المركبة ثابتة حتى يُحسب المبلغ أجرًا لهذا الشهر. يمكنك تغيير المبلغ والتاريخ داخل الشهر والوصف.',
       spentOn: 'تاريخ المصروف',
       category: 'نوع المصروف',
       chooseCategory: 'اختر النوع',
@@ -205,7 +210,7 @@ export const expensesText: Record<Language, ExpensesText> = {
       vehicle: 'المركبة',
       vehicleHint: 'اختر المركبة إذا صُرف المبلغ عليها، مثل الوقود والصيانة وإيجارها، ليظهر في ربح كل مركبة في التقارير.',
       driver: 'السائق',
-      driverHint: 'اختر السائق إذا صُرف المبلغ له، مثل راتبه.',
+      driverHint: 'اختر السائق إذا صُرف المبلغ له. المصروف من نوع "رواتب وأجور" باسم سائق يُخصم مما بقي من أجره في شهر تاريخه.',
       none: 'بدون',
       description: 'الوصف',
       descriptionHint: 'مثل: تغيير زيت، أو إيجار شهر أكتوبر. مطلوب عند اختيار "أخرى".',
@@ -226,6 +231,7 @@ export const expensesText: Record<Language, ExpensesText> = {
       amount: 'Enter an amount above zero in digits only, like 250 or 250.50',
       description: 'Write a short description of this expense.',
       tooLong: 'This text is too long.',
+      payMonth: 'Choose a day within the month whose pay you are recording.',
       load: 'Could not load your expenses. Please try again.',
       save: 'Could not save the expense. Please try again.',
       remove: 'Could not delete the expense. Please try again.',
@@ -319,6 +325,8 @@ export const expensesText: Record<Language, ExpensesText> = {
     form: {
       addTitle: 'Add an expense',
       editTitle: 'Edit expense',
+      recordPayTitle: "Record the month's pay",
+      recordPayHint: "The type and the driver or vehicle stay fixed so the amount counts as this month's pay. You can change the amount, the date within the month, and the description.",
       spentOn: 'Expense date',
       category: 'Expense type',
       chooseCategory: 'Choose the type',
@@ -327,7 +335,7 @@ export const expensesText: Record<Language, ExpensesText> = {
       vehicle: 'Vehicle',
       vehicleHint: 'Choose the vehicle if the money was spent on it, such as fuel, maintenance, or its rent, so reports show each vehicle’s profit.',
       driver: 'Driver',
-      driverHint: 'Choose the driver if the money was paid to them, such as their salary.',
+      driverHint: 'Choose the driver if the money was paid to them. A "Salaries and wages" expense in a driver\'s name counts toward what is left of their pay for the month of its date.',
       none: 'None',
       description: 'Description',
       descriptionHint: 'For example: oil change, or October rent. Required when the type is "Other".',

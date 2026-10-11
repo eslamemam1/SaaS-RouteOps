@@ -1,11 +1,12 @@
 import { Language } from '@routeops/shared/i18n';
 import { Currency } from '@routeops/shared/money';
-import { CompanyAccountProblem } from '../domain/company-account';
+import { CompanyAccountProblem, TimeZone } from '../domain/company-account';
 import { SubscriptionPaymentProblem } from '../domain/subscription-payment';
 
 export interface OrganizationsText {
   readonly problems: Record<CompanyAccountProblem, string>;
   readonly currencies: Record<Currency, string>;
+  readonly timeZones: Record<TimeZone, string>;
   readonly signIn: {
     readonly title: string;
     readonly hint: string;
@@ -75,6 +76,18 @@ export interface OrganizationsText {
     readonly unpricedHint: string;
     readonly loading: string;
     readonly retry: string;
+  };
+  readonly setup: {
+    readonly title: string;
+    readonly hint: string;
+    readonly customers: string;
+    readonly customersHint: string;
+    readonly drivers: string;
+    readonly driversHint: string;
+    readonly routes: string;
+    readonly routesHint: string;
+    readonly open: string;
+    readonly done: string;
   };
   readonly accounts: {
     readonly title: string;
@@ -161,6 +174,8 @@ export interface OrganizationsText {
     readonly passwordHint: string;
     readonly currency: string;
     readonly currencyHint: string;
+    readonly timeZone: string;
+    readonly timeZoneHint: string;
     readonly submit: string;
     readonly created: string;
   };
@@ -175,6 +190,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا، مثل name@company.com',
       password: 'يجب ألا تقل كلمة المرور عن 6 أحرف.',
       currency: 'اختر عملة الشركة.',
+      timeZone: 'اختر توقيت الشركة.',
       emailTaken: 'يوجد حساب بهذا البريد الإلكتروني بالفعل.',
       operatorOnly: 'إنشاء الشركات متاح لمدير الموقع فقط.',
       signIn: 'تعذّر تسجيل الدخول. تأكد من البريد الإلكتروني وكلمة المرور.',
@@ -196,6 +212,16 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       BHD: 'دينار بحريني',
       OMR: 'ريال عماني',
       JOD: 'دينار أردني',
+    },
+    timeZones: {
+      'Africa/Cairo': 'مصر (القاهرة)',
+      'Asia/Riyadh': 'السعودية (الرياض)',
+      'Asia/Dubai': 'الإمارات (دبي)',
+      'Asia/Qatar': 'قطر (الدوحة)',
+      'Asia/Kuwait': 'الكويت',
+      'Asia/Bahrain': 'البحرين (المنامة)',
+      'Asia/Muscat': 'عُمان (مسقط)',
+      'Asia/Amman': 'الأردن (عمّان)',
     },
     signIn: {
       title: 'تسجيل الدخول',
@@ -262,15 +288,27 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       attentionHint: 'أشياء لم تُسجّل بعد، فتنقص حسابات الشهر حتى تسجّلها.',
       allClear: 'كل شيء مسجّل. لا يوجد ما يحتاج انتباهك الآن.',
       unopenedDays: 'أيام عمل لم تُفتح هذا الشهر',
-      unopenedDaysHint: 'رحلات هذه الأيام لم تُسجّل، فلا تدخل في التقارير.',
-      driverPay: 'سائقون لم تُسجّل رواتبهم أو أجرهم',
-      driverPayHint: 'سجّلها من المصاريف لتدخل في صافي الربح.',
-      vehiclePay: 'مركبات لم تُسجّل أجرتها',
-      vehiclePayHint: 'سجّل إيجار المركبات المؤجّرة ومركبات المقاولين من المصاريف.',
+      unopenedDaysHint: 'رحلات هذه الأيام لم تُسجّل، فلا تدخل في التقارير. اضغط لفتح أول يوم منها.',
+      driverPay: 'سائقون لم تُسجّل رواتبهم أو أجرهم كاملة',
+      driverPayHint: 'الشهر انتهى، فسجّل ما بقي لهم من صفحة المصاريف ليدخل في صافي ربح ذلك الشهر.',
+      vehiclePay: 'مركبات لم تُسجّل أجرتها كاملة',
+      vehiclePayHint: 'الشهر انتهى، فسجّل إيجار المركبات المؤجّرة وأجرة مركبات المقاولين من صفحة المصاريف.',
       unpriced: 'رحلات تمّت بلا سعر',
-      unpricedHint: 'أضف سعر الرحلة للخط حتى يُحسب إيرادها.',
+      unpricedHint: 'أضف سعر الرحلة في صفحة الخط حتى يُحسب إيرادها، فالرحلات السابقة بلا سعر تأخذ السعر الجديد.',
       loading: 'جارٍ تحميل أرقام اليوم والشهر...',
       retry: 'حاول مرة أخرى',
+    },
+    setup: {
+      title: 'ابدأ من هنا',
+      hint: 'ثلاث خطوات قبل تسجيل التشغيل اليومي. السيارات يمكن إضافتها الآن أو لاحقًا.',
+      customers: 'أضف الشركات المتعاقدة',
+      customersHint: 'الشركات التي تنقل موظفيها، وكل خط يتبع إحداها.',
+      drivers: 'أضف السائقين',
+      driversHint: 'مع طريقة حساب أجر كل سائق، حتى يقترح الموقع رواتبهم آخر الشهر.',
+      routes: 'أضف خطوط التشغيل',
+      routesHint: 'لكل خط شركة وسائق ومواعيد وسعر الرحلة. منها تُجهَّز رحلات كل يوم.',
+      open: 'ابدأ',
+      done: 'تم',
     },
     accounts: {
       title: 'حسابات الشركات',
@@ -366,6 +404,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       passwordHint: '6 أحرف أو أرقام على الأقل.',
       currency: 'العملة',
       currencyHint: 'تُكتب بها كل الأسعار والإيرادات في حساب الشركة، ولا يمكن تغييرها لاحقًا.',
+      timeZone: 'التوقيت',
+      timeZoneHint: 'يبدأ يوم الشركة وينتهي بهذا التوقيت، فتُحسب رحلات كل يوم في يومها الصحيح.',
       submit: 'إنشاء الحساب',
       created:
         'تم إنشاء حساب الشركة. أرسل لها البريد الإلكتروني وكلمة المرور لتبدأ العمل.',
@@ -379,6 +419,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       emailFormat: 'Enter a valid email, like name@company.com',
       password: 'The password must be at least 6 characters.',
       currency: "Choose the company's currency.",
+      timeZone: "Choose the company's time zone.",
       emailTaken: 'An account with this email already exists.',
       operatorOnly: 'Only the site manager can create companies.',
       signIn: 'Could not sign in. Check the email and password.',
@@ -400,6 +441,16 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       BHD: 'Bahraini dinar',
       OMR: 'Omani rial',
       JOD: 'Jordanian dinar',
+    },
+    timeZones: {
+      'Africa/Cairo': 'Egypt (Cairo)',
+      'Asia/Riyadh': 'Saudi Arabia (Riyadh)',
+      'Asia/Dubai': 'UAE (Dubai)',
+      'Asia/Qatar': 'Qatar (Doha)',
+      'Asia/Kuwait': 'Kuwait',
+      'Asia/Bahrain': 'Bahrain (Manama)',
+      'Asia/Muscat': 'Oman (Muscat)',
+      'Asia/Amman': 'Jordan (Amman)',
     },
     signIn: {
       title: 'Sign in',
@@ -468,15 +519,27 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       attentionHint: "Things not recorded yet, so the month's figures stay short until you record them.",
       allClear: 'Everything is recorded. Nothing needs your attention now.',
       unopenedDays: 'Working days not opened this month',
-      unopenedDaysHint: 'The trips of these days were not recorded, so reports leave them out.',
-      driverPay: 'Drivers with salary or pay not recorded',
-      driverPayHint: 'Record it in expenses so it counts in net profit.',
-      vehiclePay: 'Vehicles with pay not recorded',
-      vehiclePayHint: 'Record the rent of rented and contractor vehicles in expenses.',
+      unopenedDaysHint: 'The trips of these days were not recorded, so reports leave them out. Select to open the first one.',
+      driverPay: 'Drivers whose salary or pay is not fully recorded',
+      driverPayHint: "The month is over, so record what is left in expenses to count it in that month's net profit.",
+      vehiclePay: 'Vehicles whose pay is not fully recorded',
+      vehiclePayHint: 'The month is over, so record the rent of rented vehicles and the pay of contractor vehicles in expenses.',
       unpriced: 'Done trips with no price',
-      unpricedHint: 'Add a trip price to the route so its revenue counts.',
+      unpricedHint: 'Add a trip price on the route page so their revenue counts; past trips with no price take the new price.',
       loading: "Loading today's and this month's figures...",
       retry: 'Try again',
+    },
+    setup: {
+      title: 'Start here',
+      hint: 'Three steps before you record daily operations. You can add vehicles now or later.',
+      customers: 'Add the contracted companies',
+      customersHint: 'The companies whose staff you carry. Every route belongs to one of them.',
+      drivers: 'Add the drivers',
+      driversHint: "With how each driver is paid, so the site suggests their pay at the month's end.",
+      routes: 'Add the routes',
+      routesHint: "Each route has a company, a driver, times, and a trip price. Each day's trips come from them.",
+      open: 'Start',
+      done: 'Done',
     },
     accounts: {
       title: 'Company accounts',
@@ -572,6 +635,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       passwordHint: 'At least 6 letters or numbers.',
       currency: 'Currency',
       currencyHint: "All prices and revenue in the company's account use it. It cannot be changed later.",
+      timeZone: 'Time zone',
+      timeZoneHint: "The company's day starts and ends in this time zone, so each day's trips count on the right day.",
       submit: 'Create account',
       created:
         'The company account was created. Send them the email and password so they can start.',

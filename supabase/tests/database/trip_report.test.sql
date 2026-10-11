@@ -88,6 +88,24 @@ select lives_ok(
   $$select public.set_trip_recording('10000000-0000-0000-0000-000000000001', 'manual')$$,
   'the company switches to recording by hand'
 );
+select is(
+  (select sum(done_trips)::integer
+   from public.trip_report('10000000-0000-0000-0000-000000000001', '2026-02-01', '2026-02-28', '2026-03-15')),
+  4,
+  'switching to recording by hand today leaves the months before it as they were'
+);
+select throws_ok(
+  $$insert into public.trip_recording_periods (organization_id, starts_on, trip_recording)
+    values ('10000000-0000-0000-0000-000000000001', '2026-02-01', 'manual')$$,
+  '42501', null,
+  'a member cannot change how a past day was recorded'
+);
+
+-- A company that has recorded by hand since February.
+reset role;
+insert into public.trip_recording_periods (organization_id, starts_on, trip_recording)
+values ('10000000-0000-0000-0000-000000000001', '2026-02-01', 'manual');
+set local role authenticated;
 update public.daily_trips set is_done = true
 where service_date = '2026-02-01' and direction = 'outbound';
 select is(

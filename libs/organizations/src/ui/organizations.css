@@ -77,6 +77,32 @@
   background: var(--ro-bg-warning-subtle);
 }
 
+.dashboard-setup {
+  display: grid;
+  gap: var(--ro-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-setup li {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-3);
+  padding: var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+}
+
+.dashboard-setup li > .dashboard-attention-text {
+  flex: 1;
+}
+
+.dashboard-setup .dashboard-setup-done .home-section-icon {
+  background: var(--ro-bg-success-subtle);
+  color: var(--ro-text-success);
+}
+
 .dashboard-attention-text {
   display: grid;
   gap: var(--ro-space-1);

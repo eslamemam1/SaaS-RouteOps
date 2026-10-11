@@ -48,13 +48,16 @@ insert into public.drivers (id, organization_id, full_name) values
   ('13000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'Mahmoud');
 -- Nasr City for Delta runs Sunday to Thursday, outbound and return.
 -- Nasr City for Nour runs on Sundays only, outbound only, with its own vehicle and driver.
-insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days) values
+-- Both were added two weeks ago, so last week's days get their trips.
+insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, created_at) values
   ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City',
    '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000001',
-   '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Delta gate', '07:00', '16:00', '{0,1,2,3,4}'),
+   '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Delta gate', '07:00', '16:00', '{0,1,2,3,4}',
+   tests.sunday(-2)),
   ('14000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'Nasr City',
    '11000000-0000-0000-0000-000000000002', '12000000-0000-0000-0000-000000000002',
-   '13000000-0000-0000-0000-000000000002', 'Abbas El Akkad', 'Nour office', '08:00', null, '{0}');
+   '13000000-0000-0000-0000-000000000002', 'Abbas El Akkad', 'Nour office', '08:00', null, '{0}',
+   tests.sunday(-2));
 
 -- Signed in as the North login for the rest of the file.
 set local role authenticated;

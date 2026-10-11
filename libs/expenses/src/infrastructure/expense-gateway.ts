@@ -1,3 +1,4 @@
+import { allRows } from '@routeops/shared/supabase';
 import { SupabaseClient } from '@supabase/supabase-js';
 import {
   Currency,
@@ -5,6 +6,7 @@ import {
   isCurrency,
   toMinorUnits,
 } from '@routeops/shared/money';
+import { toDriverPay, toVehiclePay } from '@routeops/shared/pay';
 import { ExpenseAccessError } from '../application/expense-access-error';
 import {
   DateRange,
@@ -14,8 +16,6 @@ import {
   ExpenseDetails,
   ExpenseOrganization,
   isExpenseCategory,
-  PayType,
-  RentType,
   VehiclePay,
 } from '../domain/expense';
 import { Database } from './database';
@@ -132,14 +132,19 @@ export class SupabaseExpenseGateway implements ExpenseGateway {
     organizationId: string,
     range: DateRange,
   ): Promise<Expense[]> {
-    const { data, error } = await this.requireClient()
-      .from('expenses')
-      .select(expenseColumns)
-      .eq('organization_id', organizationId)
-      .gte('spent_on', range.from)
-      .lte('spent_on', range.to)
-      .order('spent_on', { ascending: false })
-      .order('created_at', { ascending: false });
+    const client = this.requireClient();
+    const { data, error } = await allRows((from, to) =>
+      client
+        .from('expenses')
+        .select(expenseColumns)
+        .eq('organization_id', organizationId)
+        .gte('spent_on', range.from)
+        .lte('spent_on', range.to)
+        .order('spent_on', { ascending: false })
+        .order('created_at', { ascending: false })
+        .order('id')
+        .range(from, to),
+    );
     if (error) {
       throw new ExpenseAccessError('load');
     }
@@ -160,19 +165,13 @@ export class SupabaseExpenseGateway implements ExpenseGateway {
     if (error) {
       throw new ExpenseAccessError('load');
     }
-    return (data ?? []).map((row) => ({
-      driverId: row.driver_id,
-      payType: toPayType(row.pay_type),
-      monthlySalary: row.monthly_salary === null ? null : Number(row.monthly_salary),
-      salaryTrips: row.salary_trips,
-      tripPay:
-        row.outbound_pay === null || row.return_pay === null
-          ? null
-          : { outbound: Number(row.outbound_pay), return: Number(row.return_pay) },
-      done: { outbound: row.done_outbound, return: row.done_return },
-      absent: { outbound: row.absent_outbound, return: row.absent_return },
-      recorded: Number(row.recorded),
-    }));
+    return (data ?? []).map((row) => {
+      const pay = toDriverPay(row);
+      if (!pay) {
+        throw new ExpenseAccessError('load');
+      }
+      return pay;
+    });
   }
 
   async vehiclePay(
@@ -189,18 +188,13 @@ export class SupabaseExpenseGateway implements ExpenseGateway {
     if (error) {
       throw new ExpenseAccessError('load');
     }
-    return (data ?? []).map((row) => ({
-      vehicleId: row.vehicle_id,
-      contractor: row.ownership === 'contractor',
-      rentType: toRentType(row.rent_type),
-      monthlyRent: row.monthly_rent === null ? null : Number(row.monthly_rent),
-      tripRent:
-        row.outbound_rent === null || row.return_rent === null
-          ? null
-          : { outbound: Number(row.outbound_rent), return: Number(row.return_rent) },
-      done: { outbound: row.done_outbound, return: row.done_return },
-      recorded: Number(row.recorded),
-    }));
+    return (data ?? []).map((row) => {
+      const rent = toVehiclePay(row);
+      if (!rent) {
+        throw new ExpenseAccessError('load');
+      }
+      return rent;
+    });
   }
 
   async insertExpense(
@@ -258,28 +252,6 @@ export class SupabaseExpenseGateway implements ExpenseGateway {
       throw new ExpenseAccessError('notConnected');
     }
     return this.client;
-  }
-}
-
-function toPayType(column: string): PayType {
-  switch (column) {
-    case 'salary':
-      return 'salary';
-    case 'per_trip':
-      return 'perTrip';
-    default:
-      throw new ExpenseAccessError('load');
-  }
-}
-
-function toRentType(column: string): RentType {
-  switch (column) {
-    case 'monthly':
-      return 'monthly';
-    case 'per_trip':
-      return 'perTrip';
-    default:
-      throw new ExpenseAccessError('load');
   }
 }
 

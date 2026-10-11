@@ -69,6 +69,10 @@ export class TransportRoutes {
   protected readonly organization = signal<RouteOrganization | null>(null);
   protected readonly routes = signal<TransportRoute[]>([]);
   protected readonly choices = signal<RouteChoices>(noChoices);
+  protected readonly missing = computed(() => ({
+    customers: !this.choices().customers.some((choice) => choice.active),
+    drivers: !this.choices().drivers.some((choice) => choice.active),
+  }));
   protected readonly editing = signal<TransportRoute | null>(null);
   protected readonly draft = signal<TransportRouteDetails | null>(null);
   protected readonly formOpen = signal(false);
@@ -86,6 +90,10 @@ export class TransportRoutes {
   });
 
   constructor() {
+    void this.load();
+  }
+
+  protected retry(): void {
     void this.load();
   }
 

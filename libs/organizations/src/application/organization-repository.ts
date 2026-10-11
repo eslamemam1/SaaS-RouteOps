@@ -1,4 +1,5 @@
 import { Currency } from '@routeops/shared/money';
+import { TimeZone } from '../domain/company-account';
 import { Dashboard } from '../domain/dashboard';
 import { CompanyAccount, Organization } from '../domain/organization';
 import {
@@ -11,6 +12,7 @@ export interface ProvisionCompany {
   readonly email: string;
   readonly password: string;
   readonly currency: Currency;
+  readonly timeZone: TimeZone;
 }
 
 // Session methods live here so the UI never imports Supabase.

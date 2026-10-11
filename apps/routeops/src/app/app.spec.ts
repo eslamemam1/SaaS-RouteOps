@@ -60,6 +60,19 @@ describe('App', () => {
     expect(active?.getAttribute('href')).toBe('/organizations/org-north/routes');
   });
 
+  it('keeps the last organization’s sections on the dashboard', async () => {
+    const fixture = await openFixture('/organizations/org-north/routes');
+    await TestBed.inject(Router).navigateByUrl('/dashboard');
+    await fixture.whenStable();
+    const element: HTMLElement = fixture.nativeElement;
+
+    expect(navLabels(element)).toEqual([
+      shellText.ar.home,
+      ...Object.values(shellText.ar.sections),
+    ]);
+    expect(localStorage.getItem('routeops.organization')).toBe('org-north');
+  });
+
   it('hides and shows the sidebar on a wide screen and remembers the choice', async () => {
     const fixture = await openFixture('/organizations/org-north/routes');
     const element = fixture.nativeElement as HTMLElement;

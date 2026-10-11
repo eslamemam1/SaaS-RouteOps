@@ -21,7 +21,12 @@
   } @switch (status()) { @case ('loading') {
   <app-page-state kind="loading" [message]="text().list.loading" />
   } @case ('error') {
-  <app-page-state kind="error" [message]="text().problems[problem()]" />
+  <app-page-state
+    kind="error"
+    [message]="text().problems[problem()]"
+    [retryable]="problem() === 'load'"
+    (retry)="retry()"
+  />
   } @case ('empty') {
   <app-page-state kind="empty" [message]="text().list.empty">
     <button appButton type="button" (click)="add()">
@@ -71,7 +76,7 @@
             </td>
             <td [attr.data-label]="text().list.licenseExpiry">
               <div class="ro-cell-stack">
-                <bdi class="ro-numeric">{{ driver.licenseExpiry }}</bdi>
+                <bdi class="ro-numeric">{{ day(driver.licenseExpiry) }}</bdi>
                 @if (expired(driver)) {
                 <app-tag tone="danger">{{ text().list.expired }}</app-tag>
                 }

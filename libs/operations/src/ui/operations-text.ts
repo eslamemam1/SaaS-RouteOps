@@ -20,6 +20,7 @@ export interface OperationsText {
     readonly hint: string;
     readonly modes: Record<TripRecording, string>;
     readonly modeHints: Record<TripRecording, string>;
+    readonly pastDay: Record<TripRecording, string>;
   };
   readonly conflict: Record<ConflictKind, string> & {
     readonly count: string;
@@ -35,6 +36,7 @@ export interface OperationsText {
     readonly today: string;
     readonly loading: string;
     readonly empty: string;
+    readonly emptyAction: string;
     readonly time: string;
     readonly route: string;
     readonly customer: string;
@@ -52,6 +54,13 @@ export interface OperationsText {
     readonly noRoute: string;
     readonly remove: string;
     readonly confirmRemove: string;
+    readonly markAllDone: string;
+    readonly notices: {
+      readonly changed: string;
+      readonly added: string;
+      readonly removed: string;
+      readonly allDone: string;
+    };
   };
   readonly extra: {
     readonly title: string;
@@ -99,6 +108,7 @@ export interface OperationsText {
     readonly notSet: string;
     readonly cancelled: string;
     readonly reason: string;
+    readonly reasonHint: string;
     readonly chooseReason: string;
     readonly notes: string;
     readonly notesHint: string;
@@ -110,6 +120,8 @@ export interface OperationsText {
     readonly hint: string;
     readonly none: string;
     readonly submit: string;
+    readonly willCancel: string;
+    readonly confirm: string;
     readonly done: string;
   };
 }
@@ -145,10 +157,10 @@ export const operationsText: Record<Language, OperationsText> = {
     ownerships: {
       owned: 'ملك الشركة',
       rented: 'إيجار',
-      contractor: 'متعاقد بمركبته',
+      contractor: 'مركبة مقاول',
     },
     reasons: {
-      holiday: 'إجازة رسمية',
+      holiday: 'إجازة',
       vehicleBreakdown: 'عطل في المركبة',
       driverAbsent: 'غياب السائق',
       customerRequest: 'طلب من الشركة المتعاقدة',
@@ -156,7 +168,7 @@ export const operationsText: Record<Language, OperationsText> = {
     },
     recording: {
       title: 'طريقة تسجيل الرحلات',
-      hint: 'ينطبق هذا الاختيار على كل الأيام وعلى كل من يستخدم حساب شركتك.',
+      hint: 'يسري التغيير من اليوم وعلى كل من يستخدم حساب شركتك، ولا يغيّر حساب الأيام السابقة.',
       modes: {
         automatic: 'تلقائي',
         manual: 'يدوي',
@@ -164,6 +176,10 @@ export const operationsText: Record<Language, OperationsText> = {
       modeHints: {
         automatic: 'كل رحلة تُحسب أنها تمّت عند حلول يومها، إلا إذا ألغيتها.',
         manual: 'لا تُحسب الرحلة أنها تمّت إلا بعد أن تضغط "تمّت" بجانبها.',
+      },
+      pastDay: {
+        automatic: 'رحلات هذا اليوم تُحسب بالطريقة «تلقائي» التي كانت سارية فيه.',
+        manual: 'رحلات هذا اليوم تُحسب بالطريقة «يدوي» التي كانت سارية فيه.',
       },
     },
     conflict: {
@@ -175,17 +191,18 @@ export const operationsText: Record<Language, OperationsText> = {
     },
     day: {
       title: 'التشغيل اليومي',
-      hint: 'رحلات كل يوم كما حدثت فعلًا. التغيير هنا ليوم واحد فقط ولا يغيّر الخط.',
-      date: 'اليوم',
+      hint: 'رحلات كل يوم كما حدثت فعلًا. فتح أي يوم هنا يُجهّز رحلاته من الخطوط فتُحسب في التقارير. التغيير هنا ليوم واحد فقط ولا يغيّر الخط.',
+      date: 'التاريخ',
       previous: 'اليوم السابق',
       next: 'اليوم التالي',
-      today: 'اليوم الحالي',
+      today: 'العودة إلى اليوم',
       loading: 'جارٍ تجهيز رحلات اليوم...',
-      empty: 'لا توجد رحلات في هذا اليوم. تظهر هنا رحلات الخطوط التي تعمل في هذا اليوم من الأسبوع.',
+      empty: 'لا توجد رحلات في هذا اليوم. تظهر هنا رحلات الخطوط التي تعمل في هذا اليوم من الأسبوع، ويمكنك إضافة رحلة إضافية.',
+      emptyAction: 'الذهاب إلى الخطوط',
       time: 'الميعاد',
       route: 'الخط',
       customer: 'الشركة المتعاقدة',
-      direction: 'الرحلة',
+      direction: 'الاتجاه',
       vehicle: 'المركبة',
       driver: 'السائق',
       status: 'الحالة',
@@ -199,17 +216,24 @@ export const operationsText: Record<Language, OperationsText> = {
       noRoute: 'بدون خط',
       remove: 'حذف',
       confirmRemove: 'تأكيد الحذف',
+      markAllDone: 'تسجيل كل الرحلات الظاهرة «تمّت»',
+      notices: {
+        changed: 'تم حفظ تغيير الرحلة.',
+        added: 'تمت إضافة الرحلة.',
+        removed: 'تم حذف الرحلة.',
+        allDone: 'تم تسجيل الرحلات «تمّت».',
+      },
     },
     extra: {
       title: 'إضافة رحلة إضافية',
-      hint: 'رحلة زيادة على رحلات الخطوط في هذا اليوم فقط، مثل رحلة بالليل أو مشوار لمرة واحدة. تُحسب مثل باقي الرحلات.',
+      hint: 'رحلة إضافية على رحلات الخطوط في هذا اليوم فقط، مثل رحلة مسائية أو رحلة لمرة واحدة. تُحسب مثل باقي الرحلات.',
       route: 'الخط',
       routeHint: 'عند اختيار خط تُملأ الشركة والمركبة والسائق منه، ويمكنك تغيير المركبة والسائق.',
       noRoute: 'بدون خط',
       customer: 'الشركة المتعاقدة',
       customerFromRoute: 'الشركة صاحبة الخط المختار.',
       chooseCustomer: 'اختر الشركة',
-      direction: 'الرحلة',
+      direction: 'الاتجاه',
       time: 'الميعاد',
       vehicle: 'المركبة',
       driver: 'السائق',
@@ -225,7 +249,7 @@ export const operationsText: Record<Language, OperationsText> = {
     filter: {
       customer: 'الشركة المتعاقدة',
       allCustomers: 'كل الشركات',
-      direction: 'الرحلة',
+      direction: 'الاتجاه',
       allDirections: 'الذهاب والعودة',
       status: 'الحالة',
       allStatuses: 'كل الحالات',
@@ -246,6 +270,7 @@ export const operationsText: Record<Language, OperationsText> = {
       notSet: 'لم يُحدد',
       cancelled: 'أُلغيت هذه الرحلة',
       reason: 'السبب',
+      reasonHint: 'اختيار «غياب السائق» يُخصم من أجر السائق المخطط للرحلة إذا كان موظفًا يغطي راتبه عددًا محددًا من الرحلات. الأسباب الأخرى لا تُخصم من أجر أحد.',
       chooseReason: 'اختر السبب',
       notes: 'ملاحظات',
       notesHint: 'مطلوبة إذا اخترت "أخرى".',
@@ -254,9 +279,11 @@ export const operationsText: Record<Language, OperationsText> = {
     },
     holiday: {
       title: 'تسجيل إجازة',
-      hint: 'اختر الشركات المتعاقدة التي لديها إجازة في هذا اليوم، وستُلغى كل رحلاتها بسبب "إجازة رسمية".',
+      hint: 'اختر الشركات المتعاقدة التي لديها إجازة في هذا اليوم، وستُلغى رحلاتها بسبب "إجازة". الرحلات المسجّلة «تمّت» لا تتغير.',
       none: 'لا توجد رحلات قائمة لأي شركة في هذا اليوم.',
       submit: 'إلغاء رحلاتها في هذا اليوم',
+      willCancel: 'عدد الرحلات التي ستُلغى:',
+      confirm: 'اضغط مرة أخرى لتأكيد الإلغاء',
       done: 'تم إلغاء رحلات الإجازة.',
     },
   },
@@ -293,7 +320,7 @@ export const operationsText: Record<Language, OperationsText> = {
       contractor: 'Contractor vehicle',
     },
     reasons: {
-      holiday: 'Public holiday',
+      holiday: 'Holiday',
       vehicleBreakdown: 'Vehicle breakdown',
       driverAbsent: 'Driver absent',
       customerRequest: 'Client company request',
@@ -301,7 +328,7 @@ export const operationsText: Record<Language, OperationsText> = {
     },
     recording: {
       title: 'How trips are recorded',
-      hint: 'This choice applies to every day and to everyone who uses your company account.',
+      hint: 'A change applies from today on, for everyone who uses your company account. Past days keep the way they were recorded.',
       modes: {
         automatic: 'Automatic',
         manual: 'Manual',
@@ -309,6 +336,10 @@ export const operationsText: Record<Language, OperationsText> = {
       modeHints: {
         automatic: 'Each trip counts as done once its day comes, unless you cancel it.',
         manual: 'A trip counts as done only after you press "Done" next to it.',
+      },
+      pastDay: {
+        automatic: 'Trips on this day count the "Automatic" way that applied then.',
+        manual: 'Trips on this day count the "Manual" way that applied then.',
       },
     },
     conflict: {
@@ -320,17 +351,18 @@ export const operationsText: Record<Language, OperationsText> = {
     },
     day: {
       title: 'Daily operations',
-      hint: 'Each day\'s trips as they actually happened. Changes here are for one day only and do not change the route.',
-      date: 'Day',
+      hint: 'Each day\'s trips as they actually happened. Opening a day here prepares its trips from the routes so they count in the reports. Changes here are for one day only and do not change the route.',
+      date: 'Date',
       previous: 'Previous day',
       next: 'Next day',
-      today: 'Today',
+      today: 'Back to today',
       loading: "Preparing the day's trips...",
-      empty: 'There are no trips on this day. Trips of routes that run on this weekday appear here.',
+      empty: 'There are no trips on this day. Trips of routes that run on this weekday appear here, and you can add an extra trip.',
+      emptyAction: 'Go to routes',
       time: 'Time',
       route: 'Route',
       customer: 'Client company',
-      direction: 'Trip',
+      direction: 'Direction',
       vehicle: 'Vehicle',
       driver: 'Driver',
       status: 'Status',
@@ -344,6 +376,13 @@ export const operationsText: Record<Language, OperationsText> = {
       noRoute: 'No route',
       remove: 'Delete',
       confirmRemove: 'Confirm delete',
+      markAllDone: 'Mark all shown trips "Done"',
+      notices: {
+        changed: 'The trip change was saved.',
+        added: 'The trip was added.',
+        removed: 'The trip was deleted.',
+        allDone: 'The trips were marked "Done".',
+      },
     },
     extra: {
       title: 'Add an extra trip',
@@ -354,7 +393,7 @@ export const operationsText: Record<Language, OperationsText> = {
       customer: 'Client company',
       customerFromRoute: 'The company of the chosen route.',
       chooseCustomer: 'Choose a company',
-      direction: 'Trip',
+      direction: 'Direction',
       time: 'Time',
       vehicle: 'Vehicle',
       driver: 'Driver',
@@ -370,7 +409,7 @@ export const operationsText: Record<Language, OperationsText> = {
     filter: {
       customer: 'Client company',
       allCustomers: 'All companies',
-      direction: 'Trip',
+      direction: 'Direction',
       allDirections: 'Outbound and return',
       status: 'Status',
       allStatuses: 'All statuses',
@@ -391,6 +430,7 @@ export const operationsText: Record<Language, OperationsText> = {
       notSet: 'Not set',
       cancelled: 'This trip was cancelled',
       reason: 'Reason',
+      reasonHint: '"Driver absent" is taken off the planned driver\'s pay when the driver is an employee whose salary covers a set number of trips. No other reason costs anyone pay.',
       chooseReason: 'Choose a reason',
       notes: 'Notes',
       notesHint: 'Required if you choose "Other".',
@@ -399,9 +439,11 @@ export const operationsText: Record<Language, OperationsText> = {
     },
     holiday: {
       title: 'Record a holiday',
-      hint: 'Choose the client companies that are on holiday this day, and all their trips will be cancelled as "Public holiday".',
+      hint: 'Choose the client companies that are on holiday this day, and their trips will be cancelled as "Holiday". Trips marked "Done" stay as they are.',
       none: 'No company has running trips on this day.',
       submit: 'Cancel their trips on this day',
+      willCancel: 'Trips to be cancelled:',
+      confirm: 'Press again to confirm',
       done: 'The holiday trips were cancelled.',
     },
   },

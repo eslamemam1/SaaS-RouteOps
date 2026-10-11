@@ -105,7 +105,7 @@
         dir="ltr"
         [formField]="driverForm.monthlySalary"
       />
-      <bdi>{{ organization().currency }}</bdi>
+      <bdi>{{ currencyLabel() }}</bdi>
     </app-field>
     <app-field
       [label]="text().form.salaryTrips"
@@ -137,7 +137,7 @@
         dir="ltr"
         [formField]="driverForm.outboundPay"
       />
-      <bdi>{{ organization().currency }}</bdi>
+      <bdi>{{ currencyLabel() }}</bdi>
     </app-field>
     <app-field
       [label]="text().form.returnPay"
@@ -150,7 +150,7 @@
         dir="ltr"
         [formField]="driverForm.returnPay"
       />
-      <bdi>{{ organization().currency }}</bdi>
+      <bdi>{{ currencyLabel() }}</bdi>
     </app-field>
     }
   </fieldset>
@@ -166,8 +166,18 @@
     <input type="checkbox" [formField]="driverForm.active" />
     {{ text().form.active }}
   </label>
+  <p class="hint">{{ text().form.activeHint }}</p>
   @if (problem(); as current) {
-  <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+  <app-alert tone="danger">
+    {{ text().problems[current] }}
+    @if (blockingRoutes().length > 0) {
+      <ul>
+        @for (name of blockingRoutes(); track name) {
+          <li><bdi>{{ name }}</bdi></li>
+        }
+      </ul>
+    }
+  </app-alert>
   }
   <div class="ro-toolbar">
     <button appButton type="submit" [disabled]="submitting() || shrinking()">

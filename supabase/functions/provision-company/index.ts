@@ -16,6 +16,7 @@ type Problem =
   | 'emailFormat'
   | 'password'
   | 'currency'
+  | 'timeZone'
   | 'emailTaken'
   | 'operatorOnly'
   | 'signedOut'
@@ -87,7 +88,11 @@ async function provisionCompany(request: Request): Promise<Response> {
 
   const { data: organization, error: organizationError } = await admin
     .from('organizations')
-    .insert({ name: parsed.organizationName, currency: parsed.currency })
+    .insert({
+      name: parsed.organizationName,
+      currency: parsed.currency,
+      time_zone: parsed.timeZone,
+    })
     .select('id, name')
     .single();
   if (organizationError || !organization) {
@@ -114,10 +119,29 @@ async function provisionCompany(request: Request): Promise<Response> {
 // organizations_currency_known check.
 const currencies = ['EGP', 'SAR', 'AED', 'QAR', 'KWD', 'BHD', 'OMR', 'JOD'];
 
+// Keep in sync with timeZones in libs/organizations and the
+// organizations_time_zone_known check.
+const timeZones = [
+  'Africa/Cairo',
+  'Asia/Riyadh',
+  'Asia/Dubai',
+  'Asia/Qatar',
+  'Asia/Kuwait',
+  'Asia/Bahrain',
+  'Asia/Muscat',
+  'Asia/Amman',
+];
+
 function parseBody(
   body: unknown,
 ):
-  | { organizationName: string; email: string; password: string; currency: string }
+  | {
+      organizationName: string;
+      email: string;
+      password: string;
+      currency: string;
+      timeZone: string;
+    }
   | { error: Problem } {
   if (typeof body !== 'object' || body === null) {
     return { error: 'create' };
@@ -132,6 +156,7 @@ function parseBody(
   const password =
     typeof record['password'] === 'string' ? record['password'] : '';
   const currency = record['currency'] ?? 'EGP';
+  const timeZone = record['timeZone'] ?? 'Africa/Cairo';
 
   if (organizationName.length === 0) {
     return { error: 'organizationName' };
@@ -151,7 +176,10 @@ function parseBody(
   if (typeof currency !== 'string' || !currencies.includes(currency)) {
     return { error: 'currency' };
   }
-  return { organizationName, email, password, currency };
+  if (typeof timeZone !== 'string' || !timeZones.includes(timeZone)) {
+    return { error: 'timeZone' };
+  }
+  return { organizationName, email, password, currency, timeZone };
 }
 
 function json(

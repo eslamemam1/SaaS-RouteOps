@@ -41,6 +41,7 @@ export class CustomerForm {
 
   protected readonly submitting = signal(false);
   protected readonly problem = signal<CustomerProblem | null>(null);
+  protected readonly blockingRoutes = signal<readonly string[]>([]);
   protected readonly model = signal<CustomerDetails>(emptyCustomerDetails);
   protected readonly customerForm = form(this.model, (field) => {
     apply(field, customerDetailsSchema(this.problems));
@@ -77,6 +78,7 @@ export class CustomerForm {
         const problem =
           error instanceof CustomerAccessError ? error.problem : 'save';
         this.problem.set(problem);
+        this.blockingRoutes.set(error instanceof CustomerAccessError ? error.routes : []);
         return [{ kind: 'server', message: this.problems()[problem] }];
       } finally {
         this.submitting.set(false);

@@ -1,3 +1,10 @@
+import {
+  remainingPay,
+  remainingRent,
+  toDriverPay,
+  toVehiclePay,
+} from '@routeops/shared/pay';
+import { allRows } from '@routeops/shared/supabase';
 import { SupabaseClient } from '@supabase/supabase-js';
 import {
   CompanyAccountProblem,
@@ -46,6 +53,7 @@ export interface OrganizationGateway {
     organizationId: string,
     month: DateRange,
     today: string,
+    payMonth: DateRange,
   ): Promise<DashboardFacts>;
 }
 
@@ -161,6 +169,7 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
           email: input.email.trim(),
           password: input.password,
           currency: input.currency,
+          timeZone: input.timeZone,
         },
       },
     );
@@ -223,12 +232,13 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
     }
   }
 
-  // Salaries and monthly rents are due every month; pay for trips is due only
-  // once there are done trips.
+  // Pay is checked for payMonth, the month before, under the same rule as the
+  // expenses screen.
   async dashboardFacts(
     organizationId: string,
     month: DateRange,
     today: string,
+    payMonth: DateRange,
   ): Promise<DashboardFacts> {
     const client = this.requireClient();
     const monthArgs = {
@@ -237,15 +247,40 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       p_to: month.to,
       p_today: today,
     };
-    const [trips, todayCounts, monthCounts, expenses, unopened, drivers, vehicles] =
-      await Promise.all([
+    const payArgs = { ...monthArgs, p_from: payMonth.from, p_to: payMonth.to };
+    const count = (table: 'customers' | 'drivers' | 'routes') =>
+      client
+        .from(table)
+        .select('id', { count: 'exact', head: true })
+        .eq('organization_id', organizationId);
+    const [
+      trips,
+      todayCounts,
+      monthCounts,
+      expenses,
+      unopened,
+      drivers,
+      vehicles,
+      customerCount,
+      driverCount,
+      routeCount,
+    ] = await Promise.all([
         client
           .from('daily_trips')
           .select('is_cancelled')
           .eq('organization_id', organizationId)
           .eq('service_date', today),
         client.rpc('trip_report', { ...monthArgs, p_from: today, p_to: today }),
-        client.rpc('trip_report', monthArgs),
+        allRows((from, to) =>
+          client
+            .rpc('trip_report', monthArgs)
+            .order('customer_id')
+            .order('route_id')
+            .order('vehicle_id')
+            .order('driver_id')
+            .order('direction')
+            .range(from, to),
+        ),
         client.rpc('expense_totals', {
           p_organization_id: organizationId,
           p_from: month.from,
@@ -256,8 +291,11 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
           p_from: month.from,
           p_to: today,
         }),
-        client.rpc('driver_pay', monthArgs),
-        client.rpc('vehicle_pay', monthArgs),
+        client.rpc('driver_pay', payArgs),
+        client.rpc('vehicle_pay', payArgs),
+        count('customers'),
+        count('drivers'),
+        count('routes'),
       ]);
     if (
       trips.error ||
@@ -266,7 +304,10 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       expenses.error ||
       unopened.error ||
       drivers.error ||
-      vehicles.error
+      vehicles.error ||
+      customerCount.error ||
+      driverCount.error ||
+      routeCount.error
     ) {
       throw new OrganizationAccessError('load');
     }
@@ -279,16 +320,19 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       monthUnpriced: sum(counts.map((row) => row.unpriced_trips)),
       monthExpenses: sum((expenses.data ?? []).map((row) => Number(row.total))),
       unopenedDays: unopened.data ?? [],
-      unrecordedDriverPay: (drivers.data ?? []).filter(
-        (row) =>
-          Number(row.recorded) === 0 &&
-          (row.pay_type === 'salary' || row.done_outbound + row.done_return > 0),
-      ).length,
-      unrecordedVehiclePay: (vehicles.data ?? []).filter(
-        (row) =>
-          Number(row.recorded) === 0 &&
-          (row.rent_type === 'monthly' || row.done_outbound + row.done_return > 0),
-      ).length,
+      unrecordedDriverPay: (drivers.data ?? []).filter((row) => {
+        const pay = toDriverPay(row);
+        return pay !== null && remainingPay(pay) > 0;
+      }).length,
+      unrecordedVehiclePay: (vehicles.data ?? []).filter((row) => {
+        const rent = toVehiclePay(row);
+        return rent !== null && remainingRent(rent) > 0;
+      }).length,
+      setup: {
+        customers: customerCount.count ?? 0,
+        drivers: driverCount.count ?? 0,
+        routes: routeCount.count ?? 0,
+      },
     };
   }
 

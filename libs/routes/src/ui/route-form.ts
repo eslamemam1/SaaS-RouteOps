@@ -9,7 +9,8 @@ import {
   untracked,
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
-import { injectText } from '@routeops/shared/i18n';
+import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { currencySymbol } from '@routeops/shared/money';
 import { Alert, Button, Field } from '@routeops/shared/ui';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
@@ -35,6 +36,10 @@ export class RouteForm {
   private readonly repository = inject(RouteRepository);
 
   readonly organization = input.required<RouteOrganization>();
+  private readonly language = inject(LanguageService).language;
+  protected readonly currencyLabel = computed(() =>
+    currencySymbol(this.organization().currency, this.language()),
+  );
   readonly choices = input.required<RouteChoices>();
   readonly route = input<TransportRoute | null>(null);
   readonly draft = input<TransportRouteDetails | null>(null);

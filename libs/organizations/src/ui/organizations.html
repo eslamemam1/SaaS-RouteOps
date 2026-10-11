@@ -14,7 +14,12 @@
       <app-page-state kind="loading" [message]="text().home.loading" />
     }
     @case ('error') {
-      <app-page-state kind="error" [message]="text().problems[problem()]" />
+      <app-page-state
+        kind="error"
+        [message]="text().problems[problem()]"
+        [retryable]="problem() === 'load'"
+        (retry)="retry()"
+      />
     }
     @case ('empty') {
       @if (!operator()) {
@@ -63,6 +68,40 @@
             }
             @case ('success') {
               @if (summary(); as summary) {
+                @if (!setUp()) {
+                  <section class="ro-card" aria-labelledby="dashboard-setup">
+                    <div class="ro-card-header">
+                      <h2 id="dashboard-setup" class="ro-card-title">{{ text().setup.title }}</h2>
+                      <p class="hint">{{ text().setup.hint }}</p>
+                    </div>
+                    <div class="ro-card-body">
+                      <ol class="dashboard-setup">
+                        @for (step of setupSteps(); track step.key) {
+                          <li [class.dashboard-setup-done]="step.done">
+                            <span class="home-section-icon" aria-hidden="true">
+                              <ng-icon [svg]="step.done ? doneIcon : step.icon" />
+                            </span>
+                            <span class="dashboard-attention-text">
+                              <strong>{{ text().setup[step.key] }}</strong>
+                              <span class="hint">{{ text().setup[step.hint] }}</span>
+                            </span>
+                            @if (step.done) {
+                              <app-tag tone="success">{{ text().setup.done }}</app-tag>
+                            } @else {
+                              <a
+                                appButton="secondary"
+                                size="sm"
+                                [routerLink]="['/organizations', current.id, step.path]"
+                              >
+                                {{ text().setup.open }}
+                              </a>
+                            }
+                          </li>
+                        }
+                      </ol>
+                    </div>
+                  </section>
+                }
                 <div class="dashboard-top">
                   <section class="ro-card" aria-labelledby="dashboard-today">
                     <div class="ro-card-header">
@@ -110,10 +149,18 @@
                         <ul class="dashboard-attention">
                           @for (item of attention(); track item.key) {
                             <li>
-                              <a [routerLink]="['/organizations', current.id, item.path]">
+                              <a
+                                [routerLink]="['/organizations', current.id, item.path]"
+                                [queryParams]="item.query"
+                              >
                                 <app-tag tone="warning"><bdi>{{ item.count }}</bdi></app-tag>
                                 <span class="dashboard-attention-text">
-                                  <strong>{{ text().dashboard[item.key] }}</strong>
+                                  <strong>
+                                    {{ text().dashboard[item.key] }}
+                                    @if (item.key === 'driverPay' || item.key === 'vehiclePay') {
+                                      · {{ payMonthLabel() }}
+                                    }
+                                  </strong>
                                   <span class="hint">{{ text().dashboard[item.hint] }}</span>
                                 </span>
                               </a>

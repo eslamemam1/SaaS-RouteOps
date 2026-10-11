@@ -101,6 +101,13 @@ export const tripRecordings = ['automatic', 'manual'] as const;
 
 export type TripRecording = (typeof tripRecordings)[number];
 
+// A change of how trips are recorded applies from its day on, so each day
+// keeps the way of recording in force on it.
+export interface RecordingPeriod {
+  readonly startsOn: string;
+  readonly recording: TripRecording;
+}
+
 export const tripStatuses = [
   'done',
   'unrecorded',
@@ -174,6 +181,35 @@ export function tripStatus(
     return 'planned';
   }
   return recording === 'automatic' ? 'done' : 'unrecorded';
+}
+
+// Before any change, an organization records automatically.
+export function recordingOn(
+  periods: readonly RecordingPeriod[],
+  day: string,
+): TripRecording {
+  let current: RecordingPeriod | null = null;
+  for (const period of periods) {
+    if (
+      period.startsOn <= day &&
+      (!current || period.startsOn > current.startsOn)
+    ) {
+      current = period;
+    }
+  }
+  return current?.recording ?? 'automatic';
+}
+
+// The periods after choosing a way of recording on a day.
+export function withRecordingFrom(
+  periods: readonly RecordingPeriod[],
+  day: string,
+  recording: TripRecording,
+): RecordingPeriod[] {
+  return [
+    ...periods.filter((period) => period.startsOn !== day),
+    { startsOn: day, recording },
+  ].sort((first, second) => first.startsOn.localeCompare(second.startsOn));
 }
 
 // Only a trip that is not cancelled and whose day has come can be marked done.

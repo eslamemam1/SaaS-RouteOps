@@ -1,3 +1,5 @@
+import { DriverPayRow, VehiclePayRow } from '@routeops/shared/pay'
+
 export type Json =
   | string
   | number
@@ -87,13 +89,7 @@ export type Database = {
           p_to: string
           p_today: string
         }
-        Returns: {
-          driver_id: string
-          pay_type: string
-          done_outbound: number
-          done_return: number
-          recorded: number
-        }[]
+        Returns: DriverPayRow[]
       }
       trip_report: {
         Args: {
@@ -125,13 +121,7 @@ export type Database = {
           p_to: string
           p_today: string
         }
-        Returns: {
-          vehicle_id: string
-          rent_type: string
-          done_outbound: number
-          done_return: number
-          recorded: number
-        }[]
+        Returns: VehiclePayRow[]
       }
     }
     Enums: {

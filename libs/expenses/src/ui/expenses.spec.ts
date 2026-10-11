@@ -89,11 +89,16 @@ describe('Expenses', () => {
     button(harness, arabic.pay.record)?.click();
     await settle(harness);
 
-    expect(text(harness)).toContain(arabic.form.addTitle);
+    expect(text(harness)).toContain(arabic.form.recordPayTitle);
     const form = harness.routeNativeElement!.querySelector('form')!;
     expect(form.querySelector<HTMLInputElement>('input[inputmode="decimal"]')?.value).toBe(
       '3300.00',
     );
+    expect([...form.querySelectorAll('select')].map((select) => select.disabled)).toEqual([
+      true,
+      true,
+      true,
+    ]);
     const note = form.querySelector('textarea')?.value ?? '';
     expect(note).toContain(arabic.pay.noteSalary);
     expect(note).toContain(arabic.pay.extraPart);
@@ -202,6 +207,7 @@ describe('Expenses', () => {
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.problems.load);
+    expect(button(harness, 'إعادة المحاولة')).toBeDefined();
   });
 
   it('shows the page in English after switching language', async () => {

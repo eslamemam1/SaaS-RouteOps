@@ -10,7 +10,8 @@ import {
   untracked,
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
-import { injectText } from '@routeops/shared/i18n';
+import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { currencySymbol } from '@routeops/shared/money';
 import { Alert, Avatar, Button, Field } from '@routeops/shared/ui';
 import { DriverAccessError } from '../application/driver-access-error';
 import { DriverRepository } from '../application/driver-repository';
@@ -48,6 +49,10 @@ export class DriverForm {
   private readonly repository = inject(DriverRepository);
 
   readonly organization = input.required<DriverOrganization>();
+  private readonly language = inject(LanguageService).language;
+  protected readonly currencyLabel = computed(() =>
+    currencySymbol(this.organization().currency, this.language()),
+  );
   readonly driver = input<Driver | null>(null);
   readonly saved = output<DriverSaved>();
   readonly cancelled = output<void>();
@@ -58,6 +63,7 @@ export class DriverForm {
   protected readonly payTypes = payTypes;
   protected readonly submitting = signal(false);
   protected readonly problem = signal<DriverProblem | null>(null);
+  protected readonly blockingRoutes = signal<readonly string[]>([]);
   protected readonly model = signal<DriverDetails>(emptyDriverDetails);
   protected readonly photoChoice = signal<PhotoChoice>(null);
   protected readonly shrinking = signal(false);
@@ -138,6 +144,7 @@ export class DriverForm {
         const problem =
           error instanceof DriverAccessError ? error.problem : 'save';
         this.problem.set(problem);
+        this.blockingRoutes.set(error instanceof DriverAccessError ? error.routes : []);
         return [{ kind: 'server', message: this.problems()[problem] }];
       } finally {
         this.submitting.set(false);

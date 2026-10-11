@@ -77,7 +77,7 @@
     [control]="routeForm.tripPrice"
   >
     <input type="text" inputmode="decimal" dir="ltr" [formField]="routeForm.tripPrice" />
-    <bdi>{{ organization().currency }}</bdi>
+    <bdi>{{ currencyLabel() }}</bdi>
   </app-field>
   <app-field
     [label]="text().form.notes"
@@ -91,6 +91,7 @@
     <input type="checkbox" [formField]="routeForm.active" />
     {{ text().form.active }}
   </label>
+  <p class="hint">{{ text().form.activeHint }}</p>
   @if (problem(); as current) {
     <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }

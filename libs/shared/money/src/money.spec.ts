@@ -1,4 +1,5 @@
 import {
+  currencySymbol,
   amountError,
   formatMoney,
   isCurrency,
@@ -55,6 +56,14 @@ describe('formatMoney', () => {
     expect(formatMoney(1500050, 'EGP', 'en')).toContain('15,000.50');
     expect(formatMoney(1500050, 'EGP', 'ar')).toMatch(/15.000.50/);
     expect(formatMoney(1500050, 'EGP', 'ar')).not.toMatch(/[\u0660-\u0669]/);
+  });
+});
+
+describe('currencySymbol', () => {
+  it('writes the currency the way each language does', () => {
+    expect(currencySymbol('EGP', 'ar')).toBe('ج.م.');
+    expect(currencySymbol('SAR', 'ar')).toBe('ر.س.');
+    expect(currencySymbol('EGP', 'en')).toBe('EGP');
   });
 });
 

@@ -278,6 +278,7 @@ function recorder(result: Result) {
       return query;
     },
     order: () => query,
+    range: () => query,
     single: () => Promise.resolve(result),
     then: (resolve: (value: Result) => unknown) => Promise.resolve(result).then(resolve),
   };

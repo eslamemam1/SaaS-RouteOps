@@ -10,6 +10,7 @@ import {
   OperationsOrganization,
   isTripRecording,
   isVehicleOwnership,
+  RecordingPeriod,
   TripChange,
   TripDirection,
   TripRecording,
@@ -22,7 +23,7 @@ export interface OperationsGateway {
   prepareDay(organizationId: string, serviceDate: string): Promise<void>;
   listTrips(organizationId: string, serviceDate: string): Promise<DailyTrip[]>;
   listChoices(organizationId: string): Promise<OperationChoices>;
-  readTripRecording(organizationId: string): Promise<TripRecording>;
+  listTripRecordings(organizationId: string): Promise<RecordingPeriod[]>;
   saveTripRecording(
     organizationId: string,
     recording: TripRecording,
@@ -194,22 +195,21 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     };
   }
 
-  async readTripRecording(organizationId: string): Promise<TripRecording> {
+  async listTripRecordings(organizationId: string): Promise<RecordingPeriod[]> {
     const { data, error } = await this.requireClient()
-      .from('operations_settings')
-      .select('trip_recording')
+      .from('trip_recording_periods')
+      .select('starts_on, trip_recording')
       .eq('organization_id', organizationId)
-      .maybeSingle();
+      .order('starts_on');
     if (error) {
       throw new OperationsAccessError('load');
     }
-    if (!data) {
-      return 'automatic';
-    }
-    if (!isTripRecording(data.trip_recording)) {
-      throw new OperationsAccessError('load');
-    }
-    return data.trip_recording;
+    return (data ?? []).map((row) => {
+      if (!isTripRecording(row.trip_recording)) {
+        throw new OperationsAccessError('load');
+      }
+      return { startsOn: row.starts_on, recording: row.trip_recording };
+    });
   }
 
   async saveTripRecording(
@@ -325,6 +325,7 @@ export class SupabaseOperationsGateway implements OperationsGateway {
       })
       .eq('organization_id', organizationId)
       .eq('service_date', serviceDate)
+      .eq('is_done', false)
       .in('customer_id', [...customerIds]);
     if (error) {
       throw new OperationsAccessError('save');

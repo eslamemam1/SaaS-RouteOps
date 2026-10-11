@@ -1,3 +1,5 @@
+import { DriverPayRow, VehiclePayRow } from '@routeops/shared/pay';
+
 export interface Database {
   public: {
     Tables: {
@@ -11,6 +13,24 @@ export interface Database {
         Row: { organization_id: string; user_id: string };
         Insert: { organization_id: string; user_id: string };
         Update: { organization_id?: string; user_id?: string };
+        Relationships: [];
+      };
+      customers: {
+        Row: { id: string; organization_id: string };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      drivers: {
+        Row: { id: string; organization_id: string };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      routes: {
+        Row: { id: string; organization_id: string };
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       daily_trips: {
@@ -84,12 +104,7 @@ export interface Database {
           p_to: string;
           p_today: string;
         };
-        Returns: {
-          pay_type: string;
-          done_outbound: number;
-          done_return: number;
-          recorded: number;
-        }[];
+        Returns: DriverPayRow[];
       };
       vehicle_pay: {
         Args: {
@@ -98,12 +113,7 @@ export interface Database {
           p_to: string;
           p_today: string;
         };
-        Returns: {
-          rent_type: string;
-          done_outbound: number;
-          done_return: number;
-          recorded: number;
-        }[];
+        Returns: VehiclePayRow[];
       };
       set_organization_active: {
         Args: { p_organization_id: string; p_is_active: boolean };

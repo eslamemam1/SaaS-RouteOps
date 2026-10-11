@@ -26,7 +26,11 @@
     <input type="checkbox" [formField]="changeForm.cancelled" />
     {{ text().change.cancelled }}
   </label>
-  <app-field [label]="text().change.reason" [control]="changeForm.reason">
+  <app-field
+    [label]="text().change.reason"
+    [hint]="text().change.reasonHint"
+    [control]="changeForm.reason"
+  >
     <select [formField]="changeForm.reason">
       <option value="">{{ text().change.chooseReason }}</option>
       @for (reason of reasons; track reason) {

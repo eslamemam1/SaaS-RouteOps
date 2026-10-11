@@ -1,4 +1,7 @@
 <form class="ro-form" (submit)="onSubmit($event)">
+  @if (payMonth()) {
+    <p class="hint">{{ text().form.recordPayHint }}</p>
+  }
   <app-field [label]="text().form.spentOn" [control]="expenseForm.spentOn">
     <input type="date" [formField]="expenseForm.spentOn" />
   </app-field>
@@ -16,7 +19,7 @@
     [control]="expenseForm.amount"
   >
     <input type="text" inputmode="decimal" dir="ltr" [formField]="expenseForm.amount" />
-    <bdi>{{ organization().currency }}</bdi>
+    <bdi>{{ currencyLabel() }}</bdi>
   </app-field>
   <app-field [label]="text().form.vehicle" [hint]="text().form.vehicleHint" [optional]="true">
     <select [formField]="expenseForm.vehicleId">

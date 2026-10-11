@@ -130,22 +130,23 @@ describe('SupabaseReportsGateway', () => {
     ]);
   });
 
-  it('counts the drivers and vehicles with pay due and nothing recorded', async () => {
+  it('counts the drivers and vehicles with pay still due, even partly recorded', async () => {
+    const perTrip = { outbound_pay: 10000, return_pay: 10000 };
     const calls = recorder((name) =>
       name === 'driver_pay'
         ? {
             data: [
-              { driver_id: 'ahmed', pay_type: 'salary', done_outbound: 0, done_return: 0, recorded: 0 },
-              { driver_id: 'karim', pay_type: 'per_trip', done_outbound: 0, done_return: 0, recorded: 0 },
-              { driver_id: 'samy', pay_type: 'per_trip', done_outbound: 3, done_return: 0, recorded: 0 },
-              { driver_id: 'omar', pay_type: 'salary', done_outbound: 20, done_return: 20, recorded: 500000 },
+              driverPay({ driver_id: 'ahmed', pay_type: 'salary', monthly_salary: 500000 }),
+              driverPay({ driver_id: 'karim', pay_type: 'per_trip', ...perTrip }),
+              driverPay({ driver_id: 'samy', pay_type: 'per_trip', ...perTrip, done_outbound: 3, recorded: 10000 }),
+              driverPay({ driver_id: 'omar', pay_type: 'salary', monthly_salary: 500000, recorded: 500000 }),
             ],
             error: null,
           }
         : {
             data: [
-              { vehicle_id: 'van-2', rent_type: 'monthly', done_outbound: 0, done_return: 0, recorded: 0 },
-              { vehicle_id: 'van-3', rent_type: 'per_trip', done_outbound: 0, done_return: 0, recorded: 0 },
+              vehiclePay({ vehicle_id: 'van-2', rent_type: 'monthly', monthly_rent: 300000 }),
+              vehiclePay({ vehicle_id: 'van-3', rent_type: 'per_trip', outbound_rent: 5000, return_rent: 5000 }),
             ],
             error: null,
           },
@@ -197,8 +198,41 @@ function recorder(respond: (table: string) => Result) {
       from: (table: string) => query(table),
       rpc: (name: string, args: unknown) => {
         rpc.push([name, args]);
-        return Promise.resolve(respond(name));
+        const result = Promise.resolve(respond(name));
+        const page = Object.assign(result, {
+          order: () => page,
+          range: () => result,
+        });
+        return page;
       },
     } as unknown as SupabaseClient<Database>,
+  };
+}
+
+function driverPay(row: Record<string, unknown>) {
+  return {
+    monthly_salary: null,
+    salary_trips: null,
+    outbound_pay: null,
+    return_pay: null,
+    done_outbound: 0,
+    done_return: 0,
+    absent_outbound: 0,
+    absent_return: 0,
+    recorded: 0,
+    ...row,
+  };
+}
+
+function vehiclePay(row: Record<string, unknown>) {
+  return {
+    ownership: 'rented',
+    monthly_rent: null,
+    outbound_rent: null,
+    return_rent: null,
+    done_outbound: 0,
+    done_return: 0,
+    recorded: 0,
+    ...row,
   };
 }

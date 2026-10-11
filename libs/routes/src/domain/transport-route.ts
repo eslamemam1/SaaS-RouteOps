@@ -73,6 +73,7 @@ export const routeProblems = [
   'trip',
   'days',
   'tripPrice',
+  'inactiveChoice',
   'load',
   'save',
   'organization',

@@ -154,6 +154,31 @@ describe('report lines', () => {
     expect(costShares(counts, expenses)).toEqual({ routes: new Map(), other: 400000 });
   });
 
+  it('splits a cost in whole piasters that add up to it', () => {
+    const routes: TripCount[] = ['a', 'b', 'c'].map((routeId) => ({
+      customerId: 'delta',
+      routeId,
+      vehicleId: '',
+      driverId: 'ahmed',
+      done: 1,
+      extra: 0,
+      revenue: 0,
+      unpriced: 0,
+    }));
+    const expenses: ExpenseTotal[] = [
+      { category: 'salaries', vehicleId: '', driverId: 'ahmed', total: 100 },
+    ];
+
+    const shares = costShares(routes, expenses);
+
+    expect([...shares.routes].map(([id, costs]) => [id, costs.driver])).toEqual([
+      ['a', 34],
+      ['b', 33],
+      ['c', 33],
+    ]);
+    expect(shares.other).toBe(0);
+  });
+
   it('totals the month', () => {
     expect(reportTotal(counts)).toEqual({ done: 72, extra: 3, revenue: 760000, unpriced: 1 });
     expect(reportTotal([])).toEqual({ done: 0, extra: 0, revenue: 0, unpriced: 0 });

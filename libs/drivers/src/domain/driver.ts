@@ -64,6 +64,7 @@ export const driverProblems = [
   'required',
   'trips',
   'photo',
+  'activeRoutes',
   'load',
   'save',
   'organization',

@@ -9,6 +9,7 @@ import {
   memberOrganization,
   OperationChoices,
   OperationsOrganization,
+  RecordingPeriod,
   TripChange,
   tripChangeError,
   TripRecording,
@@ -46,8 +47,10 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     return this.gateway.listChoices(organization.id);
   }
 
-  tripRecording(organization: OperationsOrganization): Promise<TripRecording> {
-    return this.gateway.readTripRecording(organization.id);
+  tripRecordings(
+    organization: OperationsOrganization,
+  ): Promise<RecordingPeriod[]> {
+    return this.gateway.listTripRecordings(organization.id);
   }
 
   chooseTripRecording(

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { injectText } from '@routeops/shared/i18n';
-import { Button, PageState, PublicHero } from '@routeops/shared/ui';
+import { Button, PageState, PublicHero, ShellOrganization } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -33,6 +33,7 @@ import { organizationsText } from './organizations-text';
 export class SignOut {
   private readonly repository = inject(OrganizationRepository);
   private readonly router = inject(Router);
+  private readonly shellOrganization = inject(ShellOrganization);
 
   protected readonly text = injectText(organizationsText);
   protected readonly problem = signal<CompanyAccountProblem | null>(null);
@@ -51,6 +52,7 @@ export class SignOut {
       );
       return;
     }
+    this.shellOrganization.set(null);
     await this.router.navigateByUrl('/sign-in', { replaceUrl: true });
   }
 }

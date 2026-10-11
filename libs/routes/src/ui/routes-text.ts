@@ -42,6 +42,8 @@ export interface RoutesText {
     readonly chooseCustomer: string;
     readonly noCustomers: string;
     readonly customersLink: string;
+    readonly noDrivers: string;
+    readonly driversLink: string;
     readonly vehicle: string;
     readonly driver: string;
     readonly chooseDriver: string;
@@ -62,6 +64,7 @@ export interface RoutesText {
     readonly notes: string;
     readonly notesHint: string;
     readonly active: string;
+    readonly activeHint: string;
     readonly add: string;
     readonly save: string;
     readonly cancel: string;
@@ -84,6 +87,7 @@ export const routesText: Record<Language, RoutesText> = {
       trip: 'حدد ميعاد رحلة الذهاب أو رحلة العودة على الأقل.',
       days: 'اختر يومًا واحدًا على الأقل.',
       tripPrice: 'أدخل السعر بالأرقام فقط، مثل 150 أو 150.50',
+      inactiveChoice: 'الخط العامل يحتاج شركة وسائقًا ومركبة غير موقوفين. اختر غيرهم، أو فعّلهم من صفحاتهم، أو أوقف الخط.',
       load: 'تعذّر تحميل الخطوط. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
@@ -135,8 +139,10 @@ export const routesText: Record<Language, RoutesText> = {
       customer: 'الشركة المتعاقدة',
       customerHint: 'الشركة التي ينقل هذا الخط موظفيها.',
       chooseCustomer: 'اختر الشركة',
-      noCustomers: 'لا توجد شركات متعاقدة بعد. أضف شركة أولًا من صفحة',
+      noCustomers: 'لا توجد شركة متعاقدة تعمل معها الآن، وكل خط يحتاج شركة. أضف شركة أو فعّلها من صفحة',
       customersLink: 'الشركات المتعاقدة',
+      noDrivers: 'لا يوجد سائق يعمل الآن، وكل خط يحتاج سائقًا. أضف سائقًا أو فعّله من صفحة',
+      driversLink: 'السائقين',
       vehicle: 'المركبة',
       driver: 'السائق',
       chooseDriver: 'اختر السائق',
@@ -148,16 +154,17 @@ export const routesText: Record<Language, RoutesText> = {
       endPointHint: 'غالبًا مقر الشركة أو المصنع.',
       tripsTitle: 'المواعيد',
       tripsHint: 'حدد ميعاد رحلة واحدة على الأقل.',
-      outboundTime: 'ميعاد رحلة الذهاب (توصيل الموظفين إلى العمل)',
-      returnTime: 'ميعاد رحلة العودة (رجوع الموظفين من العمل)',
+      outboundTime: 'موعد رحلة الذهاب (توصيل الموظفين إلى العمل)',
+      returnTime: 'موعد رحلة العودة (عودة الموظفين من العمل)',
       days: 'أيام العمل',
       daysHint: 'الأيام التي يعمل فيها هذا الخط كل أسبوع.',
       tripPrice: 'سعر الرحلة',
       tripPriceHint:
-        'المبلغ الذي تدفعه الشركة المتعاقدة عن كل رحلة ذهاب أو عودة. يُستخدم لحساب الإيراد في التقارير. تغيير السعر لا يغيّر الرحلات التي مضت.',
+        'المبلغ الذي تدفعه الشركة المتعاقدة عن كل رحلة ذهاب أو عودة. يُستخدم لحساب الإيراد في التقارير. تغيير السعر لا يغيّر الرحلات التي مضت ولها سعر، أما الرحلات التي تمّت بلا سعر فتأخذ السعر الجديد.',
       notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذا الخط.',
       active: 'الخط يعمل حاليًا',
+      activeHint: 'الخط الموقوف لا تُجهَّز له رحلات في الأيام القادمة، وتبقى رحلاته السابقة في التقارير.',
       add: 'إضافة الخط',
       save: 'حفظ التعديلات',
       cancel: 'إلغاء',
@@ -178,6 +185,7 @@ export const routesText: Record<Language, RoutesText> = {
       trip: 'Set the outbound or return trip time, at least one.',
       days: 'Choose at least one day.',
       tripPrice: 'Enter the price in numbers only, like 150 or 150.50',
+      inactiveChoice: 'An active route needs a company, driver, and vehicle that are not inactive. Choose others, turn them back on from their pages, or stop the route.',
       load: 'Could not load your routes. Please try again.',
       save: 'Could not save. Please try again.',
       organization: 'You cannot open this page from your account.',
@@ -229,8 +237,10 @@ export const routesText: Record<Language, RoutesText> = {
       customer: 'Client company',
       customerHint: 'The company whose staff this route carries.',
       chooseCustomer: 'Choose a company',
-      noCustomers: 'There are no client companies yet. First add one from',
-      customersLink: 'Client companies',
+      noCustomers: 'No contracted company is active now, and every route needs one. Add or turn one back on from',
+      customersLink: 'Contracted companies',
+      noDrivers: 'No driver is working now, and every route needs one. Add or turn one back on from',
+      driversLink: 'Drivers',
       vehicle: 'Vehicle',
       driver: 'Driver',
       chooseDriver: 'Choose a driver',
@@ -248,10 +258,11 @@ export const routesText: Record<Language, RoutesText> = {
       daysHint: 'The days this route runs every week.',
       tripPrice: 'Trip price',
       tripPriceHint:
-        'What the client company pays for each outbound or return trip. Reports use it to work out revenue. Changing it does not change past trips.',
+        'What the client company pays for each outbound or return trip. Reports use it to work out revenue. Changing it does not change past trips that have a price; done trips with no price take the new one.',
       notes: 'Notes',
       notesHint: 'Anything you want to remember about this route.',
       active: 'This route is currently running',
+      activeHint: 'A stopped route gets no trips on coming days, and its past trips stay in the reports.',
       add: 'Add route',
       save: 'Save changes',
       cancel: 'Cancel',
