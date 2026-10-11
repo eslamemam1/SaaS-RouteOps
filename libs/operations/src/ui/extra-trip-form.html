@@ -22,32 +22,36 @@
       }
     </select>
   </app-field>
-  <app-field [label]="text().extra.direction">
-    <select [formField]="extraForm.direction">
-      @for (direction of directions; track direction) {
-        <option [value]="direction">{{ text().directions[direction] }}</option>
-      }
-    </select>
-  </app-field>
-  <app-field [label]="text().extra.time" [control]="extraForm.departureTime">
-    <input type="time" [formField]="extraForm.departureTime" />
-  </app-field>
-  <app-field [label]="text().extra.vehicle" [optional]="true">
-    <select [formField]="extraForm.vehicleId">
-      <option value="">{{ text().extra.notSet }}</option>
-      @for (vehicle of vehicles(); track vehicle.id) {
-        <option [value]="vehicle.id">{{ vehicle.label }}</option>
-      }
-    </select>
-  </app-field>
-  <app-field [label]="text().extra.driver" [control]="extraForm.driverId">
-    <select [formField]="extraForm.driverId">
-      <option value="">{{ text().extra.chooseDriver }}</option>
-      @for (driver of drivers(); track driver.id) {
-        <option [value]="driver.id">{{ driver.label }}</option>
-      }
-    </select>
-  </app-field>
+  <div class="ro-form-row">
+    <app-field [label]="text().extra.direction">
+      <select [formField]="extraForm.direction">
+        @for (direction of directions; track direction) {
+          <option [value]="direction">{{ text().directions[direction] }}</option>
+        }
+      </select>
+    </app-field>
+    <app-field [label]="text().extra.time" [control]="extraForm.departureTime">
+      <input type="time" [formField]="extraForm.departureTime" />
+    </app-field>
+  </div>
+  <div class="ro-form-row">
+    <app-field [label]="text().extra.driver" [control]="extraForm.driverId">
+      <select [formField]="extraForm.driverId">
+        <option value="">{{ text().extra.chooseDriver }}</option>
+        @for (driver of drivers(); track driver.id) {
+          <option [value]="driver.id">{{ driver.label }}</option>
+        }
+      </select>
+    </app-field>
+    <app-field [label]="text().extra.vehicle" [optional]="true">
+      <select [formField]="extraForm.vehicleId">
+        <option value="">{{ text().extra.notSet }}</option>
+        @for (vehicle of vehicles(); track vehicle.id) {
+          <option [value]="vehicle.id">{{ vehicle.label }}</option>
+        }
+      </select>
+    </app-field>
+  </div>
   <app-field
     [label]="text().extra.tripPrice"
     [hint]="model().routeId ? text().extra.tripPriceRouteHint : text().extra.tripPriceHint"

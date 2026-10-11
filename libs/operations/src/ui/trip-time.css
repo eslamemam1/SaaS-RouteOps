@@ -1,0 +1,36 @@
+/* A trip's departure time with its direction under it; outbound is blue, return is amber. */
+.operations-time {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  min-inline-size: var(--ro-time-badge-width);
+  padding-block: var(--ro-space-1);
+  padding-inline: var(--ro-space-2);
+  border: var(--ro-border-width) solid var(--ro-border-brand-subtle);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+  font-weight: var(--ro-font-medium);
+}
+
+.operations-time > bdi {
+  color: var(--ro-text-primary);
+  font-size: var(--ro-text-heading-md);
+  line-height: var(--ro-leading-heading-md);
+  font-weight: var(--ro-font-bold);
+}
+
+.operations-time[data-direction='return'] {
+  border-color: var(--ro-border-warning-subtle);
+  background: var(--ro-bg-accent-subtle);
+  color: var(--ro-text-accent);
+}
+
+.operations-trip-summary {
+  padding: var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-hover);
+}

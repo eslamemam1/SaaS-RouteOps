@@ -88,6 +88,12 @@ export class RouteForm {
     });
   }
 
+  protected chooseEveryDay(): void {
+    for (const day of weekdays) {
+      this.routeForm.days[day]().value.set(true);
+    }
+  }
+
   protected onSubmit(event: Event): void {
     event.preventDefault();
     void submit(this.routeForm, async () => {

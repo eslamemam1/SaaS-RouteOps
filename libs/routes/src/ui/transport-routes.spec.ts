@@ -115,6 +115,47 @@ describe('TransportRoutes', () => {
     expect(rows(harness)[0].textContent).toContain('Nour Company');
   });
 
+  it('finds a route by its place, and says when nothing matches', async () => {
+    const maadi = { ...delta, id: 'route-2', name: 'Maadi', startPoint: 'Maadi Square' };
+    const harness = await open({ list: async () => [delta, maadi] });
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(2);
+    expect(rows(harness)[0].textContent).toContain('Hegaz Square');
+
+    const search = harness.routeNativeElement!.querySelector<HTMLInputElement>(
+      'input[type="search"]',
+    )!;
+    search.value = 'hegaz';
+    search.dispatchEvent(new Event('input'));
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(1);
+    expect(rows(harness)[0].textContent).toContain('Delta - Nasr City');
+
+    search.value = 'Zamalek';
+    search.dispatchEvent(new Event('input'));
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(0);
+    expect(text(harness)).toContain(arabic.list.noMatch);
+  });
+
+  it('chooses every working day at once in the form', async () => {
+    const harness = await open({ list: async () => [] });
+    await settle(harness);
+    button(harness, arabic.list.add)?.click();
+    await settle(harness);
+
+    button(harness, arabic.form.everyDay)?.click();
+    await settle(harness);
+
+    const days = [
+      ...harness.routeNativeElement!.querySelectorAll<HTMLInputElement>(
+        '.ro-chip input[type="checkbox"]',
+      ),
+    ];
+    expect(days).toHaveLength(7);
+    expect(days.every((day) => day.checked)).toBe(true);
+  });
+
   it('starts a copy for another company from an existing route', async () => {
     const harness = await open({ list: async () => [delta] });
     await settle(harness);

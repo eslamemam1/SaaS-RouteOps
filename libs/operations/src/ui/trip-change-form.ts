@@ -33,6 +33,7 @@ import { tripChangeSchema } from './trip-change-fields';
   selector: 'app-trip-change-form',
   imports: [Alert, Button, ConflictList, Field, FormField],
   templateUrl: './trip-change-form.html',
+  styleUrl: './trip-time.css',
 })
 export class TripChangeForm {
   private readonly repository = inject(OperationsRepository);
@@ -88,6 +89,10 @@ export class TripChangeForm {
         this.problem.set(null);
       });
     });
+  }
+
+  protected setCancelled(cancelled: boolean): void {
+    this.changeForm.cancelled().value.set(cancelled);
   }
 
   protected onSubmit(event: Event): void {

@@ -177,6 +177,11 @@
   --ro-card-min-height: 160px;
   --ro-table-label-width: 112px;
   --ro-form-max-width: 480px;
+  --ro-form-column-min-width: 170px;
+  --ro-pill-height: 34px;
+  --ro-pill-count-on-brand: color-mix(in srgb, var(--ro-slate-0) 22%, transparent);
+  --ro-dot-size: 8px;
+  --ro-time-badge-width: 64px;
   --ro-site-width: 1120px;
   --ro-content-max-width: 1440px;
   --ro-headline-width: 20ch;

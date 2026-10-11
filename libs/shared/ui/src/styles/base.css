@@ -123,7 +123,9 @@ textarea[aria-invalid='true']:focus-visible {
   box-shadow: var(--ro-focus-ring-danger);
 }
 
-input[type='checkbox'] {
+input:is([type='checkbox'], [type='radio']) {
+  flex: none;
+  margin: 0;
   accent-color: var(--ro-bg-brand);
   inline-size: var(--ro-space-4);
   block-size: var(--ro-space-4);
@@ -157,6 +159,231 @@ label.checkbox {
 .ro-checklist {
   display: grid;
   gap: var(--ro-space-2);
+}
+
+/* Fields side by side in a form, one under the other when the form is narrow. */
+.ro-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--ro-form-column-min-width), 1fr));
+  align-items: start;
+  gap: var(--ro-space-4);
+}
+
+/*
+ * A choice shown as a card: a radio or checkbox, a title, and a hint under it. A button with
+ * role="radio" and .ro-option-mark is the same card when the saved value, not the click, decides.
+ */
+.ro-options {
+  display: grid;
+  gap: var(--ro-space-2);
+}
+
+.ro-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--ro-space-3);
+  row-gap: var(--ro-space-1);
+  inline-size: 100%;
+  padding-block: var(--ro-space-3);
+  padding-inline: var(--ro-space-4);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-surface);
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color var(--ro-motion-fast),
+    background var(--ro-motion-fast);
+}
+
+.ro-option:hover {
+  border-color: var(--ro-border-hover);
+}
+
+.ro-option:has(input:checked),
+.ro-option[aria-checked='true'] {
+  border-color: var(--ro-border-focus);
+  background: var(--ro-bg-brand-subtle);
+}
+
+.ro-option:has(input:focus-visible),
+.ro-option:focus-visible {
+  outline: none;
+  box-shadow: var(--ro-focus-ring);
+}
+
+.ro-option:has(input:disabled),
+.ro-option:disabled {
+  cursor: not-allowed;
+  opacity: var(--ro-disabled-opacity);
+}
+
+.ro-option-mark {
+  inline-size: var(--ro-space-4);
+  block-size: var(--ro-space-4);
+  border: var(--ro-focus-width) solid var(--ro-border-strong);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-surface);
+}
+
+.ro-option[aria-checked='true'] .ro-option-mark {
+  border-color: var(--ro-bg-brand);
+  background: var(--ro-bg-brand);
+  box-shadow: inset 0 0 0 var(--ro-indicator-width) var(--ro-bg-surface);
+}
+
+.ro-option-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ro-space-2);
+  font-weight: var(--ro-font-semibold);
+}
+
+.ro-option-hint {
+  grid-column: 2;
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}
+
+/* Checkboxes shown as a row of chips, such as the days of the week. */
+.ro-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ro-space-2);
+}
+
+label.ro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  min-block-size: var(--ro-pill-height);
+  padding-inline: var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-strong);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-surface);
+  font-size: var(--ro-text-body-sm);
+  cursor: pointer;
+  transition:
+    border-color var(--ro-motion-fast),
+    background var(--ro-motion-fast);
+}
+
+label.ro-chip:has(input:checked) {
+  border-color: var(--ro-border-focus);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-weight: var(--ro-font-medium);
+}
+
+label.ro-chip:has(input:focus-visible) {
+  box-shadow: var(--ro-focus-ring);
+}
+
+/* Toggle buttons that narrow a list, each with an optional count; aria-pressed marks the chosen one. */
+.ro-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ro-space-2);
+}
+
+.ro-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  min-block-size: var(--ro-pill-height);
+  padding-inline: var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-surface);
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  font-weight: var(--ro-font-medium);
+  cursor: pointer;
+  transition:
+    border-color var(--ro-motion-fast),
+    background var(--ro-motion-fast),
+    color var(--ro-motion-fast);
+}
+
+.ro-pill:hover {
+  border-color: var(--ro-border-hover);
+  color: var(--ro-text-primary);
+}
+
+.ro-pill:focus-visible {
+  outline: none;
+  box-shadow: var(--ro-focus-ring);
+}
+
+.ro-pill[aria-pressed='true'] {
+  border-color: var(--ro-bg-brand);
+  background: var(--ro-bg-brand);
+  color: var(--ro-text-on-brand);
+}
+
+.ro-pill[data-tone='warning'] {
+  border-color: var(--ro-border-warning-subtle);
+  background: var(--ro-bg-warning-subtle);
+  color: var(--ro-text-warning);
+}
+
+.ro-pill[data-tone='warning'][aria-pressed='true'] {
+  border-color: var(--ro-bg-accent);
+  background: var(--ro-bg-accent);
+  color: var(--ro-text-on-accent);
+}
+
+.ro-pill-count {
+  min-inline-size: var(--ro-space-6);
+  padding-inline: var(--ro-space-2);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-subtle);
+  color: var(--ro-text-primary);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+  font-weight: var(--ro-font-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.ro-pill[aria-pressed='true'] .ro-pill-count {
+  background: var(--ro-pill-count-on-brand);
+  color: inherit;
+}
+
+/* A small colored dot that shows a status next to its name. */
+.ro-dot {
+  flex: none;
+  inline-size: var(--ro-dot-size);
+  block-size: var(--ro-dot-size);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-border-hover);
+}
+
+.ro-dot[data-tone='success'] {
+  background: var(--ro-bg-success);
+}
+
+.ro-dot[data-tone='danger'] {
+  background: var(--ro-bg-danger);
+}
+
+.ro-dot[data-tone='warning'] {
+  background: var(--ro-bg-accent);
+}
+
+.ro-dot[data-tone='info'] {
+  background: var(--ro-bg-brand);
+}
+
+/* An arrow icon that points the way the page is read, so it flips in Arabic. */
+.ro-icon-flip:dir(rtl) {
+  transform: scaleX(-1);
 }
 
 .hint {
@@ -586,12 +813,14 @@ tbody tr:last-child td {
     font-size: var(--ro-text-control-touch);
   }
 
-  input[type='checkbox'] {
+  input:is([type='checkbox'], [type='radio']) {
     inline-size: var(--ro-space-5);
     block-size: var(--ro-space-5);
   }
 
-  label.checkbox {
+  label.checkbox,
+  label.ro-chip,
+  .ro-pill {
     min-block-size: var(--ro-touch-target);
   }
 }

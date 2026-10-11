@@ -84,11 +84,14 @@ describe('DailyOperations', () => {
     const harness = await open({ day: async () => [outbound] });
     await settle(harness);
 
-    expect(text(harness)).toContain(arabic.recording.title);
-    expect(pressed(harness)).toBe(arabic.recording.modes.automatic);
+    expect(text(harness)).toContain(arabic.recording.modes.automatic);
     expect(text(harness)).toContain(arabic.recording.modeHints.automatic);
     expect(button(harness, arabic.day.markDone)).toBeUndefined();
     expect(text(harness)).toContain(arabic.statuses.done);
+
+    await openRecording(harness);
+    expect(text(harness)).toContain(arabic.recording.title);
+    expect(chosenRecording(harness)).toBe('automatic');
   });
 
   it('lets a member mark each trip done when recording is manual', async () => {
@@ -119,11 +122,11 @@ describe('DailyOperations', () => {
     });
     await settle(harness);
 
-    button(harness, arabic.recording.modes.manual)?.click();
-    await settle(harness);
+    await openRecording(harness);
+    await chooseRecording(harness, 'manual');
 
     expect(chooseTripRecording).toHaveBeenCalledWith(north, 'manual');
-    expect(pressed(harness)).toBe(arabic.recording.modes.manual);
+    expect(chosenRecording(harness)).toBe('manual');
     expect(button(harness, arabic.day.markDone)).toBeDefined();
   });
 
@@ -136,12 +139,27 @@ describe('DailyOperations', () => {
     });
     await settle(harness);
 
-    button(harness, arabic.recording.modes.manual)?.click();
-    await settle(harness);
+    await openRecording(harness);
+    await chooseRecording(harness, 'manual');
 
     expect(text(harness)).toContain(arabic.problems.save);
-    expect(pressed(harness)).toBe(arabic.recording.modes.automatic);
+    expect(chosenRecording(harness)).toBe('automatic');
     expect(button(harness, arabic.day.markDone)).toBeUndefined();
+  });
+
+  it('narrows the day by status with the status buttons', async () => {
+    const harness = await open({ day: async () => [outbound, cancelledReturn] });
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(2);
+
+    statusButton(harness, arabic.statuses.cancelled)?.click();
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(1);
+    expect(rows(harness)[0].textContent).toContain(arabic.reasons.vehicleBreakdown);
+
+    statusButton(harness, arabic.filter.allStatuses)?.click();
+    await settle(harness);
+    expect(rows(harness)).toHaveLength(2);
   });
 
   it('narrows a busy day by company and search, then shows everything again', async () => {
@@ -220,7 +238,7 @@ describe('DailyOperations', () => {
     expect(rows(harness)[1].textContent).toContain(arabic.ownerships.rented);
     expect(rows(harness)[0].textContent).not.toContain(arabic.ownerships.owned);
 
-    const ownership = harness.routeNativeElement!.querySelectorAll('select')[3];
+    const ownership = harness.routeNativeElement!.querySelectorAll('select')[2];
     ownership.value = 'rented';
     ownership.dispatchEvent(new Event('change'));
     await settle(harness);
@@ -244,15 +262,12 @@ describe('DailyOperations', () => {
     const harness = await open({ day: async () => [outbound, clash, later] });
     await settle(harness);
 
-    expect(text(harness)).toContain(arabic.conflict.count);
+    expect(statusButton(harness, arabic.conflict.filter)?.textContent).toContain('2');
     expect(rows(harness)[0].textContent).toContain(arabic.conflict.vehicle);
     expect(rows(harness)[0].textContent).toContain('07:30');
     expect(rows(harness)[2].textContent).not.toContain(arabic.conflict.vehicle);
 
-    const conflictsOnly = harness.routeNativeElement!.querySelector<HTMLInputElement>(
-      '.operations-filter-actions input[type="checkbox"]',
-    )!;
-    conflictsOnly.click();
+    statusButton(harness, arabic.conflict.filter)?.click();
     await settle(harness);
 
     expect(rows(harness)).toHaveLength(2);
@@ -360,8 +375,10 @@ describe('DailyOperations', () => {
     const form = harness.routeNativeElement!.querySelector('app-trip-change-form')!;
     expect(form.textContent).toContain('Delta - Nasr City');
 
-    form.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click();
-    const reason = form.querySelectorAll('select')[2];
+    form.querySelector<HTMLInputElement>('input[value="cancelled"]')!.click();
+    await settle(harness);
+    const selects = form.querySelectorAll('select');
+    const reason = selects[selects.length - 1];
     reason.value = 'driverAbsent';
     reason.dispatchEvent(new Event('input'));
     form.querySelector('form')!.dispatchEvent(new Event('submit'));
@@ -377,11 +394,42 @@ describe('DailyOperations', () => {
   });
 
   it('offers the companies with running trips for a holiday', async () => {
+    const cancelForHoliday = vi.fn(async () => [{ ...outbound, cancelled: true, reason: 'holiday' as const }]);
+    const harness = await open({ day: async () => [outbound], cancelForHoliday });
+    await settle(harness);
+    expect(text(harness)).not.toContain(arabic.holiday.submit);
+
+    button(harness, arabic.day.holiday)?.click();
+    await settle(harness);
+    const panel = harness.routeNativeElement!.querySelector('app-holiday-panel')!;
+    expect(panel.textContent).toContain('Delta Factory');
+    expect(panel.textContent).toContain(arabic.holiday.running);
+
+    panel.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click();
+    await settle(harness);
+    button(harness, arabic.holiday.submit)?.click();
+    await settle(harness);
+    button(harness, arabic.holiday.confirm)?.click();
+    await settle(harness);
+
+    expect(cancelForHoliday).toHaveBeenCalledWith(north, expect.any(String), ['customer-1']);
+    expect(harness.routeNativeElement!.querySelector('app-holiday-panel')).toBeFalsy();
+    expect(text(harness)).toContain(arabic.day.notices.holiday);
+    expect(rows(harness)[0].textContent).toContain(arabic.statuses.cancelled);
+  });
+
+  it('shows the chosen day with its weekday', async () => {
     const harness = await open({ day: async () => [outbound] });
     await settle(harness);
 
-    expect(text(harness)).toContain(arabic.holiday.title);
-    expect(text(harness)).toContain(arabic.holiday.submit);
+    expect(text(harness)).toContain(arabic.day.isToday);
+    const day = harness.routeNativeElement!.querySelector<HTMLInputElement>('input[type="date"]')!;
+    day.value = '2000-01-02';
+    day.dispatchEvent(new Event('change'));
+    await settle(harness);
+
+    expect(text(harness)).toContain('الأحد، 2 يناير 2000');
+    expect(button(harness, arabic.day.today)).toBeDefined();
   });
 
   it('shows an empty state on a day without trips', async () => {
@@ -491,12 +539,36 @@ function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
   ];
 }
 
-function pressed(harness: RouterTestingHarness): string {
+async function openRecording(harness: RouterTestingHarness): Promise<void> {
+  button(harness, arabic.recording.change)?.click();
+  await settle(harness);
+}
+
+async function chooseRecording(
+  harness: RouterTestingHarness,
+  recording: string,
+): Promise<void> {
+  harness.routeNativeElement!
+    .querySelector<HTMLButtonElement>(`[data-recording="${recording}"]`)!
+    .click();
+  await settle(harness);
+}
+
+function chosenRecording(harness: RouterTestingHarness): string {
   return (
     harness.routeNativeElement
-      ?.querySelector('.ro-card-body [role="group"] button[aria-pressed="true"]')
-      ?.textContent?.trim() ?? ''
+      ?.querySelector('[data-recording][aria-checked="true"]')
+      ?.getAttribute('data-recording') ?? ''
   );
+}
+
+function statusButton(
+  harness: RouterTestingHarness,
+  label: string,
+): HTMLButtonElement | undefined {
+  return [
+    ...(harness.routeNativeElement?.querySelectorAll<HTMLButtonElement>('.ro-pill') ?? []),
+  ].find((item) => item.textContent?.includes(label));
 }
 
 function buttons(

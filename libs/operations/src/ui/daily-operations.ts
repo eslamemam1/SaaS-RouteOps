@@ -1,8 +1,22 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucidePlus } from '@ng-icons/lucide';
-import { injectText } from '@routeops/shared/i18n';
+import {
+  lucideCalendarOff,
+  lucideCheck,
+  lucideChevronLeft,
+  lucideChevronRight,
+  lucideInfo,
+  lucidePencil,
+  lucidePlus,
+  lucideTrash2,
+  lucideTriangleAlert,
+} from '@ng-icons/lucide';
+import {
+  formatDayWithWeekday,
+  injectText,
+  LanguageService,
+} from '@routeops/shared/i18n';
 import {
   Alert,
   Button,
@@ -61,7 +75,7 @@ const noChoices: OperationChoices = {
   routes: [],
 };
 
-type Notice = 'changed' | 'added' | 'removed' | 'allDone';
+type Notice = 'changed' | 'added' | 'removed' | 'allDone' | 'holiday';
 
 const statusTones: Record<TripStatus, Tone> = {
   done: 'success',
@@ -89,17 +103,33 @@ const statusTones: Record<TripStatus, Tone> = {
     ViewSwitch,
   ],
   templateUrl: './daily-operations.html',
-  styleUrl: './daily-operations.css',
+  styleUrls: ['./trip-time.css', './daily-operations.css'],
 })
 export class DailyOperations {
   private readonly repository = inject(OperationsRepository);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected readonly text = injectText(operationsText);
-  protected readonly addIcon = lucidePlus;
+  private readonly language = inject(LanguageService).language;
+  protected readonly icons = {
+    add: lucidePlus,
+    holiday: lucideCalendarOff,
+    previous: lucideChevronLeft,
+    next: lucideChevronRight,
+    info: lucideInfo,
+    done: lucideCheck,
+    change: lucidePencil,
+    remove: lucideTrash2,
+    conflict: lucideTriangleAlert,
+  };
   protected readonly view = injectListView('operations');
   protected readonly today = localDate(new Date());
   protected readonly serviceDate = signal(this.today);
+  protected readonly dayLabel = computed(() =>
+    formatDayWithWeekday(this.serviceDate(), this.language()),
+  );
+  protected readonly recordingOpen = signal(false);
+  protected readonly holidayOpen = signal(false);
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -277,6 +307,24 @@ export class DailyOperations {
     this.filter.update((filter) => ({ ...filter, ...patch }));
   }
 
+  protected showStatus(status: TripStatus | ''): void {
+    this.filterBy({ status, conflictsOnly: false });
+  }
+
+  protected toggleConflicts(): void {
+    this.filterBy({ status: '', conflictsOnly: !this.filter().conflictsOnly });
+  }
+
+  protected statusToneOf(status: TripStatus): Tone {
+    return statusTones[status];
+  }
+
+  protected openHoliday(): void {
+    this.editing.set(null);
+    this.addingExtra.set(false);
+    this.holidayOpen.set(true);
+  }
+
   protected clearFilter(): void {
     this.filter.set(emptyTripFilter);
   }
@@ -359,6 +407,8 @@ export class DailyOperations {
   protected onHolidayRecorded(trips: DailyTrip[]): void {
     this.trips.set(sortByTime(trips));
     this.editing.set(null);
+    this.holidayOpen.set(false);
+    this.notice.set('holiday');
   }
 
   private async load(): Promise<void> {
@@ -399,6 +449,7 @@ export class DailyOperations {
     this.status.set('loading');
     this.editing.set(null);
     this.addingExtra.set(false);
+    this.holidayOpen.set(false);
     this.confirmingRemoveId.set(null);
     this.actionProblem.set(null);
     this.notice.set(null);

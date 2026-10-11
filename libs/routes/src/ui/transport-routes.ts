@@ -3,7 +3,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney, toMinorUnits } from '@routeops/shared/money';
 import { NgIcon } from '@ng-icons/core';
-import { lucidePlus, lucideRoute } from '@ng-icons/lucide';
+import {
+  lucideArrowRight,
+  lucideCopy,
+  lucidePencil,
+  lucidePlus,
+  lucideRoute,
+} from '@ng-icons/lucide';
 import {
   Alert,
   Button,
@@ -25,6 +31,7 @@ import {
   RouteOrganization,
   RouteProblem,
   routesOfCustomer,
+  searchRoutes,
   selectedDays,
   sortByCustomerAndName,
   TransportRoute,
@@ -52,14 +59,20 @@ const noChoices: RouteChoices = { customers: [], vehicles: [], drivers: [] };
     ViewSwitch,
   ],
   templateUrl: './transport-routes.html',
+  styleUrl: './transport-routes.css',
 })
 export class TransportRoutes {
   private readonly repository = inject(RouteRepository);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected readonly text = injectText(routesText);
-  protected readonly addIcon = lucidePlus;
-  protected readonly routeIcon = lucideRoute;
+  protected readonly icons = {
+    add: lucidePlus,
+    route: lucideRoute,
+    to: lucideArrowRight,
+    edit: lucidePencil,
+    copy: lucideCopy,
+  };
   protected readonly view = injectListView('routes');
   private readonly language = inject(LanguageService).language;
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
@@ -78,8 +91,13 @@ export class TransportRoutes {
   protected readonly formOpen = signal(false);
   protected readonly outcome = signal<'added' | 'saved' | null>(null);
   protected readonly customerFilter = signal('');
+  protected readonly search = signal('');
   protected readonly visibleRoutes = computed(() =>
-    routesOfCustomer(this.routes(), this.customerFilter()),
+    searchRoutes(
+      routesOfCustomer(this.routes(), this.customerFilter()),
+      this.search(),
+      this.choices(),
+    ),
   );
   protected readonly formTitle = computed(() => {
     const form = this.text().form;

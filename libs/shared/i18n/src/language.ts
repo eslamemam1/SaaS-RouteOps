@@ -66,10 +66,24 @@ function readStoredLanguage(document: Document): Language {
 // A day stored as YYYY-MM-DD, written as people read it, such as
 // 11 أكتوبر 2026, with Latin digits as the rest of the interface uses.
 export function formatDay(day: string, language: Language): string {
+  return formatDate(day, language, {});
+}
+
+// The same, led by the weekday, such as الأحد، 11 أكتوبر 2026.
+export function formatDayWithWeekday(day: string, language: Language): string {
+  return formatDate(day, language, { weekday: 'long' });
+}
+
+function formatDate(
+  day: string,
+  language: Language,
+  options: Intl.DateTimeFormatOptions,
+): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
     return day;
   }
   return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB', {
+    ...options,
     day: 'numeric',
     month: 'long',
     year: 'numeric',

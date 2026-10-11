@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { formatDay, LanguageService } from './language';
+import { formatDay, formatDayWithWeekday, LanguageService } from './language';
 
 describe('LanguageService', () => {
   beforeEach(() => localStorage.clear());
@@ -45,5 +45,16 @@ describe('formatDay', () => {
 
   it('leaves an empty or unknown day as it is', () => {
     expect(formatDay('', 'ar')).toBe('');
+  });
+});
+
+describe('formatDayWithWeekday', () => {
+  it('leads the day with its weekday', () => {
+    expect(formatDayWithWeekday('2026-10-11', 'ar')).toBe(
+      'الأحد، 11 أكتوبر 2026',
+    );
+    expect(formatDayWithWeekday('2026-10-11', 'en')).toBe(
+      'Sunday, 11 October 2026',
+    );
   });
 });

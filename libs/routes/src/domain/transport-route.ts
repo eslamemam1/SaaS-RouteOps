@@ -221,6 +221,29 @@ export function routesOfCustomer(
     : routes.filter((route) => route.customerId === customerId);
 }
 
+// Routes whose name, start or end point, customer, driver, or vehicle
+// contains the search, ignoring case.
+export function searchRoutes(
+  routes: readonly TransportRoute[],
+  search: string,
+  choices: RouteChoices,
+): TransportRoute[] {
+  const needle = search.trim().toLocaleLowerCase();
+  if (needle.length === 0) {
+    return [...routes];
+  }
+  return routes.filter((route) =>
+    [
+      route.name,
+      route.startPoint,
+      route.endPoint,
+      choiceLabel(choices.customers, route.customerId),
+      choiceLabel(choices.drivers, route.driverId),
+      choiceLabel(choices.vehicles, route.vehicleId),
+    ].some((value) => value.toLocaleLowerCase().includes(needle)),
+  );
+}
+
 // Starts a route for another customer from an existing one. The customer,
 // vehicle, driver, and price are left for the user to choose.
 export function copyForAnotherCustomer(

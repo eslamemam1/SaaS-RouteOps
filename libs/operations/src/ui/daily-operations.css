@@ -1,23 +1,201 @@
+.operations-day {
+  display: grid;
+}
+
+.operations-day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ro-space-3);
+  padding-block: var(--ro-space-4);
+  padding-inline: var(--ro-space-5);
+}
+
+.operations-day-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ro-space-2) var(--ro-space-3);
+  text-align: center;
+}
+
+.operations-day-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ro-space-3) var(--ro-space-6);
+  padding-block: var(--ro-space-3);
+  padding-inline: var(--ro-space-5);
+  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+  background: var(--ro-bg-hover);
+  border-end-start-radius: var(--ro-radius-lg);
+  border-end-end-radius: var(--ro-radius-lg);
+}
+
+.operations-day-pick {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  font-weight: var(--ro-font-medium);
+  white-space: nowrap;
+}
+
+.operations-day-pick input {
+  inline-size: auto;
+}
+
+.operations-recording {
+  display: flex;
+  flex: 1 1 var(--ro-form-max-width);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-1) var(--ro-space-2);
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}
+
+.operations-recording > ng-icon {
+  flex: none;
+  color: var(--ro-text-brand);
+}
+
+.operations-recording > span {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
+.operations-recording strong {
+  color: var(--ro-text-primary);
+  font-weight: var(--ro-font-semibold);
+}
+
+.operations-tools {
+  gap: var(--ro-space-4);
+  border-block-end: var(--ro-border-width) solid var(--ro-border-default);
+}
+
 .operations-filters {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(var(--ro-filter-min-width), 1fr));
   gap: var(--ro-space-3);
 }
 
+.operations-search {
+  grid-column: span 2;
+}
+
 .operations-filter-actions {
   align-items: center;
 }
 
-.ro-table-cards .operations-no-reason {
+.operations-mark-all {
+  margin-inline-start: auto;
+}
+
+.operations-trip-cancelled .operations-time {
+  border-color: var(--ro-border-default);
+  background: var(--ro-bg-subtle);
+  color: var(--ro-text-muted);
+}
+
+.operations-trip-cancelled .operations-time > bdi,
+.operations-trip-cancelled .ro-entity-name {
+  color: var(--ro-text-muted);
+  text-decoration: line-through;
+}
+
+.operations-driver {
+  font-weight: var(--ro-font-medium);
+}
+
+.operations-vehicle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-2);
+}
+
+.operations-unset {
+  color: var(--ro-text-muted);
+  font-weight: var(--ro-font-regular);
+}
+
+.operations-reason {
+  font-weight: var(--ro-font-medium);
+}
+
+td.operations-actions {
+  white-space: normal;
+}
+
+.operations-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ro-space-1);
+}
+
+.ro-table-cards .operations-actions-row {
+  justify-content: flex-start;
+}
+
+.ro-table-cards td.operations-no-details {
   display: none;
 }
 
+.ro-table-cards td:first-child .ro-entity-name {
+  font-size: var(--ro-text-heading-md);
+}
+
 @media (width < 640px) {
+  .operations-day-nav {
+    padding-inline: var(--ro-space-4);
+  }
+
+  .operations-day-step > span {
+    display: none;
+  }
+
+  .operations-day-title h2 {
+    font-size: var(--ro-text-heading-md);
+    line-height: var(--ro-leading-heading-md);
+  }
+
+  .operations-day-footer {
+    padding-inline: var(--ro-space-4);
+  }
+
   .operations-filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .operations-no-reason {
+  .operations-tools .ro-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: calc(-1 * var(--ro-space-4));
+    padding-inline: var(--ro-space-4);
+    scrollbar-width: none;
+  }
+
+  .operations-tools .ro-pill {
+    flex: none;
+  }
+
+  .ro-table-stack td:first-child {
+    padding-block-end: var(--ro-space-2);
+  }
+
+  .ro-table-stack td:first-child::before {
+    display: none;
+  }
+
+  td.operations-no-details {
     display: none;
   }
 }

@@ -4,7 +4,7 @@
     <app-view-switch [(view)]="view" />
     } @if (status() === 'success' || status() === 'empty') {
     <button appButton type="button" (click)="add()">
-      <ng-icon [svg]="addIcon" aria-hidden="true" />
+      <ng-icon [svg]="icons.add" aria-hidden="true" />
       {{ text().list.add }}
     </button>
     }
@@ -45,14 +45,22 @@
   } @case ('empty') {
   <app-page-state kind="empty" [message]="text().list.empty">
     <button appButton type="button" (click)="add()">
-      <ng-icon [svg]="addIcon" aria-hidden="true" />
+      <ng-icon [svg]="icons.add" aria-hidden="true" />
       {{ text().list.add }}
     </button>
   </app-page-state>
   } @case ('success') {
   <section class="ro-card">
-    <div class="ro-card-header ro-toolbar">
-      <app-field class="ro-filter" [label]="text().list.filter">
+    <div class="ro-card-body routes-filters">
+      <app-field class="routes-search" [label]="text().list.search">
+        <input
+          type="search"
+          [value]="search()"
+          [placeholder]="text().list.searchHint"
+          (input)="search.set($any($event.target).value)"
+        />
+      </app-field>
+      <app-field [label]="text().list.filter">
         <select
           [value]="customerFilter()"
           (change)="filterBy($any($event.target).value)"
@@ -73,10 +81,8 @@
           <tr>
             <th>{{ text().list.name }}</th>
             <th>{{ text().list.customer }}</th>
-            <th>{{ text().list.driver }}</th>
-            <th>{{ text().list.vehicle }}</th>
-            <th>{{ text().list.outboundTime }}</th>
-            <th>{{ text().list.returnTime }}</th>
+            <th>{{ text().list.crew }}</th>
+            <th>{{ text().list.times }}</th>
             <th>{{ text().list.days }}</th>
             <th>{{ text().list.tripPrice }}</th>
             <th>{{ text().list.work }}</th>
@@ -89,27 +95,49 @@
             <td [attr.data-label]="text().list.name">
               <div class="ro-entity">
                 <span class="ro-entity-icon"
-                  ><ng-icon [svg]="routeIcon" aria-hidden="true"
+                  ><ng-icon [svg]="icons.route" aria-hidden="true"
                 /></span>
-                <span class="ro-entity-name">{{ route.name }}</span>
+                <span class="ro-entity-text">
+                  <span class="ro-entity-name">{{ route.name }}</span>
+                  <span class="ro-entity-detail routes-path">
+                    <bdi>{{ route.startPoint }}</bdi>
+                    <ng-icon class="ro-icon-flip" [svg]="icons.to" aria-hidden="true" />
+                    <bdi>{{ route.endPoint }}</bdi>
+                  </span>
+                </span>
               </div>
             </td>
             <td [attr.data-label]="text().list.customer">
               {{ label(choices().customers, route.customerId) }}
             </td>
-            <td [attr.data-label]="text().list.driver">
-              {{ label(choices().drivers, route.driverId) }}
+            <td [attr.data-label]="text().list.crew">
+              <span class="ro-entity-text">
+                <span [class.routes-unset]="!route.driverId">
+                  {{ label(choices().drivers, route.driverId) }}
+                </span>
+                <span class="ro-entity-detail">
+                  <bdi [class.routes-unset]="!route.vehicleId">{{
+                    label(choices().vehicles, route.vehicleId)
+                  }}</bdi>
+                </span>
+              </span>
             </td>
-            <td [attr.data-label]="text().list.vehicle">
-              <bdi>{{ label(choices().vehicles, route.vehicleId) }}</bdi>
+            <td [attr.data-label]="text().list.times">
+              <span class="routes-times">
+                @if (route.outboundTime) {
+                <span class="routes-time">
+                  <span>{{ text().list.outboundTime }}</span>
+                  <bdi class="ro-numeric">{{ route.outboundTime }}</bdi>
+                </span>
+                } @if (route.returnTime) {
+                <span class="routes-time" data-direction="return">
+                  <span>{{ text().list.returnTime }}</span>
+                  <bdi class="ro-numeric">{{ route.returnTime }}</bdi>
+                </span>
+                }
+              </span>
             </td>
-            <td class="ro-numeric" [attr.data-label]="text().list.outboundTime">
-              <bdi>{{ route.outboundTime }}</bdi>
-            </td>
-            <td class="ro-numeric" [attr.data-label]="text().list.returnTime">
-              <bdi>{{ route.returnTime }}</bdi>
-            </td>
-            <td class="ro-cell-wide" [attr.data-label]="text().list.days">
+            <td [attr.data-label]="text().list.days">
               {{ daysLabel(route) }}
             </td>
             <td class="ro-numeric" [attr.data-label]="text().list.tripPrice">
@@ -131,6 +159,7 @@
                 type="button"
                 (click)="edit(route)"
               >
+                <ng-icon [svg]="icons.edit" aria-hidden="true" />
                 {{ text().list.edit }}
               </button>
               <button
@@ -139,6 +168,7 @@
                 type="button"
                 (click)="copy(route)"
               >
+                <ng-icon [svg]="icons.copy" aria-hidden="true" />
                 {{ text().list.copy }}
               </button>
             </td>

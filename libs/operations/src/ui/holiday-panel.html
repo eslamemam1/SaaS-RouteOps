@@ -1,43 +1,43 @@
-<div class="ro-card-header">
-  <h2 class="ro-card-title">{{ text().holiday.title }}</h2>
+<div class="ro-form">
   <p class="hint">{{ text().holiday.hint }}</p>
-</div>
-<div class="ro-card-body">
   @if (customers().length === 0) {
-    <p class="hint">{{ text().holiday.none }}</p>
+  <app-alert tone="info">{{ text().holiday.none }}</app-alert>
   } @else {
-    <div class="ro-checklist">
-      @for (customer of customers(); track customer.id) {
-        <label class="checkbox">
-          <input
-            type="checkbox"
-            [checked]="selected().has(customer.id)"
-            (change)="toggle(customer.id, $any($event.target).checked)"
-          />
-          {{ customer.label }}
-        </label>
-      }
-    </div>
-    @if (selected().size > 0) {
-      <p class="hint">
-        {{ text().holiday.willCancel }} <bdi class="ro-numeric">{{ toCancel() }}</bdi>
-      </p>
+  <div class="ro-options" role="group" [attr.aria-label]="text().holiday.title">
+    @for (customer of customers(); track customer.id) {
+    <label class="ro-option">
+      <input
+        type="checkbox"
+        [checked]="selected().has(customer.id)"
+        (change)="toggle(customer.id, $any($event.target).checked)"
+      />
+      <span class="ro-option-title">{{ customer.label }}</span>
+      <span class="ro-option-hint">
+        {{ text().holiday.running }} <bdi class="ro-numeric">{{ customer.trips }}</bdi>
+      </span>
+    </label>
     }
-    <div class="ro-toolbar">
-      <button
-        appButton="danger"
-        type="button"
-        [disabled]="submitting() || toCancel() === 0"
-        (click)="record()"
-      >
-        {{ confirming() ? text().holiday.confirm : text().holiday.submit }}
-      </button>
-    </div>
+  </div>
+  @if (selected().size > 0) {
+  <app-alert tone="warning">
+    {{ text().holiday.willCancel }} <bdi class="ro-numeric">{{ toCancel() }}</bdi>
+  </app-alert>
+  } } @if (problem(); as current) {
+  <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
-  @if (done()) {
-    <app-alert tone="success">{{ text().holiday.done }}</app-alert>
-  }
-  @if (problem(); as current) {
-    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
-  }
+  <div class="ro-toolbar">
+    @if (customers().length > 0) {
+    <button
+      appButton="danger"
+      type="button"
+      [disabled]="submitting() || toCancel() === 0"
+      (click)="record()"
+    >
+      {{ confirming() ? text().holiday.confirm : text().holiday.submit }}
+    </button>
+    }
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().holiday.cancel }}
+    </button>
+  </div>
 </div>

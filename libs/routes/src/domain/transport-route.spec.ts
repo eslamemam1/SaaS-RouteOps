@@ -10,6 +10,7 @@ import {
   RouteOrganization,
   routeNameError,
   routesOfCustomer,
+  searchRoutes,
   selectedDays,
   sortByCustomerAndName,
   startPointError,
@@ -177,6 +178,23 @@ describe('the same route name for several customers', () => {
       '3',
     ]);
     expect(routesOfCustomer(routes, '')).toHaveLength(3);
+  });
+
+  it('finds routes by name, place, company, driver, or vehicle', () => {
+    const choices = {
+      customers,
+      drivers: [{ id: 'driver-2', label: 'Ahmed Ali', active: true }],
+      vehicles: [{ id: 'vehicle-3', label: 'ABC 1234', active: true }],
+    };
+    const ids = (search: string) =>
+      searchRoutes(routes, search, choices).map((item) => item.id);
+
+    expect(ids('nasr')).toEqual(['1', '3']);
+    expect(ids('factory gate')).toEqual(['1', '2', '3']);
+    expect(ids('ahmed')).toEqual(['2']);
+    expect(ids('abc')).toEqual(['3']);
+    expect(ids('  ')).toHaveLength(3);
+    expect(ids('Maadi')).toEqual([]);
   });
 
   it('copies a route for another customer without its customer, vehicle, driver, or price', () => {

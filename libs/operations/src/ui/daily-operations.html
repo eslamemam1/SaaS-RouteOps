@@ -1,38 +1,80 @@
 <div class="ro-stack">
   <app-page-header [title]="text().day.title" [hint]="text().day.hint">
-    @if (organization()) {
-    <div class="ro-toolbar ro-date-nav">
-      <button appButton="secondary" type="button" (click)="moveDay(-1)">
-        {{ text().day.previous }}
+    @if (status() === 'success') {
+    <app-view-switch [(view)]="view" />
+    <button appButton="secondary" type="button" (click)="openHoliday()">
+      <ng-icon [svg]="icons.holiday" aria-hidden="true" />
+      {{ text().day.holiday }}
+    </button>
+    } @if (status() === 'success' || status() === 'empty') {
+    <button appButton type="button" (click)="startExtra()">
+      <ng-icon [svg]="icons.add" aria-hidden="true" />
+      {{ text().day.addExtra }}
+    </button>
+    }
+  </app-page-header>
+
+  @if (organization()) {
+  <section class="ro-card operations-day" [attr.aria-label]="text().day.date">
+    <div class="operations-day-nav">
+      <button
+        appButton="secondary"
+        type="button"
+        class="operations-day-step"
+        [attr.aria-label]="text().day.previous"
+        (click)="moveDay(-1)"
+      >
+        <ng-icon class="ro-icon-flip" [svg]="icons.previous" aria-hidden="true" />
+        <span>{{ text().day.previous }}</span>
       </button>
-      <app-field [label]="text().day.date">
+      <div class="operations-day-title">
+        <h2>{{ dayLabel() }}</h2>
+        @if (serviceDate() === today) {
+        <app-tag tone="info">{{ text().day.isToday }}</app-tag>
+        } @else {
+        <button appButton="text" size="sm" type="button" (click)="chooseDate(today)">
+          {{ text().day.today }}
+        </button>
+        }
+      </div>
+      <button
+        appButton="secondary"
+        type="button"
+        class="operations-day-step"
+        [attr.aria-label]="text().day.next"
+        (click)="moveDay(1)"
+      >
+        <span>{{ text().day.next }}</span>
+        <ng-icon class="ro-icon-flip" [svg]="icons.next" aria-hidden="true" />
+      </button>
+    </div>
+    <div class="operations-day-footer">
+      <label class="operations-day-pick">
+        <span>{{ text().day.date }}</span>
         <input
           type="date"
           [value]="serviceDate()"
           (change)="chooseDate($any($event.target).value)"
         />
-      </app-field>
-      <button appButton="secondary" type="button" (click)="moveDay(1)">
-        {{ text().day.next }}
-      </button>
-      @if (serviceDate() !== today) {
-      <button appButton="text" type="button" (click)="chooseDate(today)">
-        {{ text().day.today }}
-      </button>
-      } @if (status() === 'success' || status() === 'empty') {
-      <button appButton type="button" (click)="startExtra()">
-        <ng-icon [svg]="addIcon" aria-hidden="true" />
-        {{ text().day.addExtra }}
-      </button>
-      }
+      </label>
+      <p class="operations-recording">
+        <ng-icon [svg]="icons.info" aria-hidden="true" />
+        <span>
+          <strong>
+            {{ text().recording.current }} {{ text().recording.modes[dayRecording()] }}.
+          </strong>
+          @if (dayRecording() !== recording()) {
+          {{ text().recording.pastDay[dayRecording()] }}
+          } @else {
+          {{ text().recording.modeHints[recording()] }}
+          }
+        </span>
+        <button appButton="text" size="sm" type="button" (click)="recordingOpen.set(true)">
+          {{ text().recording.change }}
+        </button>
+      </p>
     </div>
-    } @if (status() === 'success') {
-    <app-view-switch [(view)]="view" />
-    }
-  </app-page-header>
-
-  @if (organization() && dayRecording() !== recording()) {
-  <app-alert tone="info">{{ text().recording.pastDay[dayRecording()] }}</app-alert>
+  </section>
   } @if (notice(); as current) {
   <app-alert tone="success" [dismissible]="true" (dismissed)="notice.set(null)">
     {{ text().day.notices[current] }}
@@ -62,14 +104,53 @@
     </a>
     }
   </app-page-state>
-  } @case ('success') { @if (conflicts().size > 0) {
-  <app-alert tone="warning">
-    {{ text().conflict.count }} <bdi>{{ conflicts().size }}</bdi>
-  </app-alert>
-  }
+  } @case ('success') {
   <section class="ro-card">
-    <div class="ro-card-body">
+    <div class="ro-card-body operations-tools">
+      <div class="ro-pills" role="group" [attr.aria-label]="text().filter.status">
+        <button
+          type="button"
+          class="ro-pill"
+          [attr.aria-pressed]="!filter().status && !filter().conflictsOnly"
+          (click)="showStatus('')"
+        >
+          <span>{{ text().filter.allStatuses }}</span>
+          <bdi class="ro-pill-count">{{ trips().length }}</bdi>
+        </button>
+        @for (tripStatus of statusChoices(); track tripStatus) {
+        <button
+          type="button"
+          class="ro-pill"
+          [attr.aria-pressed]="filter().status === tripStatus"
+          (click)="showStatus(tripStatus)"
+        >
+          <span class="ro-dot" [attr.data-tone]="statusToneOf(tripStatus)"></span>
+          <span>{{ text().statuses[tripStatus] }}</span>
+          <bdi class="ro-pill-count">{{ counts()[tripStatus] }}</bdi>
+        </button>
+        } @if (conflicts().size > 0 || filter().conflictsOnly) {
+        <button
+          type="button"
+          class="ro-pill"
+          data-tone="warning"
+          [attr.aria-pressed]="filter().conflictsOnly"
+          (click)="toggleConflicts()"
+        >
+          <ng-icon [svg]="icons.conflict" aria-hidden="true" />
+          <span>{{ text().conflict.filter }}</span>
+          <bdi class="ro-pill-count">{{ conflicts().size }}</bdi>
+        </button>
+        }
+      </div>
       <div class="operations-filters">
+        <app-field class="operations-search" [label]="text().filter.search">
+          <input
+            type="search"
+            [value]="filter().search"
+            [placeholder]="text().filter.searchHint"
+            (input)="filterBy({ search: $any($event.target).value })"
+          />
+        </app-field>
         <app-field [label]="text().filter.customer">
           <select
             (change)="filterBy({ customerId: $any($event.target).value })"
@@ -102,29 +183,6 @@
             }
           </select>
         </app-field>
-        <app-field [label]="text().filter.status">
-          <select (change)="filterBy({ status: $any($event.target).value })">
-            <option value="" [selected]="filter().status === ''">
-              {{ text().filter.allStatuses }} ({{ trips().length }})
-            </option>
-            @for (tripStatus of statusChoices(); track tripStatus) {
-            <option
-              [value]="tripStatus"
-              [selected]="filter().status === tripStatus"
-            >
-              {{ text().statuses[tripStatus] }} ({{ counts()[tripStatus] }})
-            </option>
-            }
-          </select>
-        </app-field>
-        <app-field [label]="text().filter.search">
-          <input
-            type="search"
-            [value]="filter().search"
-            [placeholder]="text().filter.searchHint"
-            (input)="filterBy({ search: $any($event.target).value })"
-          />
-        </app-field>
         @if (hasOtherOwnerships() || filter().ownership) {
         <app-field [label]="text().filter.ownership">
           <select (change)="filterBy({ ownership: $any($event.target).value })">
@@ -143,23 +201,15 @@
         </app-field>
         }
       </div>
+      @if (filtered() || markable().length > 1) {
       <div class="ro-toolbar operations-filter-actions">
+        @if (filtered()) {
         <span class="hint">
           {{ text().filter.showing }}
           <bdi class="ro-numeric"
             >{{ visibleTrips().length }} / {{ trips().length }}</bdi
           >
         </span>
-        @if (conflicts().size > 0 || filter().conflictsOnly) {
-        <label class="checkbox">
-          <input
-            type="checkbox"
-            [checked]="filter().conflictsOnly"
-            (change)="filterBy({ conflictsOnly: $any($event.target).checked })"
-          />
-          {{ text().conflict.filter }}
-        </label>
-        } @if (filtered()) {
         <button
           appButton="text"
           size="sm"
@@ -173,13 +223,16 @@
           appButton="secondary"
           size="sm"
           type="button"
+          class="operations-mark-all"
           [disabled]="markingAll()"
           (click)="markAllDone()"
         >
+          <ng-icon [svg]="icons.done" aria-hidden="true" />
           {{ text().day.markAllDone }} (<bdi>{{ markable().length }}</bdi>)
         </button>
         }
       </div>
+      }
     </div>
     @if (visibleTrips().length === 0) {
     <app-page-state kind="empty" [message]="text().filter.noMatch" />
@@ -188,94 +241,107 @@
       <table class="ro-table-stack" [class.ro-table-cards]="view() === 'cards'">
         <thead>
           <tr>
-            <th>{{ text().day.time }}</th>
-            <th>{{ text().day.route }}</th>
-            <th>{{ text().day.customer }}</th>
-            <th>{{ text().day.direction }}</th>
-            <th>{{ text().day.vehicle }}</th>
-            <th>{{ text().day.driver }}</th>
+            <th>{{ text().day.trip }}</th>
+            <th>{{ text().day.crew }}</th>
             <th>{{ text().day.status }}</th>
-            <th>{{ text().day.reason }}</th>
+            <th>{{ text().day.details }}</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           @for (trip of visibleTrips(); track trip.id) {
-          <tr>
-            <td class="ro-numeric" [attr.data-label]="text().day.time">
-              <bdi>{{ trip.departureTime }}</bdi>
-            </td>
-            <td [attr.data-label]="text().day.route">
-              <div class="ro-cell-stack">
-                <span>
-                  {{ trip.routeId ? label(choices().routes, trip.routeId) :
-                  text().day.noRoute }}
+          <tr [class.operations-trip-cancelled]="trip.cancelled">
+            <td [attr.data-label]="text().day.trip">
+              <div class="ro-entity">
+                <span class="operations-time" [attr.data-direction]="trip.direction">
+                  <bdi class="ro-numeric">{{ trip.departureTime }}</bdi>
+                  <span>{{ text().directions[trip.direction] }}</span>
                 </span>
-                @if (trip.extra) {
-                <app-tag tone="info">{{ text().day.extra }}</app-tag>
+                <span class="ro-entity-text">
+                  <span class="ro-entity-name">
+                    {{ trip.routeId ? label(choices().routes, trip.routeId) :
+                    text().day.noRoute }}
+                  </span>
+                  <span class="ro-entity-detail">
+                    {{ label(choices().customers, trip.customerId) }}
+                  </span>
+                  @if (trip.extra) {
+                  <app-tag tone="info">{{ text().day.extra }}</app-tag>
+                  }
+                </span>
+              </div>
+            </td>
+            <td [attr.data-label]="text().day.crew">
+              <span class="ro-entity-text">
+                <span class="operations-driver" [class.operations-unset]="!trip.driverId">
+                  {{ label(choices().drivers, trip.driverId) }}
+                </span>
+                <span class="ro-entity-detail operations-vehicle">
+                  <bdi [class.operations-unset]="!trip.vehicleId">{{
+                    label(choices().vehicles, trip.vehicleId)
+                  }}</bdi>
+                  @if (ownershipOf(trip); as ownership) { @if (ownership !==
+                  'owned') {
+                  <app-tag>{{ text().ownerships[ownership] }}</app-tag>
+                  } }
+                </span>
+              </span>
+            </td>
+            <td class="ro-cell-status" [attr.data-label]="text().day.status">
+              <app-tag [tone]="statusTone(trip)"
+                >{{ text().statuses[statusOf(trip)] }}</app-tag
+              >
+            </td>
+            <td
+              class="ro-cell-wide"
+              [attr.data-label]="text().day.details"
+              [class.operations-no-details]="
+                !trip.reason && !trip.notes && conflictsOf(trip).length === 0
+              "
+            >
+              <div class="ro-cell-stack">
+                @if (trip.reason) {
+                <span class="operations-reason">{{ text().reasons[trip.reason] }}</span>
+                } @if (trip.notes) {
+                <span class="hint">{{ trip.notes }}</span>
                 }
-              </div>
-            </td>
-            <td [attr.data-label]="text().day.customer">
-              {{ label(choices().customers, trip.customerId) }}
-            </td>
-            <td [attr.data-label]="text().day.direction">
-              {{ text().directions[trip.direction] }}
-            </td>
-            <td [attr.data-label]="text().day.vehicle">
-              <div class="ro-cell-stack">
-                <bdi>{{ label(choices().vehicles, trip.vehicleId) }}</bdi>
-                @if (ownershipOf(trip); as ownership) { @if (ownership !==
-                'owned') {
-                <app-tag>{{ text().ownerships[ownership] }}</app-tag>
-                } }
-              </div>
-            </td>
-            <td [attr.data-label]="text().day.driver">
-              {{ label(choices().drivers, trip.driverId) }}
-            </td>
-            <td [attr.data-label]="text().day.status">
-              <div class="ro-cell-stack">
-                <app-tag [tone]="statusTone(trip)"
-                  >{{ text().statuses[statusOf(trip)] }}</app-tag
-                >
                 <app-conflict-list
                   [conflicts]="conflictsOf(trip)"
                   [choices]="choices()"
                 />
               </div>
             </td>
-            <td
-              class="ro-cell-wide"
-              [attr.data-label]="text().day.reason"
-              [class.operations-no-reason]="!trip.reason && !trip.notes"
-            >
-              <div class="ro-cell-stack">
-                @if (trip.reason) {
-                <span>{{ text().reasons[trip.reason] }}</span>
-                } @if (trip.notes) {
-                <span class="hint">{{ trip.notes }}</span>
-                }
-              </div>
-            </td>
-            <td class="ro-actions">
-              @if (canMarkDone(trip)) {
+            <td class="ro-actions operations-actions">
+              <div class="operations-actions-row">
+              @if (canMarkDone(trip)) { @if (trip.done) {
               <button
                 appButton="text"
                 size="sm"
                 type="button"
                 [disabled]="markingTripId() === trip.id"
-                (click)="markDone(trip, !trip.done)"
+                (click)="markDone(trip, false)"
               >
-                {{ trip.done ? text().day.undoDone : text().day.markDone }}
+                {{ text().day.undoDone }}
               </button>
-              }
+              } @else {
+              <button
+                appButton="secondary"
+                size="sm"
+                type="button"
+                [disabled]="markingTripId() === trip.id"
+                (click)="markDone(trip, true)"
+              >
+                <ng-icon [svg]="icons.done" aria-hidden="true" />
+                {{ text().day.markDone }}
+              </button>
+              } }
               <button
                 appButton="text"
                 size="sm"
                 type="button"
                 (click)="edit(trip)"
               >
+                <ng-icon [svg]="icons.change" aria-hidden="true" />
                 {{ text().day.change }}
               </button>
               @if (trip.extra) {
@@ -286,10 +352,12 @@
                 [disabled]="markingTripId() === trip.id"
                 (click)="remove(trip)"
               >
+                <ng-icon [svg]="icons.remove" aria-hidden="true" />
                 {{ confirmingRemoveId() === trip.id ? text().day.confirmRemove :
                 text().day.remove }}
               </button>
               }
+              </div>
             </td>
           </tr>
           }
@@ -298,46 +366,7 @@
     </div>
     }
   </section>
-  } } @if (organization(); as current) {
-  <div class="ro-grid">
-    <section class="ro-card">
-      <div class="ro-card-header">
-        <h2 class="ro-card-title">{{ text().recording.title }}</h2>
-        <p class="hint">{{ text().recording.hint }}</p>
-      </div>
-      <div class="ro-card-body">
-        <div
-          class="ro-toolbar"
-          role="group"
-          [attr.aria-label]="text().recording.title"
-        >
-          @for (mode of recordings; track mode) {
-          <button
-            size="sm"
-            type="button"
-            [appButton]="recording() === mode ? 'primary' : 'secondary'"
-            [attr.aria-pressed]="recording() === mode"
-            [disabled]="savingRecording()"
-            (click)="chooseRecording(mode)"
-          >
-            {{ text().recording.modes[mode] }}
-          </button>
-          }
-        </div>
-        <p class="hint">{{ text().recording.modeHints[recording()] }}</p>
-      </div>
-    </section>
-    @if (status() === 'success') {
-    <app-holiday-panel
-      [organization]="current"
-      [serviceDate]="serviceDate()"
-      [trips]="trips()"
-      [choices]="choices()"
-      (recorded)="onHolidayRecorded($event)"
-    />
-    }
-  </div>
-  }
+  } }
 </div>
 
 @if (organization(); as current) {
@@ -372,5 +401,52 @@
     (cancelled)="stopEditing()"
   />
   }
+</app-form-drawer>
+<app-form-drawer
+  [title]="text().holiday.title"
+  [open]="holidayOpen()"
+  (openChange)="holidayOpen.set($event)"
+>
+  @if (holidayOpen()) {
+  <app-holiday-panel
+    [organization]="current"
+    [serviceDate]="serviceDate()"
+    [trips]="trips()"
+    [choices]="choices()"
+    (recorded)="onHolidayRecorded($event)"
+    (cancelled)="holidayOpen.set(false)"
+  />
+  }
+</app-form-drawer>
+<app-form-drawer
+  [title]="text().recording.title"
+  [open]="recordingOpen()"
+  (openChange)="recordingOpen.set($event)"
+>
+  <div class="ro-form">
+    <p class="hint">{{ text().recording.hint }}</p>
+    <div class="ro-options" role="radiogroup" [attr.aria-label]="text().recording.title">
+      @for (mode of recordings; track mode) {
+      <button
+        type="button"
+        role="radio"
+        class="ro-option"
+        [attr.data-recording]="mode"
+        [attr.aria-checked]="recording() === mode"
+        [disabled]="savingRecording()"
+        (click)="chooseRecording(mode)"
+      >
+        <span class="ro-option-mark" aria-hidden="true"></span>
+        <span class="ro-option-title">{{ text().recording.modes[mode] }}</span>
+        <span class="ro-option-hint">{{ text().recording.modeHints[mode] }}</span>
+      </button>
+      }
+    </div>
+    <div class="ro-toolbar">
+      <button appButton="secondary" type="button" (click)="recordingOpen.set(false)">
+        {{ text().recording.close }}
+      </button>
+    </div>
+  </div>
 </app-form-drawer>
 }

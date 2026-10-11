@@ -10,14 +10,16 @@ export interface RoutesText {
     readonly hint: string;
     readonly loading: string;
     readonly empty: string;
+    readonly search: string;
+    readonly searchHint: string;
     readonly filter: string;
     readonly allCustomers: string;
     readonly noMatch: string;
     readonly copy: string;
     readonly name: string;
     readonly customer: string;
-    readonly vehicle: string;
-    readonly driver: string;
+    readonly crew: string;
+    readonly times: string;
     readonly outboundTime: string;
     readonly returnTime: string;
     readonly days: string;
@@ -35,6 +37,9 @@ export interface RoutesText {
     readonly editTitle: string;
     readonly copyTitle: string;
     readonly copyHint: string;
+    readonly routeTitle: string;
+    readonly crewTitle: string;
+    readonly pathTitle: string;
     readonly name: string;
     readonly nameHint: string;
     readonly customer: string;
@@ -56,9 +61,12 @@ export interface RoutesText {
     readonly tripsTitle: string;
     readonly tripsHint: string;
     readonly outboundTime: string;
+    readonly outboundHint: string;
     readonly returnTime: string;
+    readonly returnHint: string;
     readonly days: string;
     readonly daysHint: string;
+    readonly everyDay: string;
     readonly tripPrice: string;
     readonly tripPriceHint: string;
     readonly notes: string;
@@ -109,16 +117,18 @@ export const routesText: Record<Language, RoutesText> = {
       hint: 'كل خط يحدد أي مركبة وأي سائق ينقلان موظفي أي شركة متعاقدة، وفي أي مواعيد وأيام.',
       loading: 'جارٍ التحميل...',
       empty: 'لم تضف أي خط بعد. ابدأ بإضافة أول خط.',
+      search: 'بحث',
+      searchHint: 'اسم الخط أو المكان أو السائق أو رقم اللوحة',
       filter: 'عرض خطوط',
       allCustomers: 'كل الشركات',
-      noMatch: 'لا توجد خطوط لهذه الشركة بعد.',
+      noMatch: 'لا توجد خطوط تطابق البحث أو الشركة المختارة.',
       copy: 'نسخ لشركة أخرى',
       name: 'الخط',
       customer: 'الشركة المتعاقدة',
-      vehicle: 'المركبة',
-      driver: 'السائق',
-      outboundTime: 'الذهاب',
-      returnTime: 'العودة',
+      crew: 'السائق والمركبة',
+      times: 'المواعيد',
+      outboundTime: 'ذهاب',
+      returnTime: 'عودة',
       days: 'الأيام',
       tripPrice: 'سعر الرحلة',
       everyDay: 'كل يوم',
@@ -134,6 +144,9 @@ export const routesText: Record<Language, RoutesText> = {
       editTitle: 'تعديل بيانات الخط',
       copyTitle: 'نسخ خط لشركة أخرى',
       copyHint: 'اختر الشركة، ثم غيّر المركبة والسائق والمواعيد والأيام حسب هذه الشركة.',
+      routeTitle: 'الخط والشركة',
+      crewTitle: 'السائق والمركبة',
+      pathTitle: 'خط السير',
       name: 'اسم الخط',
       nameHint: 'اسم تعرف به الخط، مثل: مدينة نصر. يمكن استخدام نفس الاسم لأكثر من شركة.',
       customer: 'الشركة المتعاقدة',
@@ -154,10 +167,13 @@ export const routesText: Record<Language, RoutesText> = {
       endPointHint: 'غالبًا مقر الشركة أو المصنع.',
       tripsTitle: 'المواعيد',
       tripsHint: 'حدد ميعاد رحلة واحدة على الأقل.',
-      outboundTime: 'موعد رحلة الذهاب (توصيل الموظفين إلى العمل)',
-      returnTime: 'موعد رحلة العودة (عودة الموظفين من العمل)',
+      outboundTime: 'ميعاد الذهاب',
+      outboundHint: 'توصيل الموظفين إلى العمل.',
+      returnTime: 'ميعاد العودة',
+      returnHint: 'عودة الموظفين من العمل.',
       days: 'أيام العمل',
       daysHint: 'الأيام التي يعمل فيها هذا الخط كل أسبوع.',
+      everyDay: 'اختيار كل الأيام',
       tripPrice: 'سعر الرحلة',
       tripPriceHint:
         'المبلغ الذي تدفعه الشركة المتعاقدة عن كل رحلة ذهاب أو عودة. يُستخدم لحساب الإيراد في التقارير. تغيير السعر لا يغيّر الرحلات التي مضت ولها سعر، أما الرحلات التي تمّت بلا سعر فتأخذ السعر الجديد.',
@@ -207,16 +223,18 @@ export const routesText: Record<Language, RoutesText> = {
       hint: 'Each route sets which vehicle and driver carry which client company staff, at which times and on which days.',
       loading: 'Loading...',
       empty: 'You have not added any route yet. Start by adding the first one.',
+      search: 'Search',
+      searchHint: 'Route, place, driver, or plate number',
       filter: 'Show routes of',
       allCustomers: 'All companies',
-      noMatch: 'This company has no routes yet.',
+      noMatch: 'No route matches the search or the chosen company.',
       copy: 'Copy for another company',
       name: 'Route',
       customer: 'Client company',
-      vehicle: 'Vehicle',
-      driver: 'Driver',
-      outboundTime: 'Outbound',
-      returnTime: 'Return',
+      crew: 'Driver and vehicle',
+      times: 'Times',
+      outboundTime: 'Out',
+      returnTime: 'Back',
       days: 'Days',
       tripPrice: 'Trip price',
       everyDay: 'Every day',
@@ -232,6 +250,9 @@ export const routesText: Record<Language, RoutesText> = {
       editTitle: 'Edit route details',
       copyTitle: 'Copy a route for another company',
       copyHint: 'Choose the company, then change the vehicle, driver, times, and days for it.',
+      routeTitle: 'Route and company',
+      crewTitle: 'Driver and vehicle',
+      pathTitle: 'Path',
       name: 'Route name',
       nameHint: 'A name you know the route by, e.g. Nasr City. The same name can serve more than one company.',
       customer: 'Client company',
@@ -252,10 +273,13 @@ export const routesText: Record<Language, RoutesText> = {
       endPointHint: 'Usually the company or factory site.',
       tripsTitle: 'Times',
       tripsHint: 'Set at least one trip time.',
-      outboundTime: 'Outbound trip time (taking staff to work)',
-      returnTime: 'Return trip time (taking staff home)',
+      outboundTime: 'Outbound time',
+      outboundHint: 'Taking staff to work.',
+      returnTime: 'Return time',
+      returnHint: 'Taking staff home.',
       days: 'Working days',
       daysHint: 'The days this route runs every week.',
+      everyDay: 'Choose every day',
       tripPrice: 'Trip price',
       tripPriceHint:
         'What the client company pays for each outbound or return trip. Reports use it to work out revenue. Changing it does not change past trips that have a price; done trips with no price take the new one.',

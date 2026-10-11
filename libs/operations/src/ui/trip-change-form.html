@@ -1,58 +1,89 @@
 <form class="ro-form" (submit)="onSubmit($event)">
-  <div class="ro-cell-stack">
-    <strong>{{ routeName() }} ({{ customerName() }})</strong>
-    <span class="hint">
-      {{ text().directions[trip().direction] }} <bdi class="ro-numeric">{{ trip().departureTime }}</bdi>
+  <div class="ro-entity operations-trip-summary">
+    <span class="operations-time" [attr.data-direction]="trip().direction">
+      <bdi class="ro-numeric">{{ trip().departureTime }}</bdi>
+      <span>{{ text().directions[trip().direction] }}</span>
+    </span>
+    <span class="ro-entity-text">
+      <span class="ro-entity-name">{{ routeName() }}</span>
+      <span class="ro-entity-detail">{{ customerName() }}</span>
     </span>
   </div>
   <p class="hint">{{ text().change.hint }}</p>
-  <app-field [label]="text().change.vehicle" [optional]="true">
-    <select [formField]="changeForm.vehicleId">
-      <option value="">{{ text().change.notSet }}</option>
-      @for (vehicle of vehicles(); track vehicle.id) {
-        <option [value]="vehicle.id">{{ vehicle.label }}</option>
-      }
-    </select>
-  </app-field>
-  <app-field [label]="text().change.driver" [control]="changeForm.driverId">
-    <select [formField]="changeForm.driverId">
-      <option value="">{{ text().change.chooseDriver }}</option>
-      @for (driver of drivers(); track driver.id) {
+  <fieldset class="ro-options">
+    <legend>{{ text().change.outcome }}</legend>
+    <label class="ro-option">
+      <input
+        type="radio"
+        name="trip-outcome"
+        value="running"
+        [checked]="!model().cancelled"
+        (change)="setCancelled(false)"
+      />
+      <span class="ro-option-title">{{ text().change.running }}</span>
+      <span class="ro-option-hint">{{ text().change.runningHint }}</span>
+    </label>
+    <label class="ro-option">
+      <input
+        type="radio"
+        name="trip-outcome"
+        value="cancelled"
+        [checked]="model().cancelled"
+        (change)="setCancelled(true)"
+      />
+      <span class="ro-option-title">{{ text().change.cancelled }}</span>
+      <span class="ro-option-hint">{{ text().change.cancelledHint }}</span>
+    </label>
+  </fieldset>
+  @if (!model().cancelled || !model().driverId) {
+  <div class="ro-form-row">
+    <app-field [label]="text().change.driver" [control]="changeForm.driverId">
+      <select [formField]="changeForm.driverId">
+        <option value="">{{ text().change.chooseDriver }}</option>
+        @for (driver of drivers(); track driver.id) {
         <option [value]="driver.id">{{ driver.label }}</option>
-      }
-    </select>
-  </app-field>
-  <label class="checkbox">
-    <input type="checkbox" [formField]="changeForm.cancelled" />
-    {{ text().change.cancelled }}
-  </label>
+        }
+      </select>
+    </app-field>
+    @if (!model().cancelled) {
+    <app-field [label]="text().change.vehicle" [optional]="true">
+      <select [formField]="changeForm.vehicleId">
+        <option value="">{{ text().change.notSet }}</option>
+        @for (vehicle of vehicles(); track vehicle.id) {
+        <option [value]="vehicle.id">{{ vehicle.label }}</option>
+        }
+      </select>
+    </app-field>
+    }
+  </div>
+  }
   <app-field
     [label]="text().change.reason"
-    [hint]="text().change.reasonHint"
+    [hint]="model().reason === 'driverAbsent' ? text().change.absentHint : text().change.reasonHint"
     [control]="changeForm.reason"
   >
     <select [formField]="changeForm.reason">
       <option value="">{{ text().change.chooseReason }}</option>
       @for (reason of reasons; track reason) {
-        <option [value]="reason">{{ text().reasons[reason] }}</option>
+      <option [value]="reason">{{ text().reasons[reason] }}</option>
       }
     </select>
   </app-field>
   <app-field
     [label]="text().change.notes"
     [hint]="text().change.notesHint"
+    [optional]="model().reason !== 'other'"
     [control]="changeForm.notes"
   >
     <textarea [formField]="changeForm.notes"></textarea>
   </app-field>
   @if (conflicts().length > 0) {
-    <app-alert tone="warning">
-      <p>{{ text().conflict.formHint }}</p>
-      <app-conflict-list [conflicts]="conflicts()" [choices]="choices()" />
-    </app-alert>
-  }
-  @if (problem(); as current) {
-    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+  <app-alert tone="warning">
+    <p>{{ text().conflict.formHint }}</p>
+    <app-conflict-list [conflicts]="conflicts()" [choices]="choices()" />
+  </app-alert>
+  } @if (problem(); as current) {
+  <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
   <div class="ro-toolbar">
     <button appButton type="submit" [disabled]="submitting()">{{ text().change.save }}</button>

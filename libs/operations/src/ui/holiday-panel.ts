@@ -26,7 +26,6 @@ import { operationsText } from './operations-text';
   selector: 'app-holiday-panel',
   imports: [Alert, Button],
   templateUrl: './holiday-panel.html',
-  host: { class: 'ro-card' },
 })
 export class HolidayPanel {
   private readonly repository = inject(OperationsRepository);
@@ -36,27 +35,30 @@ export class HolidayPanel {
   readonly trips = input.required<readonly DailyTrip[]>();
   readonly choices = input.required<OperationChoices>();
   readonly recorded = output<DailyTrip[]>();
+  readonly cancelled = output<void>();
 
   protected readonly text = injectText(operationsText);
   protected readonly selected = signal<ReadonlySet<string>>(new Set());
   protected readonly submitting = signal(false);
-  protected readonly done = signal(false);
   protected readonly confirming = signal(false);
   protected readonly problem = signal<OperationsProblem | null>(null);
 
   // Trips already marked done happened, so a holiday leaves them alone.
+  private readonly running = computed(() =>
+    this.trips().filter((trip) => !trip.cancelled && !trip.done),
+  );
+
   protected readonly toCancel = computed(
     () =>
-      this.trips().filter(
-        (trip) =>
-          this.selected().has(trip.customerId) && !trip.cancelled && !trip.done,
-      ).length,
+      this.running().filter((trip) => this.selected().has(trip.customerId))
+        .length,
   );
 
   protected readonly customers = computed(() =>
     customersWithRunningTrips(this.trips()).map((id) => ({
       id,
       label: choiceLabel(this.choices().customers, id),
+      trips: this.running().filter((trip) => trip.customerId === id).length,
     })),
   );
 
@@ -65,7 +67,6 @@ export class HolidayPanel {
       this.serviceDate();
       untracked(() => {
         this.selected.set(new Set());
-        this.done.set(false);
         this.confirming.set(false);
         this.problem.set(null);
       });
@@ -80,7 +81,6 @@ export class HolidayPanel {
       next.delete(customerId);
     }
     this.selected.set(next);
-    this.done.set(false);
     this.confirming.set(false);
   }
 
@@ -99,7 +99,6 @@ export class HolidayPanel {
         [...this.selected()],
       );
       this.selected.set(new Set());
-      this.done.set(true);
       this.recorded.emit(trips);
     } catch (error) {
       this.problem.set(
