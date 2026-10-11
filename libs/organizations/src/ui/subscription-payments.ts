@@ -3,7 +3,7 @@ import { NgIcon } from '@ng-icons/core';
 import { lucidePlus } from '@ng-icons/lucide';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
-import { Alert, Button, Field, FormDrawer } from '@routeops/shared/ui';
+import { Alert, Button, Field, FormDrawer, paginate, Pager } from '@routeops/shared/ui';
 import { CompanyAccount } from '../domain/organization';
 import {
   companyPayments,
@@ -22,7 +22,7 @@ import { PaymentForm } from './payment-form';
 
 @Component({
   selector: 'app-subscription-payments',
-  imports: [Alert, Button, Field, FormDrawer, NgIcon, PaymentForm],
+  imports: [Alert, Button, Field, FormDrawer, NgIcon, Pager, PaymentForm],
   templateUrl: './subscription-payments.html',
 })
 export class SubscriptionPayments {
@@ -56,6 +56,8 @@ export class SubscriptionPayments {
   protected readonly companies = computed(() =>
     companyPayments(this.payments(), this.accounts()),
   );
+  protected readonly paymentPages = paginate(this.monthPayments, { resetOn: this.month });
+  protected readonly companyPages = paginate(this.companies);
   private readonly accountsById = computed(
     () => new Map(this.accounts().map((account) => [account.id, account])),
   );

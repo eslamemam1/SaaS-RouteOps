@@ -50,7 +50,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (customer of customers(); track customer.id) {
+          @for (customer of pages.items(); track customer.id) {
           <tr>
             <td [attr.data-label]="text().list.name">
               <div class="ro-entity">
@@ -93,6 +93,7 @@
         </tbody>
       </table>
     </div>
+    <app-pager [pages]="pages" />
   </section>
   } }
 </div>

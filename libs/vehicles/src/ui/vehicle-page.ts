@@ -18,6 +18,8 @@ import {
   Field,
   FormDrawer,
   PageState,
+  paginate,
+  Pager,
   Tag,
   type Tone,
 } from '@routeops/shared/ui';
@@ -73,6 +75,7 @@ const statusTones: Record<TripStatus, Tone> = {
     FormDrawer,
     NgIcon,
     PageState,
+    Pager,
     RouterLink,
     Tag,
     VehicleForm,
@@ -105,6 +108,7 @@ export class VehiclePage {
   protected readonly vehicle = signal<Vehicle | null>(null);
   protected readonly work = signal<VehicleWork>(noWork);
   protected readonly data = signal<VehicleMonth>(noMonth);
+  protected readonly pages = paginate(() => this.data().trips, { resetOn: this.month });
   protected readonly formOpen = signal(false);
   protected readonly saved = signal(false);
 

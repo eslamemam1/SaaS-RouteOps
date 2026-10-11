@@ -59,7 +59,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (account of accounts(); track account.id) {
+            @for (account of pages.items(); track account.id) {
               <tr>
                 <td [attr.data-label]="text().accounts.company">
                   <strong><bdi>{{ account.name }}</bdi></strong>
@@ -112,6 +112,7 @@
           </tbody>
         </table>
       </div>
+      <app-pager [pages]="pages" />
     }
   }
 </section>

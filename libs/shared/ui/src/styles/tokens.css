@@ -85,6 +85,7 @@
   --ro-text-placeholder: var(--ro-slate-400);
   --ro-text-on-brand: var(--ro-slate-0);
   --ro-text-brand: var(--ro-blue-700);
+  --ro-text-brand-strong: var(--ro-blue-900);
   --ro-text-accent: var(--ro-amber-700);
   --ro-text-success: var(--ro-green-700);
   --ro-text-danger: var(--ro-red-700);
@@ -114,7 +115,6 @@
   --ro-motion-slow: 250ms;
   --ro-motion-spin: 800ms;
   --ro-press-offset: 1px;
-  --ro-underline-offset: 0.2em;
   --ro-z-sticky: 10;
   --ro-z-overlay: 1000;
   --ro-touch-target: 44px;

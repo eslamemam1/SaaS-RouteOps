@@ -19,6 +19,8 @@ import {
   Field,
   FormDrawer,
   PageState,
+  paginate,
+  Pager,
   Tag,
   type Tone,
 } from '@routeops/shared/ui';
@@ -71,6 +73,7 @@ const stateTones: Record<DriverTripState, Tone> = {
     FormDrawer,
     NgIcon,
     PageState,
+    Pager,
     RouterLink,
     Tag,
   ],
@@ -101,6 +104,7 @@ export class DriverPage {
   protected readonly driver = signal<Driver | null>(null);
   protected readonly work = signal<DriverWork>(noWork);
   protected readonly data = signal<DriverMonth>(noMonth);
+  protected readonly pages = paginate(() => this.data().trips, { resetOn: this.month });
   protected readonly formOpen = signal(false);
   protected readonly outcome = signal<'saved' | 'photoFailed' | null>(null);
 

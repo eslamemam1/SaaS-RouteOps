@@ -13,6 +13,8 @@ import {
   PageHeader,
   PageState,
   Tag,
+  paginate,
+  Pager,
   ViewSwitch,
 } from '@routeops/shared/ui';
 import { ExpenseAccessError } from '../application/expense-access-error';
@@ -63,6 +65,7 @@ const noMonth: ExpenseMonth = { expenses: [], pay: [], rent: [] };
     PageState,
     RouterLink,
     Tag,
+    Pager,
     ViewSwitch,
   ],
   templateUrl: './expenses.html',
@@ -85,6 +88,11 @@ export class Expenses {
   protected readonly organization = signal<ExpenseOrganization | null>(null);
   protected readonly choices = signal<ExpenseChoices>(noChoices);
   protected readonly data = signal<ExpenseMonth>(noMonth);
+  protected readonly payPages = paginate(() => this.data().pay, { resetOn: this.month });
+  protected readonly rentPages = paginate(() => this.data().rent, { resetOn: this.month });
+  protected readonly expensePages = paginate(() => this.data().expenses, {
+    resetOn: this.month,
+  });
   protected readonly formOpen = signal(false);
   protected readonly editingId = signal<string | null>(null);
   protected readonly payMonth = signal<string | null>(null);

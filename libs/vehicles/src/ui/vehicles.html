@@ -70,7 +70,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (vehicle of visibleVehicles(); track vehicle.id) {
+          @for (vehicle of pages.items(); track vehicle.id) {
           <tr>
             <td [attr.data-label]="text().list.plateNumber">
               <div class="ro-entity">
@@ -136,6 +136,7 @@
         </tbody>
       </table>
     </div>
+    <app-pager [pages]="pages" />
     }
   </section>
   } }

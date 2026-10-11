@@ -2,7 +2,16 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
-import { Alert, Button, Field, PageHeader, PageState, Tag } from '@routeops/shared/ui';
+import {
+  Alert,
+  Button,
+  Field,
+  PageHeader,
+  PageState,
+  paginate,
+  Pager,
+  Tag,
+} from '@routeops/shared/ui';
 import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
 import {
@@ -34,7 +43,7 @@ const noReport: MonthReport = {
 
 @Component({
   selector: 'app-reports',
-  imports: [Alert, Button, Field, PageHeader, PageState, RouterLink, Tag],
+  imports: [Alert, Button, Field, PageHeader, PageState, Pager, RouterLink, Tag],
   templateUrl: './reports.html',
   styleUrl: './reports.css',
 })
@@ -67,6 +76,9 @@ export class Reports {
       this.report().expenses,
     ),
   );
+  protected readonly pages = paginate(this.lines, {
+    resetOn: () => [this.month(), this.group()],
+  });
   protected readonly otherCosts = computed(
     () => costShares(this.report().counts, this.report().expenses).other,
   );

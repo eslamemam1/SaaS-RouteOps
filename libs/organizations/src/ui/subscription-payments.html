@@ -97,7 +97,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (payment of monthPayments(); track payment.id) {
+                @for (payment of paymentPages.items(); track payment.id) {
                   <tr>
                     <td [attr.data-label]="text().payments.company">
                       <strong><bdi>{{ companyName(payment.organizationId) }}</bdi></strong>
@@ -129,6 +129,7 @@
               </tbody>
             </table>
           </div>
+          <app-pager [pages]="paymentPages" />
         }
 
         @if (companies().length > 0) {
@@ -148,7 +149,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (company of companies(); track company.organizationId) {
+                @for (company of companyPages.items(); track company.organizationId) {
                   <tr>
                     <td [attr.data-label]="text().payments.company">
                       <strong><bdi>{{ company.name }}</bdi></strong>
@@ -164,6 +165,7 @@
               </tbody>
             </table>
           </div>
+          <app-pager [pages]="companyPages" />
         }
       }
     }

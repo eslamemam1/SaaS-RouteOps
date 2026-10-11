@@ -27,6 +27,8 @@ import {
   PageState,
   Tag,
   Tone,
+  paginate,
+  Pager,
   ViewSwitch,
 } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
@@ -100,6 +102,7 @@ const statusTones: Record<TripStatus, Tone> = {
     RouterLink,
     Tag,
     TripChangeForm,
+    Pager,
     ViewSwitch,
   ],
   templateUrl: './daily-operations.html',
@@ -164,6 +167,10 @@ export class DailyOperations {
       this.dayRecording(),
     ),
   );
+  protected readonly pages = paginate(this.visibleTrips, {
+    size: 50,
+    resetOn: () => [this.serviceDate(), this.filter()],
+  });
   protected readonly conflicts = computed(() => conflictsByTrip(this.trips()));
   protected readonly counts = computed(() =>
     countByStatus(this.trips(), this.today, this.dayRecording()),

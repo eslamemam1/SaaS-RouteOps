@@ -12,6 +12,8 @@ import {
   PageHeader,
   PageState,
   Tag,
+  paginate,
+  Pager,
   ViewSwitch,
 } from '@routeops/shared/ui';
 import { DriverAccessError } from '../application/driver-access-error';
@@ -39,6 +41,7 @@ import { driversText } from './drivers-text';
     PageState,
     RouterLink,
     Tag,
+    Pager,
     ViewSwitch,
   ],
   templateUrl: './drivers.html',
@@ -58,6 +61,7 @@ export class Drivers {
   protected readonly problem = signal<DriverProblem>('load');
   protected readonly organization = signal<DriverOrganization | null>(null);
   protected readonly drivers = signal<Driver[]>([]);
+  protected readonly pages = paginate(this.drivers);
   protected readonly editing = signal<Driver | null>(null);
   protected readonly formOpen = signal(false);
   protected readonly outcome = signal<'added' | 'saved' | 'photoFailed' | null>(

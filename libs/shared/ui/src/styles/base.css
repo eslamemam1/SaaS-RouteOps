@@ -58,13 +58,40 @@ h3 {
 
 a {
   color: var(--ro-text-brand);
-  text-underline-offset: var(--ro-underline-offset);
+  text-decoration: none;
 }
 
 a:focus-visible {
   outline: var(--ro-focus-width) solid var(--ro-border-focus);
   outline-offset: var(--ro-focus-width);
   border-radius: var(--ro-radius-sm);
+}
+
+/*
+ * A text link has no underline: its weight and brand color mark it, and hovering
+ * lays a soft brand highlight behind it. The padding and the negative margin cancel
+ * out, so the highlight does not move the text around it. A link with a class of its
+ * own, such as a button, card, or menu item, keeps its own look; add .ro-link to
+ * give such a link this look as well.
+ */
+:where(a:not([class])),
+.ro-link {
+  margin-inline: calc(-1 * var(--ro-space-1));
+  padding-inline: var(--ro-space-1);
+  border-radius: var(--ro-radius-sm);
+  color: var(--ro-text-brand);
+  font-weight: var(--ro-font-medium);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition:
+    background-color var(--ro-motion-fast),
+    color var(--ro-motion-fast);
+}
+
+:where(a:not([class])):hover,
+.ro-link:hover {
+  background-color: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand-strong);
 }
 
 input:not([type='checkbox'], [type='radio']),
@@ -464,9 +491,20 @@ label.ro-chip:has(input:focus-visible) {
   align-items: center;
   justify-self: start;
   gap: var(--ro-space-1);
+  margin-inline: calc(-1 * var(--ro-space-2));
+  padding: var(--ro-space-1) var(--ro-space-2);
+  border-radius: var(--ro-radius-md);
   font-size: var(--ro-text-body-sm);
   line-height: var(--ro-leading-body-sm);
   font-weight: var(--ro-font-medium);
+  transition:
+    background-color var(--ro-motion-fast),
+    color var(--ro-motion-fast);
+}
+
+.ro-back:hover {
+  background-color: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand-strong);
 }
 
 /* The head of a page about one record: its photo or icon, its name, tags, and actions. */
@@ -795,6 +833,23 @@ tbody tr:last-child td {
 
 .ro-entity-name {
   font-weight: var(--ro-font-semibold);
+}
+
+/* A name that opens the item's page reads as the name, and shows it is a link on hover. */
+a.ro-entity-name {
+  justify-self: start;
+  margin-inline: calc(-1 * var(--ro-space-1));
+  padding-inline: var(--ro-space-1);
+  border-radius: var(--ro-radius-sm);
+  color: var(--ro-text-primary);
+  transition:
+    background-color var(--ro-motion-fast),
+    color var(--ro-motion-fast);
+}
+
+a.ro-entity-name:hover {
+  background-color: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
 }
 
 .ro-entity-detail {

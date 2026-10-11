@@ -12,6 +12,8 @@ import {
   PageHeader,
   PageState,
   Tag,
+  paginate,
+  Pager,
   ViewSwitch,
 } from '@routeops/shared/ui';
 import { VehicleAccessError } from '../application/vehicle-access-error';
@@ -43,6 +45,7 @@ import { vehiclesText } from './vehicles-text';
     RouterLink,
     Tag,
     VehicleForm,
+    Pager,
     ViewSwitch,
   ],
   templateUrl: './vehicles.html',
@@ -74,6 +77,9 @@ export class Vehicles {
   protected readonly visibleVehicles = computed(() =>
     ofOwnership(this.vehicles(), this.ownershipFilter()),
   );
+  protected readonly pages = paginate(this.visibleVehicles, {
+    resetOn: this.ownershipFilter,
+  });
 
   constructor() {
     void this.load();

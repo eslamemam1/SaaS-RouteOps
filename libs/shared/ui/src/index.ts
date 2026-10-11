@@ -7,6 +7,7 @@ export { LanguageSwitch } from './language-switch';
 export { Logo, type LogoSize, type LogoVariant } from './logo';
 export { PageHeader } from './page-header';
 export { PageState, type PageStateKind } from './page-state';
+export { paginate, Pager, type PageOptions, type Pages, type PageSize, pageSizes } from './pager';
 export { PublicHero } from './public-hero';
 export { PublicLayout } from './public-layout';
 export { ShellOrganization } from './shell-organization';

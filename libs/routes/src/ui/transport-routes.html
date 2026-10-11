@@ -90,7 +90,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (route of visibleRoutes(); track route.id) {
+          @for (route of pages.items(); track route.id) {
           <tr>
             <td [attr.data-label]="text().list.name">
               <div class="ro-entity">
@@ -177,6 +177,7 @@
         </tbody>
       </table>
     </div>
+    <app-pager [pages]="pages" />
     }
   </section>
   } }

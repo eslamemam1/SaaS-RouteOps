@@ -19,6 +19,8 @@ import {
   PageHeader,
   PageState,
   Tag,
+  paginate,
+  Pager,
   ViewSwitch,
 } from '@routeops/shared/ui';
 import { RouteAccessError } from '../application/route-access-error';
@@ -56,6 +58,7 @@ const noChoices: RouteChoices = { customers: [], vehicles: [], drivers: [] };
     RouteForm,
     RouterLink,
     Tag,
+    Pager,
     ViewSwitch,
   ],
   templateUrl: './transport-routes.html',
@@ -99,6 +102,9 @@ export class TransportRoutes {
       this.choices(),
     ),
   );
+  protected readonly pages = paginate(this.visibleRoutes, {
+    resetOn: () => [this.customerFilter(), this.search()],
+  });
   protected readonly formTitle = computed(() => {
     const form = this.text().form;
     if (this.editing()) {

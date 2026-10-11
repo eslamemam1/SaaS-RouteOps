@@ -11,6 +11,8 @@ import {
   PageHeader,
   PageState,
   Tag,
+  paginate,
+  Pager,
   ViewSwitch,
 } from '@routeops/shared/ui';
 import { CustomerAccessError } from '../application/customer-access-error';
@@ -35,6 +37,7 @@ import { customersText } from './customers-text';
     PageHeader,
     PageState,
     Tag,
+    Pager,
     ViewSwitch,
   ],
   templateUrl: './customers.html',
@@ -53,6 +56,7 @@ export class Customers {
   protected readonly problem = signal<CustomerProblem>('load');
   protected readonly organization = signal<CustomerOrganization | null>(null);
   protected readonly customers = signal<Customer[]>([]);
+  protected readonly pages = paginate(this.customers);
   protected readonly editing = signal<Customer | null>(null);
   protected readonly formOpen = signal(false);
   protected readonly outcome = signal<'added' | 'saved' | null>(null);

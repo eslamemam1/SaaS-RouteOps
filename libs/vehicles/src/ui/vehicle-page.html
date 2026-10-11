@@ -392,7 +392,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (trip of data().trips; track trip.id) {
+          @for (trip of pages.items(); track trip.id) {
           <tr [class.ro-trip-off]="trip.status === 'cancelled'">
             <td [attr.data-label]="text().page.day">
               <bdi class="vehicle-trip-day"
@@ -455,6 +455,7 @@
         </tbody>
       </table>
     </div>
+    <app-pager [pages]="pages" />
     }
   </section>
   } } } } }

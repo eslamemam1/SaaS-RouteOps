@@ -109,7 +109,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (pay of data().pay; track pay.driverId) { @let sum =
+          @for (pay of payPages.items(); track pay.driverId) { @let sum =
           breakdown(pay);
           <tr>
             <td [attr.data-label]="text().pay.driver">
@@ -188,6 +188,7 @@
         </tbody>
       </table>
     </div>
+    <app-pager [pages]="payPages" />
     }
   </section>
 
@@ -221,7 +222,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (rent of data().rent; track rent.vehicleId) {
+          @for (rent of rentPages.items(); track rent.vehicleId) {
           <tr>
             <td [attr.data-label]="text().rent.vehicle">
               <div class="ro-cell-stack">
@@ -260,6 +261,7 @@
         </tbody>
       </table>
     </div>
+    <app-pager [pages]="rentPages" />
     }
   </section>
 
@@ -316,7 +318,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (expense of data().expenses; track expense.id) {
+          @for (expense of expensePages.items(); track expense.id) {
           <tr>
             <td class="ro-numeric" [attr.data-label]="text().list.date">
               <bdi>{{ day(expense.spentOn) }}</bdi>
@@ -354,6 +356,7 @@
         </tbody>
       </table>
     </div>
+    <app-pager [pages]="expensePages" />
     }
   </section>
   } }

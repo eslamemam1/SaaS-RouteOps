@@ -249,7 +249,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (trip of visibleTrips(); track trip.id) {
+          @for (trip of pages.items(); track trip.id) {
           <tr [class.ro-trip-off]="trip.cancelled">
             <td [attr.data-label]="text().day.trip">
               <div class="ro-entity">
@@ -364,6 +364,7 @@
         </tbody>
       </table>
     </div>
+    <app-pager [pages]="pages" />
     }
   </section>
   } }

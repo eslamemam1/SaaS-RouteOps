@@ -1,0 +1,118 @@
+.app-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ro-space-3) var(--ro-space-4);
+  padding: var(--ro-space-3) var(--ro-space-4);
+  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+}
+
+.app-pager[hidden] {
+  display: none;
+}
+
+/* The list a pager turns sits below the sticky top bar when the pager brings it into view. */
+.ro-card:has(> .app-pager) {
+  scroll-margin-block-start: calc(var(--ro-topbar-height) + var(--ro-space-4));
+}
+
+.app-pager-range {
+  margin: 0;
+}
+
+.app-pager-range bdi {
+  color: var(--ro-text-primary);
+  font-weight: var(--ro-font-semibold);
+}
+
+.app-pager-pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-1);
+}
+
+.app-pager-step,
+.app-pager-page {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--ro-touch-target);
+  min-block-size: var(--ro-touch-target);
+  padding-inline: var(--ro-space-2);
+  border: var(--ro-border-width) solid transparent;
+  border-radius: var(--ro-radius-md);
+  background: transparent;
+  color: var(--ro-text-secondary);
+  font: inherit;
+  font-weight: var(--ro-font-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--ro-motion-fast),
+    border-color var(--ro-motion-fast),
+    color var(--ro-motion-fast);
+}
+
+.app-pager-step {
+  border-color: var(--ro-border-default);
+  background: var(--ro-bg-surface);
+}
+
+.app-pager-step ng-icon {
+  font-size: var(--ro-icon-size);
+}
+
+.app-pager-step:hover:not(:disabled),
+.app-pager-page:hover:not([aria-current]) {
+  background: var(--ro-bg-hover);
+  color: var(--ro-text-primary);
+}
+
+.app-pager-step:disabled {
+  opacity: var(--ro-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.app-pager-page[aria-current='page'] {
+  border-color: var(--ro-border-brand-subtle);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-weight: var(--ro-font-semibold);
+}
+
+.app-pager-step:focus-visible,
+.app-pager-page:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-border-focus);
+  outline-offset: var(--ro-focus-width);
+}
+
+.app-pager-gap {
+  min-inline-size: var(--ro-space-6);
+  text-align: center;
+}
+
+.app-pager-size {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+}
+
+.app-pager-size select {
+  inline-size: auto;
+  min-block-size: var(--ro-touch-target);
+  padding-block: 0;
+}
+
+@media (width < 640px) {
+  .app-pager {
+    justify-content: center;
+  }
+
+  .app-pager-range {
+    inline-size: 100%;
+    text-align: center;
+  }
+}

@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
-import { Alert, Button, FormDrawer, Tag } from '@routeops/shared/ui';
+import { Alert, Button, FormDrawer, paginate, Pager, Tag } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
 import { CompanyAccount, CompanyLogin } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
@@ -10,7 +10,7 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-company-accounts',
-  imports: [Alert, Button, FormDrawer, LoginPassword, Tag],
+  imports: [Alert, Button, FormDrawer, LoginPassword, Pager, Tag],
   templateUrl: './company-accounts.html',
 })
 export class CompanyAccounts {
@@ -23,6 +23,7 @@ export class CompanyAccounts {
   );
   protected readonly problem = signal<CompanyAccountProblem>('load');
   protected readonly accounts = signal<CompanyAccount[]>([]);
+  protected readonly pages = paginate(this.accounts);
   protected readonly saving = signal<string | null>(null);
   protected readonly changed = signal<{ name: string; isActive: boolean } | null>(
     null,

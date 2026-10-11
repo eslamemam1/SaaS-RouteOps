@@ -18,6 +18,15 @@ export interface UiText {
     readonly table: string;
     readonly cards: string;
   };
+  readonly pager: {
+    readonly label: string;
+    readonly showing: string;
+    readonly of: string;
+    readonly previous: string;
+    readonly next: string;
+    readonly page: string;
+    readonly perPage: string;
+  };
 }
 
 export const uiText: Record<Language, UiText> = {
@@ -39,6 +48,15 @@ export const uiText: Record<Language, UiText> = {
       table: 'جدول',
       cards: 'بطاقات',
     },
+    pager: {
+      label: 'صفحات القائمة',
+      showing: 'عرض',
+      of: 'من',
+      previous: 'الصفحة السابقة',
+      next: 'الصفحة التالية',
+      page: 'صفحة',
+      perPage: 'عدد الصفوف في الصفحة',
+    },
   },
   en: {
     optional: '(optional)',
@@ -57,6 +75,15 @@ export const uiText: Record<Language, UiText> = {
       label: 'View',
       table: 'Table',
       cards: 'Cards',
+    },
+    pager: {
+      label: 'List pages',
+      showing: 'Showing',
+      of: 'of',
+      previous: 'Previous page',
+      next: 'Next page',
+      page: 'Page',
+      perPage: 'Rows per page',
     },
   },
 };

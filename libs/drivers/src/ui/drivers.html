@@ -50,7 +50,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (driver of drivers(); track driver.id) {
+          @for (driver of pages.items(); track driver.id) {
           <tr>
             <td [attr.data-label]="text().list.fullName">
               <div class="ro-entity">
@@ -105,6 +105,7 @@
         </tbody>
       </table>
     </div>
+    <app-pager [pages]="pages" />
   </section>
   } }
 </div>
