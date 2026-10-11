@@ -1,6 +1,10 @@
 import { Currency } from '@routeops/shared/money';
 import { Dashboard } from '../domain/dashboard';
 import { CompanyAccount, Organization } from '../domain/organization';
+import {
+  PaymentDetails,
+  SubscriptionPayment,
+} from '../domain/subscription-payment';
 
 export interface ProvisionCompany {
   readonly organizationName: string;
@@ -23,5 +27,12 @@ export abstract class OrganizationRepository {
     isActive: boolean,
   ): Promise<void>;
   abstract provisionCompany(input: ProvisionCompany): Promise<void>;
+  abstract setLoginPassword(loginId: string, password: string): Promise<void>;
+  abstract listSubscriptionPayments(): Promise<SubscriptionPayment[]>;
+  abstract recordSubscriptionPayment(
+    account: CompanyAccount,
+    details: PaymentDetails,
+  ): Promise<SubscriptionPayment>;
+  abstract removeSubscriptionPayment(paymentId: string): Promise<void>;
   abstract dashboard(organizationId: string, today: string): Promise<Dashboard>;
 }

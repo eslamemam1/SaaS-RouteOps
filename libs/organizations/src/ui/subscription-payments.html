@@ -1,0 +1,186 @@
+<section class="ro-card" aria-labelledby="payments-title">
+  <div class="ro-card-header">
+    <h2 id="payments-title" class="ro-card-title">{{ text().payments.title }}</h2>
+    <p class="hint">{{ text().payments.hint }}</p>
+  </div>
+
+  @switch (status()) {
+    @case ('loading') {
+      <div class="ro-card-body">
+        <p class="hint" role="status">{{ text().payments.loading }}</p>
+      </div>
+    }
+    @case ('error') {
+      <div class="ro-card-body">
+        <app-alert tone="danger">{{ text().payments.problems.load }}</app-alert>
+        <div class="ro-toolbar">
+          <button appButton="secondary" type="button" (click)="reload()">
+            {{ text().payments.retry }}
+          </button>
+        </div>
+      </div>
+    }
+    @case ('ready') {
+      <div class="ro-card-body">
+        @if (accounts().length === 0) {
+          <p class="hint">{{ text().payments.noCompanies }}</p>
+        } @else {
+          <div class="ro-toolbar">
+            <div class="ro-toolbar ro-date-nav">
+              <button appButton="secondary" type="button" (click)="moveMonth(-1)">
+                {{ text().payments.previous }}
+              </button>
+              <app-field [label]="text().payments.month">
+                <input
+                  type="month"
+                  dir="ltr"
+                  [value]="month()"
+                  (change)="chooseMonth($any($event.target).value)"
+                />
+              </app-field>
+              <button appButton="secondary" type="button" (click)="moveMonth(1)">
+                {{ text().payments.next }}
+              </button>
+              @if (month() !== thisMonth) {
+                <button appButton="text" type="button" (click)="chooseMonth(thisMonth)">
+                  {{ text().payments.thisMonth }}
+                </button>
+              }
+            </div>
+            <button appButton type="button" (click)="add()">
+              <ng-icon [svg]="addIcon" aria-hidden="true" />
+              {{ text().payments.add }}
+            </button>
+          </div>
+
+          @if (outcome(); as done) {
+            <app-alert tone="success" [dismissible]="true" (dismissed)="outcome.set(null)">
+              {{ text().payments[done] }}
+            </app-alert>
+          }
+          @if (problem(); as current) {
+            <app-alert tone="danger">{{ text().payments.problems[current] }}</app-alert>
+          }
+
+          <div class="ro-stats">
+            @for (total of monthTotals(); track total.currency) {
+              <div class="ro-stat ro-stat-success ro-card">
+                <span class="ro-stat-label">{{ text().payments.monthTotal }}</span>
+                <strong class="ro-stat-value ro-numeric"><bdi>{{ money(total) }}</bdi></strong>
+              </div>
+            }
+            <div class="ro-stat ro-card">
+              <span class="ro-stat-label">{{ text().payments.monthCount }}</span>
+              <strong class="ro-stat-value ro-numeric">{{ monthPayments().length }}</strong>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (accounts().length > 0) {
+        @if (monthPayments().length === 0) {
+          <div class="ro-card-body">
+            <p class="hint">
+              {{ payments().length === 0 ? text().payments.empty : text().payments.noMonthPayments }}
+            </p>
+          </div>
+        } @else {
+          <div class="ro-table-scroll">
+            <table class="ro-table-stack payments-month" [attr.aria-label]="monthName(month())">
+              <thead>
+                <tr>
+                  <th>{{ text().payments.company }}</th>
+                  <th>{{ text().payments.paidOn }}</th>
+                  <th>{{ text().payments.amount }}</th>
+                  <th>{{ text().payments.note }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (payment of monthPayments(); track payment.id) {
+                  <tr>
+                    <td [attr.data-label]="text().payments.company">
+                      <strong><bdi>{{ companyName(payment.organizationId) }}</bdi></strong>
+                    </td>
+                    <td [attr.data-label]="text().payments.paidOn">{{ date(payment.paidOn) }}</td>
+                    <td class="ro-numeric" [attr.data-label]="text().payments.amount">
+                      <bdi>{{ amount(payment.organizationId, payment.amount) }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().payments.note">
+                      @if (payment.note) {
+                        <bdi>{{ payment.note }}</bdi>
+                      } @else {
+                        <span class="hint">—</span>
+                      }
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        size="sm"
+                        [appButton]="confirming() === payment.id ? 'danger' : 'text'"
+                        [disabled]="removing() !== null"
+                        (click)="remove(payment)"
+                      >
+                        {{ confirming() === payment.id ? text().payments.confirmRemove : text().payments.remove }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        @if (companies().length > 0) {
+          <div class="ro-card-header">
+            <h3 class="ro-card-title">{{ text().payments.companiesTitle }}</h3>
+            <p class="hint">{{ text().payments.companiesHint }}</p>
+          </div>
+          <div class="ro-table-scroll">
+            <table class="ro-table-stack payments-companies">
+              <thead>
+                <tr>
+                  <th>{{ text().payments.company }}</th>
+                  <th>{{ text().payments.total }}</th>
+                  <th>{{ text().payments.count }}</th>
+                  <th>{{ text().payments.lastPaidOn }}</th>
+                  <th>{{ text().payments.lastMonth }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (company of companies(); track company.organizationId) {
+                  <tr>
+                    <td [attr.data-label]="text().payments.company">
+                      <strong><bdi>{{ company.name }}</bdi></strong>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().payments.total">
+                      <bdi>{{ money(company) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().payments.count">{{ company.count }}</td>
+                    <td [attr.data-label]="text().payments.lastPaidOn">{{ date(company.lastPaidOn) }}</td>
+                    <td [attr.data-label]="text().payments.lastMonth">{{ monthName(company.lastMonth) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    }
+  }
+</section>
+
+<app-form-drawer
+  [title]="text().payments.formTitle"
+  [open]="formOpen()"
+  (openChange)="formOpen.set($event)"
+>
+  @if (formOpen()) {
+    <app-payment-form
+      [accounts]="accounts()"
+      [details]="formDetails()"
+      (saved)="recorded($event)"
+      (cancelled)="formOpen.set(false)"
+    />
+  }
+</app-form-drawer>

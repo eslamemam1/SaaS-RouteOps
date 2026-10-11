@@ -1,0 +1,49 @@
+<form class="ro-form" (submit)="onSubmit($event)">
+  <app-field [label]="text().payments.company" [control]="paymentForm.organizationId">
+    <select [formField]="paymentForm.organizationId">
+      <option value="">{{ text().payments.chooseCompany }}</option>
+      @for (account of accounts(); track account.id) {
+        <option [value]="account.id">{{ account.name }}</option>
+      }
+    </select>
+  </app-field>
+  <app-field [label]="text().payments.paidOn" [control]="paymentForm.paidOn">
+    <input type="date" dir="ltr" [formField]="paymentForm.paidOn" />
+  </app-field>
+  <app-field
+    [label]="text().payments.coversMonth"
+    [hint]="text().payments.coversMonthHint"
+    [control]="paymentForm.coversMonth"
+  >
+    <input type="month" dir="ltr" [formField]="paymentForm.coversMonth" />
+  </app-field>
+  <app-field
+    [label]="text().payments.amount"
+    [hint]="text().payments.amountHint"
+    [control]="paymentForm.amount"
+  >
+    <input type="text" inputmode="decimal" dir="ltr" [formField]="paymentForm.amount" />
+    @if (account(); as chosen) {
+      <span class="hint">{{ text().currencies[chosen.currency] }}</span>
+    }
+  </app-field>
+  <app-field
+    [label]="text().payments.note"
+    [hint]="text().payments.noteHint"
+    [optional]="true"
+    [control]="paymentForm.note"
+  >
+    <textarea [formField]="paymentForm.note"></textarea>
+  </app-field>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().payments.problems[current] }}</app-alert>
+  }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="busy()">
+      {{ text().payments.submit }}
+    </button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().payments.cancel }}
+    </button>
+  </div>
+</form>

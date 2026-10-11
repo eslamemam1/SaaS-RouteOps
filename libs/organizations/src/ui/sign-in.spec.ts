@@ -65,6 +65,12 @@ async function render(overrides: Partial<OrganizationRepository>) {
     listCompanyAccounts: async () => [],
     setCompanyActive: async () => undefined,
     provisionCompany: async () => undefined,
+    setLoginPassword: async () => undefined,
+    listSubscriptionPayments: async () => [],
+    recordSubscriptionPayment: async () => {
+      throw new Error('not used');
+    },
+    removeSubscriptionPayment: async () => undefined,
     dashboard: async () => {
       throw new Error('not used');
     },

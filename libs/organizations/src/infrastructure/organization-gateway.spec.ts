@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { OrganizationAccessError } from '../application/organization-access-error';
+import { SubscriptionPaymentError } from '../application/subscription-payment-error';
 import { Database } from './database';
 import { SupabaseOrganizationGateway } from './organization-gateway';
 
@@ -67,6 +68,7 @@ describe('SupabaseOrganizationGateway', () => {
               currency: 'SAR',
               is_active: true,
               created_at: '2026-10-01T09:00:00Z',
+              login_ids: ['login-gulf'],
               login_emails: ['gulf@example.com'],
               last_sign_in_at: null,
             },
@@ -76,6 +78,7 @@ describe('SupabaseOrganizationGateway', () => {
               currency: 'XYZ',
               is_active: false,
               created_at: '2026-01-01T09:00:00Z',
+              login_ids: [],
               login_emails: [],
               last_sign_in_at: '2026-02-01T09:00:00Z',
             },
@@ -92,7 +95,7 @@ describe('SupabaseOrganizationGateway', () => {
         name: 'Gulf',
         currency: 'SAR',
         isActive: true,
-        logins: ['gulf@example.com'],
+        logins: [{ id: 'login-gulf', email: 'gulf@example.com' }],
         createdAt: '2026-10-01T09:00:00Z',
         lastSignInAt: null,
       },
@@ -276,4 +279,141 @@ function fakeClient(handlers: {
       );
     },
   } as unknown as SupabaseClient<Database>;
+}
+
+describe('SupabaseOrganizationGateway subscription payments', () => {
+  const row = {
+    id: 'payment-1',
+    organization_id: 'org-gulf',
+    paid_on: '2026-10-03',
+    covers_month: '2026-10-01',
+    amount: 150000,
+    note: null,
+  };
+
+  it('reads each payment with the month it covers', async () => {
+    const gateway = new SupabaseOrganizationGateway(
+      paymentClient({ list: { data: [row], error: null } }).client,
+    );
+
+    await expect(gateway.subscriptionPayments()).resolves.toEqual([
+      {
+        id: 'payment-1',
+        organizationId: 'org-gulf',
+        paidOn: '2026-10-03',
+        coversMonth: '2026-10',
+        amount: 150000,
+        note: '',
+      },
+    ]);
+  });
+
+  it('stores the month as its first day and a blank note as none', async () => {
+    const fake = paymentClient({ inserted: { data: row, error: null } });
+    const gateway = new SupabaseOrganizationGateway(fake.client);
+
+    await gateway.insertSubscriptionPayment({
+      organizationId: 'org-gulf',
+      paidOn: '2026-10-03',
+      coversMonth: '2026-10',
+      amount: 150000,
+      note: '   ',
+    });
+
+    expect(fake.inserts).toEqual([
+      {
+        organization_id: 'org-gulf',
+        paid_on: '2026-10-03',
+        covers_month: '2026-10-01',
+        amount: 150000,
+        note: null,
+      },
+    ]);
+  });
+
+  it('reports a payment it could not delete, such as one already gone', async () => {
+    const gateway = new SupabaseOrganizationGateway(
+      paymentClient({ deleted: { data: [], error: null } }).client,
+    );
+
+    await expect(gateway.deleteSubscriptionPayment('payment-1')).rejects.toEqual(
+      new SubscriptionPaymentError('remove'),
+    );
+  });
+
+  it('replaces a database error with a safe code', async () => {
+    const gateway = new SupabaseOrganizationGateway(
+      paymentClient({ list: { data: null, error: { message: 'permission denied' } } }).client,
+    );
+
+    await expect(gateway.subscriptionPayments()).rejects.toEqual(
+      new SubscriptionPaymentError('load'),
+    );
+  });
+
+  it('asks the server to set a login password and keeps its error code', async () => {
+    const fake = paymentClient({
+      invoked: {
+        error: { context: new Response(JSON.stringify({ error: 'login' }), { status: 400 }) },
+      },
+    });
+    const gateway = new SupabaseOrganizationGateway(fake.client);
+
+    await expect(gateway.setLoginPassword('login-gulf', 'secret1')).rejects.toEqual(
+      new OrganizationAccessError('login'),
+    );
+    expect(fake.invocations).toEqual([
+      { name: 'set-company-password', body: { loginId: 'login-gulf', password: 'secret1' } },
+    ]);
+  });
+
+  it('falls back to a general password problem when the server says nothing', async () => {
+    const gateway = new SupabaseOrganizationGateway(
+      paymentClient({ invoked: { error: new Error('network') } }).client,
+    );
+
+    await expect(gateway.setLoginPassword('login-gulf', 'secret1')).rejects.toEqual(
+      new OrganizationAccessError('passwordChange'),
+    );
+  });
+});
+
+type Result = { data: unknown; error: { message: string } | null };
+
+function paymentClient(results: {
+  list?: Result;
+  inserted?: Result;
+  deleted?: Result;
+  invoked?: { error: unknown };
+}) {
+  const inserts: unknown[] = [];
+  const invocations: { name: string; body: unknown }[] = [];
+  const empty: Result = { data: [], error: null };
+  const client = {
+    from() {
+      return {
+        select() {
+          return { order: () => Promise.resolve(results.list ?? empty) };
+        },
+        insert(values: unknown) {
+          inserts.push(values);
+          return {
+            select: () => ({ single: () => Promise.resolve(results.inserted ?? empty) }),
+          };
+        },
+        delete() {
+          return {
+            eq: () => ({ select: () => Promise.resolve(results.deleted ?? empty) }),
+          };
+        },
+      };
+    },
+    functions: {
+      invoke(name: string, options: { body: unknown }) {
+        invocations.push({ name, body: options.body });
+        return Promise.resolve({ data: null, error: results.invoked?.error ?? null });
+      },
+    },
+  } as unknown as SupabaseClient<Database>;
+  return { client, inserts, invocations };
 }

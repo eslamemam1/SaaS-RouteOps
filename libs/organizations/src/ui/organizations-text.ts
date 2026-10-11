@@ -1,6 +1,7 @@
 import { Language } from '@routeops/shared/i18n';
 import { Currency } from '@routeops/shared/money';
 import { CompanyAccountProblem } from '../domain/company-account';
+import { SubscriptionPaymentProblem } from '../domain/subscription-payment';
 
 export interface OrganizationsText {
   readonly problems: Record<CompanyAccountProblem, string>;
@@ -93,6 +94,56 @@ export interface OrganizationsText {
     readonly lastSignIn: string;
     readonly noLogin: string;
     readonly neverSignedIn: string;
+    readonly changePassword: string;
+  };
+  readonly password: {
+    readonly title: string;
+    readonly hint: string;
+    readonly login: string;
+    readonly password: string;
+    readonly passwordHint: string;
+    readonly submit: string;
+    readonly cancel: string;
+    readonly changed: string;
+  };
+  readonly payments: {
+    readonly title: string;
+    readonly hint: string;
+    readonly add: string;
+    readonly month: string;
+    readonly previous: string;
+    readonly next: string;
+    readonly thisMonth: string;
+    readonly monthTotal: string;
+    readonly monthCount: string;
+    readonly noMonthPayments: string;
+    readonly company: string;
+    readonly chooseCompany: string;
+    readonly paidOn: string;
+    readonly coversMonth: string;
+    readonly coversMonthHint: string;
+    readonly amount: string;
+    readonly amountHint: string;
+    readonly note: string;
+    readonly noteHint: string;
+    readonly remove: string;
+    readonly confirmRemove: string;
+    readonly recorded: string;
+    readonly removed: string;
+    readonly companiesTitle: string;
+    readonly companiesHint: string;
+    readonly total: string;
+    readonly count: string;
+    readonly lastPaidOn: string;
+    readonly lastMonth: string;
+    readonly loading: string;
+    readonly empty: string;
+    readonly noCompanies: string;
+    readonly retry: string;
+    readonly formTitle: string;
+    readonly submit: string;
+    readonly cancel: string;
+    readonly problems: Record<SubscriptionPaymentProblem, string>;
   };
   readonly signOut: {
     readonly busy: string;
@@ -131,6 +182,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       create: 'تعذّر إنشاء الشركة. حاول مرة أخرى.',
       signedOut: 'سجّل الدخول للمتابعة.',
       notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
+      login: 'لا يمكن تغيير كلمة مرور هذا الحساب من هنا.',
+      passwordChange: 'تعذّر تغيير كلمة المرور. حاول مرة أخرى.',
     },
     currencies: {
       EGP: 'جنيه مصري',
@@ -235,6 +288,65 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       lastSignIn: 'آخر دخول',
       noLogin: 'لا يوجد حساب دخول',
       neverSignedIn: 'لم تدخل بعد',
+      changePassword: 'تغيير كلمة المرور',
+    },
+    password: {
+      title: 'كلمة مرور جديدة',
+      hint: 'استخدمها إذا نسيت الشركة كلمة المرور. تحلّ الكلمة الجديدة محل القديمة فورًا، ثم أبلغ الشركة بها.',
+      login: 'البريد الإلكتروني للدخول',
+      password: 'كلمة المرور الجديدة',
+      passwordHint: '6 أحرف أو أرقام على الأقل.',
+      submit: 'حفظ كلمة المرور',
+      cancel: 'إلغاء',
+      changed: 'تم تغيير كلمة المرور. أبلغ الشركة بها لتدخل بها من الآن:',
+    },
+    payments: {
+      title: 'مدفوعات الاشتراكات',
+      hint: 'سجّل كل اشتراك تدفعه شركة بعد أن يصلك المبلغ، لتعرف ما دفعته كل شركة وما وصلك كل شهر. يُكتب كل مبلغ بعملة الشركة.',
+      add: 'تسجيل دفعة',
+      month: 'الشهر',
+      previous: 'الشهر السابق',
+      next: 'الشهر التالي',
+      thisMonth: 'هذا الشهر',
+      monthTotal: 'إجمالي ما وصلك عن هذا الشهر',
+      monthCount: 'عدد الدفعات',
+      noMonthPayments: 'لا توجد دفعات مسجّلة عن هذا الشهر.',
+      company: 'شركة النقل',
+      chooseCompany: 'اختر الشركة',
+      paidOn: 'تاريخ الدفع',
+      coversMonth: 'عن شهر',
+      coversMonthHint: 'الشهر الذي يغطيه هذا الاشتراك.',
+      amount: 'المبلغ',
+      amountHint: 'بعملة الشركة، مثل 1500 أو 1500.50',
+      note: 'ملاحظة',
+      noteHint: 'مثل طريقة الدفع أو رقم التحويل.',
+      remove: 'حذف',
+      confirmRemove: 'اضغط مرة أخرى لتأكيد الحذف',
+      recorded: 'تم تسجيل الدفعة.',
+      removed: 'تم حذف الدفعة.',
+      companiesTitle: 'ما دفعته كل شركة',
+      companiesHint: 'كل ما سجّلته لكل شركة منذ البداية.',
+      total: 'الإجمالي',
+      count: 'عدد الدفعات',
+      lastPaidOn: 'آخر دفعة',
+      lastMonth: 'آخر شهر مدفوع',
+      loading: 'جارٍ تحميل المدفوعات...',
+      empty: 'لم تُسجّل أي دفعة بعد. سجّل أول دفعة عندما تدفع شركة اشتراكها.',
+      noCompanies: 'أنشئ حساب شركة أولًا لتسجّل مدفوعاتها.',
+      retry: 'حاول مرة أخرى',
+      formTitle: 'تسجيل دفعة اشتراك',
+      submit: 'تسجيل الدفعة',
+      cancel: 'إلغاء',
+      problems: {
+        company: 'اختر الشركة التي دفعت.',
+        paidOn: 'أدخل تاريخ الدفع.',
+        coversMonth: 'اختر الشهر الذي يغطيه الاشتراك.',
+        amount: 'أدخل مبلغًا أكبر من صفر بعملة الشركة.',
+        noteLength: 'الملاحظة أطول من 500 حرف.',
+        load: 'تعذّر تحميل المدفوعات. حاول مرة أخرى.',
+        save: 'تعذّر تسجيل الدفعة. حاول مرة أخرى.',
+        remove: 'تعذّر حذف الدفعة. حاول مرة أخرى.',
+      },
     },
     signOut: {
       busy: 'جارٍ تسجيل الخروج...',
@@ -272,6 +384,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       create: 'Could not create the company. Please try again.',
       signedOut: 'Sign in to continue.',
       notConnected: 'The app is not connected to the database.',
+      login: "This login's password cannot be changed from here.",
+      passwordChange: 'Could not change the password. Please try again.',
     },
     currencies: {
       EGP: 'Egyptian pound',
@@ -378,6 +492,65 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       lastSignIn: 'Last sign-in',
       noLogin: 'No sign-in account',
       neverSignedIn: 'Not signed in yet',
+      changePassword: 'Change password',
+    },
+    password: {
+      title: 'New password',
+      hint: 'Use this when a company forgets its password. The new password replaces the old one at once; then tell the company.',
+      login: 'Sign-in email',
+      password: 'New password',
+      passwordHint: 'At least 6 letters or numbers.',
+      submit: 'Save password',
+      cancel: 'Cancel',
+      changed: 'The password was changed. Tell the company so it can sign in with it from now on:',
+    },
+    payments: {
+      title: 'Subscription payments',
+      hint: 'Record each subscription a company pays once the money reaches you, to know what each company paid and what came in each month. Every amount is in the company’s currency.',
+      add: 'Record a payment',
+      month: 'Month',
+      previous: 'Previous month',
+      next: 'Next month',
+      thisMonth: 'This month',
+      monthTotal: 'Received for this month',
+      monthCount: 'Payments',
+      noMonthPayments: 'No payments are recorded for this month.',
+      company: 'Transport company',
+      chooseCompany: 'Choose the company',
+      paidOn: 'Paid on',
+      coversMonth: 'For month',
+      coversMonthHint: 'The month this subscription covers.',
+      amount: 'Amount',
+      amountHint: 'In the company’s currency, like 1500 or 1500.50',
+      note: 'Note',
+      noteHint: 'Such as how it was paid or the transfer number.',
+      remove: 'Delete',
+      confirmRemove: 'Press again to confirm',
+      recorded: 'The payment was recorded.',
+      removed: 'The payment was deleted.',
+      companiesTitle: 'What each company paid',
+      companiesHint: 'Everything you recorded for each company since the start.',
+      total: 'Total',
+      count: 'Payments',
+      lastPaidOn: 'Last payment',
+      lastMonth: 'Last month paid',
+      loading: 'Loading payments...',
+      empty: 'No payment is recorded yet. Record the first one when a company pays its subscription.',
+      noCompanies: 'Create a company account first to record its payments.',
+      retry: 'Try again',
+      formTitle: 'Record a subscription payment',
+      submit: 'Record payment',
+      cancel: 'Cancel',
+      problems: {
+        company: 'Choose the company that paid.',
+        paidOn: 'Enter the payment date.',
+        coversMonth: 'Choose the month the subscription covers.',
+        amount: 'Enter an amount above zero in the company’s currency.',
+        noteLength: 'The note is longer than 500 characters.',
+        load: 'Could not load the payments. Please try again.',
+        save: 'Could not record the payment. Please try again.',
+        remove: 'Could not delete the payment. Please try again.',
+      },
     },
     signOut: {
       busy: 'Signing out...',

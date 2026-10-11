@@ -25,6 +25,25 @@ export interface Database {
         Update: { user_id?: string };
         Relationships: [];
       };
+      subscription_payments: {
+        Row: {
+          id: string;
+          organization_id: string;
+          paid_on: string;
+          covers_month: string;
+          amount: number;
+          note: string | null;
+        };
+        Insert: {
+          organization_id: string;
+          paid_on: string;
+          covers_month: string;
+          amount: number;
+          note: string | null;
+        };
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -36,6 +55,7 @@ export interface Database {
           currency: string;
           is_active: boolean;
           created_at: string;
+          login_ids: string[];
           login_emails: string[];
           last_sign_in_at: string | null;
         }[];

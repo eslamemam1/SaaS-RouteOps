@@ -1,5 +1,6 @@
 .home {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--ro-space-16);
   padding-block-end: var(--ro-space-16);
 }

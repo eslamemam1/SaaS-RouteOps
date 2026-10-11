@@ -32,6 +32,12 @@ select results_eq(
   'the operator sees every company, newest first, with its logins and last sign-in'
 );
 
+select results_eq(
+  $$select login_ids from public.operator_accounts() where organization_name = 'North Transport'$$,
+  $$values ('{a0000000-0000-0000-0000-000000000001}'::uuid[])$$,
+  'each login comes with its id, so the operator can set its password'
+);
+
 -- Signed in as the North login.
 set local request.jwt.claims = '{"sub": "a0000000-0000-0000-0000-000000000001", "role": "authenticated"}';
 

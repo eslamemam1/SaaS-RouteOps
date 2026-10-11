@@ -300,3 +300,32 @@
     display: none;
   }
 }
+
+@media (width < 420px) {
+  .home-window-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-window-rail {
+    display: none;
+  }
+
+  .home-window-main {
+    padding: var(--ro-space-3);
+  }
+
+  .home-window-stats span {
+    padding: var(--ro-space-2);
+  }
+
+  .home-window-trips li {
+    gap: var(--ro-space-2);
+    padding: var(--ro-space-2);
+  }
+
+  .home-window-route small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

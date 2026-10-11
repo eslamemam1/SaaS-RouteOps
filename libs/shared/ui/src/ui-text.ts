@@ -8,6 +8,8 @@ export interface UiText {
     readonly home: string;
     readonly contact: string;
     readonly signIn: string;
+    readonly openMenu: string;
+    readonly closeMenu: string;
     readonly tagline: string;
   };
 }
@@ -21,6 +23,8 @@ export const uiText: Record<Language, UiText> = {
       home: 'الرئيسية',
       contact: 'تواصل معنا',
       signIn: 'تسجيل الدخول',
+      openMenu: 'فتح القائمة',
+      closeMenu: 'إغلاق القائمة',
       tagline: 'نظام لإدارة نقل الموظفين لشركات النقل.',
     },
   },
@@ -32,6 +36,8 @@ export const uiText: Record<Language, UiText> = {
       home: 'Home',
       contact: 'Contact us',
       signIn: 'Sign in',
+      openMenu: 'Open menu',
+      closeMenu: 'Close menu',
       tagline: 'Staff transport management for transport companies.',
     },
   },

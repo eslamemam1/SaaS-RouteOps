@@ -21,6 +21,7 @@ import { OrganizationRepository } from '../application/organization-repository';
 import { CompanyAccounts } from './company-accounts';
 import { organizationsText } from './organizations-text';
 import { ProvisionCompanyForm } from './provision-company';
+import { SubscriptionPayments } from './subscription-payments';
 
 const sections = [
   { path: 'operations', hint: 'operationsHint', icon: lucideCalendarDays },
@@ -50,6 +51,7 @@ const attentionItems = [
     PageState,
     ProvisionCompanyForm,
     RouterLink,
+    SubscriptionPayments,
     Tag,
   ],
   templateUrl: './organizations.html',
@@ -91,6 +93,7 @@ export class Organizations {
     dateFormat(this.language(), { month: 'long', year: 'numeric' }).format(noon(this.today)),
   );
   private readonly accounts = viewChild(CompanyAccounts);
+  private readonly payments = viewChild(SubscriptionPayments);
   protected readonly headerTitle = computed(() => {
     const active = this.active();
     const home = this.text().home;
@@ -132,7 +135,11 @@ export class Organizations {
   }
 
   protected async reload(): Promise<void> {
-    await Promise.all([this.load(), this.accounts()?.reload()]);
+    await Promise.all([
+      this.load(),
+      this.accounts()?.reload(),
+      this.payments()?.reload(),
+    ]);
   }
 
   private async load(): Promise<void> {

@@ -1,15 +1,16 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
-import { Alert, Button, Tag } from '@routeops/shared/ui';
+import { Alert, Button, FormDrawer, Tag } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
-import { CompanyAccount } from '../domain/organization';
+import { CompanyAccount, CompanyLogin } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
+import { LoginPassword } from './login-password';
 import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-company-accounts',
-  imports: [Alert, Button, Tag],
+  imports: [Alert, Button, FormDrawer, LoginPassword, Tag],
   templateUrl: './company-accounts.html',
 })
 export class CompanyAccounts {
@@ -27,6 +28,8 @@ export class CompanyAccounts {
     null,
   );
   protected readonly changeProblem = signal<CompanyAccountProblem | null>(null);
+  protected readonly passwordLogin = signal<CompanyLogin | null>(null);
+  protected readonly passwordChanged = signal<string | null>(null);
   private readonly dateFormat = computed(
     () =>
       new Intl.DateTimeFormat(
@@ -73,6 +76,22 @@ export class CompanyAccounts {
     } finally {
       this.saving.set(null);
     }
+  }
+
+  protected changePassword(login: CompanyLogin): void {
+    this.passwordChanged.set(null);
+    this.passwordLogin.set(login);
+  }
+
+  protected onPasswordDrawer(open: boolean): void {
+    if (!open) {
+      this.passwordLogin.set(null);
+    }
+  }
+
+  protected passwordSaved(login: CompanyLogin): void {
+    this.passwordLogin.set(null);
+    this.passwordChanged.set(login.email);
   }
 
   protected date(value: string): string {

@@ -53,6 +53,12 @@ async function render(signOut: () => Promise<void>) {
     listCompanyAccounts: async () => [],
     setCompanyActive: async () => undefined,
     provisionCompany: async () => undefined,
+    setLoginPassword: async () => undefined,
+    listSubscriptionPayments: async () => [],
+    recordSubscriptionPayment: async () => {
+      throw new Error('not used');
+    },
+    removeSubscriptionPayment: async () => undefined,
     dashboard: async () => {
       throw new Error('not used');
     },

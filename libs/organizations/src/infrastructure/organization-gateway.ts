@@ -6,9 +6,24 @@ import {
 import { defaultCurrency, isCurrency } from '@routeops/shared/money';
 import { DashboardFacts, DateRange } from '../domain/dashboard';
 import { CompanyAccount, Organization } from '../domain/organization';
+import { SubscriptionPayment } from '../domain/subscription-payment';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { ProvisionCompany } from '../application/organization-repository';
+import { SubscriptionPaymentError } from '../application/subscription-payment-error';
 import { Database } from './database';
+
+// amount is in the smallest unit of the company's currency, and coversMonth
+// is a month such as "2026-10".
+export interface NewSubscriptionPayment {
+  readonly organizationId: string;
+  readonly paidOn: string;
+  readonly coversMonth: string;
+  readonly amount: number;
+  readonly note: string;
+}
+
+type PaymentRow = Database['public']['Tables']['subscription_payments']['Row'];
+const paymentColumns = 'id, organization_id, paid_on, covers_month, amount, note';
 
 export interface OrganizationGateway {
   isConfigured(): boolean;
@@ -21,6 +36,12 @@ export interface OrganizationGateway {
   signIn(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
   provision(input: ProvisionCompany): Promise<void>;
+  setLoginPassword(loginId: string, password: string): Promise<void>;
+  subscriptionPayments(): Promise<SubscriptionPayment[]>;
+  insertSubscriptionPayment(
+    payment: NewSubscriptionPayment,
+  ): Promise<SubscriptionPayment>;
+  deleteSubscriptionPayment(paymentId: string): Promise<void>;
   dashboardFacts(
     organizationId: string,
     month: DateRange,
@@ -92,7 +113,10 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       name: row.organization_name,
       currency: isCurrency(row.currency) ? row.currency : defaultCurrency,
       isActive: row.is_active,
-      logins: row.login_emails ?? [],
+      logins: (row.login_emails ?? []).map((email, index) => ({
+        id: row.login_ids?.[index] ?? '',
+        email,
+      })),
       createdAt: row.created_at,
       lastSignInAt: row.last_sign_in_at,
     }));
@@ -141,7 +165,61 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
       },
     );
     if (error) {
-      throw new OrganizationAccessError(await safeFunctionProblem(error));
+      throw new OrganizationAccessError(await safeFunctionProblem(error, 'create'));
+    }
+  }
+
+  async setLoginPassword(loginId: string, password: string): Promise<void> {
+    const { error } = await this.requireClient().functions.invoke(
+      'set-company-password',
+      { body: { loginId, password } },
+    );
+    if (error) {
+      throw new OrganizationAccessError(
+        await safeFunctionProblem(error, 'passwordChange'),
+      );
+    }
+  }
+
+  async subscriptionPayments(): Promise<SubscriptionPayment[]> {
+    const { data, error } = await this.paymentClient()
+      .from('subscription_payments')
+      .select(paymentColumns)
+      .order('paid_on', { ascending: false });
+    if (error) {
+      throw new SubscriptionPaymentError('load');
+    }
+    return (data ?? []).map(toPayment);
+  }
+
+  async insertSubscriptionPayment(
+    payment: NewSubscriptionPayment,
+  ): Promise<SubscriptionPayment> {
+    const { data, error } = await this.paymentClient()
+      .from('subscription_payments')
+      .insert({
+        organization_id: payment.organizationId,
+        paid_on: payment.paidOn,
+        covers_month: `${payment.coversMonth}-01`,
+        amount: payment.amount,
+        note: payment.note.trim() || null,
+      })
+      .select(paymentColumns)
+      .single();
+    if (error || !data) {
+      throw new SubscriptionPaymentError('save');
+    }
+    return toPayment(data);
+  }
+
+  async deleteSubscriptionPayment(paymentId: string): Promise<void> {
+    const { data, error } = await this.paymentClient()
+      .from('subscription_payments')
+      .delete()
+      .eq('id', paymentId)
+      .select('id');
+    if (error || (data ?? []).length === 0) {
+      throw new SubscriptionPaymentError('remove');
     }
   }
 
@@ -214,6 +292,13 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
     };
   }
 
+  private paymentClient(): SupabaseClient<Database> {
+    if (!this.client) {
+      throw new SubscriptionPaymentError('load');
+    }
+    return this.client;
+  }
+
   private requireClient(): SupabaseClient<Database> {
     if (!this.client) {
       throw new OrganizationAccessError('notConnected');
@@ -222,8 +307,20 @@ export class SupabaseOrganizationGateway implements OrganizationGateway {
   }
 }
 
+function toPayment(row: PaymentRow): SubscriptionPayment {
+  return {
+    id: row.id,
+    organizationId: row.organization_id,
+    paidOn: row.paid_on,
+    coversMonth: row.covers_month.slice(0, 7),
+    amount: Number(row.amount),
+    note: row.note ?? '',
+  };
+}
+
 async function safeFunctionProblem(
   error: unknown,
+  fallback: CompanyAccountProblem,
 ): Promise<CompanyAccountProblem> {
   const context = (error as { context?: Response }).context;
   if (context instanceof Response) {
@@ -234,7 +331,7 @@ async function safeFunctionProblem(
       return body.error;
     }
   }
-  return 'create';
+  return fallback;
 }
 
 function sum(values: readonly number[]): number {

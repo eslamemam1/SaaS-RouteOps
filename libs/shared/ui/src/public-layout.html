@@ -4,28 +4,47 @@
       <app-logo />
       <span>{{ brand() }}</span>
     </a>
-    <nav class="app-public-nav" [attr.aria-label]="text().site.navigation">
-      <a
-        class="app-public-link"
-        routerLink="/"
-        routerLinkActive="app-public-link-active"
-        ariaCurrentWhenActive="page"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
-        {{ text().site.home }}
-      </a>
-      <a
-        class="app-public-link"
-        routerLink="/contact"
-        routerLinkActive="app-public-link-active"
-        ariaCurrentWhenActive="page"
-      >
-        {{ text().site.contact }}
-      </a>
-    </nav>
+    <div
+      id="app-public-menu"
+      class="app-public-menu"
+      [class.app-public-menu-open]="menuOpen()"
+    >
+      <nav class="app-public-nav" [attr.aria-label]="text().site.navigation">
+        <a
+          class="app-public-link"
+          routerLink="/"
+          routerLinkActive="app-public-link-active"
+          ariaCurrentWhenActive="page"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeMenu()"
+        >
+          {{ text().site.home }}
+        </a>
+        <a
+          class="app-public-link"
+          routerLink="/contact"
+          routerLinkActive="app-public-link-active"
+          ariaCurrentWhenActive="page"
+          (click)="closeMenu()"
+        >
+          {{ text().site.contact }}
+        </a>
+      </nav>
+      <app-language-switch (click)="closeMenu()" />
+    </div>
     <div class="app-public-actions">
-      <app-language-switch />
       <a appButton size="sm" routerLink="/sign-in">{{ text().site.signIn }}</a>
+      <button
+        type="button"
+        class="app-public-menu-toggle"
+        aria-controls="app-public-menu"
+        [attr.aria-expanded]="menuOpen()"
+        [attr.aria-label]="menuOpen() ? text().site.closeMenu : text().site.openMenu"
+        [attr.title]="menuOpen() ? text().site.closeMenu : text().site.openMenu"
+        (click)="toggleMenu()"
+      >
+        <ng-icon [svg]="menuOpen() ? closeIcon : menuIcon" aria-hidden="true" />
+      </button>
     </div>
   </div>
 </header>

@@ -7,7 +7,7 @@ Multi-tenant operations app for staff transportation companies.
 - `apps/routeops` is the only Angular application.
 - `apps/routeops-e2e` is the Playwright project.
 - `libs/site` holds the public home page (`/`) and contact page (`/contact`). Edit the phone, WhatsApp, and email in `libs/site/src/domain/contact-details.ts`.
-- `libs/organizations` signs users in, shows the dashboard at `/dashboard` (today's trips, the month's figures, and what still needs recording), and creates companies.
+- `libs/organizations` signs users in, shows the dashboard at `/dashboard` (today's trips, the month's figures, and what still needs recording), and, for the site operator, lists and creates companies, stops and resumes their accounts, sets a new password for a company login, and records the subscriptions companies pay.
 - `libs/customers` keeps each organization's customers.
 - `libs/vehicles` keeps each organization's vehicles and how the owner of a rented or contractor vehicle is paid.
 - `libs/drivers` keeps each organization's drivers.
@@ -21,7 +21,8 @@ Multi-tenant operations app for staff transportation companies.
 - `libs/shared/money` holds the supported currencies and converts amounts to and from minor units.
 - Tag feature libraries `scope:<feature>` and `type:feature`.
 - `supabase/migrations` is the database source of truth. Local Supabase needs Docker.
-- `supabase/tests/database` holds pgTAP tests for tenant isolation, daily operations, vehicle ownership, the trip report, and trip prices. They run against the local database only.
+- `supabase/functions` holds the server functions that need the service-role key: `provision-company` creates a company and its login, and `set-company-password` gives a company login a new password. Deploy one with `npx supabase functions deploy <name>`.
+- `supabase/tests/database` holds pgTAP tests for tenant isolation, daily operations, vehicle ownership, the trip report, trip prices, the operator's company list, and subscription payments. They run against the local database only.
 
 ## Tasks
 

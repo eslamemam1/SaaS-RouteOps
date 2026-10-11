@@ -9,13 +9,19 @@ export interface Organization {
   readonly isActive: boolean;
 }
 
+// A company login is a user that signs in by email.
+export interface CompanyLogin {
+  readonly id: string;
+  readonly email: string;
+}
+
 // What the site operator sees of each company it provisioned.
 export interface CompanyAccount {
   readonly id: string;
   readonly name: string;
   readonly currency: Currency;
   readonly isActive: boolean;
-  readonly logins: readonly string[];
+  readonly logins: readonly CompanyLogin[];
   readonly createdAt: string;
   readonly lastSignInAt: string | null;
 }

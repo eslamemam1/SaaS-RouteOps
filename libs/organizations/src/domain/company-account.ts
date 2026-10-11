@@ -17,6 +17,8 @@ export const companyAccountProblems = [
   'create',
   'signedOut',
   'notConnected',
+  'login',
+  'passwordChange',
 ] as const;
 
 export type CompanyAccountProblem = (typeof companyAccountProblems)[number];

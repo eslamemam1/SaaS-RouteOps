@@ -1,6 +1,12 @@
 import { Dashboard, dashboard, monthDays } from '../domain/dashboard';
+import { toMinorUnits } from '@routeops/shared/money';
 import { CompanyAccount, Organization } from '../domain/organization';
+import {
+  PaymentDetails,
+  SubscriptionPayment,
+} from '../domain/subscription-payment';
 import { OrganizationAccessError } from '../application/organization-access-error';
+import { SubscriptionPaymentError } from '../application/subscription-payment-error';
 import {
   OrganizationRepository,
   ProvisionCompany,
@@ -55,6 +61,35 @@ export class SupabaseOrganizationRepository extends OrganizationRepository {
 
   provisionCompany(input: ProvisionCompany): Promise<void> {
     return this.gateway.provision(input);
+  }
+
+  setLoginPassword(loginId: string, password: string): Promise<void> {
+    return this.gateway.setLoginPassword(loginId, password);
+  }
+
+  listSubscriptionPayments(): Promise<SubscriptionPayment[]> {
+    return this.gateway.subscriptionPayments();
+  }
+
+  async recordSubscriptionPayment(
+    account: CompanyAccount,
+    details: PaymentDetails,
+  ): Promise<SubscriptionPayment> {
+    const amount = toMinorUnits(details.amount, account.currency);
+    if (typeof amount !== 'number' || amount <= 0) {
+      throw new SubscriptionPaymentError('amount');
+    }
+    return this.gateway.insertSubscriptionPayment({
+      organizationId: account.id,
+      paidOn: details.paidOn,
+      coversMonth: details.coversMonth,
+      amount,
+      note: details.note,
+    });
+  }
+
+  removeSubscriptionPayment(paymentId: string): Promise<void> {
+    return this.gateway.deleteSubscriptionPayment(paymentId);
   }
 
   async dashboard(organizationId: string, today: string): Promise<Dashboard> {

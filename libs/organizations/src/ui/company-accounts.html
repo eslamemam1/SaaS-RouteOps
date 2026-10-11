@@ -26,8 +26,14 @@
       </div>
     }
     @case ('success') {
-      @if (changed() || changeProblem()) {
+      @if (changed() || changeProblem() || passwordChanged()) {
         <div class="ro-card-body">
+          @if (passwordChanged(); as email) {
+            <app-alert tone="success" [dismissible]="true" (dismissed)="passwordChanged.set(null)">
+              {{ text().password.changed }}
+              <bdi>{{ email }}</bdi>
+            </app-alert>
+          }
           @if (changed(); as change) {
             <app-alert tone="success" [dismissible]="true" (dismissed)="changed.set(null)">
               {{ change.isActive ? text().accounts.activated : text().accounts.deactivated }}
@@ -64,8 +70,15 @@
                   </app-tag>
                 </td>
                 <td [attr.data-label]="text().accounts.logins">
-                  @for (login of account.logins; track login) {
-                    <div><bdi>{{ login }}</bdi></div>
+                  @for (login of account.logins; track login.id) {
+                    <div class="ro-cell-stack">
+                      <bdi>{{ login.email }}</bdi>
+                      @if (login.id) {
+                        <button appButton="text" size="sm" type="button" (click)="changePassword(login)">
+                          {{ text().accounts.changePassword }}
+                        </button>
+                      }
+                    </div>
                   } @empty {
                     <span class="hint">{{ text().accounts.noLogin }}</span>
                   }
@@ -102,3 +115,17 @@
     }
   }
 </section>
+
+<app-form-drawer
+  [title]="text().password.title"
+  [open]="passwordLogin() !== null"
+  (openChange)="onPasswordDrawer($event)"
+>
+  @if (passwordLogin(); as login) {
+    <app-login-password
+      [login]="login"
+      (changed)="passwordSaved($event)"
+      (cancelled)="passwordLogin.set(null)"
+    />
+  }
+</app-form-drawer>

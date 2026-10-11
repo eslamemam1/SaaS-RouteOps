@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { LanguageService } from '@routeops/shared/i18n';
 import { Dashboard } from '../domain/dashboard';
 import { CompanyAccount, Organization } from '../domain/organization';
+import { SubscriptionPayment } from '../domain/subscription-payment';
+import { SubscriptionPaymentError } from '../application/subscription-payment-error';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
 import { Organizations } from './organizations';
@@ -25,7 +27,7 @@ const gulf: CompanyAccount = {
   name: 'Gulf Transport',
   currency: 'SAR',
   isActive: true,
-  logins: ['gulf@example.com'],
+  logins: [{ id: 'login-gulf', email: 'gulf@example.com' }],
   createdAt: '2026-10-01T09:00:00Z',
   lastSignInAt: null,
 };
@@ -39,6 +41,16 @@ const quiet: CompanyAccount = {
   lastSignInAt: '2026-09-02T09:00:00Z',
 };
 const arabic = organizationsText.ar;
+const now = new Date();
+const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+const gulfPayment: SubscriptionPayment = {
+  id: 'payment-1',
+  organizationId: 'org-gulf',
+  paidOn: `${thisMonth}-01`,
+  coversMonth: thisMonth,
+  amount: 40_000,
+  note: 'Bank transfer',
+};
 
 describe('Organizations', () => {
   beforeEach(() => localStorage.clear());
@@ -206,14 +218,15 @@ describe('Organizations', () => {
     expect(rows[1]).not.toContain(arabic.accounts.neverSignedIn);
   });
 
-  it('adds a new company to the operator list after creating it', async () => {
-    const listCompanyAccounts = vi
-      .fn<OrganizationRepository['listCompanyAccounts']>()
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([gulf]);
+  it('adds a new company to the operator lists after creating it', async () => {
+    let created = false;
+    const listCompanyAccounts = vi.fn(async () => (created ? [gulf] : []));
     const fixture = await render({
       currentUserIsOperator: async () => true,
       listCompanyAccounts,
+      provisionCompany: async () => {
+        created = true;
+      },
     });
     await settle(fixture);
     expect(text(fixture)).toContain(arabic.accounts.empty);
@@ -230,24 +243,27 @@ describe('Organizations', () => {
     await settle(fixture);
     await settle(fixture);
 
-    expect(listCompanyAccounts).toHaveBeenCalledTimes(2);
     expect(accountRows(fixture)[0]).toContain('Gulf Transport');
+    expect(payments(fixture).textContent).not.toContain(arabic.payments.noCompanies);
   });
 
   it('shows a safe error when the company accounts cannot load and tries again', async () => {
-    const listCompanyAccounts = vi
-      .fn<OrganizationRepository['listCompanyAccounts']>()
-      .mockRejectedValueOnce(new OrganizationAccessError('load'))
-      .mockResolvedValueOnce([gulf]);
+    let failing = true;
     const fixture = await render({
       currentUserIsOperator: async () => true,
-      listCompanyAccounts,
+      listCompanyAccounts: async () => {
+        if (failing) {
+          throw new OrganizationAccessError('load');
+        }
+        return [gulf];
+      },
     });
     await settle(fixture);
 
     const element: HTMLElement = fixture.nativeElement;
     const accounts = element.querySelector('app-company-accounts')!;
     expect(accounts.textContent).toContain(arabic.problems.load);
+    failing = false;
 
     [...accounts.querySelectorAll('button')]
       .find((button) => button.textContent?.trim() === arabic.accounts.retry)!
@@ -300,6 +316,163 @@ describe('Organizations', () => {
     expect(accountRows(fixture)[0]).toContain(arabic.accounts.active);
   });
 
+  it('lets the operator give a company login a new password', async () => {
+    const setLoginPassword = vi.fn<OrganizationRepository['setLoginPassword']>(
+      async () => undefined,
+    );
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      listCompanyAccounts: async () => [gulf],
+      setLoginPassword,
+    });
+    await settle(fixture);
+
+    accountButton(fixture, arabic.accounts.changePassword).click();
+    await settle(fixture);
+    const element: HTMLElement = fixture.nativeElement;
+    const drawer = element.querySelector('app-login-password')!;
+    const [email, password] = Array.from(drawer.querySelectorAll('input'));
+    expect(email.value).toBe('gulf@example.com');
+
+    fill(password, 'secret9');
+    drawer.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+
+    expect(setLoginPassword).toHaveBeenCalledWith('login-gulf', 'secret9');
+    expect(element.querySelector('app-login-password')).toBeNull();
+    expect(text(fixture)).toContain(arabic.password.changed);
+  });
+
+  it('keeps the password drawer open and explains when the password cannot change', async () => {
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      listCompanyAccounts: async () => [gulf],
+      setLoginPassword: async () => {
+        throw new OrganizationAccessError('login');
+      },
+    });
+    await settle(fixture);
+
+    accountButton(fixture, arabic.accounts.changePassword).click();
+    await settle(fixture);
+    const element: HTMLElement = fixture.nativeElement;
+    const drawer = element.querySelector('app-login-password')!;
+    fill(drawer.querySelectorAll('input')[1], 'secret9');
+    drawer.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+
+    expect(element.querySelector('app-login-password')?.textContent).toContain(
+      arabic.problems.login,
+    );
+  });
+
+  it('lets the operator record a subscription payment in the company currency', async () => {
+    const recordSubscriptionPayment = vi.fn<
+      OrganizationRepository['recordSubscriptionPayment']
+    >(async () => gulfPayment);
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      listCompanyAccounts: async () => [gulf, quiet],
+      recordSubscriptionPayment,
+    });
+    await settle(fixture);
+    expect(payments(fixture).textContent).toContain(arabic.payments.empty);
+
+    paymentsButton(fixture, arabic.payments.add).click();
+    await settle(fixture);
+    const element: HTMLElement = fixture.nativeElement;
+    const paymentForm = element.querySelector('app-payment-form')!;
+    const company = paymentForm.querySelector('select')!;
+    company.value = 'org-gulf';
+    company.dispatchEvent(new Event('change'));
+    company.dispatchEvent(new Event('input'));
+    await settle(fixture);
+    expect(paymentForm.textContent).toContain(arabic.currencies.SAR);
+    fill(paymentForm.querySelector('input[inputmode="decimal"]')!, '400');
+    paymentForm.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+
+    expect(recordSubscriptionPayment).toHaveBeenCalledWith(gulf, {
+      organizationId: 'org-gulf',
+      paidOn: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      coversMonth: thisMonth,
+      amount: '400',
+      note: '',
+    });
+    expect(payments(fixture).textContent).toContain(arabic.payments.recorded);
+    expect(payments(fixture).textContent).toContain('400.00');
+    expect(paymentRows(fixture, 'payments-month')[0]).toContain('Gulf Transport');
+    expect(paymentRows(fixture, 'payments-companies')[0]).toContain('Gulf Transport');
+  });
+
+  it('shows each payment of the month and deletes one only after a second press', async () => {
+    const removeSubscriptionPayment = vi.fn<
+      OrganizationRepository['removeSubscriptionPayment']
+    >(async () => undefined);
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      listCompanyAccounts: async () => [gulf],
+      listSubscriptionPayments: async () => [gulfPayment],
+      removeSubscriptionPayment,
+    });
+    await settle(fixture);
+    expect(paymentRows(fixture, 'payments-month')[0]).toContain('Bank transfer');
+
+    paymentsButton(fixture, arabic.payments.remove).click();
+    await settle(fixture);
+    expect(removeSubscriptionPayment).not.toHaveBeenCalled();
+
+    paymentsButton(fixture, arabic.payments.confirmRemove).click();
+    await settle(fixture);
+
+    expect(removeSubscriptionPayment).toHaveBeenCalledWith('payment-1');
+    expect(payments(fixture).textContent).toContain(arabic.payments.removed);
+    expect(paymentRows(fixture, 'payments-month')).toHaveLength(0);
+  });
+
+  it('moves to another month that has no payments', async () => {
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      listCompanyAccounts: async () => [gulf],
+      listSubscriptionPayments: async () => [gulfPayment],
+    });
+    await settle(fixture);
+
+    paymentsButton(fixture, arabic.payments.previous).click();
+    await settle(fixture);
+
+    expect(payments(fixture).textContent).toContain(arabic.payments.noMonthPayments);
+    expect(paymentRows(fixture, 'payments-companies')[0]).toContain('Gulf Transport');
+  });
+
+  it('shows a safe error when the payments cannot load and tries again', async () => {
+    const listSubscriptionPayments = vi
+      .fn<OrganizationRepository['listSubscriptionPayments']>()
+      .mockRejectedValueOnce(new SubscriptionPaymentError('load'))
+      .mockResolvedValueOnce([gulfPayment]);
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      listCompanyAccounts: async () => [gulf],
+      listSubscriptionPayments,
+    });
+    await settle(fixture);
+    expect(payments(fixture).textContent).toContain(arabic.payments.problems.load);
+
+    paymentsButton(fixture, arabic.payments.retry).click();
+    await settle(fixture);
+
+    expect(paymentRows(fixture, 'payments-month')).toHaveLength(1);
+  });
+
+  it('does not load subscription payments for a company login', async () => {
+    const listSubscriptionPayments = vi.fn(async () => [gulfPayment]);
+    const fixture = await render({ listMine: async () => [north], listSubscriptionPayments });
+    await settle(fixture);
+
+    expect(listSubscriptionPayments).not.toHaveBeenCalled();
+    expect(text(fixture)).not.toContain(arabic.payments.title);
+  });
+
   it('tells a stopped company to contact the site manager instead of opening its sections', async () => {
     const fixture = await render({
       listMine: async () => [{ ...north, isActive: false }],
@@ -348,6 +521,12 @@ async function render(overrides: Partial<OrganizationRepository>) {
     listCompanyAccounts: async () => [],
     setCompanyActive: async () => undefined,
     provisionCompany: async () => undefined,
+    setLoginPassword: async () => undefined,
+    listSubscriptionPayments: async () => [],
+    recordSubscriptionPayment: async () => {
+      throw new Error('not used');
+    },
+    removeSubscriptionPayment: async () => undefined,
     dashboard: async () => busy,
     ...overrides,
   };
@@ -392,6 +571,25 @@ function accountButton(
 function accountRows(fixture: ComponentFixture<Organizations>): string[] {
   const element: HTMLElement = fixture.nativeElement;
   return [...element.querySelectorAll('app-company-accounts tbody tr')].map(
+    (row) => row.textContent ?? '',
+  );
+}
+
+function payments(fixture: ComponentFixture<Organizations>): HTMLElement {
+  return (fixture.nativeElement as HTMLElement).querySelector('app-subscription-payments')!;
+}
+
+function paymentsButton(
+  fixture: ComponentFixture<Organizations>,
+  label: string,
+): HTMLButtonElement {
+  return [...payments(fixture).querySelectorAll<HTMLButtonElement>('button')].find(
+    (button) => button.textContent?.trim() === label,
+  )!;
+}
+
+function paymentRows(fixture: ComponentFixture<Organizations>, table: string): string[] {
+  return [...payments(fixture).querySelectorAll(`.${table} tbody tr`)].map(
     (row) => row.textContent ?? '',
   );
 }
