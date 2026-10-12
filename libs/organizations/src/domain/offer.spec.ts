@@ -1,6 +1,7 @@
 import { SubscriptionOffer } from '@routeops/shared/pricing';
 import {
   offerCode,
+  offerCodeError,
   offerEndsOnError,
   offerPercent,
   offersFor,
@@ -74,6 +75,12 @@ describe('offer rules', () => {
     expect(offerCode('')).toBeNull();
     expect(offerCode('ab')).toBeUndefined();
     expect(offerCode('خصم')).toBeUndefined();
+  });
+
+  it('asks for a code only when the offer is kept for companies that give one', () => {
+    expect(offerCodeError('')).toBeNull();
+    expect(offerCodeError('', true)).toBe('offerCode');
+    expect(offerCodeError('vip30', true)).toBeNull();
   });
 
   it('takes a percent from 1 to 90 and a last day on or after the first', () => {

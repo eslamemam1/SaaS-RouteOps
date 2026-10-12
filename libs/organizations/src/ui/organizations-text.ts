@@ -308,6 +308,7 @@ export interface OrganizationsText {
     readonly kindTitle: string;
     readonly scopeTitle: string;
     readonly datesTitle: string;
+    readonly nameTitle: string;
     readonly nameAr: string;
     readonly nameEn: string;
     readonly nameHint: string;
@@ -316,11 +317,17 @@ export interface OrganizationsText {
     readonly trialDays: string;
     readonly trialDaysHint: string;
     readonly plansHint: string;
+    readonly planLimit: string;
+    readonly planMonthly: string;
     readonly months: string;
     readonly monthsHint: string;
     readonly startsOn: string;
     readonly endsOn: string;
     readonly endsOnHint: string;
+    readonly visibilityTitle: string;
+    readonly publicHint: string;
+    readonly withCode: string;
+    readonly withCodeHint: string;
     readonly codeField: string;
     readonly codeHint: string;
     readonly isActive: string;
@@ -739,10 +746,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       from: 'من',
       kinds: { percent: 'خصم بنسبة', trial: 'تجربة مجانية' },
       kindHints: {
-        percent:
-          'نسبة تُخصم من سعر الباقة بعد خصم المدة، على الباقات والمدد التي تختارها.',
-        trial:
-          'أيام مجانية تجرّب فيها الشركة الباقة قبل أن تدفع. تُعطى للشركة مرة واحدة قبل أي اشتراك.',
+        percent: 'تُخصم من السعر بعد خصم المدة.',
+        trial: 'أيام مجانية قبل أول اشتراك للشركة.',
       },
       off: 'خصم',
       freeDays: 'أيام مجانية:',
@@ -750,23 +755,29 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       editTitle: 'تعديل العرض',
       kindTitle: 'نوع العرض',
       scopeTitle: 'الباقات والمدد',
-      datesTitle: 'المدة والظهور',
-      nameAr: 'اسم العرض بالعربية',
-      nameEn: 'اسم العرض بالإنجليزية',
-      nameHint: 'يظهر للزوار، مثل: عرض الخريف، خصم الافتتاح.',
+      datesTitle: 'مدة العرض',
+      nameTitle: 'اسم العرض',
+      nameAr: 'بالعربية',
+      nameEn: 'بالإنجليزية',
+      nameHint: 'مثل: عرض الخريف، خصم الافتتاح.',
       percentOff: 'نسبة الخصم (%)',
       percentHint: 'من 1 إلى 90.',
       trialDays: 'عدد أيام التجربة',
       trialDaysHint: 'من 1 إلى 90 يومًا.',
       plansHint: 'اختر باقة واحدة على الأقل.',
+      planLimit: 'حد المركبات:',
+      planMonthly: 'في الشهر',
       months: 'المدد التي يشملها الخصم',
       monthsHint: 'مثل الدفع لـ 6 شهور أو سنة فقط.',
       startsOn: 'يبدأ في',
       endsOn: 'آخر يوم',
       endsOnHint: 'اتركه فارغًا ليبقى العرض حتى توقفه.',
+      visibilityTitle: 'من يرى العرض',
+      publicHint: 'في صفحة الأسعار والصفحة الرئيسية طوال مدته.',
+      withCode: 'بكود خصم',
+      withCodeHint: 'لا يظهر لأحد، وتطبّقه عندما تخبرك الشركة بالكود.',
       codeField: 'كود الخصم',
-      codeHint:
-        'اتركه فارغًا ليظهر العرض للزوار. العرض بكود لا يظهر لأحد، وتطبّقه عندما تخبرك الشركة به. حروف إنجليزية وأرقام، من 3 إلى 20.',
+      codeHint: 'حروف إنجليزية وأرقام، من 3 إلى 20، مثل VIP30.',
       isActive: 'العرض مفعّل',
       isActiveHint:
         'أوقف العرض بدل حذفه. العرض الموقوف لا يظهر ولا يُطبّق على اشتراك جديد، وتبقى الاشتراكات التي أخذته كما هي.',
@@ -795,8 +806,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       trialUsed:
         'التجربة المجانية للشركة التي لم تشترك من قبل، وهذه الشركة لها اشتراك أو تجربة سابقة.',
       offerName: 'أدخل اسم العرض، بحد أقصى 60 حرفًا.',
-      offerCode:
-        'الكود من 3 إلى 20 حرفًا إنجليزيًا أو رقمًا أو شرطة، أو اتركه فارغًا.',
+      offerCode: 'أدخل كودًا من 3 إلى 20 حرفًا إنجليزيًا أو رقمًا أو شرطة.',
       codeTaken: 'هذا الكود مستخدم في عرض آخر. اختر كودًا غيره.',
       percentOff: 'أدخل نسبة خصم من 1 إلى 90.',
       trialDays: 'أدخل عدد أيام من 1 إلى 90.',
@@ -1230,10 +1240,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       from: 'From',
       kinds: { percent: 'Percent off', trial: 'Free trial' },
       kindHints: {
-        percent:
-          "A percentage off the plan's price after the period discount, on the plans and periods you choose.",
-        trial:
-          'Free days for a company to try the plan before paying. A company gets it once, before any subscription.',
+        percent: 'Taken off the price after the period discount.',
+        trial: "Free days before a company's first subscription.",
       },
       off: 'off',
       freeDays: 'Free days:',
@@ -1241,23 +1249,30 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       editTitle: 'Edit offer',
       kindTitle: 'Kind of offer',
       scopeTitle: 'Plans and periods',
-      datesTitle: 'Dates and visibility',
-      nameAr: 'Offer name in Arabic',
-      nameEn: 'Offer name in English',
-      nameHint: 'Visitors see it, such as: Autumn offer, Launch discount.',
+      datesTitle: 'When it runs',
+      nameTitle: 'Offer name',
+      nameAr: 'In Arabic',
+      nameEn: 'In English',
+      nameHint: 'Such as: Autumn offer, Launch discount.',
       percentOff: 'Discount (%)',
       percentHint: 'From 1 to 90.',
       trialDays: 'Trial days',
       trialDaysHint: 'From 1 to 90 days.',
       plansHint: 'Choose at least one plan.',
+      planLimit: 'Vehicle limit:',
+      planMonthly: 'a month',
       months: 'Periods the discount covers',
       monthsHint: 'Such as paying for 6 months or a year only.',
       startsOn: 'Starts on',
       endsOn: 'Last day',
       endsOnHint: 'Leave it blank to keep the offer until you stop it.',
+      visibilityTitle: 'Who sees the offer',
+      publicHint: 'On the pricing and home pages while it runs.',
+      withCode: 'With a code',
+      withCodeHint:
+        'Shown to no one; you apply it when a company gives you the code.',
       codeField: 'Discount code',
-      codeHint:
-        'Leave it blank to show the offer to visitors. An offer with a code is shown to no one, and you apply it when a company gives you the code. English letters and numbers, 3 to 20.',
+      codeHint: 'English letters and numbers, 3 to 20, such as VIP30.',
       isActive: 'The offer is on',
       isActiveHint:
         'Stop an offer instead of deleting it. A stopped offer is not shown or applied to a new subscription, and the subscriptions that took it stay as they are.',
@@ -1287,8 +1302,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       trialUsed:
         'A free trial is for a company that has not subscribed before, and this company has a subscription or an earlier trial.',
       offerName: 'Enter the offer name, up to 60 characters.',
-      offerCode:
-        'The code is 3 to 20 English letters, numbers, or dashes, or leave it blank.',
+      offerCode: 'Enter a code of 3 to 20 English letters, numbers, or dashes.',
       codeTaken: 'Another offer uses this code. Choose a different one.',
       percentOff: 'Enter a discount from 1 to 90.',
       trialDays: 'Enter a number of days from 1 to 90.',

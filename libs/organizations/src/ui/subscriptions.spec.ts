@@ -218,6 +218,54 @@ describe('SubscriptionOffers', () => {
     expect(element.textContent).toContain(arabic.offers.added);
     expect(rowsOf(fixture, '.offers-table')[0]).toContain('عرض الخريف');
   });
+
+  it('asks for a code when the offer is kept for companies that give one', async () => {
+    const saveOffer = vi.fn<SubscriptionRepository['saveOffer']>(
+      async () => autumn,
+    );
+    const fixture = await render(SubscriptionOffers, {
+      listPlans: async () => [starter, growth],
+      saveOffer,
+    });
+    const element: HTMLElement = fixture.nativeElement;
+    button(fixture, arabic.offers.add).click();
+    await settle(fixture);
+    const offerForm = element.querySelector('app-offer-form')!;
+    const inputs =
+      offerForm.querySelectorAll<HTMLInputElement>('input[type="text"]');
+    fill(inputs[0], '30');
+    fill(inputs[1], 'كبار العملاء');
+    fill(inputs[2], 'Key accounts');
+    offerForm
+      .querySelector<HTMLInputElement>('input[data-plan="plan-growth"]')!
+      .click();
+    offerForm
+      .querySelector<HTMLInputElement>('input[data-months="12"]')!
+      .click();
+    expect(offerForm.querySelector('.offer-code')).toBeNull();
+    offerForm
+      .querySelector<HTMLInputElement>('input[data-visibility="code"]')!
+      .click();
+    await settle(fixture);
+    offerForm.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+    expect(saveOffer).not.toHaveBeenCalled();
+    expect(offerForm.textContent).toContain(
+      arabic.subscriptionProblems.offerCode,
+    );
+
+    fill(offerForm.querySelector<HTMLInputElement>('.offer-code')!, 'vip30');
+    offerForm.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+    expect(saveOffer).toHaveBeenCalledWith(
+      null,
+      expect.objectContaining({
+        code: 'vip30',
+        planIds: ['plan-growth'],
+        months: [12],
+      }),
+    );
+  });
 });
 
 describe('CompanySubscriptions', () => {

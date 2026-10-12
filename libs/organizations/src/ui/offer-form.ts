@@ -9,9 +9,17 @@ import {
   untracked,
 } from '@angular/core';
 import { form, FormField, submit, validate } from '@angular/forms/signals';
+import { NgIcon } from '@ng-icons/core';
+import {
+  lucideEye,
+  lucideGift,
+  lucidePercent,
+  lucideTicket,
+} from '@ng-icons/lucide';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { currencies } from '@routeops/shared/money';
 import {
+  formatPrice,
   OfferKind,
   offerKinds,
   planName,
@@ -45,7 +53,7 @@ type OfferFields = Omit<OfferDetails, 'planIds' | 'months'>;
 
 @Component({
   selector: 'app-offer-form',
-  imports: [Alert, Button, Field, FormField],
+  imports: [Alert, Button, Field, FormField, NgIcon],
   templateUrl: './offer-form.html',
   styleUrl: './offer-form.css',
 })
@@ -64,6 +72,12 @@ export class OfferForm {
     () => this.text().subscriptionProblems,
   );
   protected readonly kinds = offerKinds;
+  protected readonly kindIcons: Record<OfferKind, string> = {
+    percent: lucidePercent,
+    trial: lucideGift,
+  };
+  protected readonly publicIcon = lucideEye;
+  protected readonly codeIcon = lucideTicket;
   protected readonly periods = subscriptionMonths;
 
   protected readonly busy = signal(false);
@@ -72,6 +86,10 @@ export class OfferForm {
   protected readonly model = signal<OfferFields>(emptyOfferDetails(''));
   protected readonly planIds = signal<readonly string[]>([]);
   protected readonly months = signal<readonly SubscriptionMonths[]>([]);
+  // A typed code is kept while the operator switches back and forth, and is
+  // sent only when the offer is kept for companies that give it.
+  protected readonly withCode = signal(false);
+  protected readonly editing = computed(() => this.offer() !== null);
 
   // A plan no longer on offer stays choosable for an offer that names it.
   protected readonly choosablePlans = computed(() => {
@@ -116,7 +134,7 @@ export class OfferForm {
       this.fieldError(offerEndsOnError(this.model().startsOn, value())),
     );
     validate(path.code, ({ value }) =>
-      this.fieldError(offerCodeError(value())),
+      this.fieldError(this.withCode() ? offerCodeError(value(), true) : null),
     );
   });
 
@@ -130,6 +148,7 @@ export class OfferForm {
         this.offerForm().reset(fields);
         this.planIds.set(planIds);
         this.months.set(months);
+        this.withCode.set(fields.code !== '');
         this.tried.set(false);
         this.problem.set(null);
       });
@@ -160,6 +179,12 @@ export class OfferForm {
     return planName(plan, this.language());
   }
 
+  protected planPrice(plan: SubscriptionPlan): string {
+    return plan.monthlyPrice === null
+      ? this.text().plans.agreed
+      : `${formatPrice(plan.monthlyPrice, plan.currency, this.language())} ${this.text().offers.planMonthly}`;
+  }
+
   protected onSubmit(event: Event): void {
     event.preventDefault();
     this.tried.set(true);
@@ -179,6 +204,7 @@ export class OfferForm {
           this.offer()?.id ?? null,
           {
             ...this.model(),
+            code: this.withCode() ? this.model().code : '',
             planIds: this.planIds(),
             months: this.months(),
           },

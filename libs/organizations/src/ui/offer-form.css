@@ -46,11 +46,23 @@
   gap: var(--ro-space-2);
 }
 
-.offer-choices {
+/* Two choices side by side, one under the other when the drawer is narrow. */
+.offer-pair {
   grid-template-columns: repeat(
-    auto-fill,
-    minmax(var(--ro-filter-min-width), 1fr)
+    auto-fit,
+    minmax(var(--ro-form-column-min-width), 1fr)
   );
+}
+
+.offer-plan-hint {
+  display: grid;
+  justify-items: start;
+}
+
+.offer-icon {
+  flex: none;
+  color: var(--ro-text-brand);
+  font-size: var(--ro-icon-size);
 }
 
 .offer-code {

@@ -81,8 +81,13 @@ export function offerCode(text: string): string | null | undefined {
   return codePattern.test(code) ? code : undefined;
 }
 
-export function offerCodeError(text: string): SubscriptionProblem | null {
-  return offerCode(text) === undefined ? 'offerCode' : null;
+// An offer kept for companies that give a code cannot be saved without one.
+export function offerCodeError(
+  text: string,
+  required = false,
+): SubscriptionProblem | null {
+  const code = offerCode(text);
+  return code === undefined || (required && code === null) ? 'offerCode' : null;
 }
 
 export function offerPercent(text: string): number | undefined {
