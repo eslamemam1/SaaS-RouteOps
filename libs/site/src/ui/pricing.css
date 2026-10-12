@@ -27,13 +27,20 @@
 .pricing-controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: start;
-  gap: var(--ro-space-5);
+  align-items: end;
+  gap: var(--ro-space-5) var(--ro-space-6);
+  padding: var(--ro-space-5);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-xl);
+  background: var(--ro-bg-surface);
+  box-shadow: var(--ro-shadow-card);
 }
 
 .pricing-control {
   display: grid;
-  gap: var(--ro-space-1);
+  justify-items: start;
+  gap: var(--ro-space-2);
+  flex: 1 1 auto;
 }
 
 .pricing-control-label {
@@ -43,8 +50,9 @@
 }
 
 .pricing-periods {
-  display: inline-flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
   gap: var(--ro-space-1);
   padding: var(--ro-space-1);
   border: var(--ro-border-width) solid var(--ro-border-default);
@@ -55,7 +63,9 @@
 .pricing-period {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--ro-space-2);
+  white-space: nowrap;
   min-block-size: calc(var(--ro-control-height) - var(--ro-space-2));
   padding-inline: var(--ro-space-4);
   border: 0;
@@ -92,8 +102,7 @@
 }
 
 .pricing-fleet {
-  flex: 1 1 var(--ro-card-min-width);
-  max-inline-size: var(--ro-form-max-width);
+  flex: 0 1 var(--ro-card-min-width);
 }
 
 .pricing-currency {
@@ -278,19 +287,22 @@
     padding-block: var(--ro-space-8) var(--ro-space-10);
   }
 
-  .pricing-periods {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .pricing-controls {
+    padding: var(--ro-space-4);
   }
 
-  .pricing-period {
-    justify-content: center;
+  .pricing-control {
+    justify-items: stretch;
+  }
+
+  .pricing-periods {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .pricing-control,
   .pricing-fleet,
   .pricing-currency {
     flex-basis: 100%;
-    max-inline-size: none;
   }
 }
