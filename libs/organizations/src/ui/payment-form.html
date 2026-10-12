@@ -1,11 +1,11 @@
 <form class="ro-form" (submit)="onSubmit($event)">
   <app-field [label]="text().payments.company" [control]="paymentForm.organizationId">
-    <select [formField]="paymentForm.organizationId">
-      <option value="">{{ text().payments.chooseCompany }}</option>
+    <app-select [formField]="paymentForm.organizationId">
+      <app-option value="" [label]="text().payments.chooseCompany" />
       @for (account of accounts(); track account.id) {
-        <option [value]="account.id">{{ account.name }}</option>
+        <app-option [value]="account.id" [label]="account.name" />
       }
-    </select>
+    </app-select>
   </app-field>
   <app-field [label]="text().payments.paidOn" [control]="paymentForm.paidOn">
     <input type="date" dir="ltr" [formField]="paymentForm.paidOn" />

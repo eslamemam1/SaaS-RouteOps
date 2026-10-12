@@ -10,7 +10,13 @@ import {
 } from '@angular/core';
 import { form, FormField, submit, validate } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
-import { Alert, Button, Field } from '@routeops/shared/ui';
+import {
+  Alert,
+  Button,
+  Field,
+  Select,
+  SelectOption,
+} from '@routeops/shared/ui';
 import { CompanyAccount } from '../domain/organization';
 import {
   coversMonthError,
@@ -28,7 +34,7 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-payment-form',
-  imports: [Alert, Button, Field, FormField],
+  imports: [Alert, Button, Field, FormField, Select, SelectOption],
   templateUrl: './payment-form.html',
 })
 export class PaymentForm {

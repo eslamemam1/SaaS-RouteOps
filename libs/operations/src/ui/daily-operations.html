@@ -153,52 +153,36 @@
           />
         </app-field>
         <app-field [label]="text().filter.customer">
-          <select
-            (change)="filterBy({ customerId: $any($event.target).value })"
+          <app-select
+            [value]="filter().customerId"
+            (valueChange)="filterBy({ customerId: $event })"
           >
-            <option value="" [selected]="filter().customerId === ''">
-              {{ text().filter.allCustomers }}
-            </option>
+            <app-option value="" [label]="text().filter.allCustomers" />
             @for (customer of dayCustomers(); track customer.id) {
-            <option
-              [value]="customer.id"
-              [selected]="filter().customerId === customer.id"
-            >
-              {{ customer.label }}
-            </option>
+            <app-option [value]="customer.id" [label]="customer.label" />
             }
-          </select>
+          </app-select>
         </app-field>
         <app-field [label]="text().filter.direction">
-          <select (change)="filterBy({ direction: $any($event.target).value })">
-            <option value="" [selected]="filter().direction === ''">
-              {{ text().filter.allDirections }}
-            </option>
+          <app-select
+            [value]="filter().direction"
+            (valueChange)="filterBy({ direction: $event })">
+            <app-option value="" [label]="text().filter.allDirections" />
             @for (direction of directions; track direction) {
-            <option
-              [value]="direction"
-              [selected]="filter().direction === direction"
-            >
-              {{ text().directions[direction] }}
-            </option>
+            <app-option [value]="direction" [label]="text().directions[direction]" />
             }
-          </select>
+          </app-select>
         </app-field>
         @if (hasOtherOwnerships() || filter().ownership) {
         <app-field [label]="text().filter.ownership">
-          <select (change)="filterBy({ ownership: $any($event.target).value })">
-            <option value="" [selected]="filter().ownership === ''">
-              {{ text().filter.allOwnerships }}
-            </option>
+          <app-select
+            [value]="filter().ownership"
+            (valueChange)="filterBy({ ownership: $event })">
+            <app-option value="" [label]="text().filter.allOwnerships" />
             @for (ownership of ownerships; track ownership) {
-            <option
-              [value]="ownership"
-              [selected]="filter().ownership === ownership"
-            >
-              {{ text().ownerships[ownership] }}
-            </option>
+            <app-option [value]="ownership" [label]="text().ownerships[ownership]" />
             }
-          </select>
+          </app-select>
         </app-field>
         }
       </div>

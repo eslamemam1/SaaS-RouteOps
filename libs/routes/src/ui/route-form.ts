@@ -11,7 +11,13 @@ import {
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { currencySymbol } from '@routeops/shared/money';
-import { Alert, Button, Field } from '@routeops/shared/ui';
+import {
+  Alert,
+  Button,
+  Field,
+  Select,
+  SelectOption,
+} from '@routeops/shared/ui';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
 import {
@@ -30,7 +36,7 @@ import { routesText } from './routes-text';
 
 @Component({
   selector: 'app-route-form',
-  imports: [Alert, Button, Field, FormField],
+  imports: [Alert, Button, Field, FormField, Select, SelectOption],
   templateUrl: './route-form.html',
 })
 export class RouteForm {

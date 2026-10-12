@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { LanguageService } from '@routeops/shared/i18n';
+import { Select } from '@routeops/shared/ui';
 import { VehicleAccessError } from '../application/vehicle-access-error';
 import { VehicleRepository } from '../application/vehicle-repository';
 import { Vehicle, VehicleOrganization } from '../domain/vehicle';
@@ -86,15 +88,14 @@ describe('Vehicles', () => {
     expect(text(harness)).toContain('مكتب النور');
     expect(rows(harness)).toHaveLength(2);
 
-    const [filter] = all<HTMLSelectElement>(harness, 'select');
-    fill(filter, 'rented', 'change');
+    choose(harness, 'app-vehicles', 0, 'rented');
     await settle(harness);
 
     expect(rows(harness)).toHaveLength(1);
     expect(text(harness)).toContain('Mercedes');
     expect(text(harness)).not.toContain('Toyota Hiace');
 
-    fill(filter, 'contractor', 'change');
+    choose(harness, 'app-vehicles', 0, 'contractor');
     await settle(harness);
 
     expect(rows(harness)).toHaveLength(0);
@@ -109,10 +110,9 @@ describe('Vehicles', () => {
     await settle(harness);
 
     const [plate] = all<HTMLInputElement>(harness, 'form input[type="text"]');
-    const [type, ownership] = all<HTMLSelectElement>(harness, 'form select');
     fill(plate, 'د هـ و 5678', 'input');
-    fill(type, 'bus', 'input');
-    fill(ownership, 'rented', 'input');
+    choose(harness, 'form', 0, 'bus');
+    choose(harness, 'form', 1, 'rented');
     await settle(harness);
 
     expect(text(harness)).toContain(arabic.form.ownerName);
@@ -234,6 +234,17 @@ function button(
   );
 }
 
+// Chooses a value in the app-select at index within host; a negative index counts from the end.
+function choose(
+  harness: RouterTestingHarness,
+  host: string,
+  index: number,
+  value: string,
+): void {
+  const selects = harness.routeDebugElement?.queryAll(By.css(`${host} app-select`)) ?? [];
+  (selects.at(index)?.componentInstance as Select).value.set(value);
+}
+
 function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
   return [
     ...(harness.routeNativeElement?.querySelectorAll<HTMLTableRowElement>(
@@ -250,7 +261,7 @@ function all<Element extends HTMLElement>(
 }
 
 function fill(
-  field: HTMLInputElement | HTMLSelectElement,
+  field: HTMLInputElement,
   value: string,
   event: 'input' | 'change',
 ): void {

@@ -21,21 +21,7 @@ import {
   injectText,
   LanguageService,
 } from '@routeops/shared/i18n';
-import {
-  Alert,
-  Button,
-  DayPicker,
-  Field,
-  FormDrawer,
-  injectListView,
-  PageHeader,
-  PageState,
-  Tag,
-  Tone,
-  paginate,
-  Pager,
-  ViewSwitch,
-} from '@routeops/shared/ui';
+import { Alert, Button, DayPicker, Field, FormDrawer, injectListView, PageHeader, Pager, PageState, paginate, Select, SelectOption, Tag, Tone, ViewSwitch } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -93,24 +79,7 @@ const statusTones: Record<TripStatus, Tone> = {
 
 @Component({
   selector: 'app-daily-operations',
-  imports: [
-    Alert,
-    Button,
-    ConflictList,
-    DayPicker,
-    ExtraTripForm,
-    Field,
-    FormDrawer,
-    HolidayPanel,
-    NgIcon,
-    PageHeader,
-    PageState,
-    RouterLink,
-    Tag,
-    TripChangeForm,
-    Pager,
-    ViewSwitch,
-  ],
+  imports: [Alert, Button, ConflictList, DayPicker, ExtraTripForm, Field, FormDrawer, HolidayPanel, NgIcon, PageHeader, Pager, PageState, RouterLink, Select, SelectOption, Tag, TripChangeForm, ViewSwitch],
   templateUrl: './daily-operations.html',
   styleUrl: './daily-operations.css',
 })

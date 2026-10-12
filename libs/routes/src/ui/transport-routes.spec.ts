@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
+import { Select } from '@routeops/shared/ui';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
 import {
@@ -106,9 +108,7 @@ describe('TransportRoutes', () => {
 
     expect(rows(harness)).toHaveLength(2);
 
-    const filter = harness.routeNativeElement!.querySelector('select')!;
-    filter.value = nour.id;
-    filter.dispatchEvent(new Event('change'));
+    choose(harness, 'app-transport-routes', 0, nour.id);
     await settle(harness);
 
     expect(rows(harness)).toHaveLength(1);
@@ -245,6 +245,17 @@ async function settle(harness: RouterTestingHarness): Promise<void> {
   await Promise.resolve();
   await harness.fixture.whenStable();
   harness.detectChanges();
+}
+
+// Chooses a value in the app-select at index within host; a negative index counts from the end.
+function choose(
+  harness: RouterTestingHarness,
+  host: string,
+  index: number,
+  value: string,
+): void {
+  const selects = harness.routeDebugElement?.queryAll(By.css(`${host} app-select`)) ?? [];
+  (selects.at(index)?.componentInstance as Select).value.set(value);
 }
 
 function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {

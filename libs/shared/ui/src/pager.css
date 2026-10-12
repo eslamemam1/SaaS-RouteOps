@@ -100,8 +100,11 @@
   gap: var(--ro-space-2);
 }
 
-.app-pager-size select {
+.app-pager-size .app-select {
   inline-size: auto;
+}
+
+.app-pager-size .app-select-trigger {
   min-block-size: var(--ro-touch-target);
   padding-block: 0;
 }

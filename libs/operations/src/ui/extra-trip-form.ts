@@ -9,7 +9,13 @@ import {
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { currencySymbol } from '@routeops/shared/money';
-import { Alert, Button, Field } from '@routeops/shared/ui';
+import {
+  Alert,
+  Button,
+  Field,
+  Select,
+  SelectOption,
+} from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -31,7 +37,15 @@ import { operationsText } from './operations-text';
 
 @Component({
   selector: 'app-extra-trip-form',
-  imports: [Alert, Button, ConflictList, Field, FormField],
+  imports: [
+    Alert,
+    Button,
+    ConflictList,
+    Field,
+    FormField,
+    Select,
+    SelectOption,
+  ],
   templateUrl: './extra-trip-form.html',
 })
 export class ExtraTripForm {

@@ -1,0 +1,109 @@
+.app-select {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.app-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  inline-size: 100%;
+  min-block-size: var(--ro-control-height);
+  padding-block: var(--ro-space-2);
+  padding-inline: var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-strong);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-surface);
+  color: var(--ro-text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color var(--ro-motion-fast),
+    box-shadow var(--ro-motion-fast);
+}
+
+.app-select-trigger:hover {
+  border-color: var(--ro-border-hover);
+}
+
+.app-select-trigger:focus-visible,
+.app-select-trigger[aria-expanded='true'] {
+  outline: none;
+  border-color: var(--ro-border-focus);
+  box-shadow: var(--ro-focus-ring);
+}
+
+.app-select-trigger:disabled {
+  background: var(--ro-bg-subtle);
+  color: var(--ro-text-muted);
+  cursor: not-allowed;
+}
+
+.app-select-value {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-select-caret {
+  flex: none;
+  color: var(--ro-text-muted);
+  font-size: var(--ro-icon-size);
+  transition: transform var(--ro-motion-fast);
+}
+
+.app-select-trigger[aria-expanded='true'] .app-select-caret {
+  transform: rotate(180deg);
+}
+
+.app-select-panel {
+  display: grid;
+  gap: var(--ro-space-1);
+  inline-size: 100%;
+  max-block-size: var(--ro-select-panel-height);
+  overflow-y: auto;
+  padding: var(--ro-space-1);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-lg);
+  background: var(--ro-bg-surface);
+  box-shadow: var(--ro-shadow-overlay);
+  color: var(--ro-text-primary);
+  font-size: var(--ro-text-body-md);
+  line-height: var(--ro-leading-body-md);
+  overscroll-behavior: contain;
+}
+
+.app-select-option {
+  display: flex;
+  inline-size: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ro-space-2);
+  min-block-size: var(--ro-touch-target);
+  padding-inline: var(--ro-space-3);
+  border-radius: var(--ro-radius-md);
+  cursor: pointer;
+}
+
+.app-select-option-active {
+  background: var(--ro-bg-hover);
+}
+
+.app-select-option[aria-selected='true'] {
+  color: var(--ro-text-brand);
+  font-weight: var(--ro-font-semibold);
+}
+
+.app-select-check {
+  flex: none;
+  font-size: var(--ro-icon-size);
+}

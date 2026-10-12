@@ -7,12 +7,12 @@
     <input type="text" [formField]="vehicleForm.plateNumber" />
   </app-field>
   <app-field [label]="text().form.type" [control]="vehicleForm.type">
-    <select [formField]="vehicleForm.type">
-      <option value="">{{ text().form.chooseType }}</option>
+    <app-select [formField]="vehicleForm.type">
+      <app-option value="" [label]="text().form.chooseType" />
       @for (type of types; track type) {
-        <option [value]="type">{{ text().types[type] }}</option>
+        <app-option [value]="type" [label]="text().types[type]" />
       }
-    </select>
+    </app-select>
   </app-field>
   <app-field
     [label]="text().form.model"
@@ -42,11 +42,11 @@
     <input type="date" [formField]="vehicleForm.licenseExpiry" />
   </app-field>
   <app-field [label]="text().form.ownership" [hint]="text().form.ownershipHint">
-    <select [formField]="vehicleForm.ownership">
+    <app-select [formField]="vehicleForm.ownership">
       @for (ownership of ownerships; track ownership) {
-        <option [value]="ownership">{{ text().ownerships[ownership] }}</option>
+        <app-option [value]="ownership" [label]="text().ownerships[ownership]" />
       }
-    </select>
+    </app-select>
   </app-field>
   @if (model().ownership !== 'owned') {
     <app-field
@@ -64,11 +64,11 @@
       <input type="tel" dir="ltr" [formField]="vehicleForm.ownerPhone" />
     </app-field>
     <app-field [label]="text().form.rentType" [hint]="text().form.rentTypeHint">
-      <select [formField]="vehicleForm.rentType">
+      <app-select [formField]="vehicleForm.rentType">
         @for (rentType of rentTypes; track rentType) {
-          <option [value]="rentType">{{ text().rentTypes[rentType] }}</option>
+          <app-option [value]="rentType" [label]="text().rentTypes[rentType]" />
         }
-      </select>
+      </app-select>
     </app-field>
     @if (model().rentType === 'monthly') {
       <app-field

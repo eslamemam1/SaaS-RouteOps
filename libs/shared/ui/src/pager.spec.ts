@@ -118,10 +118,11 @@ describe('Pager', () => {
     const fixture = TestBed.createComponent(List);
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
-    const select = element.querySelector('select') as HTMLSelectElement;
-
-    select.value = '50';
-    select.dispatchEvent(new Event('change'));
+    (element.querySelector('.app-select-trigger') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    (
+      document.querySelector('[role="option"][data-value="50"]') as HTMLElement
+    ).click();
     await fixture.whenStable();
 
     expect(element.querySelectorAll('li')).toHaveLength(30);

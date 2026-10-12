@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { LanguageService } from '@routeops/shared/i18n';
+import { Select } from '@routeops/shared/ui';
 import { Dashboard } from '../domain/dashboard';
 import { CompanyAccount, Organization } from '../domain/organization';
 import { SubscriptionPayment } from '../domain/subscription-payment';
@@ -251,10 +253,9 @@ describe('Organizations', () => {
     });
     await settle(fixture);
     const element: HTMLElement = fixture.nativeElement;
-    const currency = element.querySelector('select') as HTMLSelectElement;
+    const [currency, timeZone] = selects(fixture, 'app-provision-company');
 
-    expect(currency.value).toBe('EGP');
-    expect(text(fixture)).toContain(arabic.currencies.SAR);
+    expect(currency.value()).toBe('EGP');
 
     const [name, email, password] = Array.from(
       element.querySelectorAll('app-provision-company input'),
@@ -262,14 +263,20 @@ describe('Organizations', () => {
     fill(name, 'Gulf Transport');
     fill(email, 'gulf@example.com');
     fill(password, 'secret1');
-    currency.value = 'SAR';
-    currency.dispatchEvent(new Event('input'));
-    const timeZone = element.querySelectorAll(
-      'app-provision-company select',
-    )[1] as HTMLSelectElement;
-    expect(timeZone.value).toBe('Africa/Cairo');
-    timeZone.value = 'Asia/Riyadh';
-    timeZone.dispatchEvent(new Event('input'));
+    element
+      .querySelector<HTMLButtonElement>(
+        'app-provision-company .app-select-trigger',
+      )!
+      .click();
+    await settle(fixture);
+    const riyal = document.querySelector<HTMLElement>(
+      '[role="option"][data-value="SAR"]',
+    )!;
+    expect(riyal.textContent).toContain(arabic.currencies.SAR);
+    riyal.click();
+    expect(currency.value()).toBe('SAR');
+    expect(timeZone.value()).toBe('Africa/Cairo');
+    timeZone.value.set('Asia/Riyadh');
     (
       element.querySelector('app-provision-company form') as HTMLFormElement
     ).dispatchEvent(new Event('submit'));
@@ -469,10 +476,7 @@ describe('Organizations', () => {
     await settle(fixture);
     const element: HTMLElement = fixture.nativeElement;
     const paymentForm = element.querySelector('app-payment-form')!;
-    const company = paymentForm.querySelector('select')!;
-    company.value = 'org-gulf';
-    company.dispatchEvent(new Event('change'));
-    company.dispatchEvent(new Event('input'));
+    selects(fixture, 'app-payment-form')[0].value.set('org-gulf');
     await settle(fixture);
     expect(paymentForm.textContent).toContain(arabic.currencies.SAR);
     fill(paymentForm.querySelector('input[inputmode="decimal"]')!, '400');
@@ -654,6 +658,15 @@ async function settle(fixture: ComponentFixture<Organizations>): Promise<void> {
   await Promise.resolve();
   await fixture.whenStable();
   fixture.detectChanges();
+}
+
+function selects(
+  fixture: ComponentFixture<Organizations>,
+  host: string,
+): Select[] {
+  return fixture.debugElement
+    .queryAll(By.css(`${host} app-select`))
+    .map((select) => select.componentInstance as Select);
 }
 
 function fill(input: HTMLInputElement, value: string): void {

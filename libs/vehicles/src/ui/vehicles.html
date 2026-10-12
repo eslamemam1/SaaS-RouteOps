@@ -38,17 +38,18 @@
   <section class="ro-card">
     <div class="ro-card-header ro-toolbar">
       <app-field class="ro-filter" [label]="text().list.filter">
-        <select
+        <app-select
           [value]="ownershipFilter()"
-          (change)="filterBy($any($event.target).value)"
+          (valueChange)="filterBy($event)"
         >
-          <option value="">{{ text().list.allOwnerships }}</option>
+          <app-option value="" [label]="text().list.allOwnerships" />
           @for (ownership of ownerships; track ownership) {
-          <option [value]="ownership">
-            {{ text().ownerships[ownership] }}
-          </option>
+          <app-option
+            [value]="ownership"
+            [label]="text().ownerships[ownership]"
+          />
           }
-        </select>
+        </app-select>
       </app-field>
     </div>
     @if (visibleVehicles().length === 0) {

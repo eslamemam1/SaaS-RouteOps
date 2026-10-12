@@ -3,7 +3,7 @@ import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { LanguageService } from '@routeops/shared/i18n';
-import { DayPicker } from '@routeops/shared/ui';
+import { DayPicker, Select } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -195,9 +195,7 @@ describe('DailyOperations', () => {
     await settle(harness);
     expect(rows(harness)).toHaveLength(2);
 
-    const company = harness.routeNativeElement!.querySelector('select')!;
-    company.value = 'customer-2';
-    company.dispatchEvent(new Event('change'));
+    choose(harness, 'app-daily-operations', 0, 'customer-2');
     await settle(harness);
     expect(rows(harness)).toHaveLength(1);
     expect(rows(harness)[0].textContent).toContain('Nour - Maadi');
@@ -240,9 +238,7 @@ describe('DailyOperations', () => {
     expect(rows(harness)[1].textContent).toContain(arabic.ownerships.rented);
     expect(rows(harness)[0].textContent).not.toContain(arabic.ownerships.owned);
 
-    const ownership = harness.routeNativeElement!.querySelectorAll('select')[2];
-    ownership.value = 'rented';
-    ownership.dispatchEvent(new Event('change'));
+    choose(harness, 'app-daily-operations', 2, 'rented');
     await settle(harness);
 
     expect(rows(harness)).toHaveLength(1);
@@ -282,9 +278,7 @@ describe('DailyOperations', () => {
     button(harness, arabic.day.addExtra)?.click();
     await settle(harness);
     const form = harness.routeNativeElement!.querySelector('app-extra-trip-form')!;
-    const route = form.querySelector('select')!;
-    route.value = 'route-1';
-    route.dispatchEvent(new Event('change'));
+    choose(harness, 'app-extra-trip-form', 0, 'route-1');
     const time = form.querySelector<HTMLInputElement>('input[type="time"]')!;
     time.value = '07:15';
     time.dispatchEvent(new Event('input'));
@@ -313,9 +307,7 @@ describe('DailyOperations', () => {
     expect(text(harness)).toContain(arabic.extra.hint);
 
     const form = harness.routeNativeElement!.querySelector('app-extra-trip-form')!;
-    const route = form.querySelector('select')!;
-    route.value = 'route-1';
-    route.dispatchEvent(new Event('change'));
+    choose(harness, 'app-extra-trip-form', 0, 'route-1');
     const time = form.querySelector<HTMLInputElement>('input[type="time"]')!;
     time.value = '21:00';
     time.dispatchEvent(new Event('input'));
@@ -379,10 +371,7 @@ describe('DailyOperations', () => {
 
     form.querySelector<HTMLInputElement>('input[value="cancelled"]')!.click();
     await settle(harness);
-    const selects = form.querySelectorAll('select');
-    const reason = selects[selects.length - 1];
-    reason.value = 'driverAbsent';
-    reason.dispatchEvent(new Event('input'));
+    choose(harness, 'app-trip-change-form', -1, 'driverAbsent');
     form.querySelector('form')!.dispatchEvent(new Event('submit'));
     await settle(harness);
 
@@ -531,6 +520,17 @@ async function settle(harness: RouterTestingHarness): Promise<void> {
   }
   await harness.fixture.whenStable();
   harness.detectChanges();
+}
+
+// Chooses a value in the app-select at index within host; a negative index counts from the end.
+function choose(
+  harness: RouterTestingHarness,
+  host: string,
+  index: number,
+  value: string,
+): void {
+  const selects = harness.routeDebugElement?.queryAll(By.css(`${host} app-select`)) ?? [];
+  (selects.at(index)?.componentInstance as Select).value.set(value);
 }
 
 function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {

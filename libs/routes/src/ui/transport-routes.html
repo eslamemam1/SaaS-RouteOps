@@ -61,15 +61,15 @@
         />
       </app-field>
       <app-field [label]="text().list.filter">
-        <select
+        <app-select
           [value]="customerFilter()"
-          (change)="filterBy($any($event.target).value)"
+          (valueChange)="filterBy($event)"
         >
-          <option value="">{{ text().list.allCustomers }}</option>
+          <app-option value="" [label]="text().list.allCustomers" />
           @for (customer of choices().customers; track customer.id) {
-          <option [value]="customer.id">{{ customer.label }}</option>
+          <app-option [value]="customer.id" [label]="customer.label" />
           }
-        </select>
+        </app-select>
       </app-field>
     </div>
     @if (visibleRoutes().length === 0) {

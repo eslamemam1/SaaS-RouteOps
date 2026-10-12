@@ -94,11 +94,11 @@ describe('Expenses', () => {
     expect(form.querySelector<HTMLInputElement>('input[inputmode="decimal"]')?.value).toBe(
       '3300.00',
     );
-    expect([...form.querySelectorAll('select')].map((select) => select.disabled)).toEqual([
-      true,
-      true,
-      true,
-    ]);
+    expect(
+      [...form.querySelectorAll<HTMLButtonElement>('.app-select-trigger')].map(
+        (select) => select.disabled,
+      ),
+    ).toEqual([true, true, true]);
     const note = form.querySelector('textarea')?.value ?? '';
     expect(note).toContain(arabic.pay.noteSalary);
     expect(note).toContain(arabic.pay.extraPart);
@@ -118,7 +118,9 @@ describe('Expenses', () => {
     await settle(harness);
 
     const form = harness.routeNativeElement!.querySelector('form')!;
-    expect(form.querySelector<HTMLSelectElement>('select')?.value).toBe('rent');
+    expect(form.querySelector('.app-select-trigger')?.textContent?.trim()).toBe(
+      arabic.categories.rent,
+    );
     expect(form.querySelector<HTMLInputElement>('input[inputmode="decimal"]')?.value).toBe(
       '12000.00',
     );

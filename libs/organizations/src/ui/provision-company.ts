@@ -2,7 +2,13 @@ import { Component, computed, inject, output, signal } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText } from '@routeops/shared/i18n';
 import { currencies, Currency, defaultCurrency } from '@routeops/shared/money';
-import { Alert, Button, Field } from '@routeops/shared/ui';
+import {
+  Alert,
+  Button,
+  Field,
+  Select,
+  SelectOption,
+} from '@routeops/shared/ui';
 import {
   CompanyAccountProblem,
   defaultTimeZone,
@@ -20,7 +26,7 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-provision-company',
-  imports: [Alert, Button, Field, FormField],
+  imports: [Alert, Button, Field, FormField, Select, SelectOption],
   templateUrl: './provision-company.html',
 })
 export class ProvisionCompanyForm {

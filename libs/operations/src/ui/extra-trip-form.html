@@ -1,34 +1,32 @@
 <form class="ro-form" (submit)="onSubmit($event)">
   <p class="hint">{{ text().extra.hint }}</p>
   <app-field [label]="text().extra.route" [hint]="text().extra.routeHint" [optional]="true">
-    <select (change)="useRoute($any($event.target).value)">
-      <option value="" [selected]="model().routeId === ''">{{ text().extra.noRoute }}</option>
+    <app-select [value]="model().routeId" (valueChange)="useRoute($event)">
+      <app-option value="" [label]="text().extra.noRoute" />
       @for (route of routes(); track route.id) {
-        <option [value]="route.id" [selected]="model().routeId === route.id">
-          {{ route.label }}
-        </option>
+        <app-option [value]="route.id" [label]="route.label" />
       }
-    </select>
+    </app-select>
   </app-field>
   <app-field
     [label]="text().extra.customer"
     [hint]="model().routeId ? text().extra.customerFromRoute : ''"
     [control]="extraForm.customerId"
   >
-    <select [formField]="extraForm.customerId">
-      <option value="">{{ text().extra.chooseCustomer }}</option>
+    <app-select [formField]="extraForm.customerId">
+      <app-option value="" [label]="text().extra.chooseCustomer" />
       @for (customer of customers(); track customer.id) {
-        <option [value]="customer.id">{{ customer.label }}</option>
+        <app-option [value]="customer.id" [label]="customer.label" />
       }
-    </select>
+    </app-select>
   </app-field>
   <div class="ro-form-row">
     <app-field [label]="text().extra.direction">
-      <select [formField]="extraForm.direction">
+      <app-select [formField]="extraForm.direction">
         @for (direction of directions; track direction) {
-          <option [value]="direction">{{ text().directions[direction] }}</option>
+          <app-option [value]="direction" [label]="text().directions[direction]" />
         }
-      </select>
+      </app-select>
     </app-field>
     <app-field [label]="text().extra.time" [control]="extraForm.departureTime">
       <input type="time" [formField]="extraForm.departureTime" />
@@ -36,20 +34,20 @@
   </div>
   <div class="ro-form-row">
     <app-field [label]="text().extra.driver" [control]="extraForm.driverId">
-      <select [formField]="extraForm.driverId">
-        <option value="">{{ text().extra.chooseDriver }}</option>
+      <app-select [formField]="extraForm.driverId">
+        <app-option value="" [label]="text().extra.chooseDriver" />
         @for (driver of drivers(); track driver.id) {
-          <option [value]="driver.id">{{ driver.label }}</option>
+          <app-option [value]="driver.id" [label]="driver.label" />
         }
-      </select>
+      </app-select>
     </app-field>
     <app-field [label]="text().extra.vehicle" [optional]="true">
-      <select [formField]="extraForm.vehicleId">
-        <option value="">{{ text().extra.notSet }}</option>
+      <app-select [formField]="extraForm.vehicleId">
+        <app-option value="" [label]="text().extra.notSet" />
         @for (vehicle of vehicles(); track vehicle.id) {
-          <option [value]="vehicle.id">{{ vehicle.label }}</option>
+          <app-option [value]="vehicle.id" [label]="vehicle.label" />
         }
-      </select>
+      </app-select>
     </app-field>
   </div>
   <app-field

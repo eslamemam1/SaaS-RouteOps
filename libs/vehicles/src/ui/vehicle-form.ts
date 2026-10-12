@@ -11,7 +11,7 @@ import {
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { currencySymbol } from '@routeops/shared/money';
-import { Alert, Button, Field } from '@routeops/shared/ui';
+import { Alert, Button, Field, Select, SelectOption } from '@routeops/shared/ui';
 import { VehicleAccessError } from '../application/vehicle-access-error';
 import { VehicleRepository } from '../application/vehicle-repository';
 import {
@@ -29,7 +29,7 @@ import { vehiclesText } from './vehicles-text';
 
 @Component({
   selector: 'app-vehicle-form',
-  imports: [Alert, Button, Field, FormField],
+  imports: [Alert, Button, Field, FormField, Select, SelectOption],
   templateUrl: './vehicle-form.html',
 })
 export class VehicleForm {

@@ -76,13 +76,17 @@
 }
 
 .operations-filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--ro-filter-min-width), 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--ro-space-3);
 }
 
-.operations-search {
-  grid-column: span 2;
+.operations-filters > app-field {
+  flex: 1 1 var(--ro-filter-min-width);
+}
+
+.operations-filters > .operations-search {
+  flex: 2 1 calc(2 * var(--ro-filter-min-width));
 }
 
 .operations-filter-actions {
@@ -217,8 +221,12 @@ td.operations-actions {
     padding-inline: var(--ro-space-4);
   }
 
-  .operations-filters {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .operations-filters > app-field {
+    flex-basis: 40%;
+  }
+
+  .operations-filters > .operations-search {
+    flex-basis: 100%;
   }
 
   .operations-tools .ro-pills {

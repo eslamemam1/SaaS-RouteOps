@@ -41,7 +41,9 @@
   font-size: var(--ro-text-body-sm);
 }
 
-.app-field-invalid .app-field-control :is(input, select, textarea) {
+.app-field-invalid
+  .app-field-control
+  :is(input, select, textarea, .app-select-trigger) {
   border-color: var(--ro-border-danger);
 }
 

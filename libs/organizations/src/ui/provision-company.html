@@ -18,18 +18,18 @@
     />
   </app-field>
   <app-field [label]="text().provision.currency" [hint]="text().provision.currencyHint">
-    <select [formField]="companyForm.currency">
+    <app-select [formField]="companyForm.currency">
       @for (currency of currencies; track currency) {
-        <option [value]="currency">{{ text().currencies[currency] }}</option>
+        <app-option [value]="currency" [label]="text().currencies[currency]" />
       }
-    </select>
+    </app-select>
   </app-field>
   <app-field [label]="text().provision.timeZone" [hint]="text().provision.timeZoneHint">
-    <select [formField]="companyForm.timeZone">
+    <app-select [formField]="companyForm.timeZone">
       @for (zone of timeZones; track zone) {
-        <option [value]="zone">{{ text().timeZones[zone] }}</option>
+        <app-option [value]="zone" [label]="text().timeZones[zone]" />
       }
-    </select>
+    </app-select>
   </app-field>
   @if (succeeded()) {
     <app-alert tone="success">{{ text().provision.created }}</app-alert>

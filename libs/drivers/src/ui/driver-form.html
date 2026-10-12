@@ -87,11 +87,11 @@
     <legend>{{ text().form.payTitle }}</legend>
     <p class="hint">{{ text().form.payHint }}</p>
     <app-field [label]="text().form.payType">
-      <select [formField]="driverForm.payType">
+      <app-select [formField]="driverForm.payType">
         @for (payType of payTypes; track payType) {
-        <option [value]="payType">{{ text().payTypes[payType] }}</option>
+        <app-option [value]="payType" [label]="text().payTypes[payType]" />
         }
-      </select>
+      </app-select>
     </app-field>
     @if (model().payType === 'salary') {
     <app-field

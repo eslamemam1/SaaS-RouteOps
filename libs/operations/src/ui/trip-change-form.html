@@ -38,21 +38,21 @@
   @if (!model().cancelled || !model().driverId) {
   <div class="ro-form-row">
     <app-field [label]="text().change.driver" [control]="changeForm.driverId">
-      <select [formField]="changeForm.driverId">
-        <option value="">{{ text().change.chooseDriver }}</option>
+      <app-select [formField]="changeForm.driverId">
+        <app-option value="" [label]="text().change.chooseDriver" />
         @for (driver of drivers(); track driver.id) {
-        <option [value]="driver.id">{{ driver.label }}</option>
+        <app-option [value]="driver.id" [label]="driver.label" />
         }
-      </select>
+      </app-select>
     </app-field>
     @if (!model().cancelled) {
     <app-field [label]="text().change.vehicle" [optional]="true">
-      <select [formField]="changeForm.vehicleId">
-        <option value="">{{ text().change.notSet }}</option>
+      <app-select [formField]="changeForm.vehicleId">
+        <app-option value="" [label]="text().change.notSet" />
         @for (vehicle of vehicles(); track vehicle.id) {
-        <option [value]="vehicle.id">{{ vehicle.label }}</option>
+        <app-option [value]="vehicle.id" [label]="vehicle.label" />
         }
-      </select>
+      </app-select>
     </app-field>
     }
   </div>
@@ -62,12 +62,12 @@
     [hint]="model().reason === 'driverAbsent' ? text().change.absentHint : text().change.reasonHint"
     [control]="changeForm.reason"
   >
-    <select [formField]="changeForm.reason">
-      <option value="">{{ text().change.chooseReason }}</option>
+    <app-select [formField]="changeForm.reason">
+      <app-option value="" [label]="text().change.chooseReason" />
       @for (reason of reasons; track reason) {
-      <option [value]="reason">{{ text().reasons[reason] }}</option>
+      <app-option [value]="reason" [label]="text().reasons[reason]" />
       }
-    </select>
+    </app-select>
   </app-field>
   <app-field
     [label]="text().change.notes"

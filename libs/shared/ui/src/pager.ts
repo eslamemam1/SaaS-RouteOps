@@ -13,6 +13,7 @@ import {
 import { NgIcon } from '@ng-icons/core';
 import { lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
 import { injectText } from '@routeops/shared/i18n';
+import { Select, SelectOption } from './select';
 import { uiText } from './ui-text';
 
 export const pageSizes = [10, 25, 50, 100] as const;
@@ -96,7 +97,7 @@ export function pageSlots(page: number, pageCount: number): Slot[] {
 
 @Component({
   selector: 'app-pager',
-  imports: [NgIcon],
+  imports: [NgIcon, Select, SelectOption],
   template: `
     @let list = pages();
     <p class="app-pager-range" aria-live="polite">
@@ -150,16 +151,18 @@ export function pageSlots(page: number, pageCount: number): Slot[] {
       </nav>
     }
 
-    <label class="app-pager-size">
-      <span>{{ text().pager.perPage }}</span>
-      <select [value]="list.size()" (change)="resize($event)">
+    <div class="app-pager-size">
+      <span aria-hidden="true">{{ text().pager.perPage }}</span>
+      <app-select
+        [label]="text().pager.perPage"
+        [value]="'' + list.size()"
+        (valueChange)="resize($event)"
+      >
         @for (size of sizes; track size) {
-          <option [value]="size" [selected]="size === list.size()">
-            {{ size }}
-          </option>
+          <app-option [value]="'' + size" [label]="'' + size" />
         }
-      </select>
-    </label>
+      </app-select>
+    </div>
   `,
   styleUrl: './pager.css',
   encapsulation: ViewEncapsulation.None,
@@ -192,9 +195,8 @@ export class Pager {
     this.showListTop();
   }
 
-  protected resize(event: Event): void {
-    const value = Number((event.target as HTMLSelectElement).value);
-    const size = pageSizes.find((option) => option === value);
+  protected resize(value: string): void {
+    const size = pageSizes.find((option) => option === Number(value));
     if (size) {
       this.pages().size.set(size);
       this.showListTop();

@@ -10,7 +10,13 @@ import {
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { formatTime, injectText, LanguageService } from '@routeops/shared/i18n';
-import { Alert, Button, Field } from '@routeops/shared/ui';
+import {
+  Alert,
+  Button,
+  Field,
+  Select,
+  SelectOption,
+} from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -31,7 +37,15 @@ import { tripChangeSchema } from './trip-change-fields';
 
 @Component({
   selector: 'app-trip-change-form',
-  imports: [Alert, Button, ConflictList, Field, FormField],
+  imports: [
+    Alert,
+    Button,
+    ConflictList,
+    Field,
+    FormField,
+    Select,
+    SelectOption,
+  ],
   templateUrl: './trip-change-form.html',
   styleUrl: './trip-change-form.css',
 })

@@ -11,7 +11,7 @@ import {
 import { apply, disabled, form, FormField, submit, validate } from '@angular/forms/signals';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { currencySymbol } from '@routeops/shared/money';
-import { Alert, Button, Field } from '@routeops/shared/ui';
+import { Alert, Button, Field, Select, SelectOption } from '@routeops/shared/ui';
 import { ExpenseAccessError } from '../application/expense-access-error';
 import { ExpenseRepository } from '../application/expense-repository';
 import {
@@ -29,7 +29,7 @@ import { expensesText } from './expenses-text';
 
 @Component({
   selector: 'app-expense-form',
-  imports: [Alert, Button, Field, FormField],
+  imports: [Alert, Button, Field, FormField, Select, SelectOption],
   templateUrl: './expense-form.html',
 })
 export class ExpenseForm {

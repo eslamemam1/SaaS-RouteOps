@@ -12,7 +12,7 @@ import {
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { currencySymbol } from '@routeops/shared/money';
-import { Alert, Avatar, Button, Field } from '@routeops/shared/ui';
+import { Alert, Avatar, Button, Field, Select, SelectOption } from '@routeops/shared/ui';
 import { DriverAccessError } from '../application/driver-access-error';
 import { DriverRepository } from '../application/driver-repository';
 import {
@@ -41,7 +41,7 @@ export interface DriverSaved {
 
 @Component({
   selector: 'app-driver-form',
-  imports: [Alert, Avatar, Button, Field, FormField],
+  imports: [Alert, Avatar, Button, Field, FormField, Select, SelectOption],
   templateUrl: './driver-form.html',
   styleUrl: './driver-form.css',
 })
