@@ -125,6 +125,22 @@ export interface SiteText {
     readonly notesTitle: string;
     readonly notes: readonly string[];
   };
+  readonly offers: {
+    readonly label: string;
+    readonly off: string;
+    readonly trial: string;
+    readonly days: {
+      readonly one: string;
+      readonly two: string;
+      readonly few: string;
+      readonly many: string;
+    };
+    readonly onPlans: string;
+    readonly forPeriods: string;
+    readonly or: string;
+    readonly until: string;
+    readonly see: string;
+  };
 }
 
 export const siteText: Record<Language, SiteText> = {
@@ -309,6 +325,17 @@ export const siteText: Record<Language, SiteText> = {
         'الخصم يُحسب على سعر المدة كلها.',
       ],
     },
+    offers: {
+      label: 'العروض الحالية',
+      off: 'خصم',
+      trial: 'جرّب مجانًا لمدة',
+      days: { one: 'يوم واحد', two: 'يومين', few: 'أيام', many: 'يومًا' },
+      onPlans: 'على:',
+      forPeriods: 'عند الاشتراك لمدة',
+      or: 'أو',
+      until: 'حتى',
+      see: 'شاهد الأسعار',
+    },
   },
   en: {
     home: {
@@ -490,6 +517,17 @@ export const siteText: Record<Language, SiteText> = {
         'At the plan limit a new vehicle cannot be added until the plan is upgraded or another vehicle is made inactive.',
         'The discount applies to the price of the whole period.',
       ],
+    },
+    offers: {
+      label: 'Current offers',
+      off: 'off',
+      trial: 'Try it free for',
+      days: { one: '1 day', two: '2 days', few: 'days', many: 'days' },
+      onPlans: 'On:',
+      forPeriods: 'when you subscribe for',
+      or: 'or',
+      until: 'until',
+      see: 'See prices',
     },
   },
 };

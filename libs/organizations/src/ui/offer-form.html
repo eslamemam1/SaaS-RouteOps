@@ -1,0 +1,148 @@
+<form class="ro-form offer-form" (submit)="onSubmit($event)">
+  <fieldset class="offer-section">
+    <legend>{{ text().offers.kindTitle }}</legend>
+    <div
+      class="ro-options offer-kinds"
+      role="radiogroup"
+      [attr.aria-label]="text().offers.kindTitle"
+    >
+      @for (kind of kinds; track kind) {
+        <label class="ro-option">
+          <input
+            type="radio"
+            name="offer-kind"
+            [value]="kind"
+            [checked]="model().kind === kind"
+            (change)="setKind(kind)"
+          />
+          <span class="ro-option-title">{{ text().offers.kinds[kind] }}</span>
+          <span class="ro-option-hint">{{ text().offers.kindHints[kind] }}</span>
+        </label>
+      }
+    </div>
+    @if (model().kind === 'percent') {
+      <app-field
+        [label]="text().offers.percentOff"
+        [hint]="text().offers.percentHint"
+        [control]="offerForm.percentOff"
+      >
+        <input type="text" inputmode="numeric" dir="ltr" [formField]="offerForm.percentOff" />
+      </app-field>
+    } @else {
+      <app-field
+        [label]="text().offers.trialDays"
+        [hint]="text().offers.trialDaysHint"
+        [control]="offerForm.trialDays"
+      >
+        <input type="text" inputmode="numeric" dir="ltr" [formField]="offerForm.trialDays" />
+      </app-field>
+    }
+    <app-field
+      [label]="text().offers.nameAr"
+      [hint]="text().offers.nameHint"
+      [control]="offerForm.nameAr"
+    >
+      <input type="text" dir="rtl" [formField]="offerForm.nameAr" />
+    </app-field>
+    <app-field [label]="text().offers.nameEn" [control]="offerForm.nameEn">
+      <input type="text" dir="ltr" [formField]="offerForm.nameEn" />
+    </app-field>
+  </fieldset>
+
+  <fieldset class="offer-section">
+    <legend>{{ text().offers.scopeTitle }}</legend>
+    @if (choosablePlans().length === 0) {
+      <app-alert tone="info">{{ text().offers.noPlans }}</app-alert>
+    } @else {
+      <div class="offer-group" role="group" aria-labelledby="offer-plans-label">
+        <span class="app-field-label" id="offer-plans-label">{{ text().offers.plans }}</span>
+        <span class="hint">{{ text().offers.plansHint }}</span>
+        <div class="ro-options offer-choices">
+          @for (plan of choosablePlans(); track plan.id) {
+            <label class="ro-option">
+              <input
+                type="checkbox"
+                [attr.data-plan]="plan.id"
+                [checked]="planIds().includes(plan.id)"
+                (change)="togglePlan(plan.id, $any($event.target).checked)"
+              />
+              <span class="ro-option-title">{{ planLabel(plan) }}</span>
+              <span class="ro-option-hint">{{ text().currencies[plan.currency] }}</span>
+            </label>
+          }
+        </div>
+        @if (plansError(); as current) {
+          <p class="app-field-error" role="alert">{{ problems()[current] }}</p>
+        }
+      </div>
+    }
+    @if (model().kind === 'percent') {
+      <div class="offer-group" role="group" aria-labelledby="offer-months-label">
+        <span class="app-field-label" id="offer-months-label">{{ text().offers.months }}</span>
+        <span class="hint">{{ text().offers.monthsHint }}</span>
+        <div class="ro-options offer-choices">
+          @for (period of periods; track period) {
+            <label class="ro-option">
+              <input
+                type="checkbox"
+                [attr.data-months]="period"
+                [checked]="months().includes(period)"
+                (change)="toggleMonths(period, $any($event.target).checked)"
+              />
+              <span class="ro-option-title">{{ text().plans.periods[period] }}</span>
+            </label>
+          }
+        </div>
+        @if (monthsError(); as current) {
+          <p class="app-field-error" role="alert">{{ problems()[current] }}</p>
+        }
+      </div>
+    }
+  </fieldset>
+
+  <fieldset class="offer-section">
+    <legend>{{ text().offers.datesTitle }}</legend>
+    <div class="ro-form-row">
+      <app-field [label]="text().offers.startsOn" [control]="offerForm.startsOn">
+        <input type="date" dir="ltr" [formField]="offerForm.startsOn" />
+      </app-field>
+      <app-field
+        [label]="text().offers.endsOn"
+        [hint]="text().offers.endsOnHint"
+        [optional]="true"
+        [control]="offerForm.endsOn"
+      >
+        <input type="date" dir="ltr" [formField]="offerForm.endsOn" />
+      </app-field>
+    </div>
+    <app-field
+      [label]="text().offers.codeField"
+      [hint]="text().offers.codeHint"
+      [optional]="true"
+      [control]="offerForm.code"
+    >
+      <input
+        type="text"
+        dir="ltr"
+        autocapitalize="characters"
+        class="offer-code"
+        [formField]="offerForm.code"
+      />
+    </app-field>
+    <label class="ro-option">
+      <input type="checkbox" [formField]="offerForm.isActive" />
+      <span class="ro-option-title">{{ text().offers.isActive }}</span>
+      <span class="ro-option-hint">{{ text().offers.isActiveHint }}</span>
+    </label>
+  </fieldset>
+
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ problems()[current] }}</app-alert>
+  }
+  <div class="ro-toolbar offer-actions">
+    <button appButton type="submit" [disabled]="busy()">{{ text().offers.save }}</button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().offers.cancel }}
+    </button>
+  </div>
+</form>

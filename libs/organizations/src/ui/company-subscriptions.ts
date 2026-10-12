@@ -5,7 +5,9 @@ import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { toAmountText } from '@routeops/shared/money';
 import {
   formatPrice,
+  offerName,
   planName,
+  SubscriptionOffer,
   SubscriptionPeriod,
   SubscriptionPlan,
 } from '@routeops/shared/pricing';
@@ -63,6 +65,7 @@ export class CompanySubscriptions {
   protected readonly accounts = signal<CompanyAccount[]>([]);
   protected readonly plans = signal<SubscriptionPlan[]>([]);
   protected readonly periods = signal<SubscriptionPeriod[]>([]);
+  protected readonly offers = signal<SubscriptionOffer[]>([]);
   protected readonly subscriptions = signal<OrganizationSubscription[]>([]);
   protected readonly usage = signal<VehicleUsage[]>([]);
   protected readonly formOpen = signal(false);
@@ -112,17 +115,19 @@ export class CompanySubscriptions {
     this.status.set('loading');
     this.problem.set(null);
     try {
-      const [accounts, plans, periods, subscriptions, usage] =
+      const [accounts, plans, periods, offers, subscriptions, usage] =
         await Promise.all([
           this.organizations.listCompanyAccounts(),
           this.repository.listPlans(),
           this.repository.listPeriods(),
+          this.repository.listOffers(),
           this.repository.listSubscriptions(),
           this.repository.vehicleUsage(),
         ]);
       this.accounts.set(accounts);
       this.plans.set(plans);
       this.periods.set(periods);
+      this.offers.set(offers);
       this.subscriptions.set(subscriptions);
       this.usage.set(usage);
       this.status.set('ready');
@@ -159,13 +164,17 @@ export class CompanySubscriptions {
     this.formDetails.set({
       organizationId: subscription.organizationId,
       planId: subscription.planId,
-      months: String(subscription.months),
+      offerId: subscription.offerId ?? '',
+      months: String(subscription.months ?? 1),
       startsOn: subscription.startsOn,
       vehicleLimit:
         subscription.vehicleLimit === null
           ? ''
           : String(subscription.vehicleLimit),
-      price: toAmountText(subscription.price, account.currency),
+      price:
+        subscription.trialDays === null
+          ? toAmountText(subscription.price, account.currency)
+          : '',
       note: subscription.note,
     });
     this.formOpen.set(true);
@@ -219,11 +228,29 @@ export class CompanySubscriptions {
     return plan ? planName(plan, this.language()) : '';
   }
 
+  // A trial shows its days in place of the period.
+  protected periodOf(subscription: OrganizationSubscription): string {
+    const text = this.text();
+    return subscription.months === null
+      ? `${text.subscriptions.trial} · ${text.subscriptions.trialDays} ${subscription.trialDays}`
+      : text.plans.periods[subscription.months];
+  }
+
   protected price(subscription: OrganizationSubscription): string {
+    if (subscription.trialDays !== null) {
+      return this.text().subscriptions.free;
+    }
     const account = this.accountsById().get(subscription.organizationId);
     return account
       ? formatPrice(subscription.price, account.currency, this.language())
       : '';
+  }
+
+  protected offerOf(subscription: OrganizationSubscription): string {
+    const offer = this.offers().find(
+      (item) => item.id === subscription.offerId,
+    );
+    return offer ? offerName(offer, this.language()) : '';
   }
 
   // A company over its limit is red and one at it amber, so the operator sees

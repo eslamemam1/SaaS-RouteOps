@@ -11,6 +11,7 @@ export const siteRoutes: Route[] = [
     pathMatch: 'full',
     component: Home,
     canActivate: [redirectSignedIn],
+    providers: [providePricing()],
     data: { shell: false },
   },
   { path: 'contact', component: Contact, data: { shell: false } },

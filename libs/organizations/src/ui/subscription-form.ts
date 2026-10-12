@@ -22,11 +22,15 @@ import { currencySymbol, toAmountText } from '@routeops/shared/money';
 import {
   formatPrice,
   fullPrice,
+  offerFits,
+  offerName,
+  offerPrice,
   periodPrice,
   planFor,
   planName,
   plansIn,
   subscriptionEnd,
+  SubscriptionOffer,
   SubscriptionPeriod,
   SubscriptionPlan,
 } from '@routeops/shared/pricing';
@@ -50,6 +54,7 @@ import {
   suggestedStart,
   vehicleLimitError,
 } from '../domain/subscription';
+import { offersFor, trialAllowed } from '../domain/offer';
 import { SubscriptionError } from '../application/subscription-error';
 import { SubscriptionRepository } from '../application/subscription-repository';
 import { organizationsText } from './organizations-text';
@@ -67,6 +72,7 @@ export class SubscriptionForm {
   readonly companies = input.required<readonly CompanySubscription[]>();
   readonly plans = input.required<readonly SubscriptionPlan[]>();
   readonly periods = input.required<readonly SubscriptionPeriod[]>();
+  readonly offers = input<readonly SubscriptionOffer[]>([]);
   readonly details = input.required<SubscriptionDetails>();
   // The subscription being corrected, or null for a new one.
   readonly subscriptionId = input<string | null>(null);
@@ -82,6 +88,7 @@ export class SubscriptionForm {
   protected readonly model = signal<SubscriptionDetails>({
     organizationId: '',
     planId: '',
+    offerId: '',
     months: '1',
     startsOn: '',
     vehicleLimit: '',
@@ -136,27 +143,66 @@ export class SubscriptionForm {
         (period) => period.months === Number(this.model().months),
       ) ?? null,
   );
+  protected readonly availableOffers = computed(() => {
+    const company = this.company();
+    const { planId, startsOn } = this.model();
+    if (company === null || planId === '') {
+      return [];
+    }
+    return offersFor(this.offers(), {
+      planId,
+      today: company.today,
+      trialAllowed: trialAllowed(company, startsOn, this.subscriptionId()),
+      keptOfferId: this.editing() ? this.details().offerId || null : null,
+    });
+  });
+  protected readonly offer = computed(
+    () =>
+      this.offers().find((offer) => offer.id === this.model().offerId) ?? null,
+  );
+  protected readonly trial = computed(() => this.offer()?.kind === 'trial');
   protected readonly endsOn = computed(() => {
     const { startsOn } = this.model();
+    if (startsOnError(startsOn) !== null) {
+      return null;
+    }
+    const days = this.trial() ? this.offer()?.trialDays : null;
+    if (days) {
+      return addDays(startsOn, days - 1);
+    }
     const period = this.period();
-    return period === null || startsOnError(startsOn) !== null
-      ? null
-      : subscriptionEnd(startsOn, period.months);
+    return period === null ? null : subscriptionEnd(startsOn, period.months);
   });
   protected readonly breakdown = computed(() => {
     const plan = this.plan();
     const period = this.period();
-    if (plan === null || plan.monthlyPrice === null || period === null) {
+    if (
+      plan === null ||
+      plan.monthlyPrice === null ||
+      period === null ||
+      this.trial()
+    ) {
       return null;
     }
     const format = (minor: number) =>
       formatPrice(minor, plan.currency, this.language());
+    const afterPeriod = periodPrice(plan.monthlyPrice, period);
+    const offer = this.offer();
+    const percent =
+      offer !== null && offerFits(offer, plan.id, period.months)
+        ? (offer.percentOff ?? 0)
+        : 0;
     return {
       monthly: format(plan.monthlyPrice),
       months: period.months,
       full: format(fullPrice(plan.monthlyPrice, period.months)),
       discount: period.discountPercent,
-      total: format(periodPrice(plan.monthlyPrice, period)),
+      afterDiscount: format(afterPeriod),
+      offer:
+        offer !== null && percent > 0
+          ? { name: offerName(offer, this.language()), percent }
+          : null,
+      total: format(offerPrice(afterPeriod, percent)),
     };
   });
 
@@ -172,8 +218,20 @@ export class SubscriptionForm {
           : 'plan',
       ),
     );
+    validate(path.offerId, ({ value }) => {
+      const offer = this.offer();
+      const months = this.period()?.months ?? null;
+      return this.fieldError(
+        value() !== '' &&
+          (offer === null ||
+            !this.availableOffers().includes(offer) ||
+            !offerFits(offer, this.model().planId, months))
+          ? 'offer'
+          : null,
+      );
+    });
     validate(path.months, ({ value }) =>
-      this.fieldError(subscriptionMonthsError(value())),
+      this.fieldError(this.trial() ? null : subscriptionMonthsError(value())),
     );
     validate(path.startsOn, ({ value }) =>
       this.fieldError(startsOnError(value())),
@@ -182,7 +240,9 @@ export class SubscriptionForm {
       this.fieldError(vehicleLimitError(value())),
     );
     validate(path.price, ({ value }) =>
-      this.fieldError(subscriptionPriceError(value(), this.currency())),
+      this.fieldError(
+        this.trial() ? null : subscriptionPriceError(value(), this.currency()),
+      ),
     );
     validate(path.note, ({ value }) =>
       this.fieldError(subscriptionNoteError(value())),
@@ -192,18 +252,14 @@ export class SubscriptionForm {
   private chosenCompany = '';
   private keptPlan = '';
   private readonly companyChoice = computed(() => this.model().organizationId);
-  private readonly planChoice = computed(
-    () => `${this.model().planId}|${this.model().months}`,
-  );
+  private readonly planChoice = computed(() => choiceOf(this.model()));
 
   constructor() {
     effect(() => {
       const details = this.details();
       untracked(() => {
         this.chosenCompany = details.organizationId;
-        this.keptPlan = this.editing()
-          ? `${details.planId}|${details.months}`
-          : '';
+        this.keptPlan = this.editing() ? choiceOf(details) : '';
         this.subscriptionForm().reset(details);
         this.problem.set(null);
       });
@@ -212,7 +268,7 @@ export class SubscriptionForm {
       const organizationId = this.companyChoice();
       untracked(() => this.companyChanged(organizationId));
     });
-    // A corrected subscription keeps its agreed limit and price until its plan or period changes.
+    // A corrected subscription keeps its agreed limit and price until its plan, period, or offer changes.
     effect(() => {
       const choice = this.planChoice();
       untracked(() => {
@@ -227,6 +283,16 @@ export class SubscriptionForm {
 
   protected planLabel(plan: SubscriptionPlan): string {
     return planName(plan, this.language());
+  }
+
+  protected offerLabel(offer: SubscriptionOffer): string {
+    const text = this.text().subscriptions;
+    const terms =
+      offer.kind === 'percent'
+        ? `−${offer.percentOff}%`
+        : `${text.trial} · ${text.trialDays} ${offer.trialDays}`;
+    const code = offer.code ? ` · ${offer.code}` : '';
+    return `${offerName(offer, this.language())} (${terms})${code}`;
   }
 
   protected periodLabel(period: SubscriptionPeriod): string {
@@ -262,11 +328,13 @@ export class SubscriptionForm {
             ? await this.repository.recordSubscription(
                 company.account,
                 this.model(),
+                this.offer(),
               )
             : await this.repository.updateSubscription(
                 subscriptionId,
                 company.account,
                 this.model(),
+                this.offer(),
               );
         this.saved.emit(subscription);
         return undefined;
@@ -295,23 +363,35 @@ export class SubscriptionForm {
     this.model.update((details) => ({
       ...details,
       planId: plan?.id ?? '',
+      offerId: '',
       startsOn: company ? suggestedStart(company) : details.startsOn,
     }));
   }
 
+  // The price suggested is the period's price less the offer's percent, if it covers the period.
   private fillFromPlan(): void {
     const plan = this.plan();
     const period = this.period();
     if (plan === null) {
       return;
     }
+    const offer = this.offer();
+    const percent =
+      offer !== null &&
+      period !== null &&
+      offerFits(offer, plan.id, period.months)
+        ? (offer.percentOff ?? 0)
+        : 0;
     this.model.update((details) => ({
       ...details,
       vehicleLimit: plan.vehicleLimit === null ? '' : String(plan.vehicleLimit),
       price:
         plan.monthlyPrice === null || period === null
           ? details.price
-          : toAmountText(periodPrice(plan.monthlyPrice, period), plan.currency),
+          : toAmountText(
+              offerPrice(periodPrice(plan.monthlyPrice, period), percent),
+              plan.currency,
+            ),
     }));
   }
 
@@ -320,4 +400,14 @@ export class SubscriptionForm {
       ? undefined
       : { kind: problem, message: this.problems()[problem] };
   }
+}
+
+function choiceOf(details: SubscriptionDetails): string {
+  return `${details.planId}|${details.months}|${details.offerId}`;
+}
+
+function addDays(day: string, days: number): string {
+  const date = new Date(`${day}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
 }

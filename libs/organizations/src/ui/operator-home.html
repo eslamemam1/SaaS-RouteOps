@@ -55,7 +55,15 @@
   aria-labelledby="operator-tab-plans"
   [hidden]="section() !== 'plans'"
 >
-  <app-subscription-plans (changed)="subscriptions()?.reload()" />
+  <app-subscription-plans (changed)="subscriptions()?.reload(); offers()?.reload()" />
+</div>
+<div
+  role="tabpanel"
+  id="operator-panel-offers"
+  aria-labelledby="operator-tab-offers"
+  [hidden]="section() !== 'offers'"
+>
+  <app-subscription-offers (changed)="subscriptions()?.reload()" />
 </div>
 
 <app-form-drawer [title]="text().provision.title" [(open)]="provisionOpen">

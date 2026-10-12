@@ -32,6 +32,9 @@
             <a appButton routerLink="/contact">{{ text().pricing.contact }}</a>
           </app-page-state>
         } @else {
+          @if (offers().length > 0) {
+            <app-pricing-offers [offers]="offers()" [plans]="plans()" />
+          }
           <div class="pricing-controls">
             <div class="pricing-control">
               <span class="pricing-control-label" id="pricing-period">
@@ -111,6 +114,9 @@
                   </p>
                 </div>
                 <div class="pricing-price">
+                  @if (card.offer) {
+                    <span class="pricing-plan-offer">{{ card.offer }}</span>
+                  }
                   @if (card.price; as price) {
                     <strong class="pricing-amount"
                       ><bdi>{{ price.total }}</bdi></strong
@@ -130,6 +136,9 @@
                   } @else {
                     <strong class="pricing-amount">{{ text().pricing.agreed }}</strong>
                     <span class="pricing-per">{{ text().pricing.agreedHint }}</span>
+                  }
+                  @if (card.trial) {
+                    <span class="pricing-plan-trial">{{ card.trial }}</span>
                   }
                 </div>
                 <ul class="pricing-included">

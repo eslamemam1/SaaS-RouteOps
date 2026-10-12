@@ -11,6 +11,7 @@ import {
   lucideBanknote,
   lucideBuilding2,
   lucideCalendarCheck,
+  lucideGift,
   lucideTag,
 } from '@ng-icons/lucide';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
@@ -19,6 +20,7 @@ import { CompanyAccounts } from './company-accounts';
 import { CompanySubscriptions } from './company-subscriptions';
 import { organizationsText } from './organizations-text';
 import { ProvisionCompanyForm } from './provision-company';
+import { SubscriptionOffers } from './subscription-offers';
 import { SubscriptionPayments } from './subscription-payments';
 import { SubscriptionPlans } from './subscription-plans';
 
@@ -27,11 +29,12 @@ const sections = [
   { key: 'subscriptions', icon: lucideCalendarCheck },
   { key: 'payments', icon: lucideBanknote },
   { key: 'plans', icon: lucideTag },
+  { key: 'offers', icon: lucideGift },
 ] as const;
 
 type Section = (typeof sections)[number]['key'];
 
-// The site operator's work: the companies, their subscriptions and payments, and the plans on sale.
+// The site operator's work: the companies, their subscriptions and payments, and the plans and offers on sale.
 @Component({
   selector: 'app-operator-home',
   imports: [
@@ -41,6 +44,7 @@ type Section = (typeof sections)[number]['key'];
     FormDrawer,
     NgIcon,
     ProvisionCompanyForm,
+    SubscriptionOffers,
     SubscriptionPayments,
     SubscriptionPlans,
   ],
@@ -58,6 +62,7 @@ export class OperatorHome {
   private readonly accounts = viewChild(CompanyAccounts);
   private readonly payments = viewChild(SubscriptionPayments);
   protected readonly subscriptions = viewChild(CompanySubscriptions);
+  protected readonly offers = viewChild(SubscriptionOffers);
 
   addCompany(): void {
     this.provisionOpen.set(true);

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { SubscriptionPlan } from '@routeops/shared/pricing';
+import { SubscriptionOffer, SubscriptionPlan } from '@routeops/shared/pricing';
 import {
   PriceList,
   PricingRepository,
@@ -36,6 +36,33 @@ const priceList: PriceList = {
     { months: 6, discountPercent: 15 },
     { months: 12, discountPercent: 20 },
   ],
+  offers: [],
+};
+
+const autumn: SubscriptionOffer = {
+  id: 'autumn',
+  kind: 'percent',
+  nameAr: 'عرض الخريف',
+  nameEn: 'Autumn offer',
+  code: null,
+  percentOff: 20,
+  trialDays: null,
+  planIds: ['starter'],
+  months: [3],
+  startsOn: '2020-01-01',
+  endsOn: '2099-12-31',
+  isActive: true,
+};
+const trial: SubscriptionOffer = {
+  ...autumn,
+  id: 'trial',
+  kind: 'trial',
+  nameAr: 'جرّب مجانًا',
+  percentOff: null,
+  trialDays: 14,
+  planIds: ['growth'],
+  months: [],
+  endsOn: null,
 };
 
 describe('Pricing', () => {
@@ -84,8 +111,47 @@ describe('Pricing', () => {
     ).toBe('large');
   });
 
+  it('shows the running offers and takes an offer off after the period discount', async () => {
+    const element = await render(async () => ({
+      ...priceList,
+      offers: [autumn, trial],
+    }));
+
+    const banners = [...element.querySelectorAll('.pricing-offer')];
+    expect(banners.map((item) => item.getAttribute('data-offer'))).toEqual([
+      'autumn',
+      'trial',
+    ]);
+    expect(banners[0].textContent).toContain('خصم 20%');
+    expect(banners[1].textContent).toContain('جرّب مجانًا لمدة 14 يومًا');
+    expect(amount(element, 'starter')).toContain('750');
+    expect(
+      card(element, 'starter')?.querySelector('.pricing-plan-offer'),
+    ).toBeNull();
+    expect(
+      card(element, 'growth')?.querySelector('.pricing-plan-trial'),
+    ).not.toBeNull();
+
+    click(element, '.pricing-period[data-months="3"]');
+    await settle();
+
+    expect(amount(element, 'starter')).toContain('1,620');
+    expect(
+      card(element, 'starter')?.querySelector('.pricing-was s')?.textContent,
+    ).toContain('2,250');
+    expect(
+      card(element, 'starter')?.querySelector('.pricing-plan-offer')
+        ?.textContent,
+    ).toContain('عرض الخريف');
+    expect(amount(element, 'growth')).toContain('4,860');
+  });
+
   it('says so when no plan is published, and offers to retry a failed load', async () => {
-    const empty = await render(async () => ({ plans: [], periods: [] }));
+    const empty = await render(async () => ({
+      plans: [],
+      periods: [],
+      offers: [],
+    }));
     expect(empty.textContent).toContain(arabic.empty);
 
     const failed = await render(async () => {
@@ -101,7 +167,10 @@ async function render(load: () => Promise<PriceList>): Promise<HTMLElement> {
     imports: [Pricing],
     providers: [
       provideRouter([]),
-      { provide: PricingRepository, useValue: { load } },
+      {
+        provide: PricingRepository,
+        useValue: { load, offers: async () => [] },
+      },
     ],
   }).compileComponents();
   const fixture = TestBed.createComponent(Pricing);

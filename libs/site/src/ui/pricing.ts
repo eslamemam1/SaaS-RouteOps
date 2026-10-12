@@ -14,14 +14,18 @@ import {
   defaultCurrency,
 } from '@routeops/shared/money';
 import {
+  bestOffer,
   formatPrice,
   fullPrice,
+  localToday,
+  offerName,
+  offerPrice,
   periodPrice,
-  periodSaving,
   planCurrencies,
   planFor,
   planName,
   plansIn,
+  runningOffers,
   SubscriptionMonths,
   SubscriptionPeriod,
 } from '@routeops/shared/pricing';
@@ -38,6 +42,8 @@ import {
   PriceList,
   PricingRepository,
 } from '../application/pricing-repository';
+import { offerTerms } from './offer-terms';
+import { PricingOffers } from './pricing-offers';
 import { siteText } from './site-text';
 
 @Component({
@@ -47,6 +53,7 @@ import { siteText } from './site-text';
     Field,
     NgIcon,
     PageState,
+    PricingOffers,
     PublicHero,
     PublicLayout,
     RouterLink,
@@ -68,7 +75,12 @@ export class Pricing {
     arrow: lucideArrowRight,
   };
   protected readonly status = signal<'loading' | 'ready' | 'error'>('loading');
-  private readonly list = signal<PriceList>({ plans: [], periods: [] });
+  private readonly today = localToday();
+  private readonly list = signal<PriceList>({
+    plans: [],
+    periods: [],
+    offers: [],
+  });
   protected readonly currency = signal<Currency>(defaultCurrency);
   protected readonly months = signal<SubscriptionMonths>(1);
   protected readonly vehicles = signal('');
@@ -80,9 +92,16 @@ export class Pricing {
       label: `${currency} · ${currencySymbol(currency, this.language())}`,
     })),
   );
-  private readonly plans = computed(() =>
+  protected readonly plans = computed(() =>
     plansIn(this.list().plans, this.currency()),
   );
+  // The offers running today on at least one plan of the shown currency.
+  protected readonly offers = computed(() => {
+    const shown = new Set(this.plans().map((plan) => plan.id));
+    return runningOffers(this.list().offers, this.today).filter((offer) =>
+      offer.planIds.some((id) => shown.has(id)),
+    );
+  });
   private readonly period = computed<SubscriptionPeriod>(
     () =>
       this.periods().find((period) => period.months === this.months()) ?? {
@@ -101,22 +120,52 @@ export class Pricing {
       this.plans().length > 0 &&
       this.recommended() === null,
   );
+  // A plan's price for the chosen period less its discount and then the
+  // largest offer running on it, and the free trial it comes with, if any.
   protected readonly cards = computed(() => {
     const period = this.period();
-    return this.plans().map((plan) => ({
-      id: plan.id,
-      name: planName(plan, this.language()),
-      vehicleLimit: plan.vehicleLimit,
-      price:
+    const language = this.language();
+    const text = this.text().offers;
+    return this.plans().map((plan) => {
+      const offer = bestOffer(
+        this.offers(),
+        plan.id,
+        period.months,
+        this.today,
+      );
+      const trial = this.offers().find(
+        (item) => item.kind === 'trial' && item.planIds.includes(plan.id),
+      );
+      const full =
         plan.monthlyPrice === null
-          ? null
-          : {
-              total: this.money(periodPrice(plan.monthlyPrice, period)),
-              full: this.money(fullPrice(plan.monthlyPrice, period.months)),
-              saving: periodSaving(plan.monthlyPrice, period),
-              savingText: this.money(periodSaving(plan.monthlyPrice, period)),
-            },
-    }));
+          ? 0
+          : fullPrice(plan.monthlyPrice, period.months);
+      const total =
+        plan.monthlyPrice === null
+          ? 0
+          : offerPrice(
+              periodPrice(plan.monthlyPrice, period),
+              offer?.percentOff ?? 0,
+            );
+      return {
+        id: plan.id,
+        name: planName(plan, language),
+        vehicleLimit: plan.vehicleLimit,
+        offer: offer
+          ? `${offerTerms(offer, text, language)} · ${offerName(offer, language)}`
+          : null,
+        trial: trial ? offerTerms(trial, text, language) : null,
+        price:
+          plan.monthlyPrice === null
+            ? null
+            : {
+                total: this.money(total),
+                full: this.money(full),
+                saving: full - total,
+                savingText: this.money(full - total),
+              },
+      };
+    });
   });
 
   constructor() {

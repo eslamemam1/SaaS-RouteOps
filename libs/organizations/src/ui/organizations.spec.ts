@@ -707,6 +707,10 @@ async function render(
     },
     listPeriods: async () => [],
     saveDiscounts: async () => [],
+    listOffers: async () => [],
+    saveOffer: async () => {
+      throw new Error('not used');
+    },
     listSubscriptions: async () => [],
     recordSubscription: async () => {
       throw new Error('not used');

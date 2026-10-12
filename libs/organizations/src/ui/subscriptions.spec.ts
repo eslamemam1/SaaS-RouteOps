@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import {
   formatPrice,
+  SubscriptionOffer,
   SubscriptionPeriod,
   SubscriptionPlan,
 } from '@routeops/shared/pricing';
@@ -15,6 +16,7 @@ import { SubscriptionError } from '../application/subscription-error';
 import { SubscriptionRepository } from '../application/subscription-repository';
 import { CompanySubscriptions } from './company-subscriptions';
 import { organizationsText } from './organizations-text';
+import { SubscriptionOffers } from './subscription-offers';
 import { SubscriptionPlans } from './subscription-plans';
 
 const starter: SubscriptionPlan = {
@@ -55,11 +57,38 @@ const nileSubscription: OrganizationSubscription = {
   organizationId: 'org-nile',
   planId: 'plan-starter',
   months: 3,
+  trialDays: null,
+  offerId: null,
   startsOn: '2026-08-01',
   endsOn: '2026-10-31',
   vehicleLimit: 5,
   price: 202_500,
   note: '',
+};
+const autumn: SubscriptionOffer = {
+  id: 'offer-autumn',
+  kind: 'percent',
+  nameAr: 'عرض الخريف',
+  nameEn: 'Autumn offer',
+  code: null,
+  percentOff: 20,
+  trialDays: null,
+  planIds: ['plan-starter'],
+  months: [3, 6],
+  startsOn: '2026-10-01',
+  endsOn: '2026-11-30',
+  isActive: true,
+};
+const trial: SubscriptionOffer = {
+  ...autumn,
+  id: 'offer-trial',
+  kind: 'trial',
+  nameAr: 'جرّب مجانًا',
+  nameEn: 'Try free',
+  percentOff: null,
+  trialDays: 14,
+  planIds: ['plan-starter', 'plan-growth'],
+  months: [],
 };
 const arabic = organizationsText.ar;
 
@@ -137,6 +166,60 @@ describe('SubscriptionPlans', () => {
   });
 });
 
+describe('SubscriptionOffers', () => {
+  it('adds a percent offer on the chosen plans and periods, and asks for a plan first', async () => {
+    const saveOffer = vi.fn<SubscriptionRepository['saveOffer']>(
+      async () => autumn,
+    );
+    const fixture = await render(SubscriptionOffers, {
+      listPlans: async () => [starter, growth],
+      saveOffer,
+    });
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.textContent).toContain(arabic.offers.empty);
+
+    button(fixture, arabic.offers.add).click();
+    await settle(fixture);
+    const offerForm = element.querySelector('app-offer-form')!;
+    const inputs =
+      offerForm.querySelectorAll<HTMLInputElement>('input[type="text"]');
+    fill(inputs[0], '٢٠');
+    fill(inputs[1], 'عرض الخريف');
+    fill(inputs[2], 'Autumn offer');
+    offerForm.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+    expect(saveOffer).not.toHaveBeenCalled();
+    expect(offerForm.textContent).toContain(
+      arabic.subscriptionProblems.offerPlans,
+    );
+
+    offerForm
+      .querySelector<HTMLInputElement>('input[data-plan="plan-starter"]')!
+      .click();
+    offerForm
+      .querySelector<HTMLInputElement>('input[data-months="6"]')!
+      .click();
+    offerForm.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+
+    expect(saveOffer).toHaveBeenCalledWith(
+      null,
+      expect.objectContaining({
+        kind: 'percent',
+        nameAr: 'عرض الخريف',
+        percentOff: '٢٠',
+        code: '',
+        planIds: ['plan-starter'],
+        months: [6],
+        endsOn: '',
+        isActive: true,
+      }),
+    );
+    expect(element.textContent).toContain(arabic.offers.added);
+    expect(rowsOf(fixture, '.offers-table')[0]).toContain('عرض الخريف');
+  });
+});
+
 describe('CompanySubscriptions', () => {
   it('marks a company that runs more vehicles than its plan allows', async () => {
     const fixture = await render(CompanySubscriptions, running());
@@ -173,15 +256,20 @@ describe('CompanySubscriptions', () => {
     subscriptionForm.querySelector('form')!.dispatchEvent(new Event('submit'));
     await settle(fixture);
 
-    expect(recordSubscription).toHaveBeenCalledWith(nile, {
-      organizationId: 'org-nile',
-      planId: 'plan-starter',
-      months: '3',
-      startsOn: '2026-11-01',
-      vehicleLimit: '5',
-      price: '2025.00',
-      note: '',
-    });
+    expect(recordSubscription).toHaveBeenCalledWith(
+      nile,
+      {
+        organizationId: 'org-nile',
+        planId: 'plan-starter',
+        offerId: '',
+        months: '3',
+        startsOn: '2026-11-01',
+        vehicleLimit: '5',
+        price: '2025.00',
+        note: '',
+      },
+      null,
+    );
     expect(element.textContent).toContain(arabic.subscriptions.recorded);
     expect(rowsOf(fixture, '.subscriptions-history')).toHaveLength(2);
   });
@@ -255,19 +343,125 @@ describe('CompanySubscriptions', () => {
     subscriptionForm.querySelector('form')!.dispatchEvent(new Event('submit'));
     await settle(fixture);
 
-    expect(updateSubscription).toHaveBeenCalledWith('subscription-1', nile, {
-      organizationId: 'org-nile',
-      planId: 'plan-starter',
-      months: '6',
-      startsOn: '2026-08-01',
-      vehicleLimit: '5',
-      price: '3825.00',
-      note: '',
-    });
+    expect(updateSubscription).toHaveBeenCalledWith(
+      'subscription-1',
+      nile,
+      {
+        organizationId: 'org-nile',
+        planId: 'plan-starter',
+        offerId: '',
+        months: '6',
+        startsOn: '2026-08-01',
+        vehicleLimit: '5',
+        price: '3825.00',
+        note: '',
+      },
+      null,
+    );
     expect(element.textContent).toContain(arabic.subscriptions.updated);
     const history = rowsOf(fixture, '.subscriptions-history');
     expect(history).toHaveLength(1);
     expect(history[0]).toContain(formatPrice(382_500, 'EGP', 'ar'));
+  });
+
+  it('takes an offer off after the period discount and records it with the subscription', async () => {
+    const recordSubscription = vi.fn<
+      SubscriptionRepository['recordSubscription']
+    >(async (_account, details) => ({
+      ...nileSubscription,
+      id: 'subscription-2',
+      offerId: details.offerId,
+      startsOn: details.startsOn,
+      endsOn: '2027-01-31',
+      price: 162_000,
+    }));
+    const fixture = await render(CompanySubscriptions, {
+      ...running(),
+      listOffers: async () => [autumn, trial],
+      recordSubscription,
+    });
+
+    button(fixture, arabic.subscriptions.renew).click();
+    await settle(fixture);
+    const element: HTMLElement = fixture.nativeElement;
+    const subscriptionForm = element.querySelector('app-subscription-form')!;
+    const selects = selectsIn(fixture, 'app-subscription-form');
+    expect(selects).toHaveLength(4);
+    selects[2].value.set('offer-autumn');
+    await settle(fixture);
+
+    expect(
+      subscriptionForm.querySelector<HTMLInputElement>(
+        'input[inputmode="decimal"]',
+      )!.value,
+    ).toBe('1620.00');
+    expect(subscriptionForm.textContent).toContain(
+      arabic.subscriptions.afterOffer,
+    );
+    subscriptionForm.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+
+    expect(recordSubscription).toHaveBeenCalledWith(
+      nile,
+      expect.objectContaining({ offerId: 'offer-autumn', price: '1620.00' }),
+      autumn,
+    );
+    expect(rowsOf(fixture, '.subscriptions-history')[0]).toContain(
+      'عرض الخريف',
+    );
+  });
+
+  it('gives a free trial with no period or price to a company that has not subscribed', async () => {
+    const recordSubscription = vi.fn<
+      SubscriptionRepository['recordSubscription']
+    >(async (_account, details) => ({
+      ...nileSubscription,
+      planId: details.planId,
+      offerId: details.offerId,
+      months: null,
+      trialDays: 14,
+      startsOn: details.startsOn,
+      endsOn: '2026-10-25',
+      price: 0,
+    }));
+    const fixture = await render(CompanySubscriptions, {
+      ...running(),
+      listSubscriptions: async () => [],
+      listOffers: async () => [trial],
+      recordSubscription,
+    });
+
+    button(fixture, arabic.subscriptions.add).click();
+    await settle(fixture);
+    selectsIn(fixture, 'app-subscription-form')[0].value.set('org-nile');
+    await settle(fixture);
+    selectsIn(fixture, 'app-subscription-form')[2].value.set('offer-trial');
+    await settle(fixture);
+    const element: HTMLElement = fixture.nativeElement;
+    const subscriptionForm = element.querySelector('app-subscription-form')!;
+
+    expect(selectsIn(fixture, 'app-subscription-form')).toHaveLength(3);
+    expect(
+      subscriptionForm.querySelector('input[inputmode="decimal"]'),
+    ).toBeNull();
+    expect(subscriptionForm.textContent).toContain(
+      arabic.subscriptions.trialFree,
+    );
+    subscriptionForm.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+
+    expect(recordSubscription).toHaveBeenCalledWith(
+      nile,
+      expect.objectContaining({
+        planId: 'plan-growth',
+        offerId: 'offer-trial',
+        startsOn: '2026-10-12',
+      }),
+      trial,
+    );
+    const history = rowsOf(fixture, '.subscriptions-history')[0];
+    expect(history).toContain(arabic.subscriptions.trial);
+    expect(history).toContain(arabic.subscriptions.free);
   });
 
   it('deletes a subscription only after a second press', async () => {
@@ -334,6 +528,10 @@ async function render<T>(
     },
     listPeriods: async () => periods,
     saveDiscounts: async () => periods,
+    listOffers: async () => [],
+    saveOffer: async () => {
+      throw new Error('not used');
+    },
     listSubscriptions: async () => [],
     recordSubscription: async () => {
       throw new Error('not used');

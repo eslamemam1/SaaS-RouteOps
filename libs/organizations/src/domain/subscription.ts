@@ -8,11 +8,15 @@ import { CompanyAccount } from './organization';
 // What a company bought: a plan for months from startsOn to endsOn, both
 // included, with the vehicle limit and the price agreed for the whole period.
 // A limit of null is no limit. price is in the company's smallest currency unit.
+// A free trial has trialDays instead of months and a price of zero; offerId
+// names the offer the operator applied, if any.
 export interface OrganizationSubscription {
   readonly id: string;
   readonly organizationId: string;
   readonly planId: string;
-  readonly months: SubscriptionMonths;
+  readonly months: SubscriptionMonths | null;
+  readonly trialDays: number | null;
+  readonly offerId: string | null;
   readonly startsOn: string;
   readonly endsOn: string;
   readonly vehicleLimit: number | null;
@@ -39,9 +43,11 @@ export interface PlanDetails {
 }
 
 // What the subscription form edits; price is typed in the company's currency.
+// A blank offerId is no offer.
 export interface SubscriptionDetails {
   readonly organizationId: string;
   readonly planId: string;
+  readonly offerId: string;
   readonly months: string;
   readonly startsOn: string;
   readonly vehicleLimit: string;
@@ -62,6 +68,16 @@ export const subscriptionProblems = [
   'price',
   'noteLength',
   'planCurrency',
+  'offer',
+  'trialUsed',
+  'offerName',
+  'offerCode',
+  'codeTaken',
+  'percentOff',
+  'trialDays',
+  'offerPlans',
+  'offerMonths',
+  'endsOn',
   'load',
   'save',
   'remove',
@@ -109,6 +125,7 @@ export function emptySubscriptionDetails(today: string): SubscriptionDetails {
   return {
     organizationId: '',
     planId: '',
+    offerId: '',
     months: '1',
     startsOn: today,
     vehicleLimit: '',
@@ -320,7 +337,7 @@ export function suggestedStart(company: CompanySubscription): string {
   return day.toISOString().slice(0, 10);
 }
 
-function latinDigits(text: string): string {
+export function latinDigits(text: string): string {
   return text.replace(/[\u0660-\u0669]/g, (digit) =>
     String(digit.charCodeAt(0) - 0x0660),
   );

@@ -1,4 +1,5 @@
 import {
+  SubscriptionOfferRow,
   SubscriptionPeriodRow,
   SubscriptionPlanRow,
 } from '@routeops/shared/pricing';
@@ -14,6 +15,12 @@ export interface Database {
       };
       subscription_periods: {
         Row: Pick<SubscriptionPeriodRow, keyof SubscriptionPeriodRow>;
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      subscription_offers: {
+        Row: Pick<SubscriptionOfferRow, keyof SubscriptionOfferRow>;
         Insert: never;
         Update: never;
         Relationships: [];

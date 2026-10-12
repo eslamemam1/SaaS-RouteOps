@@ -30,6 +30,8 @@ const subscription = (
   organizationId,
   planId: 'plan',
   months: 1,
+  trialDays: null,
+  offerId: null,
   startsOn,
   endsOn,
   vehicleLimit,

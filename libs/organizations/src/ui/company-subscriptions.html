@@ -71,7 +71,7 @@
                     @if (company.current ?? company.next; as shown) {
                       <span class="ro-cell-stack">
                         <bdi>{{ planOf(shown) }}</bdi>
-                        <span class="hint">{{ text().plans.periods[shown.months] }}</span>
+                        <span class="hint">{{ periodOf(shown) }}</span>
                       </span>
                     } @else {
                       <span class="hint">—</span>
@@ -174,7 +174,7 @@
                     <td [attr.data-label]="text().subscriptions.plan">
                       <span class="ro-cell-stack">
                         <bdi>{{ planOf(subscription) }}</bdi>
-                        <span class="hint">{{ text().plans.periods[subscription.months] }}</span>
+                        <span class="hint">{{ periodOf(subscription) }}</span>
                       </span>
                     </td>
                     <td [attr.data-label]="text().subscriptions.dates">
@@ -185,7 +185,14 @@
                       {{ subscription.vehicleLimit ?? text().subscriptions.noLimit }}
                     </td>
                     <td class="ro-numeric" [attr.data-label]="text().subscriptions.price">
-                      <bdi>{{ price(subscription) }}</bdi>
+                      <span class="ro-cell-stack">
+                        <bdi>{{ price(subscription) }}</bdi>
+                        @if (offerOf(subscription); as offer) {
+                          <span class="hint"
+                            >{{ text().subscriptions.offer }}: <bdi>{{ offer }}</bdi></span
+                          >
+                        }
+                      </span>
                     </td>
                     <td [attr.data-label]="text().subscriptions.note">
                       @if (subscription.note) {
@@ -241,6 +248,7 @@
       [companies]="companies()"
       [plans]="plans()"
       [periods]="periods()"
+      [offers]="offers()"
       [details]="formDetails()"
       [subscriptionId]="editing()?.id ?? null"
       (saved)="recorded($event)"

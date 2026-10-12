@@ -216,6 +216,17 @@
   font-weight: var(--ro-font-semibold);
 }
 
+.pricing-plan-offer,
+.pricing-plan-trial {
+  justify-self: start;
+  padding: 0 var(--ro-space-2);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-warning-subtle);
+  color: var(--ro-text-warning);
+  font-size: var(--ro-text-body-sm);
+  font-weight: var(--ro-font-semibold);
+}
+
 .pricing-included {
   display: grid;
   flex: 1;

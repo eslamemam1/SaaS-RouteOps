@@ -1,0 +1,137 @@
+<section class="ro-card" aria-labelledby="offers-title">
+  <div class="ro-card-header">
+    <h2 id="offers-title" class="ro-card-title">{{ text().offers.title }}</h2>
+    <p class="hint">{{ text().offers.hint }}</p>
+  </div>
+
+  @switch (status()) {
+    @case ('loading') {
+      <div class="ro-card-body">
+        <p class="hint" role="status">{{ text().offers.loading }}</p>
+      </div>
+    }
+    @case ('error') {
+      <div class="ro-card-body">
+        <app-alert tone="danger">{{ text().subscriptionProblems.load }}</app-alert>
+        <div class="ro-toolbar">
+          <button appButton="secondary" type="button" (click)="reload()">
+            {{ text().offers.retry }}
+          </button>
+        </div>
+      </div>
+    }
+    @case ('ready') {
+      <div class="ro-card-body">
+        <div class="ro-toolbar">
+          <button appButton type="button" [disabled]="plans().length === 0" (click)="add()">
+            <ng-icon [svg]="addIcon" aria-hidden="true" />
+            {{ text().offers.add }}
+          </button>
+          <a appButton="text" routerLink="/pricing" target="_blank">{{ text().offers.viewPage }}</a>
+        </div>
+
+        @if (outcome(); as done) {
+          <app-alert tone="success" [dismissible]="true" (dismissed)="outcome.set(null)">
+            {{ text().offers[done] }}
+          </app-alert>
+        }
+
+        @if (plans().length === 0) {
+          <app-alert tone="info">{{ text().offers.noPlans }}</app-alert>
+        } @else if (offers().length === 0) {
+          <p class="hint">{{ text().offers.empty }}</p>
+        }
+      </div>
+
+      @if (offers().length > 0) {
+        <div class="ro-table-scroll">
+          <table class="ro-table-stack offers-table">
+            <thead>
+              <tr>
+                <th>{{ text().offers.name }}</th>
+                <th>{{ text().offers.terms }}</th>
+                <th>{{ text().offers.plans }}</th>
+                <th>{{ text().offers.dates }}</th>
+                <th>{{ text().offers.status }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of offerPages.items(); track row.offer.id) {
+                <tr [attr.data-offer]="row.offer.id">
+                  <td [attr.data-label]="text().offers.name">
+                    <span class="ro-cell-stack">
+                      <strong
+                        ><bdi>{{ name(row.offer) }}</bdi></strong
+                      >
+                      @if (row.offer.code; as code) {
+                        <span class="hint"
+                          >{{ text().offers.code }} <bdi>{{ code }}</bdi></span
+                        >
+                      } @else {
+                        <span class="hint">{{ text().offers.public }}</span>
+                      }
+                    </span>
+                  </td>
+                  <td [attr.data-label]="text().offers.terms">
+                    <span class="ro-cell-stack">
+                      @if (row.offer.kind === 'percent') {
+                        <span
+                          >{{ text().offers.off }} <bdi>{{ row.offer.percentOff }}%</bdi></span
+                        >
+                        <span class="hint">{{ periodNames(row.offer) }}</span>
+                      } @else {
+                        <span>{{ text().offers.kinds.trial }}</span>
+                        <span class="hint"
+                          >{{ text().offers.freeDays }} <bdi>{{ row.offer.trialDays }}</bdi></span
+                        >
+                      }
+                    </span>
+                  </td>
+                  <td [attr.data-label]="text().offers.plans">
+                    <bdi>{{ planNames(row.offer) }}</bdi>
+                  </td>
+                  <td [attr.data-label]="text().offers.dates">
+                    <bdi>{{ date(row.offer.startsOn) }}</bdi> –
+                    @if (row.offer.endsOn; as endsOn) {
+                      <bdi>{{ date(endsOn) }}</bdi>
+                    } @else {
+                      <span class="hint">{{ text().offers.noEnd }}</span>
+                    }
+                  </td>
+                  <td [attr.data-label]="text().offers.status">
+                    <app-tag [tone]="statusTones[row.status]" [dot]="true">
+                      {{ text().offers.statuses[row.status] }}
+                    </app-tag>
+                  </td>
+                  <td>
+                    <button appButton="text" size="sm" type="button" (click)="edit(row.offer)">
+                      {{ text().offers.edit }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <app-pager [pages]="offerPages" />
+      }
+    }
+  }
+</section>
+
+<app-form-drawer
+  [title]="editing() ? text().offers.editTitle : text().offers.addTitle"
+  [open]="formOpen()"
+  (openChange)="formOpen.set($event)"
+>
+  @if (formOpen()) {
+    <app-offer-form
+      [offer]="editing()"
+      [plans]="plans()"
+      [today]="today"
+      (saved)="saved($event)"
+      (cancelled)="formOpen.set(false)"
+    />
+  }
+</app-form-drawer>

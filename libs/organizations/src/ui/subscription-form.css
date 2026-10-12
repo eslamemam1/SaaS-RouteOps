@@ -62,6 +62,11 @@
   margin: 0;
 }
 
+.subscription-offer dd {
+  color: var(--ro-text-success);
+  font-weight: var(--ro-font-semibold);
+}
+
 .subscription-ends {
   display: flex;
   flex-wrap: wrap;

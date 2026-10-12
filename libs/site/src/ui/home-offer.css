@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+/* Without an offer the host holds only Angular's comment, and takes no row in the hero. */
+:host(:empty) {
+  display: none;
+}
+
+.home-offer {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-2) var(--ro-space-3);
+  padding-block: var(--ro-space-1);
+  padding-inline: var(--ro-space-1) var(--ro-space-4);
+  border: var(--ro-border-width) solid var(--ro-hero-border);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-hero-surface);
+  color: var(--ro-text-on-inverse-muted);
+  font-size: var(--ro-text-body-sm);
+  text-decoration: none;
+  backdrop-filter: blur(var(--ro-blur-glass));
+  transition: border-color var(--ro-motion-fast);
+}
+
+.home-offer:hover {
+  border-color: var(--ro-amber-400);
+}
+
+.home-offer:focus-visible {
+  outline: var(--ro-focus-width) solid var(--ro-amber-400);
+  outline-offset: var(--ro-focus-width);
+}
+
+.home-offer-terms {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ro-space-1);
+  padding: var(--ro-space-1) var(--ro-space-3);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-amber-400);
+  color: var(--ro-text-primary);
+  font-weight: var(--ro-font-bold);
+}
+
+.home-offer-see {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ro-space-1);
+  color: var(--ro-amber-400);
+  font-weight: var(--ro-font-semibold);
+}
+
+.home-offer-arrow:dir(rtl) {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-offer {
+    transition: none;
+  }
+}

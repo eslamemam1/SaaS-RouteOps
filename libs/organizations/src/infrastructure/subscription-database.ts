@@ -1,4 +1,5 @@
 import {
+  SubscriptionOfferRow,
   SubscriptionPeriodRow,
   SubscriptionPlanRow,
 } from '@routeops/shared/pricing';
@@ -7,13 +8,30 @@ export interface SubscriptionRow {
   id: string;
   organization_id: string;
   plan_id: string;
-  months: number;
+  offer_id: string | null;
+  months: number | null;
+  trial_days: number | null;
   starts_on: string;
   ends_on: string;
   vehicle_limit: number | null;
   price: number;
   note: string | null;
 }
+
+// A type rather than an interface, because the client's table types need an index signature.
+type OfferColumns = {
+  kind: string;
+  name_ar: string;
+  name_en: string;
+  code: string | null;
+  percent_off: number | null;
+  trial_days: number | null;
+  plan_ids: string[];
+  months: number[];
+  starts_on: string;
+  ends_on: string | null;
+  is_active: boolean;
+};
 
 export interface SubscriptionDatabase {
   public: {
@@ -44,12 +62,19 @@ export interface SubscriptionDatabase {
         Update: { discount_percent: number };
         Relationships: [];
       };
+      subscription_offers: {
+        Row: Pick<SubscriptionOfferRow, keyof SubscriptionOfferRow>;
+        Insert: OfferColumns;
+        Update: Partial<OfferColumns>;
+        Relationships: [];
+      };
       organization_subscriptions: {
         Row: Pick<SubscriptionRow, keyof SubscriptionRow>;
         Insert: {
           organization_id: string;
           plan_id: string;
-          months: number;
+          offer_id: string | null;
+          months: number | null;
           starts_on: string;
           vehicle_limit: number | null;
           price: number;
@@ -57,7 +82,8 @@ export interface SubscriptionDatabase {
         };
         Update: {
           plan_id: string;
-          months: number;
+          offer_id: string | null;
+          months: number | null;
           starts_on: string;
           vehicle_limit: number | null;
           price: number;

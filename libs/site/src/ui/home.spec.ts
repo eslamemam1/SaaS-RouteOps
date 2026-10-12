@@ -1,18 +1,68 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { SubscriptionOffer } from '@routeops/shared/pricing';
+import { PricingRepository } from '../application/pricing-repository';
 import { contactDetails, whatsappHref } from '../domain/contact-details';
 import { Home } from './home';
 import { featureKeys, siteText } from './site-text';
 
 const arabic = siteText.ar.home;
 
+const autumn: SubscriptionOffer = {
+  id: 'autumn',
+  kind: 'percent',
+  nameAr: 'عرض الخريف',
+  nameEn: 'Autumn offer',
+  code: null,
+  percentOff: 20,
+  trialDays: null,
+  planIds: ['starter'],
+  months: [3],
+  startsOn: '2020-01-01',
+  endsOn: null,
+  isActive: true,
+};
+
 describe('Home', () => {
+  let offers: () => Promise<SubscriptionOffer[]>;
+
   beforeEach(async () => {
     localStorage.clear();
+    offers = async () => [];
     await TestBed.configureTestingModule({
       imports: [Home],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        {
+          provide: PricingRepository,
+          useValue: { load: async () => undefined, offers: () => offers() },
+        },
+      ],
     }).compileComponents();
+  });
+
+  it('points to the prices from the hero while an offer runs', async () => {
+    offers = async () => [
+      { ...autumn, id: 'ended', percentOff: 50, endsOn: '2021-01-01' },
+      autumn,
+    ];
+    const element = await render();
+
+    const link = element.querySelector('.home-offer');
+    expect(link?.getAttribute('href')).toBe('/pricing');
+    expect(link?.getAttribute('data-offer')).toBe('autumn');
+    expect(link?.textContent).toContain('خصم 20%');
+    expect(link?.textContent).toContain('عرض الخريف');
+  });
+
+  it('shows no offer when there is none or the offers cannot be read', async () => {
+    offers = async () => {
+      throw new Error('load');
+    };
+    const element = await render();
+
+    expect(element.querySelector('.home-offer')).toBeNull();
+    expect(element.querySelector('h1')).not.toBeNull();
   });
 
   it('presents the product, every main feature, the steps, and the questions', async () => {
@@ -64,5 +114,7 @@ async function render(): Promise<HTMLElement> {
   const fixture = TestBed.createComponent(Home);
   fixture.detectChanges();
   await fixture.whenStable();
+  await new Promise((resolve) => setTimeout(resolve));
+  fixture.detectChanges();
   return fixture.nativeElement as HTMLElement;
 }

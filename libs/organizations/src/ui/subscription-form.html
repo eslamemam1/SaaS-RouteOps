@@ -28,6 +28,21 @@
     @if (company() && availablePlans().length === 0) {
       <app-alert tone="warning">{{ text().subscriptions.noPlans }}</app-alert>
     }
+    @if (availableOffers().length > 0 || model().offerId) {
+      <app-field
+        [label]="text().subscriptions.offer"
+        [hint]="text().subscriptions.offerHint"
+        [optional]="true"
+        [control]="subscriptionForm.offerId"
+      >
+        <app-select [formField]="subscriptionForm.offerId">
+          <app-option value="" [label]="text().subscriptions.noOffer" />
+          @for (option of availableOffers(); track option.id) {
+            <app-option [value]="option.id" [label]="offerLabel(option)" />
+          }
+        </app-select>
+      </app-field>
+    }
     <app-field
       [label]="text().subscriptions.vehicleLimit"
       [hint]="text().subscriptions.vehicleLimitHint"
@@ -47,13 +62,15 @@
     <legend>{{ text().subscriptions.periodTitle }}</legend>
     <p class="hint">{{ text().subscriptions.startsOnHint }}</p>
     <div class="ro-form-row">
-      <app-field [label]="text().subscriptions.months" [control]="subscriptionForm.months">
-        <app-select [formField]="subscriptionForm.months">
-          @for (option of periods(); track option.months) {
-            <app-option [value]="'' + option.months" [label]="periodLabel(option)" />
-          }
-        </app-select>
-      </app-field>
+      @if (!trial()) {
+        <app-field [label]="text().subscriptions.months" [control]="subscriptionForm.months">
+          <app-select [formField]="subscriptionForm.months">
+            @for (option of periods(); track option.months) {
+              <app-option [value]="'' + option.months" [label]="periodLabel(option)" />
+            }
+          </app-select>
+        </app-field>
+      }
       <app-field [label]="text().subscriptions.startsOn" [control]="subscriptionForm.startsOn">
         <input type="date" dir="ltr" [formField]="subscriptionForm.startsOn" />
       </app-field>
@@ -71,6 +88,9 @@
 
   <fieldset class="subscription-section">
     <legend>{{ text().subscriptions.priceTitle }}</legend>
+    @if (trial()) {
+      <app-alert tone="info">{{ text().subscriptions.trialFree }}</app-alert>
+    }
     @if (breakdown(); as sum) {
       <dl class="ro-sum subscription-sum" [attr.aria-label]="text().subscriptions.calculation">
         <div>
@@ -95,9 +115,33 @@
             </dd>
           </div>
         }
+        @if (sum.offer; as offer) {
+          @if (sum.discount > 0) {
+            <div>
+              <dt>{{ text().subscriptions.afterDiscount }}</dt>
+              <dd>
+                <bdi>{{ sum.afterDiscount }}</bdi>
+              </dd>
+            </div>
+          }
+          <div class="subscription-offer">
+            <dt>
+              {{ text().subscriptions.offer }}: <bdi>{{ offer.name }}</bdi>
+            </dt>
+            <dd>
+              <bdi>−{{ offer.percent }}%</bdi>
+            </dd>
+          </div>
+        }
         <div class="ro-sum-total">
           <dt>
-            {{ sum.discount > 0 ? text().subscriptions.afterDiscount : text().subscriptions.total }}
+            {{
+              sum.offer
+                ? text().subscriptions.afterOffer
+                : sum.discount > 0
+                  ? text().subscriptions.afterDiscount
+                  : text().subscriptions.total
+            }}
           </dt>
           <dd>
             <bdi>{{ sum.total }}</bdi>
@@ -105,16 +149,18 @@
         </div>
       </dl>
     }
-    <app-field
-      [label]="text().subscriptions.priceField"
-      [hint]="text().subscriptions.priceHint"
-      [control]="subscriptionForm.price"
-    >
-      <input type="text" inputmode="decimal" dir="ltr" [formField]="subscriptionForm.price" />
-      @if (currencyLabel(); as symbol) {
-        <bdi>{{ symbol }}</bdi>
-      }
-    </app-field>
+    @if (!trial()) {
+      <app-field
+        [label]="text().subscriptions.priceField"
+        [hint]="text().subscriptions.priceHint"
+        [control]="subscriptionForm.price"
+      >
+        <input type="text" inputmode="decimal" dir="ltr" [formField]="subscriptionForm.price" />
+        @if (currencyLabel(); as symbol) {
+          <bdi>{{ symbol }}</bdi>
+        }
+      </app-field>
+    }
   </fieldset>
 
   <app-field

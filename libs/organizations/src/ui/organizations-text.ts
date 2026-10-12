@@ -1,7 +1,8 @@
 import { Language } from '@routeops/shared/i18n';
 import { Currency } from '@routeops/shared/money';
-import { SubscriptionMonths } from '@routeops/shared/pricing';
+import { OfferKind, SubscriptionMonths } from '@routeops/shared/pricing';
 import { CompanyAccountProblem, TimeZone } from '../domain/company-account';
+import { OfferStatus } from '../domain/offer';
 import { SubscriptionPaymentProblem } from '../domain/subscription-payment';
 import {
   SubscriptionProblem,
@@ -269,6 +270,65 @@ export interface OrganizationsText {
     readonly endsOn: string;
     readonly submit: string;
     readonly cancel: string;
+    readonly offer: string;
+    readonly offerHint: string;
+    readonly noOffer: string;
+    readonly trial: string;
+    readonly trialDays: string;
+    readonly trialFree: string;
+    readonly afterOffer: string;
+    readonly free: string;
+  };
+  readonly offers: {
+    readonly title: string;
+    readonly hint: string;
+    readonly add: string;
+    readonly viewPage: string;
+    readonly loading: string;
+    readonly retry: string;
+    readonly empty: string;
+    readonly noPlans: string;
+    readonly name: string;
+    readonly terms: string;
+    readonly plans: string;
+    readonly dates: string;
+    readonly status: string;
+    readonly statuses: Record<OfferStatus, string>;
+    readonly edit: string;
+    readonly public: string;
+    readonly code: string;
+    readonly noEnd: string;
+    readonly from: string;
+    readonly kinds: Record<OfferKind, string>;
+    readonly kindHints: Record<OfferKind, string>;
+    readonly off: string;
+    readonly freeDays: string;
+    readonly addTitle: string;
+    readonly editTitle: string;
+    readonly kindTitle: string;
+    readonly scopeTitle: string;
+    readonly datesTitle: string;
+    readonly nameAr: string;
+    readonly nameEn: string;
+    readonly nameHint: string;
+    readonly percentOff: string;
+    readonly percentHint: string;
+    readonly trialDays: string;
+    readonly trialDaysHint: string;
+    readonly plansHint: string;
+    readonly months: string;
+    readonly monthsHint: string;
+    readonly startsOn: string;
+    readonly endsOn: string;
+    readonly endsOnHint: string;
+    readonly codeField: string;
+    readonly codeHint: string;
+    readonly isActive: string;
+    readonly isActiveHint: string;
+    readonly save: string;
+    readonly cancel: string;
+    readonly added: string;
+    readonly saved: string;
   };
   readonly subscriptionProblems: Record<SubscriptionProblem, string>;
   readonly signOut: {
@@ -299,6 +359,7 @@ export interface OrganizationsText {
     readonly subscriptions: string;
     readonly payments: string;
     readonly plans: string;
+    readonly offers: string;
   };
 }
 
@@ -628,7 +689,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       vehicleLimitHint:
         'من الباقة، ويمكنك تغييره لهذه الشركة. اتركه فارغًا بلا حد.',
       priceField: 'سعر المدة كلها',
-      priceHint: 'محسوب من الباقة والخصم، ويمكنك تغييره إذا اتفقت على سعر آخر.',
+      priceHint:
+        'محسوب من الباقة والخصم والعرض، ويمكنك تغييره إذا اتفقت على سعر آخر.',
       note: 'ملاحظة',
       noteHint: 'أي اتفاق خاص مع الشركة.',
       calculation: 'الحساب',
@@ -639,6 +701,79 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       endsOn: 'ينتهي في',
       submit: 'تسجيل الاشتراك',
       cancel: 'إلغاء',
+      offer: 'العرض',
+      offerHint:
+        'العروض السارية على هذه الباقة. التجربة المجانية للشركة التي لم تشترك من قبل فقط.',
+      noOffer: 'بدون عرض',
+      trial: 'تجربة مجانية',
+      trialDays: 'الأيام:',
+      trialFree:
+        'التجربة مجانية، فلا يُسجَّل لها سعر، وتنتهي بعد أيامها. سجّل اشتراكها المدفوع بعدها بالتجديد.',
+      afterOffer: 'بعد العرض',
+      free: 'مجانًا',
+    },
+    offers: {
+      title: 'العروض',
+      hint: 'خصومات وتجارب مجانية تجذب بها شركات جديدة. العرض بدون كود يظهر في صفحة الأسعار والصفحة الرئيسية طوال مدته، والعرض بكود تطبّقه بنفسك عندما تخبرك الشركة به.',
+      add: 'إضافة عرض',
+      viewPage: 'عرض صفحة الأسعار',
+      loading: 'جارٍ تحميل العروض...',
+      retry: 'إعادة المحاولة',
+      empty: 'لم تضف أي عرض بعد.',
+      noPlans: 'أضف باقة أولًا من قسم الباقات والأسعار.',
+      name: 'العرض',
+      terms: 'الميزة',
+      plans: 'الباقات',
+      dates: 'المدة',
+      status: 'الحالة',
+      statuses: {
+        running: 'ساري',
+        upcoming: 'يبدأ لاحقًا',
+        ended: 'منتهٍ',
+        stopped: 'موقوف',
+      },
+      edit: 'تعديل',
+      public: 'يظهر للزوار',
+      code: 'كود:',
+      noEnd: 'بلا نهاية',
+      from: 'من',
+      kinds: { percent: 'خصم بنسبة', trial: 'تجربة مجانية' },
+      kindHints: {
+        percent:
+          'نسبة تُخصم من سعر الباقة بعد خصم المدة، على الباقات والمدد التي تختارها.',
+        trial:
+          'أيام مجانية تجرّب فيها الشركة الباقة قبل أن تدفع. تُعطى للشركة مرة واحدة قبل أي اشتراك.',
+      },
+      off: 'خصم',
+      freeDays: 'أيام مجانية:',
+      addTitle: 'إضافة عرض',
+      editTitle: 'تعديل العرض',
+      kindTitle: 'نوع العرض',
+      scopeTitle: 'الباقات والمدد',
+      datesTitle: 'المدة والظهور',
+      nameAr: 'اسم العرض بالعربية',
+      nameEn: 'اسم العرض بالإنجليزية',
+      nameHint: 'يظهر للزوار، مثل: عرض الخريف، خصم الافتتاح.',
+      percentOff: 'نسبة الخصم (%)',
+      percentHint: 'من 1 إلى 90.',
+      trialDays: 'عدد أيام التجربة',
+      trialDaysHint: 'من 1 إلى 90 يومًا.',
+      plansHint: 'اختر باقة واحدة على الأقل.',
+      months: 'المدد التي يشملها الخصم',
+      monthsHint: 'مثل الدفع لـ 6 شهور أو سنة فقط.',
+      startsOn: 'يبدأ في',
+      endsOn: 'آخر يوم',
+      endsOnHint: 'اتركه فارغًا ليبقى العرض حتى توقفه.',
+      codeField: 'كود الخصم',
+      codeHint:
+        'اتركه فارغًا ليظهر العرض للزوار. العرض بكود لا يظهر لأحد، وتطبّقه عندما تخبرك الشركة به. حروف إنجليزية وأرقام، من 3 إلى 20.',
+      isActive: 'العرض مفعّل',
+      isActiveHint:
+        'أوقف العرض بدل حذفه. العرض الموقوف لا يظهر ولا يُطبّق على اشتراك جديد، وتبقى الاشتراكات التي أخذته كما هي.',
+      save: 'حفظ العرض',
+      cancel: 'إلغاء',
+      added: 'تمت إضافة العرض.',
+      saved: 'تم حفظ العرض.',
     },
     subscriptionProblems: {
       planName: 'أدخل اسم الباقة، بحد أقصى 60 حرفًا.',
@@ -655,6 +790,19 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       price: 'أدخل السعر بالأرقام فقط، مثل 2025 أو 2025.50',
       noteLength: 'الملاحظة أطول من 500 حرف.',
       planCurrency: 'هذه الباقة بعملة غير عملة الشركة. اختر باقة بعملتها.',
+      offer:
+        'هذا العرض لا يشمل هذه الباقة أو المدة. اختر عرضًا آخر أو بدون عرض.',
+      trialUsed:
+        'التجربة المجانية للشركة التي لم تشترك من قبل، وهذه الشركة لها اشتراك أو تجربة سابقة.',
+      offerName: 'أدخل اسم العرض، بحد أقصى 60 حرفًا.',
+      offerCode:
+        'الكود من 3 إلى 20 حرفًا إنجليزيًا أو رقمًا أو شرطة، أو اتركه فارغًا.',
+      codeTaken: 'هذا الكود مستخدم في عرض آخر. اختر كودًا غيره.',
+      percentOff: 'أدخل نسبة خصم من 1 إلى 90.',
+      trialDays: 'أدخل عدد أيام من 1 إلى 90.',
+      offerPlans: 'اختر باقة واحدة على الأقل.',
+      offerMonths: 'اختر مدة واحدة على الأقل.',
+      endsOn: 'آخر يوم يجب أن يكون في يوم البداية أو بعده.',
       load: 'تعذّر تحميل البيانات. حاول مرة أخرى.',
       save: 'تعذّر الحفظ. حاول مرة أخرى.',
       remove: 'تعذّر الحذف. حاول مرة أخرى.',
@@ -683,13 +831,14 @@ export const organizationsText: Record<Language, OrganizationsText> = {
     },
     operator: {
       title: 'إدارة الموقع',
-      hint: 'شركات النقل المشتركة معك، واشتراكاتها، وما دفعته، والباقات التي تبيعها.',
+      hint: 'شركات النقل المشتركة معك، واشتراكاتها، وما دفعته، والباقات والعروض التي تبيعها.',
       sectionsLabel: 'أقسام إدارة الموقع',
       addCompany: 'إضافة شركة نقل',
       accounts: 'الشركات',
       subscriptions: 'الاشتراكات',
       payments: 'المدفوعات',
       plans: 'الباقات والأسعار',
+      offers: 'العروض',
     },
   },
   en: {
@@ -1032,7 +1181,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
         'From the plan; you can change it for this company. Leave it blank for no limit.',
       priceField: 'Price of the whole period',
       priceHint:
-        'Worked out from the plan and the discount; change it if you agreed another price.',
+        'Worked out from the plan, the discount, and the offer; change it if you agreed another price.',
       note: 'Note',
       noteHint: 'Any special agreement with the company.',
       calculation: 'How it adds up',
@@ -1043,6 +1192,79 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       endsOn: 'Ends on',
       submit: 'Record the subscription',
       cancel: 'Cancel',
+      offer: 'Offer',
+      offerHint:
+        'Offers running on this plan. A free trial is only for a company that has not subscribed before.',
+      noOffer: 'No offer',
+      trial: 'Free trial',
+      trialDays: 'Days:',
+      trialFree:
+        'The trial is free, so no price is recorded, and it ends after its days. Record its paid subscription afterwards with Renew.',
+      afterOffer: 'After the offer',
+      free: 'Free',
+    },
+    offers: {
+      title: 'Offers',
+      hint: 'Discounts and free trials that bring in new companies. An offer without a code shows on the pricing and home pages while it runs; you apply an offer with a code yourself when a company gives it to you.',
+      add: 'Add an offer',
+      viewPage: 'View the pricing page',
+      loading: 'Loading offers...',
+      retry: 'Try again',
+      empty: 'You have not added an offer yet.',
+      noPlans: 'Add a plan first in plans and prices.',
+      name: 'Offer',
+      terms: 'What it gives',
+      plans: 'Plans',
+      dates: 'Period',
+      status: 'Status',
+      statuses: {
+        running: 'Running',
+        upcoming: 'Starts later',
+        ended: 'Ended',
+        stopped: 'Stopped',
+      },
+      edit: 'Edit',
+      public: 'Shown to visitors',
+      code: 'Code:',
+      noEnd: 'No end',
+      from: 'From',
+      kinds: { percent: 'Percent off', trial: 'Free trial' },
+      kindHints: {
+        percent:
+          "A percentage off the plan's price after the period discount, on the plans and periods you choose.",
+        trial:
+          'Free days for a company to try the plan before paying. A company gets it once, before any subscription.',
+      },
+      off: 'off',
+      freeDays: 'Free days:',
+      addTitle: 'Add an offer',
+      editTitle: 'Edit offer',
+      kindTitle: 'Kind of offer',
+      scopeTitle: 'Plans and periods',
+      datesTitle: 'Dates and visibility',
+      nameAr: 'Offer name in Arabic',
+      nameEn: 'Offer name in English',
+      nameHint: 'Visitors see it, such as: Autumn offer, Launch discount.',
+      percentOff: 'Discount (%)',
+      percentHint: 'From 1 to 90.',
+      trialDays: 'Trial days',
+      trialDaysHint: 'From 1 to 90 days.',
+      plansHint: 'Choose at least one plan.',
+      months: 'Periods the discount covers',
+      monthsHint: 'Such as paying for 6 months or a year only.',
+      startsOn: 'Starts on',
+      endsOn: 'Last day',
+      endsOnHint: 'Leave it blank to keep the offer until you stop it.',
+      codeField: 'Discount code',
+      codeHint:
+        'Leave it blank to show the offer to visitors. An offer with a code is shown to no one, and you apply it when a company gives you the code. English letters and numbers, 3 to 20.',
+      isActive: 'The offer is on',
+      isActiveHint:
+        'Stop an offer instead of deleting it. A stopped offer is not shown or applied to a new subscription, and the subscriptions that took it stay as they are.',
+      save: 'Save offer',
+      cancel: 'Cancel',
+      added: 'The offer was added.',
+      saved: 'The offer was saved.',
     },
     subscriptionProblems: {
       planName: 'Enter the plan name, up to 60 characters.',
@@ -1060,6 +1282,19 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       noteLength: 'The note is longer than 500 characters.',
       planCurrency:
         "This plan is in another currency than the company's. Choose a plan in its currency.",
+      offer:
+        'This offer does not cover this plan or period. Choose another offer or no offer.',
+      trialUsed:
+        'A free trial is for a company that has not subscribed before, and this company has a subscription or an earlier trial.',
+      offerName: 'Enter the offer name, up to 60 characters.',
+      offerCode:
+        'The code is 3 to 20 English letters, numbers, or dashes, or leave it blank.',
+      codeTaken: 'Another offer uses this code. Choose a different one.',
+      percentOff: 'Enter a discount from 1 to 90.',
+      trialDays: 'Enter a number of days from 1 to 90.',
+      offerPlans: 'Choose at least one plan.',
+      offerMonths: 'Choose at least one period.',
+      endsOn: 'The last day must be on or after the first day.',
       load: 'The data could not be loaded. Try again.',
       save: 'Could not save. Try again.',
       remove: 'Could not delete. Try again.',
@@ -1088,13 +1323,14 @@ export const organizationsText: Record<Language, OrganizationsText> = {
     },
     operator: {
       title: 'Site management',
-      hint: 'The transport companies subscribed with you, their subscriptions, what they paid, and the plans you sell.',
+      hint: 'The transport companies subscribed with you, their subscriptions, what they paid, and the plans and offers you sell.',
       sectionsLabel: 'Site management sections',
       addCompany: 'Add a transport company',
       accounts: 'Companies',
       subscriptions: 'Subscriptions',
       payments: 'Payments',
       plans: 'Plans and prices',
+      offers: 'Offers',
     },
   },
 };

@@ -35,6 +35,10 @@
   animation-delay: 320ms;
 }
 
+.home-hero-copy > :nth-child(6) {
+  animation-delay: 400ms;
+}
+
 .home-promises {
   display: flex;
   flex-wrap: wrap;
