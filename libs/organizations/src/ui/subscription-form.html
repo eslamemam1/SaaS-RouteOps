@@ -1,0 +1,122 @@
+<form class="ro-form" (submit)="onSubmit($event)">
+  <app-field [label]="text().subscriptions.company" [control]="subscriptionForm.organizationId">
+    <app-select [formField]="subscriptionForm.organizationId">
+      <app-option value="" [label]="text().subscriptions.chooseCompany" />
+      @for (company of companies(); track company.account.id) {
+        <app-option [value]="company.account.id" [label]="company.account.name" />
+      }
+    </app-select>
+  </app-field>
+  <app-field
+    [label]="text().subscriptions.plan"
+    [hint]="text().subscriptions.planHint"
+    [control]="subscriptionForm.planId"
+  >
+    <app-select [formField]="subscriptionForm.planId">
+      <app-option value="" [label]="text().subscriptions.choosePlan" />
+      @for (plan of availablePlans(); track plan.id) {
+        <app-option [value]="plan.id" [label]="planLabel(plan)" />
+      }
+    </app-select>
+  </app-field>
+  @if (company() && availablePlans().length === 0) {
+    <app-alert tone="warning">{{ text().subscriptions.noPlans }}</app-alert>
+  }
+  <div class="ro-form-row">
+    <app-field [label]="text().subscriptions.months" [control]="subscriptionForm.months">
+      <app-select [formField]="subscriptionForm.months">
+        @for (option of periods(); track option.months) {
+          <app-option [value]="'' + option.months" [label]="periodLabel(option)" />
+        }
+      </app-select>
+    </app-field>
+    <app-field
+      [label]="text().subscriptions.startsOn"
+      [hint]="text().subscriptions.startsOnHint"
+      [control]="subscriptionForm.startsOn"
+    >
+      <input type="date" dir="ltr" [formField]="subscriptionForm.startsOn" />
+    </app-field>
+  </div>
+
+  @if (breakdown(); as sum) {
+    <dl class="ro-sum subscription-sum" [attr.aria-label]="text().subscriptions.calculation">
+      <div>
+        <dt>{{ text().subscriptions.monthly }}</dt>
+        <dd>
+          <bdi>{{ sum.monthly }}</bdi>
+        </dd>
+      </div>
+      <div>
+        <dt>{{ text().subscriptions.fullPrice }} ({{ text().plans.periods[sum.months] }})</dt>
+        <dd>
+          <bdi>{{ sum.full }}</bdi>
+        </dd>
+      </div>
+      @if (sum.discount > 0) {
+        <div>
+          <dt>{{ text().subscriptions.discount }}</dt>
+          <dd>
+            <bdi>−{{ sum.discount }}%</bdi>
+          </dd>
+        </div>
+      }
+      <div class="ro-sum-total">
+        <dt>{{ text().subscriptions.afterDiscount }}</dt>
+        <dd>
+          <bdi>{{ sum.total }}</bdi>
+        </dd>
+      </div>
+    </dl>
+  }
+  @if (endsOn(); as last) {
+    <p class="hint">
+      {{ text().subscriptions.endsOn }} <bdi>{{ date(last) }}</bdi>
+    </p>
+  }
+
+  <div class="ro-form-row">
+    <app-field
+      [label]="text().subscriptions.vehicleLimit"
+      [hint]="text().subscriptions.vehicleLimitHint"
+      [optional]="true"
+      [control]="subscriptionForm.vehicleLimit"
+    >
+      <input
+        type="text"
+        inputmode="numeric"
+        dir="ltr"
+        [formField]="subscriptionForm.vehicleLimit"
+      />
+    </app-field>
+    <app-field
+      [label]="text().subscriptions.priceField"
+      [hint]="text().subscriptions.priceHint"
+      [control]="subscriptionForm.price"
+    >
+      <input type="text" inputmode="decimal" dir="ltr" [formField]="subscriptionForm.price" />
+      @if (currency(); as chosen) {
+        <span class="hint">{{ text().currencies[chosen] }}</span>
+      }
+    </app-field>
+  </div>
+  <app-field
+    [label]="text().subscriptions.note"
+    [hint]="text().subscriptions.noteHint"
+    [optional]="true"
+    [control]="subscriptionForm.note"
+  >
+    <textarea [formField]="subscriptionForm.note"></textarea>
+  </app-field>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().subscriptionProblems[current] }}</app-alert>
+  }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="busy()">
+      {{ text().subscriptions.submit }}
+    </button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().subscriptions.cancel }}
+    </button>
+  </div>
+</form>

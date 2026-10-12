@@ -9,6 +9,7 @@ import { SubscriptionPayment } from '../domain/subscription-payment';
 import { SubscriptionPaymentError } from '../application/subscription-payment-error';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
+import { SubscriptionRepository } from '../application/subscription-repository';
 import { Organizations } from './organizations';
 import { organizationsText } from './organizations-text';
 
@@ -579,6 +580,21 @@ describe('Organizations', () => {
     expect(text(fixture)).not.toContain(arabic.payments.title);
   });
 
+  it('does not load plans or subscriptions for a company login', async () => {
+    const listPlans = vi.fn(async () => []);
+    const listSubscriptions = vi.fn(async () => []);
+    const fixture = await render(
+      { listMine: async () => [north] },
+      { listPlans, listSubscriptions },
+    );
+    await settle(fixture);
+
+    expect(listPlans).not.toHaveBeenCalled();
+    expect(listSubscriptions).not.toHaveBeenCalled();
+    expect(text(fixture)).not.toContain(arabic.plans.title);
+    expect(text(fixture)).not.toContain(arabic.subscriptions.title);
+  });
+
   it('tells a stopped company to contact the site manager instead of opening its sections', async () => {
     const fixture = await render({
       listMine: async () => [{ ...north, isActive: false }],
@@ -622,7 +638,10 @@ describe('Organizations', () => {
   });
 });
 
-async function render(overrides: Partial<OrganizationRepository>) {
+async function render(
+  overrides: Partial<OrganizationRepository>,
+  subscriptionOverrides: Partial<SubscriptionRepository> = {},
+) {
   const repository: OrganizationRepository = {
     isConfigured: () => true,
     signIn: async () => undefined,
@@ -641,11 +660,27 @@ async function render(overrides: Partial<OrganizationRepository>) {
     dashboard: async () => busy,
     ...overrides,
   };
+  const subscriptions: SubscriptionRepository = {
+    listPlans: async () => [],
+    savePlan: async () => {
+      throw new Error('not used');
+    },
+    listPeriods: async () => [],
+    saveDiscounts: async () => [],
+    listSubscriptions: async () => [],
+    recordSubscription: async () => {
+      throw new Error('not used');
+    },
+    removeSubscription: async () => undefined,
+    vehicleUsage: async () => [],
+    ...subscriptionOverrides,
+  };
   await TestBed.configureTestingModule({
     imports: [Organizations],
     providers: [
       provideRouter([]),
       { provide: OrganizationRepository, useValue: repository },
+      { provide: SubscriptionRepository, useValue: subscriptions },
     ],
   }).compileComponents();
   const fixture = TestBed.createComponent(Organizations);

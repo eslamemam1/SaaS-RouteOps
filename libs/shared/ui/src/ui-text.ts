@@ -7,6 +7,7 @@ export interface UiText {
   readonly site: {
     readonly navigation: string;
     readonly home: string;
+    readonly pricing: string;
     readonly contact: string;
     readonly signIn: string;
     readonly openMenu: string;
@@ -60,6 +61,7 @@ export const uiText: Record<Language, UiText> = {
     site: {
       navigation: 'روابط الموقع',
       home: 'الرئيسية',
+      pricing: 'الأسعار',
       contact: 'تواصل معنا',
       signIn: 'تسجيل الدخول',
       openMenu: 'فتح القائمة',
@@ -111,6 +113,7 @@ export const uiText: Record<Language, UiText> = {
     site: {
       navigation: 'Site links',
       home: 'Home',
+      pricing: 'Pricing',
       contact: 'Contact us',
       signIn: 'Sign in',
       openMenu: 'Open menu',

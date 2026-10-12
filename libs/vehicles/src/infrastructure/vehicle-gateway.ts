@@ -99,6 +99,8 @@ const vehicleColumns =
 const uniqueViolation = '23505';
 // Raised by the database when an active route still uses the vehicle.
 const activeRoutes = 'active_routes';
+// Raised by the database when the company's plan allows no more active vehicles.
+const vehicleLimit = 'vehicle_limit';
 
 const rentTypeColumns: Record<RentType, string> = {
   none: 'none',
@@ -374,6 +376,9 @@ export class SupabaseVehicleGateway implements VehicleGateway {
 function saveError(error: PostgrestError | null): VehicleAccessError {
   if (error?.message === activeRoutes) {
     return new VehicleAccessError('activeRoutes', routeNames(error.details));
+  }
+  if (error?.message === vehicleLimit) {
+    return new VehicleAccessError('vehicleLimit');
   }
   return new VehicleAccessError(error?.code === uniqueViolation ? 'plateTaken' : 'save');
 }

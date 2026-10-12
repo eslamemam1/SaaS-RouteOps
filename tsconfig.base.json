@@ -29,6 +29,7 @@
       "@routeops/shared/i18n": ["./libs/shared/i18n/src/index.ts"],
       "@routeops/shared/money": ["./libs/shared/money/src/index.ts"],
       "@routeops/shared/pay": ["./libs/shared/pay/src/index.ts"],
+      "@routeops/shared/pricing": ["./libs/shared/pricing/src/index.ts"],
       "@routeops/shared/ui": ["./libs/shared/ui/src/index.ts"]
     }
   },

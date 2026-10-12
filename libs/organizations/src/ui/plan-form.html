@@ -1,0 +1,55 @@
+<form class="ro-form" (submit)="onSubmit($event)">
+  <app-field
+    [label]="text().plans.nameAr"
+    [hint]="text().plans.nameHint"
+    [control]="planForm.nameAr"
+  >
+    <input type="text" dir="rtl" [formField]="planForm.nameAr" />
+  </app-field>
+  <app-field [label]="text().plans.nameEn" [control]="planForm.nameEn">
+    <input type="text" dir="ltr" [formField]="planForm.nameEn" />
+  </app-field>
+  <app-field
+    [label]="text().plans.currency"
+    [hint]="text().plans.currencyHint"
+    [control]="planForm.currency"
+  >
+    <app-select [formField]="planForm.currency">
+      @for (currency of currencies; track currency) {
+        <app-option [value]="currency" [label]="text().currencies[currency]" />
+      }
+    </app-select>
+  </app-field>
+  <app-field
+    [label]="text().plans.vehicleLimit"
+    [hint]="text().plans.vehicleLimitHint"
+    [optional]="true"
+    [control]="planForm.vehicleLimit"
+  >
+    <input type="text" inputmode="numeric" dir="ltr" [formField]="planForm.vehicleLimit" />
+  </app-field>
+  <app-field
+    [label]="text().plans.monthlyPrice"
+    [hint]="text().plans.monthlyPriceHint"
+    [optional]="true"
+    [control]="planForm.monthlyPrice"
+  >
+    <input type="text" inputmode="decimal" dir="ltr" [formField]="planForm.monthlyPrice" />
+  </app-field>
+  <label class="ro-option">
+    <input type="checkbox" [formField]="planForm.isActive" />
+    <span class="ro-option-title">{{ text().plans.isActive }}</span>
+    <span class="ro-option-hint">{{ text().plans.isActiveHint }}</span>
+  </label>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().subscriptionProblems[current] }}</app-alert>
+  }
+  <div class="ro-toolbar">
+    <button appButton type="submit" [disabled]="busy()">
+      {{ text().plans.save }}
+    </button>
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().plans.cancel }}
+    </button>
+  </div>
+</form>

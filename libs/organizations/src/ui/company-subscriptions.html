@@ -1,0 +1,232 @@
+<section class="ro-card" aria-labelledby="subscriptions-title">
+  <div class="ro-card-header">
+    <h2 id="subscriptions-title" class="ro-card-title">{{ text().subscriptions.title }}</h2>
+    <p class="hint">{{ text().subscriptions.hint }}</p>
+  </div>
+
+  @switch (status()) {
+    @case ('loading') {
+      <div class="ro-card-body">
+        <p class="hint" role="status">{{ text().subscriptions.loading }}</p>
+      </div>
+    }
+    @case ('error') {
+      <div class="ro-card-body">
+        <app-alert tone="danger">{{ text().subscriptionProblems.load }}</app-alert>
+        <div class="ro-toolbar">
+          <button appButton="secondary" type="button" (click)="reload()">
+            {{ text().subscriptions.retry }}
+          </button>
+        </div>
+      </div>
+    }
+    @case ('ready') {
+      <div class="ro-card-body">
+        @if (accounts().length === 0) {
+          <p class="hint">{{ text().subscriptions.noCompanies }}</p>
+        } @else {
+          <div class="ro-toolbar">
+            <button appButton type="button" (click)="add(null)">
+              <ng-icon [svg]="addIcon" aria-hidden="true" />
+              {{ text().subscriptions.add }}
+            </button>
+          </div>
+          @if (plans().length === 0) {
+            <app-alert tone="info">{{ text().subscriptions.noPlans }}</app-alert>
+          }
+        }
+
+        @if (outcome(); as done) {
+          <app-alert tone="success" [dismissible]="true" (dismissed)="outcome.set(null)">
+            {{ text().subscriptions[done] }}
+          </app-alert>
+        }
+        @if (problem(); as current) {
+          <app-alert tone="danger">{{ text().subscriptionProblems[current] }}</app-alert>
+        }
+      </div>
+
+      @if (accounts().length > 0) {
+        <div class="ro-table-scroll">
+          <table class="ro-table-stack subscriptions-companies">
+            <thead>
+              <tr>
+                <th>{{ text().subscriptions.company }}</th>
+                <th>{{ text().subscriptions.plan }}</th>
+                <th>{{ text().subscriptions.dates }}</th>
+                <th>{{ text().subscriptions.vehicles }}</th>
+                <th>{{ text().subscriptions.status }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (company of companyPages.items(); track company.account.id) {
+                <tr [attr.data-company]="company.account.id">
+                  <td [attr.data-label]="text().subscriptions.company">
+                    <strong
+                      ><bdi>{{ company.account.name }}</bdi></strong
+                    >
+                  </td>
+                  <td [attr.data-label]="text().subscriptions.plan">
+                    @if (company.current ?? company.next; as shown) {
+                      <span class="ro-cell-stack">
+                        <bdi>{{ planOf(shown) }}</bdi>
+                        <span class="hint">{{ text().plans.periods[shown.months] }}</span>
+                      </span>
+                    } @else {
+                      <span class="hint">—</span>
+                    }
+                  </td>
+                  <td [attr.data-label]="text().subscriptions.dates">
+                    @if (company.current ?? company.next; as shown) {
+                      <span class="ro-cell-stack">
+                        <span>
+                          <bdi>{{ date(shown.startsOn) }}</bdi> –
+                          <bdi>{{ date(shown.endsOn) }}</bdi>
+                        </span>
+                        @if (company.daysLeft !== null) {
+                          <span class="hint">
+                            {{ text().subscriptions.daysLeft }} <bdi>{{ company.daysLeft }}</bdi>
+                          </span>
+                        }
+                        @if (company.current && company.next) {
+                          <span class="hint">
+                            {{ text().subscriptions.startsLater }}
+                            <bdi>{{ date(company.next.startsOn) }}</bdi>
+                          </span>
+                        }
+                      </span>
+                    } @else {
+                      <span class="hint">—</span>
+                    }
+                  </td>
+                  <td class="ro-numeric" [attr.data-label]="text().subscriptions.vehicles">
+                    <span class="ro-cell-stack">
+                      <bdi
+                        >{{ company.activeVehicles }} /
+                        {{ company.vehicleLimit ?? text().subscriptions.noLimit }}</bdi
+                      >
+                      @if (usageTone(company); as tone) {
+                        <app-tag [tone]="tone">
+                          {{
+                            tone === 'danger'
+                              ? text().subscriptions.overLimit
+                              : text().subscriptions.atLimit
+                          }}
+                        </app-tag>
+                      }
+                    </span>
+                  </td>
+                  <td [attr.data-label]="text().subscriptions.status">
+                    <app-tag [tone]="statusTones[company.status]" [dot]="true">
+                      {{ text().subscriptions.statuses[company.status] }}
+                    </app-tag>
+                  </td>
+                  <td>
+                    <button appButton="text" size="sm" type="button" (click)="add(company)">
+                      {{
+                        company.current || company.next
+                          ? text().subscriptions.renew
+                          : text().subscriptions.add
+                      }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <app-pager [pages]="companyPages" />
+
+        @if (subscriptions().length > 0) {
+          <div class="ro-card-header">
+            <h3 class="ro-card-title">{{ text().subscriptions.historyTitle }}</h3>
+            <p class="hint">{{ text().subscriptions.historyHint }}</p>
+          </div>
+          <div class="ro-table-scroll">
+            <table class="ro-table-stack subscriptions-history">
+              <thead>
+                <tr>
+                  <th>{{ text().subscriptions.company }}</th>
+                  <th>{{ text().subscriptions.plan }}</th>
+                  <th>{{ text().subscriptions.dates }}</th>
+                  <th>{{ text().subscriptions.vehicleLimit }}</th>
+                  <th>{{ text().subscriptions.price }}</th>
+                  <th>{{ text().subscriptions.note }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (subscription of historyPages.items(); track subscription.id) {
+                  <tr>
+                    <td [attr.data-label]="text().subscriptions.company">
+                      <strong
+                        ><bdi>{{ companyName(subscription.organizationId) }}</bdi></strong
+                      >
+                    </td>
+                    <td [attr.data-label]="text().subscriptions.plan">
+                      <span class="ro-cell-stack">
+                        <bdi>{{ planOf(subscription) }}</bdi>
+                        <span class="hint">{{ text().plans.periods[subscription.months] }}</span>
+                      </span>
+                    </td>
+                    <td [attr.data-label]="text().subscriptions.dates">
+                      <bdi>{{ date(subscription.startsOn) }}</bdi> –
+                      <bdi>{{ date(subscription.endsOn) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().subscriptions.vehicleLimit">
+                      {{ subscription.vehicleLimit ?? text().subscriptions.noLimit }}
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().subscriptions.price">
+                      <bdi>{{ price(subscription) }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().subscriptions.note">
+                      @if (subscription.note) {
+                        <bdi>{{ subscription.note }}</bdi>
+                      } @else {
+                        <span class="hint">—</span>
+                      }
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        size="sm"
+                        [appButton]="confirming() === subscription.id ? 'danger' : 'text'"
+                        [disabled]="removing() !== null"
+                        (click)="remove(subscription)"
+                      >
+                        {{
+                          confirming() === subscription.id
+                            ? text().subscriptions.confirmRemove
+                            : text().subscriptions.remove
+                        }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <app-pager [pages]="historyPages" />
+        }
+      }
+    }
+  }
+</section>
+
+<app-form-drawer
+  [title]="text().subscriptions.formTitle"
+  [open]="formOpen()"
+  (openChange)="formOpen.set($event)"
+>
+  @if (formOpen()) {
+    <app-subscription-form
+      [companies]="companies()"
+      [plans]="plans()"
+      [periods]="periods()"
+      [details]="formDetails()"
+      (saved)="recorded($event)"
+      (cancelled)="formOpen.set(false)"
+    />
+  }
+</app-form-drawer>

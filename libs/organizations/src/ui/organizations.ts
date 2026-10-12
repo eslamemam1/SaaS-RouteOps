@@ -33,9 +33,11 @@ import { activeOrganization, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
 import { CompanyAccounts } from './company-accounts';
+import { CompanySubscriptions } from './company-subscriptions';
 import { organizationsText } from './organizations-text';
 import { ProvisionCompanyForm } from './provision-company';
 import { SubscriptionPayments } from './subscription-payments';
+import { SubscriptionPlans } from './subscription-plans';
 
 const sections = [
   { path: 'operations', hint: 'operationsHint', icon: lucideCalendarDays },
@@ -73,12 +75,14 @@ const setupSteps = [
     Alert,
     Button,
     CompanyAccounts,
+    CompanySubscriptions,
     NgIcon,
     PageHeader,
     PageState,
     ProvisionCompanyForm,
     RouterLink,
     SubscriptionPayments,
+    SubscriptionPlans,
     Tag,
   ],
   templateUrl: './organizations.html',
@@ -162,6 +166,8 @@ export class Organizations {
   );
   private readonly accounts = viewChild(CompanyAccounts);
   private readonly payments = viewChild(SubscriptionPayments);
+  protected readonly subscriptions = viewChild(CompanySubscriptions);
+  private readonly plans = viewChild(SubscriptionPlans);
   protected readonly headerTitle = computed(() => {
     const active = this.active();
     const home = this.text().home;
@@ -225,6 +231,8 @@ export class Organizations {
       this.load(),
       this.accounts()?.reload(),
       this.payments()?.reload(),
+      this.subscriptions()?.reload(),
+      this.plans()?.reload(),
     ]);
   }
 

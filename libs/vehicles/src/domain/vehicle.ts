@@ -70,6 +70,7 @@ export const vehicleProblems = [
   'seats',
   'date',
   'activeRoutes',
+  'vehicleLimit',
   'load',
   'save',
   'organization',

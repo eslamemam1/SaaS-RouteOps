@@ -1,0 +1,142 @@
+<section class="ro-card" aria-labelledby="plans-title">
+  <div class="ro-card-header">
+    <h2 id="plans-title" class="ro-card-title">{{ text().plans.title }}</h2>
+    <p class="hint">{{ text().plans.hint }}</p>
+  </div>
+
+  @switch (status()) {
+    @case ('loading') {
+      <div class="ro-card-body">
+        <p class="hint" role="status">{{ text().plans.loading }}</p>
+      </div>
+    }
+    @case ('error') {
+      <div class="ro-card-body">
+        <app-alert tone="danger">{{ text().subscriptionProblems.load }}</app-alert>
+        <div class="ro-toolbar">
+          <button appButton="secondary" type="button" (click)="reload()">
+            {{ text().plans.retry }}
+          </button>
+        </div>
+      </div>
+    }
+    @case ('ready') {
+      <div class="ro-card-body">
+        <div class="ro-toolbar">
+          <button appButton type="button" (click)="add()">
+            <ng-icon [svg]="addIcon" aria-hidden="true" />
+            {{ text().plans.add }}
+          </button>
+          <a appButton="text" routerLink="/pricing" target="_blank">{{ text().plans.viewPage }}</a>
+        </div>
+
+        @if (outcome(); as done) {
+          <app-alert tone="success" [dismissible]="true" (dismissed)="outcome.set(null)">
+            {{ text().plans[done] }}
+          </app-alert>
+        }
+
+        @if (plans().length === 0) {
+          <p class="hint">{{ text().plans.empty }}</p>
+        }
+      </div>
+
+      @if (plans().length > 0) {
+        <div class="ro-table-scroll">
+          <table class="ro-table-stack plans-table">
+            <thead>
+              <tr>
+                <th>{{ text().plans.name }}</th>
+                <th>{{ text().plans.vehicleLimit }}</th>
+                @for (period of months; track period) {
+                  <th>{{ text().plans.periods[period] }}</th>
+                }
+                <th>{{ text().plans.status }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (plan of planPages.items(); track plan.id) {
+                <tr [attr.data-plan]="plan.id">
+                  <td [attr.data-label]="text().plans.name">
+                    <span class="ro-cell-stack">
+                      <strong
+                        ><bdi>{{ name(plan) }}</bdi></strong
+                      >
+                      <span class="hint">{{ text().currencies[plan.currency] }}</span>
+                    </span>
+                  </td>
+                  <td class="ro-numeric" [attr.data-label]="text().plans.vehicleLimit">
+                    {{ plan.vehicleLimit ?? text().plans.noLimit }}
+                  </td>
+                  @for (period of months; track period) {
+                    <td class="ro-numeric" [attr.data-label]="text().plans.periods[period]">
+                      @if (periodAmount(plan, period); as amount) {
+                        <bdi>{{ amount }}</bdi>
+                      } @else {
+                        <span class="hint">{{ text().plans.agreed }}</span>
+                      }
+                    </td>
+                  }
+                  <td [attr.data-label]="text().plans.status">
+                    <app-tag [tone]="plan.isActive ? 'success' : 'neutral'" [dot]="true">
+                      {{ plan.isActive ? text().plans.shown : text().plans.hidden }}
+                    </app-tag>
+                  </td>
+                  <td>
+                    <button appButton="text" size="sm" type="button" (click)="edit(plan)">
+                      {{ text().plans.edit }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <app-pager [pages]="planPages" />
+      }
+
+      <form class="ro-card-body plans-discounts" (submit)="saveDiscounts($event)">
+        <div>
+          <h3 class="ro-card-title">{{ text().plans.discountsTitle }}</h3>
+          <p class="hint">{{ text().plans.discountsHint }}</p>
+        </div>
+        <div class="ro-form-row">
+          @for (period of longerMonths; track period) {
+            <app-field
+              [label]="text().plans.discountOf + ' ' + text().plans.periods[period] + ' (%)'"
+            >
+              <input
+                type="text"
+                inputmode="numeric"
+                dir="ltr"
+                [attr.data-months]="period"
+                [attr.aria-invalid]="invalidDiscounts().includes(period)"
+                [value]="discounts()[period]"
+                (input)="setDiscount(period, $any($event.target).value)"
+              />
+            </app-field>
+          }
+        </div>
+        @if (problem(); as current) {
+          <app-alert tone="danger">{{ text().subscriptionProblems[current] }}</app-alert>
+        }
+        <div class="ro-toolbar">
+          <button appButton="secondary" type="submit" [disabled]="savingDiscounts()">
+            {{ text().plans.saveDiscounts }}
+          </button>
+        </div>
+      </form>
+    }
+  }
+</section>
+
+<app-form-drawer
+  [title]="editing() ? text().plans.editTitle : text().plans.addTitle"
+  [open]="formOpen()"
+  (openChange)="formOpen.set($event)"
+>
+  @if (formOpen()) {
+    <app-plan-form [plan]="editing()" (saved)="saved($event)" (cancelled)="formOpen.set(false)" />
+  }
+</app-form-drawer>

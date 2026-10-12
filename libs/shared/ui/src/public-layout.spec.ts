@@ -38,7 +38,11 @@ describe('PublicLayout', () => {
   it('keeps the links and the language switch inside the menu', async () => {
     const { menu } = await render();
 
-    expect(menu?.querySelectorAll('.app-public-link')).toHaveLength(2);
+    expect(
+      [...(menu?.querySelectorAll('.app-public-link') ?? [])].map((link) =>
+        link.getAttribute('href'),
+      ),
+    ).toEqual(['/', '/pricing', '/contact']);
     expect(menu?.querySelector('app-language-switch')).toBeTruthy();
   });
 

@@ -1,4 +1,5 @@
 import { Language } from '@routeops/shared/i18n';
+import { SubscriptionMonths } from '@routeops/shared/pricing';
 
 export const featureKeys = [
   'customers',
@@ -95,6 +96,34 @@ export interface SiteText {
     readonly signInHint: string;
     readonly signInText: string;
     readonly signIn: string;
+  };
+  readonly pricing: {
+    readonly title: string;
+    readonly headline: string;
+    readonly headlineHighlight: string;
+    readonly hint: string;
+    readonly loading: string;
+    readonly load: string;
+    readonly empty: string;
+    readonly period: string;
+    readonly periods: Record<SubscriptionMonths, string>;
+    readonly per: Record<SubscriptionMonths, string>;
+    readonly save: string;
+    readonly vehicles: string;
+    readonly vehiclesHint: string;
+    readonly currency: string;
+    readonly upTo: string;
+    readonly anySize: string;
+    readonly agreed: string;
+    readonly agreedHint: string;
+    readonly instead: string;
+    readonly fits: string;
+    readonly tooMany: string;
+    readonly choose: string;
+    readonly contact: string;
+    readonly included: readonly string[];
+    readonly notesTitle: string;
+    readonly notes: readonly string[];
   };
 }
 
@@ -236,12 +265,49 @@ export const siteText: Record<Language, SiteText> = {
       accountHint: 'ثلاث خطوات فقط، ونحن نتولى إعداد الحساب.',
       accountSteps: [
         'تواصل معنا بأي طريقة من الطرق السابقة.',
-        'نتفق معك على الاشتراك الشهري.',
+        'نتفق معك على الباقة ومدة الاشتراك.',
         'ننشئ حساب شركتك ونرسل لك البريد الإلكتروني وكلمة المرور.',
       ],
       signInHint: 'لديك حساب بالفعل؟',
       signInText: 'ادخل لمتابعة رحلات اليوم وحسابات الشهر.',
       signIn: 'تسجيل الدخول',
+    },
+    pricing: {
+      title: 'الأسعار',
+      headline: 'اشتراك واضح',
+      headlineHighlight: 'على قدر أسطولك',
+      hint: 'تدفع حسب عدد المركبات العاملة لديك، وكل أقسام النظام متاحة في كل الباقات. وكلما اشتركت لمدة أطول وفّرت أكثر.',
+      loading: 'جارٍ تحميل الأسعار...',
+      load: 'تعذّر تحميل الأسعار. حاول مرة أخرى.',
+      empty: 'لم ننشر الأسعار بعد. تواصل معنا ونرسل لك عرض سعر يناسب أسطولك.',
+      period: 'مدة الاشتراك',
+      periods: { 1: 'شهر', 3: '3 شهور', 6: '6 شهور', 12: 'سنة' },
+      per: { 1: 'في الشهر', 3: 'لكل 3 شهور', 6: 'لكل 6 شهور', 12: 'في السنة' },
+      save: 'وفّر',
+      vehicles: 'كم مركبة تعمل لديك؟',
+      vehiclesHint: 'اكتب العدد لنحدد لك الباقة المناسبة.',
+      currency: 'العملة',
+      upTo: 'عدد المركبات: حتى',
+      anySize: 'عدد المركبات حسب احتياجك',
+      agreed: 'حسب الاتفاق',
+      agreedHint: 'نتفق معك على السعر حسب حجم أسطولك.',
+      instead: 'بدلًا من',
+      fits: 'تناسب أسطولك',
+      tooMany: 'أسطولك أكبر من الباقات المعروضة. تواصل معنا لنتفق على باقة تناسبه.',
+      choose: 'اطلب هذه الباقة',
+      contact: 'تواصل معنا',
+      included: [
+        'كل الأقسام: الخطوط والتشغيل اليومي والسائقون والمركبات والمصروفات والتقارير',
+        'عدد غير محدود من الخطوط والسائقين والشركات المتعاقدة',
+        'بالعربية والإنجليزية، على الكمبيوتر والهاتف',
+        'نجهّز حساب شركتك بأنفسنا',
+      ],
+      notesTitle: 'قبل أن تختار',
+      notes: [
+        'تُحسب المركبات العاملة فقط؛ المركبة الموقوفة لا تدخل في عدد الباقة.',
+        'عند الوصول إلى حد الباقة لا يمكن إضافة مركبة جديدة حتى تُرقّى الباقة أو تُوقف مركبة أخرى.',
+        'الخصم يُحسب على سعر المدة كلها.',
+      ],
     },
   },
   en: {
@@ -381,12 +447,49 @@ export const siteText: Record<Language, SiteText> = {
       accountHint: 'Just three steps, and we set the account up for you.',
       accountSteps: [
         'Contact us in any of the ways above.',
-        'We agree with you on the monthly subscription.',
+        'We agree with you on the plan and how long to subscribe.',
         'We create your company account and send you the email and password.',
       ],
       signInHint: 'Already have an account?',
       signInText: "Sign in to follow today's trips and the month's accounts.",
       signIn: 'Sign in',
+    },
+    pricing: {
+      title: 'Pricing',
+      headline: 'Clear pricing',
+      headlineHighlight: 'that fits your fleet',
+      hint: 'You pay by the number of vehicles you run, and every plan includes every section. The longer you subscribe, the more you save.',
+      loading: 'Loading prices...',
+      load: 'The prices could not be loaded. Try again.',
+      empty: 'We have not published our prices yet. Contact us and we will send you a quote for your fleet.',
+      period: 'Subscription length',
+      periods: { 1: 'Month', 3: '3 months', 6: '6 months', 12: 'Year' },
+      per: { 1: 'per month', 3: 'per 3 months', 6: 'per 6 months', 12: 'per year' },
+      save: 'Save',
+      vehicles: 'How many vehicles do you run?',
+      vehiclesHint: 'Type the number and we will point out the plan that fits.',
+      currency: 'Currency',
+      upTo: 'Vehicles: up to',
+      anySize: 'As many vehicles as you need',
+      agreed: 'By agreement',
+      agreedHint: 'We agree the price with you based on your fleet.',
+      instead: 'instead of',
+      fits: 'Fits your fleet',
+      tooMany: 'Your fleet is larger than these plans. Contact us to agree on one that fits.',
+      choose: 'Ask for this plan',
+      contact: 'Contact us',
+      included: [
+        'Every section: routes, daily operations, drivers, vehicles, expenses, and reports',
+        'Unlimited routes, drivers, and contracted companies',
+        'In Arabic and English, on computer and phone',
+        'We set up your company account for you',
+      ],
+      notesTitle: 'Before you choose',
+      notes: [
+        'Only active vehicles count; an inactive vehicle does not count toward the plan.',
+        'At the plan limit a new vehicle cannot be added until the plan is upgraded or another vehicle is made inactive.',
+        'The discount applies to the price of the whole period.',
+      ],
     },
   },
 };

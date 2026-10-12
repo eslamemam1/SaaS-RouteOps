@@ -370,6 +370,8 @@
   }
   @if (operator()) {
     <app-company-accounts />
+    <app-company-subscriptions />
+    <app-subscription-plans (changed)="subscriptions()?.reload()" />
     <app-subscription-payments />
     <section class="ro-card">
       <div class="ro-card-header">

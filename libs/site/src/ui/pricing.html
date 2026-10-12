@@ -1,0 +1,167 @@
+<app-public-layout fullWidth>
+  <app-public-hero>
+    <div class="pricing-hero">
+      <p class="app-hero-eyebrow app-hero-rise">
+        <ng-icon [svg]="icons.eyebrow" aria-hidden="true" />
+        {{ text().pricing.title }}
+      </p>
+      <h1 class="app-hero-title app-hero-rise">
+        {{ text().pricing.headline }}
+        <span class="app-hero-highlight">{{ text().pricing.headlineHighlight }}</span>
+      </h1>
+      <p class="app-hero-lead app-hero-rise">{{ text().pricing.hint }}</p>
+    </div>
+  </app-public-hero>
+
+  <div class="pricing-body">
+    @switch (status()) {
+      @case ('loading') {
+        <app-page-state kind="loading" [message]="text().pricing.loading" />
+      }
+      @case ('error') {
+        <app-page-state
+          kind="error"
+          [message]="text().pricing.load"
+          [retryable]="true"
+          (retry)="load()"
+        />
+      }
+      @case ('ready') {
+        @if (cards().length === 0) {
+          <app-page-state kind="empty" [message]="text().pricing.empty">
+            <a appButton routerLink="/contact">{{ text().pricing.contact }}</a>
+          </app-page-state>
+        } @else {
+          <div class="pricing-controls">
+            <div class="pricing-control">
+              <span class="pricing-control-label" id="pricing-period">
+                {{ text().pricing.period }}
+              </span>
+              <div class="pricing-periods" role="group" aria-labelledby="pricing-period">
+                @for (period of periods(); track period.months) {
+                  <button
+                    type="button"
+                    class="pricing-period"
+                    [attr.data-months]="period.months"
+                    [attr.aria-pressed]="months() === period.months"
+                    (click)="months.set(period.months)"
+                  >
+                    {{ text().pricing.periods[period.months] }}
+                    @if (period.discountPercent > 0) {
+                      <span class="pricing-discount"
+                        ><bdi>-{{ period.discountPercent }}%</bdi></span
+                      >
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+            <app-field
+              class="pricing-fleet"
+              [label]="text().pricing.vehicles"
+              [hint]="text().pricing.vehiclesHint"
+            >
+              <input
+                type="text"
+                inputmode="numeric"
+                dir="ltr"
+                [value]="vehicles()"
+                (input)="vehicles.set($any($event.target).value)"
+              />
+            </app-field>
+            @if (currencies().length > 1) {
+              <app-field class="pricing-currency" [label]="text().pricing.currency">
+                <app-select [value]="currency()" (valueChange)="chooseCurrency($event)">
+                  @for (option of currencies(); track option.value) {
+                    <app-option [value]="option.value" [label]="option.label" />
+                  }
+                </app-select>
+              </app-field>
+            }
+          </div>
+
+          @if (tooMany()) {
+            <p class="pricing-too-many" role="status">
+              {{ text().pricing.tooMany }}
+              <a routerLink="/contact">{{ text().pricing.contact }}</a>
+            </p>
+          }
+
+          <ul class="pricing-plans">
+            @for (card of cards(); track card.id) {
+              <li
+                class="pricing-plan"
+                [attr.data-plan]="card.id"
+                [class.pricing-plan-fits]="recommended() === card.id"
+              >
+                @if (recommended() === card.id) {
+                  <span class="pricing-fits">{{ text().pricing.fits }}</span>
+                }
+                <div class="pricing-plan-head">
+                  <h2 class="pricing-plan-name">{{ card.name }}</h2>
+                  <p class="pricing-plan-limit">
+                    <ng-icon [svg]="icons.vehicles" aria-hidden="true" />
+                    @if (card.vehicleLimit === null) {
+                      <span>{{ text().pricing.anySize }}</span>
+                    } @else {
+                      <span
+                        >{{ text().pricing.upTo }} <bdi>{{ card.vehicleLimit }}</bdi></span
+                      >
+                    }
+                  </p>
+                </div>
+                <div class="pricing-price">
+                  @if (card.price; as price) {
+                    <strong class="pricing-amount"
+                      ><bdi>{{ price.total }}</bdi></strong
+                    >
+                    <span class="pricing-per">{{ text().pricing.per[months()] }}</span>
+                    @if (price.saving > 0) {
+                      <span class="pricing-was">
+                        {{ text().pricing.instead }}
+                        <s
+                          ><bdi>{{ price.full }}</bdi></s
+                        >
+                      </span>
+                      <span class="pricing-saving">
+                        {{ text().pricing.save }} <bdi>{{ price.savingText }}</bdi>
+                      </span>
+                    }
+                  } @else {
+                    <strong class="pricing-amount">{{ text().pricing.agreed }}</strong>
+                    <span class="pricing-per">{{ text().pricing.agreedHint }}</span>
+                  }
+                </div>
+                <ul class="pricing-included">
+                  @for (item of text().pricing.included; track item) {
+                    <li>
+                      <ng-icon [svg]="icons.check" aria-hidden="true" />
+                      <span>{{ item }}</span>
+                    </li>
+                  }
+                </ul>
+                <a
+                  class="pricing-choose"
+                  routerLink="/contact"
+                  [appButton]="recommended() === card.id ? 'primary' : 'secondary'"
+                >
+                  {{ card.price ? text().pricing.choose : text().pricing.contact }}
+                  <ng-icon class="pricing-arrow" [svg]="icons.arrow" aria-hidden="true" />
+                </a>
+              </li>
+            }
+          </ul>
+
+          <section class="pricing-notes" aria-labelledby="pricing-notes">
+            <h2 id="pricing-notes">{{ text().pricing.notesTitle }}</h2>
+            <ul>
+              @for (note of text().pricing.notes; track note) {
+                <li>{{ note }}</li>
+              }
+            </ul>
+          </section>
+        }
+      }
+    }
+  </div>
+</app-public-layout>

@@ -260,6 +260,22 @@ describe('SupabaseVehicleGateway', () => {
     ).rejects.toEqual(new VehicleAccessError('plateTaken'));
   });
 
+  it("reports an active vehicle beyond the company's plan limit", async () => {
+    const calls = recorder({
+      data: null,
+      error: { message: 'vehicle_limit', code: 'P0001', details: '5' },
+    });
+    const gateway = new SupabaseVehicleGateway(calls.client);
+
+    await expect(
+      gateway.insertVehicle(north, {
+        ...emptyVehicleDetails,
+        plateNumber: 'أ ب ج 1234',
+        type: 'bus',
+      }),
+    ).rejects.toEqual(new VehicleAccessError('vehicleLimit'));
+  });
+
   it('replaces any other database error with a safe code', async () => {
     const calls = recorder({
       data: null,

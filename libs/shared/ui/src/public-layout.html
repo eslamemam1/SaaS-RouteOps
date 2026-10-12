@@ -22,6 +22,15 @@
         </a>
         <a
           class="app-public-link"
+          routerLink="/pricing"
+          routerLinkActive="app-public-link-active"
+          ariaCurrentWhenActive="page"
+          (click)="closeMenu()"
+        >
+          {{ text().site.pricing }}
+        </a>
+        <a
+          class="app-public-link"
           routerLink="/contact"
           routerLinkActive="app-public-link-active"
           ariaCurrentWhenActive="page"
