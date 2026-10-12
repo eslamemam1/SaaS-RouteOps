@@ -130,6 +130,7 @@
   --ro-space-10: 40px;
   --ro-space-16: 64px;
 
+  --ro-radius-none: 0;
   --ro-radius-sm: 6px;
   --ro-radius-md: 10px;
   --ro-radius-lg: 14px;

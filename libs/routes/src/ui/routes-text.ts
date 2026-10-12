@@ -41,6 +41,7 @@ export interface RoutesText {
     readonly copyHint: string;
     readonly routeTitle: string;
     readonly crewTitle: string;
+    readonly crewHint: string;
     readonly pathTitle: string;
     readonly name: string;
     readonly nameHint: string;
@@ -54,7 +55,6 @@ export interface RoutesText {
     readonly vehicle: string;
     readonly driver: string;
     readonly chooseDriver: string;
-    readonly assignLater: string;
     readonly notSet: string;
     readonly startPoint: string;
     readonly startPointHint: string;
@@ -69,6 +69,7 @@ export interface RoutesText {
     readonly days: string;
     readonly daysHint: string;
     readonly everyDay: string;
+    readonly priceTitle: string;
     readonly tripPrice: string;
     readonly tripPriceHint: string;
     readonly shiftPrice: string;
@@ -152,6 +153,7 @@ export const routesText: Record<Language, RoutesText> = {
       copyHint: 'اختر الشركة، ثم غيّر المركبة والسائق والمواعيد والأيام حسب هذه الشركة.',
       routeTitle: 'الخط والشركة',
       crewTitle: 'السائق والمركبة',
+      crewHint: 'السائق مطلوب، ويمكنك تحديد المركبة لاحقًا.',
       pathTitle: 'خط السير',
       name: 'اسم الخط',
       nameHint: 'اسم تعرف به الخط، مثل: مدينة نصر. يمكن استخدام نفس الاسم لأكثر من شركة.',
@@ -165,13 +167,12 @@ export const routesText: Record<Language, RoutesText> = {
       vehicle: 'المركبة',
       driver: 'السائق',
       chooseDriver: 'اختر السائق',
-      assignLater: 'يمكنك تحديده لاحقًا.',
       notSet: 'لم يُحدد بعد',
       startPoint: 'نقطة البداية',
       startPointHint: 'المكان الذي تبدأ منه رحلة الذهاب، مثل: ميدان الحجاز.',
       endPoint: 'نقطة النهاية',
       endPointHint: 'غالبًا مقر الشركة أو المصنع.',
-      tripsTitle: 'المواعيد',
+      tripsTitle: 'المواعيد والأيام',
       tripsHint: 'حدد ميعاد رحلة واحدة على الأقل.',
       outboundTime: 'ميعاد الذهاب',
       outboundHint: 'توصيل الموظفين إلى العمل.',
@@ -180,6 +181,7 @@ export const routesText: Record<Language, RoutesText> = {
       days: 'أيام العمل',
       daysHint: 'الأيام التي يعمل فيها هذا الخط كل أسبوع.',
       everyDay: 'اختيار كل الأيام',
+      priceTitle: 'السعر والملاحظات',
       tripPrice: 'سعر الرحلة',
       tripPriceHint:
         'المبلغ الذي تدفعه الشركة المتعاقدة عن هذه الرحلة في كل يوم. يُستخدم لحساب الإيراد في التقارير. تغيير السعر لا يغيّر الرحلات التي مضت ولها سعر، أما الرحلات التي تمّت بلا سعر فتأخذ السعر الجديد.',
@@ -263,6 +265,7 @@ export const routesText: Record<Language, RoutesText> = {
       copyHint: 'Choose the company, then change the vehicle, driver, times, and days for it.',
       routeTitle: 'Route and company',
       crewTitle: 'Driver and vehicle',
+      crewHint: 'The driver is required; you can set the vehicle later.',
       pathTitle: 'Path',
       name: 'Route name',
       nameHint: 'A name you know the route by, e.g. Nasr City. The same name can serve more than one company.',
@@ -276,13 +279,12 @@ export const routesText: Record<Language, RoutesText> = {
       vehicle: 'Vehicle',
       driver: 'Driver',
       chooseDriver: 'Choose a driver',
-      assignLater: 'You can set this later.',
       notSet: 'Not set yet',
       startPoint: 'Start point',
       startPointHint: 'Where the outbound trip starts, e.g. Hegaz Square.',
       endPoint: 'End point',
       endPointHint: 'Usually the company or factory site.',
-      tripsTitle: 'Times',
+      tripsTitle: 'Times and days',
       tripsHint: 'Set at least one trip time.',
       outboundTime: 'Outbound time',
       outboundHint: 'Taking staff to work.',
@@ -291,6 +293,7 @@ export const routesText: Record<Language, RoutesText> = {
       days: 'Working days',
       daysHint: 'The days this route runs every week.',
       everyDay: 'Choose every day',
+      priceTitle: 'Price and notes',
       tripPrice: 'Trip price',
       tripPriceHint:
         'What the client company pays for this trip each day. Reports use it to work out revenue. Changing it does not change past trips that have a price; done trips with no price take the new one.',

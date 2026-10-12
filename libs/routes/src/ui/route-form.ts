@@ -38,6 +38,7 @@ import { routesText } from './routes-text';
   selector: 'app-route-form',
   imports: [Alert, Button, Field, FormField, Select, SelectOption],
   templateUrl: './route-form.html',
+  styleUrl: './route-form.css',
 })
 export class RouteForm {
   private readonly repository = inject(RouteRepository);

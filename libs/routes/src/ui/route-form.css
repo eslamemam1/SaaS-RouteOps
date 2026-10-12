@@ -1,0 +1,77 @@
+.route-form {
+  counter-reset: route-step;
+}
+
+.route-section {
+  gap: var(--ro-space-4);
+  padding: 0;
+  border: 0;
+  border-radius: var(--ro-radius-none);
+  background: none;
+}
+
+.route-section + .route-section {
+  padding-block-start: var(--ro-space-5);
+  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+/* A floated legend sits inside the section instead of on its top border. */
+.route-section > legend {
+  float: inline-start;
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  inline-size: 100%;
+  padding: 0;
+  font-size: var(--ro-text-body-md);
+  line-height: var(--ro-leading-body-md);
+}
+
+.route-section > legend::before {
+  counter-increment: route-step;
+  content: counter(route-step);
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: var(--ro-space-6);
+  block-size: var(--ro-space-6);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-caption);
+}
+
+.route-section > .hint {
+  margin-block-start: calc(-1 * var(--ro-space-2));
+}
+
+.route-days {
+  display: grid;
+  gap: var(--ro-space-2);
+}
+
+.route-days-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ro-space-2);
+}
+
+.route-days-label {
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+  font-weight: var(--ro-font-semibold);
+}
+
+.route-days-hint {
+  margin-block-start: calc(-1 * var(--ro-space-2));
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+}
+
+.route-actions {
+  padding-block-start: var(--ro-space-4);
+  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+}

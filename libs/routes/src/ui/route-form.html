@@ -1,8 +1,8 @@
-<form class="ro-form" (submit)="onSubmit($event)">
+<form class="ro-form route-form" (submit)="onSubmit($event)">
   @if (draft()) {
-    <p class="hint">{{ text().form.copyHint }}</p>
+    <app-alert>{{ text().form.copyHint }}</app-alert>
   }
-  <fieldset>
+  <fieldset class="route-section">
     <legend>{{ text().form.routeTitle }}</legend>
     <app-field [label]="text().form.name" [hint]="text().form.nameHint" [control]="routeForm.name">
       <input type="text" [formField]="routeForm.name" />
@@ -20,8 +20,9 @@
       </app-select>
     </app-field>
   </fieldset>
-  <fieldset>
+  <fieldset class="route-section">
     <legend>{{ text().form.crewTitle }}</legend>
+    <p class="hint">{{ text().form.crewHint }}</p>
     <div class="ro-form-row">
       <app-field [label]="text().form.driver" [control]="routeForm.driverId">
         <app-select [formField]="routeForm.driverId">
@@ -31,7 +32,7 @@
           }
         </app-select>
       </app-field>
-      <app-field [label]="text().form.vehicle" [hint]="text().form.assignLater" [optional]="true">
+      <app-field [label]="text().form.vehicle" [optional]="true">
         <app-select [formField]="routeForm.vehicleId">
           <app-option value="" [label]="text().form.notSet" />
           @for (vehicle of vehicles(); track vehicle.id) {
@@ -41,7 +42,7 @@
       </app-field>
     </div>
   </fieldset>
-  <fieldset>
+  <fieldset class="route-section">
     <legend>{{ text().form.pathTitle }}</legend>
     <app-field
       [label]="text().form.startPoint"
@@ -58,7 +59,7 @@
       <input type="text" [formField]="routeForm.endPoint" />
     </app-field>
   </fieldset>
-  <fieldset>
+  <fieldset class="route-section">
     <legend>{{ text().form.tripsTitle }}</legend>
     <p class="hint">{{ text().form.tripsHint }}</p>
     <div class="ro-form-row">
@@ -77,44 +78,47 @@
         <input type="time" [formField]="routeForm.returnTime" />
       </app-field>
     </div>
-  </fieldset>
-  <fieldset>
-    <legend>{{ text().form.days }}</legend>
-    <p class="hint">{{ text().form.daysHint }}</p>
-    <div class="ro-chips">
-      @for (day of weekdays; track day) {
-        <label class="ro-chip">
-          <input type="checkbox" [formField]="routeForm.days[day]" />
-          {{ text().weekdays[day] }}
-        </label>
+    <div class="route-days" role="group" aria-labelledby="route-days-label">
+      <div class="route-days-head">
+        <span id="route-days-label" class="route-days-label">{{ text().form.days }}</span>
+        <button appButton="text" size="sm" type="button" (click)="chooseEveryDay()">
+          {{ text().form.everyDay }}
+        </button>
+      </div>
+      <p class="route-days-hint">{{ text().form.daysHint }}</p>
+      <div class="ro-chips">
+        @for (day of weekdays; track day) {
+          <label class="ro-chip">
+            <input type="checkbox" [formField]="routeForm.days[day]" />
+            {{ text().weekdays[day] }}
+          </label>
+        }
+      </div>
+      @if (routeForm.days().touched() && routeForm.days().errors()[0]; as error) {
+        <p class="error" role="alert">{{ error.message }}</p>
       }
     </div>
-    <div class="ro-toolbar">
-      <button appButton="text" size="sm" type="button" (click)="chooseEveryDay()">
-        {{ text().form.everyDay }}
-      </button>
-    </div>
-    @if (routeForm.days().touched() && routeForm.days().errors()[0]; as error) {
-      <p class="error" role="alert">{{ error.message }}</p>
-    }
   </fieldset>
-  <app-field
-    [label]="shift() ? text().form.shiftPrice : text().form.tripPrice"
-    [hint]="shift() ? text().form.shiftPriceHint : text().form.tripPriceHint"
-    [optional]="true"
-    [control]="routeForm.tripPrice"
-  >
-    <input type="text" inputmode="decimal" dir="ltr" [formField]="routeForm.tripPrice" />
-    <bdi>{{ currencyLabel() }}</bdi>
-  </app-field>
-  <app-field
-    [label]="text().form.notes"
-    [hint]="text().form.notesHint"
-    [optional]="true"
-    [control]="routeForm.notes"
-  >
-    <textarea [formField]="routeForm.notes"></textarea>
-  </app-field>
+  <fieldset class="route-section">
+    <legend>{{ text().form.priceTitle }}</legend>
+    <app-field
+      [label]="shift() ? text().form.shiftPrice : text().form.tripPrice"
+      [hint]="shift() ? text().form.shiftPriceHint : text().form.tripPriceHint"
+      [optional]="true"
+      [control]="routeForm.tripPrice"
+    >
+      <input type="text" inputmode="decimal" dir="ltr" [formField]="routeForm.tripPrice" />
+      <bdi>{{ currencyLabel() }}</bdi>
+    </app-field>
+    <app-field
+      [label]="text().form.notes"
+      [hint]="text().form.notesHint"
+      [optional]="true"
+      [control]="routeForm.notes"
+    >
+      <textarea [formField]="routeForm.notes"></textarea>
+    </app-field>
+  </fieldset>
   <label class="ro-option">
     <input type="checkbox" [formField]="routeForm.active" />
     <span class="ro-option-title">{{ text().form.active }}</span>
@@ -123,7 +127,7 @@
   @if (problem(); as current) {
     <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
-  <div class="ro-toolbar">
+  <div class="ro-toolbar route-actions">
     <button appButton type="submit" [disabled]="submitting()">
       {{ route() ? text().form.save : text().form.add }}
     </button>
