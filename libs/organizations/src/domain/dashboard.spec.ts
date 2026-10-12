@@ -1,10 +1,12 @@
 import {
   dashboard,
   DashboardFacts,
+  expenseShare,
   isSetUp,
   monthDays,
   needsAttention,
   previousMonthDays,
+  todayProgress,
 } from './dashboard';
 
 const quiet: DashboardFacts = {
@@ -52,7 +54,18 @@ describe('dashboard', () => {
       '2026-10-08',
     );
 
-    expect(summary.today).toEqual({ status: 'open', planned: 2, done: 1, cancelled: 0.5 });
+    expect(summary.today).toEqual({
+      status: 'open',
+      planned: 2,
+      done: 1,
+      remaining: 1,
+      cancelled: 0.5,
+    });
+    expect(todayProgress(summary.today)).toBe(50);
+  });
+
+  it('shows no progress on a day with nothing scheduled', () => {
+    expect(todayProgress(dashboard(quiet, '2026-10-08').today)).toBe(0);
   });
 
   it('tells an unopened working day from a day with no routes', () => {
@@ -97,5 +110,14 @@ describe('dashboard', () => {
     expect(summary.firstUnopenedDay).toBe('2026-10-04');
     expect(needsAttention(summary)).toBe(true);
     expect(needsAttention(dashboard(quiet, '2026-10-08'))).toBe(false);
+  });
+
+  it('shows what share of the revenue the expenses took, up to all of it', () => {
+    const month = (revenue: number, expenses: number) =>
+      dashboard({ ...quiet, monthRevenue: revenue, monthExpenses: expenses }, '2026-10-08').month;
+
+    expect(expenseShare(month(1_080_000, 180_000))).toBe(17);
+    expect(expenseShare(month(500_000, 650_000))).toBe(100);
+    expect(expenseShare(month(0, 10_000))).toBeNull();
   });
 });

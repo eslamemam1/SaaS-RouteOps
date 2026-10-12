@@ -51,7 +51,13 @@ export interface OrganizationsText {
     readonly openToday: string;
     readonly planned: string;
     readonly done: string;
+    readonly remaining: string;
     readonly cancelled: string;
+    readonly progressOf: string;
+    readonly progressHint: string;
+    readonly progressLabel: string;
+    readonly splitTitle: string;
+    readonly splitOver: string;
     readonly unopenedTitle: string;
     readonly unopened: string;
     readonly noTrips: string;
@@ -270,9 +276,15 @@ export const organizationsText: Record<Language, OrganizationsText> = {
     dashboard: {
       todayTitle: 'رحلات اليوم',
       openToday: 'افتح التشغيل اليومي',
-      planned: 'رحلات اليوم',
+      planned: 'المقرّرة',
       done: 'تمّت',
+      remaining: 'لم تتمّ بعد',
       cancelled: 'ملغاة',
+      progressOf: 'من',
+      progressHint: 'رحلات كاملة تمّت من رحلات اليوم المقرّرة.',
+      progressLabel: 'ما تمّ من رحلات اليوم',
+      splitTitle: 'أين ذهب إيراد الشهر',
+      splitOver: 'المصاريف تجاوزت الإيراد هذا الشهر.',
       unopenedTitle: 'لم يُفتح يوم اليوم بعد',
       unopened: 'افتح التشغيل اليومي لتظهر رحلات اليوم وتسجّل ما تغيّر فيها.',
       noTrips: 'لا توجد خطوط تعمل اليوم.',
@@ -501,9 +513,15 @@ export const organizationsText: Record<Language, OrganizationsText> = {
     dashboard: {
       todayTitle: "Today's trips",
       openToday: 'Open daily operations',
-      planned: "Today's trips",
+      planned: 'Scheduled',
       done: 'Done',
+      remaining: 'Not done yet',
       cancelled: 'Cancelled',
+      progressOf: 'of',
+      progressHint: "Full trips done of today's scheduled trips.",
+      progressLabel: "Today's trips done",
+      splitTitle: "Where the month's revenue went",
+      splitOver: 'Expenses went over the revenue this month.',
       unopenedTitle: 'Today is not opened yet',
       unopened: "Open daily operations to see today's trips and record what changed.",
       noTrips: 'No route runs today.',

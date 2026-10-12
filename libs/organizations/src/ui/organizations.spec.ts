@@ -12,7 +12,7 @@ import { organizationsText } from './organizations-text';
 
 const north: Organization = { id: 'org-north', name: 'North', currency: 'EGP', isActive: true };
 const busy: Dashboard = {
-  today: { status: 'open', planned: 12, done: 7, cancelled: 1 },
+  today: { status: 'open', planned: 12, done: 7, remaining: 5, cancelled: 1 },
   month: { done: 180, revenue: 9_000_000, expenses: 6_500_000, profit: 2_500_000 },
   attention: { unopenedDays: 1, driverPay: 2, vehiclePay: 0, unpriced: 3 },
   firstUnopenedDay: '2026-10-03',
@@ -21,7 +21,7 @@ const busy: Dashboard = {
 };
 const calm: Dashboard = {
   ...busy,
-  today: { status: 'unopened', planned: 0, done: 0, cancelled: 0 },
+  today: { status: 'unopened', planned: 0, done: 0, remaining: 0, cancelled: 0 },
   month: { done: 10, revenue: 100_000, expenses: 400_000, profit: -300_000 },
   attention: { unopenedDays: 0, driverPay: 0, vehiclePay: 0, unpriced: 0 },
   firstUnopenedDay: null,
@@ -87,8 +87,12 @@ describe('Organizations', () => {
     expect([...element.querySelectorAll('.dashboard-today dd')].map((item) => item.textContent?.trim())).toEqual([
       '12',
       '7',
+      '5',
       '1',
     ]);
+    expect(element.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('58');
+    expect(element.querySelector('.dashboard-split-legend')?.textContent).toContain('72%');
+    expect(element.querySelector('.dashboard-split-legend')?.textContent).toContain('28%');
     expect(text(fixture)).toContain('90,000.00');
     expect(text(fixture)).toContain('25,000.00');
     const attention = [...element.querySelectorAll('.dashboard-attention a')];
@@ -128,6 +132,7 @@ describe('Organizations', () => {
     expect(text(fixture)).toContain(arabic.dashboard.unopenedTitle);
     expect(text(fixture)).toContain(arabic.dashboard.loss);
     expect(element.querySelector('.ro-stat[data-tone="danger"]')).toBeTruthy();
+    expect(text(fixture)).toContain(arabic.dashboard.splitOver);
     expect(text(fixture)).toContain(arabic.dashboard.allClear);
   });
 
@@ -148,7 +153,7 @@ describe('Organizations', () => {
     await settle(fixture);
     await settle(fixture);
 
-    expect(element.querySelectorAll('.dashboard-today dd')).toHaveLength(3);
+    expect(element.querySelectorAll('.dashboard-today dd')).toHaveLength(4);
   });
 
   it('lets a member of two companies choose which one to open', async () => {

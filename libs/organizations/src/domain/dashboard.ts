@@ -43,6 +43,8 @@ export interface Dashboard {
     readonly status: TodayStatus;
     readonly planned: number;
     readonly done: number;
+    // Scheduled trips not done yet, such as those still waiting under manual recording.
+    readonly remaining: number;
     readonly cancelled: number;
   };
   readonly month: {
@@ -85,12 +87,14 @@ export function isSetUp(setup: SetupCounts): boolean {
 
 export function dashboard(facts: DashboardFacts, today: string): Dashboard {
   const cancelled = fullTrips(facts.todayTrips.filter((trip) => trip.cancelled));
+  const planned = fullTrips(facts.todayTrips) - cancelled;
   const pastUnopened = facts.unopenedDays.filter((day) => day < today);
   return {
     today: {
       status: todayStatus(facts, today),
-      planned: fullTrips(facts.todayTrips) - cancelled,
+      planned,
       done: facts.todayDone,
+      remaining: Math.max(0, planned - facts.todayDone),
       cancelled,
     },
     month: {
@@ -109,6 +113,19 @@ export function dashboard(facts: DashboardFacts, today: string): Dashboard {
     payMonth: previousMonthDays(today).from.slice(0, 7),
     setup: facts.setup,
   };
+}
+
+// How much of today's scheduled trips are done, as a whole percent.
+export function todayProgress(today: Dashboard['today']): number {
+  return today.planned > 0 ? Math.min(100, Math.round((today.done / today.planned) * 100)) : 0;
+}
+
+// How much of the month's revenue the expenses took, as a whole percent up to 100,
+// or null before there is any revenue.
+export function expenseShare(month: Dashboard['month']): number | null {
+  return month.revenue > 0
+    ? Math.min(100, Math.round((month.expenses / month.revenue) * 100))
+    : null;
 }
 
 export function needsAttention(summary: Dashboard): boolean {

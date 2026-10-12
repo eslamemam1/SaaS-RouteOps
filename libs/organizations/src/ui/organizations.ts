@@ -5,11 +5,16 @@ import {
   lucideBuilding2,
   lucideBus,
   lucideCalendarDays,
+  lucideCalendarX,
   lucideChartColumn,
+  lucideChevronRight,
   lucideCircleCheck,
+  lucideCircleX,
+  lucideClock,
   lucideIdCard,
   lucideReceipt,
   lucideRoute,
+  lucideTag,
   lucideTrendingUp,
   lucideWallet,
 } from '@ng-icons/lucide';
@@ -17,7 +22,13 @@ import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { formatMoney } from '@routeops/shared/money';
 import { Alert, Button, PageHeader, PageState, ShellOrganization, Tag } from '@routeops/shared/ui';
 import { CompanyAccountProblem } from '../domain/company-account';
-import { Dashboard, isSetUp, needsAttention } from '../domain/dashboard';
+import {
+  Dashboard,
+  expenseShare,
+  isSetUp,
+  needsAttention,
+  todayProgress,
+} from '../domain/dashboard';
 import { activeOrganization, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -37,10 +48,17 @@ const sections = [
 ] as const;
 
 const attentionItems = [
-  { key: 'unopenedDays', hint: 'unopenedDaysHint', path: 'operations' },
-  { key: 'driverPay', hint: 'driverPayHint', path: 'expenses' },
-  { key: 'vehiclePay', hint: 'vehiclePayHint', path: 'expenses' },
-  { key: 'unpriced', hint: 'unpricedHint', path: 'routes' },
+  { key: 'unopenedDays', hint: 'unopenedDaysHint', path: 'operations', icon: lucideCalendarX },
+  { key: 'driverPay', hint: 'driverPayHint', path: 'expenses', icon: lucideIdCard },
+  { key: 'vehiclePay', hint: 'vehiclePayHint', path: 'expenses', icon: lucideBus },
+  { key: 'unpriced', hint: 'unpricedHint', path: 'routes', icon: lucideTag },
+] as const;
+
+const todayFigures = [
+  { key: 'planned', tone: 'info', icon: lucideCalendarDays },
+  { key: 'done', tone: 'success', icon: lucideCircleCheck },
+  { key: 'remaining', tone: 'warning', icon: lucideClock },
+  { key: 'cancelled', tone: 'neutral', icon: lucideCircleX },
 ] as const;
 
 const setupSteps = [
@@ -73,7 +91,9 @@ export class Organizations {
   private readonly today = localDate(new Date());
   protected readonly text = injectText(organizationsText);
   protected readonly sections = sections;
+  protected readonly todayFigures = todayFigures;
   protected readonly doneIcon = lucideCircleCheck;
+  protected readonly nextIcon = lucideChevronRight;
   protected readonly statIcons = {
     done: lucideCircleCheck,
     revenue: lucideTrendingUp,
@@ -100,6 +120,14 @@ export class Organizations {
           }))
           .filter((item) => item.count > 0)
       : [];
+  });
+  protected readonly progress = computed(() => {
+    const summary = this.summary();
+    return summary ? todayProgress(summary.today) : 0;
+  });
+  protected readonly share = computed(() => {
+    const summary = this.summary();
+    return summary ? expenseShare(summary.month) : null;
   });
   protected readonly setUp = computed(() => {
     const summary = this.summary();
