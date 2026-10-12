@@ -6,16 +6,20 @@ import {
   customersOnDay,
   customersWithRunningTrips,
   DailyTrip,
+  dayCount,
   emptyExtraTrip,
   emptyTripFilter,
   extraTripError,
   filterTrips,
   isServiceDate,
+  monthSoFar,
   notesError,
+  pastDaysError,
   reasonError,
   recordingOn,
   shiftDate,
   sortByTime,
+  suggestedPastDays,
   tripChangeError,
   tripConflicts,
   TripFilter,
@@ -109,6 +113,39 @@ describe('dates', () => {
   it('moves across month ends', () => {
     expect(shiftDate('2026-10-31', 1)).toBe('2026-11-01');
     expect(shiftDate('2026-03-01', -1)).toBe('2026-02-28');
+  });
+});
+
+describe('past days for route trips', () => {
+  const today = '2026-10-12';
+
+  it('suggests the past day shown, or the month so far', () => {
+    expect(suggestedPastDays('2026-10-05', today)).toEqual({
+      from: '2026-10-05',
+      to: '2026-10-05',
+    });
+    expect(suggestedPastDays(today, today)).toEqual({
+      from: '2026-10-01',
+      to: '2026-10-11',
+    });
+    expect(monthSoFar('2026-11-01')).toEqual({
+      from: '2026-10-01',
+      to: '2026-10-31',
+    });
+  });
+
+  it('takes only days that have passed, at most 93 of them', () => {
+    expect(pastDaysError({ from: '2026-10-01', to: '2026-10-11' }, today)).toBeNull();
+    expect(pastDaysError({ from: '2026-10-01', to: today }, today)).toBe('pastDays');
+    expect(pastDaysError({ from: '2026-10-05', to: '2026-10-01' }, today)).toBe(
+      'pastDays',
+    );
+    expect(pastDaysError({ from: '', to: '2026-10-01' }, today)).toBe('date');
+    expect(pastDaysError({ from: '2026-07-10', to: '2026-10-11' }, today)).toBe(
+      'tooManyDays',
+    );
+    expect(dayCount('2026-07-11', '2026-10-11')).toBe(93);
+    expect(pastDaysError({ from: '2026-07-11', to: '2026-10-11' }, today)).toBeNull();
   });
 });
 

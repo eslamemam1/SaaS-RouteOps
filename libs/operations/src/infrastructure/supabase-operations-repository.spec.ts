@@ -132,6 +132,34 @@ describe('SupabaseOperationsRepository', () => {
     ).rejects.toEqual(new OperationsAccessError('customers'));
     expect(gateway.cancelCustomerTrips).not.toHaveBeenCalled();
   });
+
+  it('adds route trips only for chosen routes on days that have passed', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseOperationsRepository(gateway);
+    const days = { from: '2026-10-01', to: '2026-10-11' };
+
+    await expect(
+      repository.addRouteTrips(north, [], days, '2026-10-12'),
+    ).rejects.toEqual(new OperationsAccessError('routes'));
+    await expect(
+      repository.addRouteTrips(
+        north,
+        ['route-1'],
+        { from: '2026-10-01', to: '2026-10-12' },
+        '2026-10-12',
+      ),
+    ).rejects.toEqual(new OperationsAccessError('pastDays'));
+    expect(gateway.addRouteTrips).not.toHaveBeenCalled();
+
+    await expect(
+      repository.addRouteTrips(north, ['route-1'], days, '2026-10-12'),
+    ).resolves.toBe(6);
+    expect(gateway.addRouteTrips).toHaveBeenCalledWith(
+      'org-north',
+      ['route-1'],
+      days,
+    );
+  });
 });
 
 function fakeGateway(
@@ -156,5 +184,6 @@ function fakeGateway(
     insertExtraTrip: vi.fn(),
     deleteExtraTrip: vi.fn(async () => undefined),
     cancelCustomerTrips: vi.fn(async () => undefined),
+    addRouteTrips: vi.fn(async () => 6),
   };
 }

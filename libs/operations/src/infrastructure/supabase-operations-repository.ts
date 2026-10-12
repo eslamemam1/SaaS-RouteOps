@@ -9,6 +9,8 @@ import {
   memberOrganization,
   OperationChoices,
   OperationsOrganization,
+  PastDays,
+  pastDaysError,
   RecordingPeriod,
   TripChange,
   tripChangeError,
@@ -121,5 +123,21 @@ export class SupabaseOperationsRepository extends OperationsRepository {
       customerIds,
     );
     return this.gateway.listTrips(organization.id, serviceDate);
+  }
+
+  async addRouteTrips(
+    organization: OperationsOrganization,
+    routeIds: readonly string[],
+    days: PastDays,
+    today: string,
+  ): Promise<number> {
+    if (routeIds.length === 0) {
+      throw new OperationsAccessError('routes');
+    }
+    const problem = pastDaysError(days, today);
+    if (problem) {
+      throw new OperationsAccessError(problem);
+    }
+    return this.gateway.addRouteTrips(organization.id, routeIds, days);
   }
 }

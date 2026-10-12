@@ -8,8 +8,10 @@ import {
   OperationChoice,
   OperationChoices,
   OperationsOrganization,
+  OperationsProblem,
   isTripRecording,
   isVehicleOwnership,
+  PastDays,
   RecordingPeriod,
   TripChange,
   TripDirection,
@@ -51,7 +53,18 @@ export interface OperationsGateway {
     serviceDate: string,
     customerIds: readonly string[],
   ): Promise<void>;
+  addRouteTrips(
+    organizationId: string,
+    routeIds: readonly string[],
+    days: PastDays,
+  ): Promise<number>;
 }
+
+const routeTripProblems: Record<string, OperationsProblem> = {
+  no_routes: 'routes',
+  past_days: 'pastDays',
+  too_many_days: 'tooManyDays',
+};
 
 type TripRow = Pick<
   Database['public']['Tables']['daily_trips']['Row'],
@@ -330,6 +343,25 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     if (error) {
       throw new OperationsAccessError('save');
     }
+  }
+
+  async addRouteTrips(
+    organizationId: string,
+    routeIds: readonly string[],
+    days: PastDays,
+  ): Promise<number> {
+    const { data, error } = await this.requireClient().rpc('add_route_trips', {
+      p_organization_id: organizationId,
+      p_route_ids: [...routeIds],
+      p_from: days.from,
+      p_to: days.to,
+    });
+    if (error) {
+      throw new OperationsAccessError(
+        routeTripProblems[error.message] ?? 'save',
+      );
+    }
+    return data ?? 0;
   }
 
   private requireClient(): SupabaseClient<Database> {

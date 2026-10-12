@@ -7,6 +7,10 @@
       {{ text().day.holiday }}
     </button>
     } @if (status() === 'success' || status() === 'empty') {
+    <button appButton="secondary" type="button" (click)="openPastRoutes()">
+      <ng-icon [svg]="icons.pastRoutes" aria-hidden="true" />
+      {{ text().day.addRoutes }}
+    </button>
     <button appButton type="button" (click)="startExtra()">
       <ng-icon [svg]="icons.add" aria-hidden="true" />
       {{ text().day.addExtra }}
@@ -80,6 +84,14 @@
   <app-alert tone="success" [dismissible]="true" (dismissed)="notice.set(null)">
     {{ text().day.notices[current] }}
   </app-alert>
+  } @if (addedTrips(); as count) {
+  <app-alert tone="success" [dismissible]="true" (dismissed)="addedTrips.set(null)">
+    {{ text().pastRoutes.added }} <bdi class="ro-numeric">{{ count }}</bdi>
+  </app-alert>
+  } @else if (addedTrips() === 0) {
+  <app-alert tone="info" [dismissible]="true" (dismissed)="addedTrips.set(null)">
+    {{ text().pastRoutes.none }}
+  </app-alert>
   } @if (actionProblem(); as current) {
   <app-alert
     tone="danger"
@@ -99,7 +111,12 @@
   />
   } @case ('empty') {
   <app-page-state kind="empty" [message]="text().day.empty">
-    @if (organization(); as current) {
+    @if (serviceDate() < today) {
+    <button appButton type="button" data-action="fill-day" (click)="openPastRoutes()">
+      <ng-icon [svg]="icons.pastRoutes" aria-hidden="true" />
+      {{ text().day.fillDay }}
+    </button>
+    } @if (organization(); as current) {
     <a appButton="secondary" [routerLink]="['/organizations', current.id, 'routes']">
       {{ text().day.emptyAction }}
     </a>
@@ -419,6 +436,22 @@
     [choices]="choices()"
     (recorded)="onHolidayRecorded($event)"
     (cancelled)="holidayOpen.set(false)"
+  />
+  }
+</app-form-drawer>
+<app-form-drawer
+  [title]="text().pastRoutes.title"
+  [open]="pastRoutesOpen()"
+  (openChange)="pastRoutesOpen.set($event)"
+>
+  @if (pastRoutesOpen()) {
+  <app-past-routes-panel
+    [organization]="current"
+    [serviceDate]="serviceDate()"
+    [today]="today"
+    [choices]="choices()"
+    (added)="onRouteTripsAdded($event)"
+    (cancelled)="pastRoutesOpen.set(false)"
   />
   }
 </app-form-drawer>

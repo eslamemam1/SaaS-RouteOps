@@ -50,6 +50,8 @@ export interface OperationsText {
     readonly markDone: string;
     readonly undoDone: string;
     readonly addExtra: string;
+    readonly addRoutes: string;
+    readonly fillDay: string;
     readonly extra: string;
     readonly noRoute: string;
     readonly remove: string;
@@ -131,6 +133,26 @@ export interface OperationsText {
     readonly confirm: string;
     readonly cancel: string;
   };
+  readonly pastRoutes: {
+    readonly title: string;
+    readonly hint: string;
+    readonly days: string;
+    readonly from: string;
+    readonly to: string;
+    readonly thisDay: string;
+    readonly monthSoFar: string;
+    readonly dayCount: string;
+    readonly routes: string;
+    readonly routesHint: string;
+    readonly selectAll: string;
+    readonly clearAll: string;
+    readonly inactive: string;
+    readonly noRoutes: string;
+    readonly submit: string;
+    readonly cancel: string;
+    readonly added: string;
+    readonly none: string;
+  };
 }
 
 export const operationsText: Record<Language, OperationsText> = {
@@ -145,6 +167,10 @@ export const operationsText: Record<Language, OperationsText> = {
       time: 'اكتب ميعاد الرحلة.',
       tripPrice: 'أدخل السعر بالأرقام فقط، مثل 150 أو 150.50',
       customers: 'اختر شركة واحدة على الأقل.',
+      routes: 'اختر خطًا واحدًا على الأقل.',
+      pastDays:
+        'اختر أيامًا مضت فقط، على أن يكون اليوم الأول قبل اليوم الأخير أو هو نفسه.',
+      tooManyDays: 'اختر 93 يومًا على الأكثر في المرة الواحدة.',
       load: 'تعذّر تحميل رحلات اليوم. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
@@ -219,6 +245,8 @@ export const operationsText: Record<Language, OperationsText> = {
       markDone: 'تمّت',
       undoDone: 'التراجع عن "تمّت"',
       addExtra: 'إضافة رحلة إضافية',
+      addRoutes: 'إضافة خطوط لأيام سابقة',
+      fillDay: 'إضافة خطوط لهذا اليوم',
       extra: 'رحلة إضافية',
       noRoute: 'بدون خط',
       remove: 'حذف',
@@ -301,6 +329,26 @@ export const operationsText: Record<Language, OperationsText> = {
       confirm: 'اضغط مرة أخرى لتأكيد الإلغاء',
       cancel: 'رجوع',
     },
+    pastRoutes: {
+      title: 'إضافة خطوط لأيام سابقة',
+      hint: 'لرحلات تمّت قبل تسجيل خطوطها هنا. تُضاف رحلات كل خط في الأيام التي يعمل فيها من الأسبوع، بسائقه ومركبته وسعره الحاليين. الرحلات الموجودة في هذه الأيام لا تتغير، ويمكنك تعديل أي يوم بعد ذلك.',
+      days: 'الأيام',
+      from: 'من يوم',
+      to: 'إلى يوم',
+      thisDay: 'هذا اليوم فقط',
+      monthSoFar: 'من أول الشهر حتى أمس',
+      dayCount: 'عدد الأيام:',
+      routes: 'الخطوط',
+      routesHint: 'اختر الخطوط التي كانت تعمل في هذه الأيام.',
+      selectAll: 'تحديد الكل',
+      clearAll: 'إلغاء التحديد',
+      inactive: 'متوقف',
+      noRoutes: 'لا توجد خطوط بعد. أضف الخطوط أولًا من صفحة الخطوط.',
+      submit: 'إضافة الرحلات',
+      cancel: 'إلغاء',
+      added: 'عدد الرحلات التي أُضيفت:',
+      none: 'لم تُضف رحلات جديدة: الخطوط المختارة لا تعمل في هذه الأيام، أو رحلاتها موجودة بالفعل.',
+    },
   },
   en: {
     problems: {
@@ -313,6 +361,10 @@ export const operationsText: Record<Language, OperationsText> = {
       time: 'Enter the trip time.',
       tripPrice: 'Enter the price in numbers only, like 150 or 150.50',
       customers: 'Choose at least one company.',
+      routes: 'Choose at least one route.',
+      pastDays:
+        'Choose days that have passed only, with the first day on or before the last.',
+      tooManyDays: 'Choose 93 days at most at a time.',
       load: "Could not load the day's trips. Please try again.",
       save: 'Could not save. Please try again.',
       organization: 'You cannot open this page from your account.',
@@ -387,6 +439,8 @@ export const operationsText: Record<Language, OperationsText> = {
       markDone: 'Done',
       undoDone: 'Undo "Done"',
       addExtra: 'Add an extra trip',
+      addRoutes: 'Add routes to past days',
+      fillDay: 'Add routes to this day',
       extra: 'Extra trip',
       noRoute: 'No route',
       remove: 'Delete',
@@ -468,6 +522,26 @@ export const operationsText: Record<Language, OperationsText> = {
       willCancel: 'Trips to be cancelled:',
       confirm: 'Press again to confirm',
       cancel: 'Back',
+    },
+    pastRoutes: {
+      title: 'Add routes to past days',
+      hint: 'For trips that ran before their routes were set up here. Each route gets its trips on the weekdays it runs, with its current driver, vehicle, and price. Trips already on these days stay as they are, and you can change any day afterwards.',
+      days: 'Days',
+      from: 'From',
+      to: 'To',
+      thisDay: 'This day only',
+      monthSoFar: 'From the 1st of the month to yesterday',
+      dayCount: 'Days:',
+      routes: 'Routes',
+      routesHint: 'Choose the routes that ran on these days.',
+      selectAll: 'Select all',
+      clearAll: 'Clear',
+      inactive: 'Stopped',
+      noRoutes: 'There are no routes yet. Add routes first on the Routes page.',
+      submit: 'Add trips',
+      cancel: 'Cancel',
+      added: 'Trips added:',
+      none: 'No new trips were added: the chosen routes do not run on these days, or their trips are already there.',
     },
   },
 };

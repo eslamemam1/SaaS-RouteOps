@@ -3,6 +3,7 @@ import {
   ExtraTripDetails,
   OperationChoices,
   OperationsOrganization,
+  PastDays,
   RecordingPeriod,
   TripChange,
   TripRecording,
@@ -53,4 +54,12 @@ export abstract class OperationsRepository {
     serviceDate: string,
     customerIds: readonly string[],
   ): Promise<DailyTrip[]>;
+  // Opens each past day and adds the chosen routes' trips on the days they
+  // run; returns how many trips were added.
+  abstract addRouteTrips(
+    organization: OperationsOrganization,
+    routeIds: readonly string[],
+    days: PastDays,
+    today: string,
+  ): Promise<number>;
 }

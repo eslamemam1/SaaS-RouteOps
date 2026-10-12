@@ -1,0 +1,104 @@
+<div class="ro-form">
+  <p class="hint">{{ text().pastRoutes.hint }}</p>
+  <fieldset>
+    <legend>{{ text().pastRoutes.days }}</legend>
+    <div class="ro-pills" role="group" [attr.aria-label]="text().pastRoutes.days">
+      @for (item of daysChoices(); track item.choice) {
+        <button
+          type="button"
+          class="ro-pill"
+          [attr.data-days]="item.choice"
+          [attr.aria-pressed]="isChosen(item.days)"
+          (click)="chooseDays(item.days)"
+        >
+          {{ text().pastRoutes[item.choice] }}
+        </button>
+      }
+    </div>
+    <div class="ro-form-row">
+      <app-field [label]="text().pastRoutes.from">
+        <input
+          type="date"
+          dir="ltr"
+          data-day="from"
+          [value]="from()"
+          [max]="yesterday()"
+          (input)="setFrom($any($event.target).value)"
+        />
+      </app-field>
+      <app-field [label]="text().pastRoutes.to">
+        <input
+          type="date"
+          dir="ltr"
+          data-day="to"
+          [value]="to()"
+          [max]="yesterday()"
+          (input)="setTo($any($event.target).value)"
+        />
+      </app-field>
+    </div>
+    @if (daysProblem(); as current) {
+      <app-alert tone="warning">{{ text().problems[current] }}</app-alert>
+    } @else {
+      <p class="hint">
+        {{ text().pastRoutes.dayCount }} <bdi class="ro-numeric">{{ days() }}</bdi>
+      </p>
+    }
+  </fieldset>
+  <fieldset>
+    <legend>{{ text().pastRoutes.routes }}</legend>
+    @if (routes().length === 0) {
+      <app-alert tone="info">{{ text().pastRoutes.noRoutes }}</app-alert>
+    } @else {
+      <div class="past-routes-head">
+        <p class="hint">{{ text().pastRoutes.routesHint }}</p>
+        <button appButton="text" size="sm" type="button" (click)="toggleAll()">
+          {{ allSelected() ? text().pastRoutes.clearAll : text().pastRoutes.selectAll }}
+        </button>
+      </div>
+      <div
+        class="ro-options past-routes-list"
+        role="group"
+        [attr.aria-label]="text().pastRoutes.routes"
+      >
+        @for (route of routes(); track route.id) {
+          <label class="ro-option">
+            <input
+              type="checkbox"
+              [attr.data-route]="route.id"
+              [checked]="selected().has(route.id)"
+              (change)="toggle(route.id, $any($event.target).checked)"
+            />
+            <span class="ro-option-title">
+              {{ route.label }}
+              @if (!route.active) {
+                <app-tag>{{ text().pastRoutes.inactive }}</app-tag>
+              }
+            </span>
+            @if (route.customer) {
+              <span class="ro-option-hint">{{ route.customer }}</span>
+            }
+          </label>
+        }
+      </div>
+    }
+  </fieldset>
+  @if (problem(); as current) {
+    <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
+  }
+  <div class="ro-toolbar">
+    @if (routes().length > 0) {
+      <button
+        appButton
+        type="button"
+        [disabled]="submitting() || selected().size === 0 || daysProblem() !== null"
+        (click)="submit()"
+      >
+        {{ text().pastRoutes.submit }}
+      </button>
+    }
+    <button appButton="secondary" type="button" (click)="cancelled.emit()">
+      {{ text().pastRoutes.cancel }}
+    </button>
+  </div>
+</div>

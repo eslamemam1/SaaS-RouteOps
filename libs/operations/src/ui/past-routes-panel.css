@@ -1,0 +1,19 @@
+.past-routes-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ro-space-2);
+}
+
+.past-routes-head .hint {
+  margin: 0;
+}
+
+/* Two routes side by side, one under the other when the drawer is narrow. */
+.past-routes-list {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(var(--ro-form-column-min-width), 1fr)
+  );
+}

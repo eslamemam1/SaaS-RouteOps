@@ -131,6 +131,9 @@ export const operationsProblems = [
   'time',
   'tripPrice',
   'customers',
+  'routes',
+  'pastDays',
+  'tooManyDays',
   'load',
   'save',
   'organization',
@@ -162,6 +165,48 @@ export function shiftDate(value: string, days: number): string {
   const date = new Date(`${value}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().slice(0, 10);
+}
+
+// Route trips are added only to days that have passed, at most this many at
+// once, as the database allows.
+export const maximumPastDays = 93;
+
+export interface PastDays {
+  readonly from: string;
+  readonly to: string;
+}
+
+export function dayCount(from: string, to: string): number {
+  const days =
+    (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) /
+    86_400_000;
+  return days + 1;
+}
+
+export function pastDaysError(
+  days: PastDays,
+  today: string,
+): OperationsProblem | null {
+  if (!isServiceDate(days.from) || !isServiceDate(days.to)) {
+    return 'date';
+  }
+  if (days.from > days.to || days.to >= today) {
+    return 'pastDays';
+  }
+  return dayCount(days.from, days.to) > maximumPastDays ? 'tooManyDays' : null;
+}
+
+// From the first of the month to yesterday, or yesterday alone on the first.
+export function monthSoFar(today: string): PastDays {
+  const to = shiftDate(today, -1);
+  return { from: `${to.slice(0, 8)}01`, to };
+}
+
+// A past day shown on the page is the one to fill; otherwise the month so far.
+export function suggestedPastDays(serviceDate: string, today: string): PastDays {
+  return serviceDate < today
+    ? { from: serviceDate, to: serviceDate }
+    : monthSoFar(today);
 }
 
 // A trip marked done counts as done. Otherwise, once its day has come, it

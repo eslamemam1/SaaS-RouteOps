@@ -250,6 +250,41 @@ describe('SupabaseOperationsGateway', () => {
     expect(calls.inFilters).toEqual([['customer_id', ['delta', 'nour']]]);
   });
 
+  it('adds route trips to past days and returns how many were added', async () => {
+    const calls = recorder(() => ({ data: 14, error: null }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await expect(
+      gateway.addRouteTrips('org-north', ['route-1', 'route-2'], {
+        from: '2026-10-01',
+        to: '2026-10-11',
+      }),
+    ).resolves.toBe(14);
+    expect(calls.rpc).toEqual([
+      [
+        'add_route_trips',
+        {
+          p_organization_id: 'org-north',
+          p_route_ids: ['route-1', 'route-2'],
+          p_from: '2026-10-01',
+          p_to: '2026-10-11',
+        },
+      ],
+    ]);
+  });
+
+  it('turns the database codes for route trips into problems', async () => {
+    const calls = recorder(() => ({ data: null, error: { message: 'past_days' } }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await expect(
+      gateway.addRouteTrips('org-north', ['route-1'], {
+        from: '2026-10-01',
+        to: '2026-10-12',
+      }),
+    ).rejects.toEqual(new OperationsAccessError('pastDays'));
+  });
+
   it('replaces a database error with a safe code', async () => {
     const calls = recorder(() => ({
       data: null,

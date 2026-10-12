@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import {
   lucideCalendarOff,
+  lucideCalendarPlus,
   lucideCheck,
   lucideChevronLeft,
   lucideChevronRight,
@@ -59,6 +60,7 @@ import { ConflictList } from './conflict-list';
 import { ExtraTripForm } from './extra-trip-form';
 import { HolidayPanel } from './holiday-panel';
 import { operationsText } from './operations-text';
+import { PastRoutesPanel, RouteTripsAdded } from './past-routes-panel';
 import { TripChangeForm } from './trip-change-form';
 
 const noChoices: OperationChoices = {
@@ -79,7 +81,7 @@ const statusTones: Record<TripStatus, Tone> = {
 
 @Component({
   selector: 'app-daily-operations',
-  imports: [Alert, Button, ConflictList, DayPicker, ExtraTripForm, Field, FormDrawer, HolidayPanel, NgIcon, PageHeader, Pager, PageState, RouterLink, Select, SelectOption, Tag, TripChangeForm, ViewSwitch],
+  imports: [Alert, Button, ConflictList, DayPicker, ExtraTripForm, Field, FormDrawer, HolidayPanel, NgIcon, PageHeader, Pager, PageState, PastRoutesPanel, RouterLink, Select, SelectOption, Tag, TripChangeForm, ViewSwitch],
   templateUrl: './daily-operations.html',
   styleUrl: './daily-operations.css',
 })
@@ -92,6 +94,7 @@ export class DailyOperations {
   protected readonly icons = {
     add: lucidePlus,
     holiday: lucideCalendarOff,
+    pastRoutes: lucideCalendarPlus,
     previous: lucideChevronLeft,
     next: lucideChevronRight,
     info: lucideInfo,
@@ -111,6 +114,8 @@ export class DailyOperations {
   );
   protected readonly recordingOpen = signal(false);
   protected readonly holidayOpen = signal(false);
+  protected readonly pastRoutesOpen = signal(false);
+  protected readonly addedTrips = signal<number | null>(null);
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -311,7 +316,24 @@ export class DailyOperations {
   protected openHoliday(): void {
     this.editing.set(null);
     this.addingExtra.set(false);
+    this.pastRoutesOpen.set(false);
     this.holidayOpen.set(true);
+  }
+
+  protected openPastRoutes(): void {
+    this.editing.set(null);
+    this.addingExtra.set(false);
+    this.holidayOpen.set(false);
+    this.pastRoutesOpen.set(true);
+  }
+
+  protected async onRouteTripsAdded(result: RouteTripsAdded): Promise<void> {
+    this.pastRoutesOpen.set(false);
+    const serviceDate = this.serviceDate();
+    if (serviceDate >= result.days.from && serviceDate <= result.days.to) {
+      await this.loadDay();
+    }
+    this.addedTrips.set(result.count);
   }
 
   protected clearFilter(): void {
@@ -353,6 +375,7 @@ export class DailyOperations {
 
   protected startExtra(): void {
     this.editing.set(null);
+    this.pastRoutesOpen.set(false);
     this.addingExtra.set(true);
   }
 
@@ -439,9 +462,11 @@ export class DailyOperations {
     this.editing.set(null);
     this.addingExtra.set(false);
     this.holidayOpen.set(false);
+    this.pastRoutesOpen.set(false);
     this.confirmingRemoveId.set(null);
     this.actionProblem.set(null);
     this.notice.set(null);
+    this.addedTrips.set(null);
     try {
       const trips = await this.repository.day(organization, serviceDate);
       if (serviceDate !== this.serviceDate()) {

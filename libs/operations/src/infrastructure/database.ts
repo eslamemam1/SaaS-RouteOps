@@ -174,6 +174,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_route_trips: {
+        Args: {
+          p_organization_id: string
+          p_route_ids: string[]
+          p_from: string
+          p_to: string
+        }
+        Returns: number
+      }
       prepare_daily_trips: {
         Args: { p_organization_id: string; p_service_date: string }
         Returns: undefined

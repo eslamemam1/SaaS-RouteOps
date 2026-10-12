@@ -405,6 +405,64 @@ describe('DailyOperations', () => {
     expect(rows(harness)[0].textContent).toContain(arabic.statuses.cancelled);
   });
 
+  it('adds chosen routes to an empty past day and shows its trips', async () => {
+    const day = vi.fn(async () => [] as DailyTrip[]);
+    const addRouteTrips = vi.fn(async () => 2);
+    const harness = await open({ day, addRouteTrips });
+    await settle(harness);
+    expect(harness.routeNativeElement!.querySelector('[data-action="fill-day"]')).toBeFalsy();
+
+    const picker = harness.routeDebugElement?.query(By.directive(DayPicker));
+    (picker?.componentInstance as DayPicker).dayChange.emit('2000-01-02');
+    await settle(harness);
+    harness.routeNativeElement!.querySelector<HTMLButtonElement>('[data-action="fill-day"]')!.click();
+    await settle(harness);
+
+    const panel = harness.routeNativeElement!.querySelector('app-past-routes-panel')!;
+    expect(panel.querySelector('[data-days="thisDay"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(panel.querySelector<HTMLInputElement>('[data-day="from"]')!.value).toBe('2000-01-02');
+    expect(panel.querySelector<HTMLInputElement>('[data-day="to"]')!.value).toBe('2000-01-02');
+    expect(button(harness, arabic.pastRoutes.submit)?.disabled).toBe(true);
+
+    panel.querySelector<HTMLInputElement>('[data-route="route-1"]')!.click();
+    await settle(harness);
+    button(harness, arabic.pastRoutes.submit)?.click();
+    await settle(harness);
+    await settle(harness);
+
+    expect(addRouteTrips).toHaveBeenCalledWith(
+      north,
+      ['route-1'],
+      { from: '2000-01-02', to: '2000-01-02' },
+      expect.any(String),
+    );
+    expect(day).toHaveBeenCalledTimes(3);
+    expect(harness.routeNativeElement!.querySelector('app-past-routes-panel')).toBeFalsy();
+    expect(text(harness)).toContain(arabic.pastRoutes.added);
+  });
+
+  it('refuses days that are not past before adding route trips', async () => {
+    const addRouteTrips = vi.fn(async () => 0);
+    const harness = await open({ day: async () => [outbound], addRouteTrips });
+    await settle(harness);
+
+    button(harness, arabic.day.addRoutes)?.click();
+    await settle(harness);
+    const panel = harness.routeNativeElement!.querySelector('app-past-routes-panel')!;
+    expect(panel.querySelector('[data-days="thisDay"]')).toBeFalsy();
+    expect(panel.querySelector('[data-days="monthSoFar"]')?.getAttribute('aria-pressed')).toBe('true');
+
+    const to = panel.querySelector<HTMLInputElement>('[data-day="to"]')!;
+    to.value = '2999-01-01';
+    to.dispatchEvent(new Event('input'));
+    panel.querySelector<HTMLInputElement>('[data-route="route-1"]')!.click();
+    await settle(harness);
+
+    expect(panel.textContent).toContain(arabic.problems.pastDays);
+    expect(button(harness, arabic.pastRoutes.submit)?.disabled).toBe(true);
+    expect(addRouteTrips).not.toHaveBeenCalled();
+  });
+
   it('shows the chosen day with its weekday', async () => {
     const harness = await open({ day: async () => [outbound] });
     await settle(harness);
@@ -489,6 +547,7 @@ async function open(overrides: Partial<OperationsRepository>) {
     addExtraTrip: async () => outbound,
     removeExtraTrip: async () => undefined,
     cancelForHoliday: async () => [],
+    addRouteTrips: async () => 0,
     ...overrides,
   };
   TestBed.configureTestingModule({
