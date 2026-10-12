@@ -216,6 +216,8 @@
   --ro-hero-border: color-mix(in srgb, var(--ro-slate-0) 16%, transparent);
   --ro-hero-grid-line: color-mix(in srgb, var(--ro-slate-0) 5%, transparent);
   --ro-hero-grid-size: 56px;
+  --ro-hero-accent-surface: color-mix(in srgb, var(--ro-amber-500) 14%, transparent);
+  --ro-nav-dot-size: 6px;
   --ro-public-bar-bg: color-mix(in srgb, var(--ro-bg-inverse) 90%, transparent);
   --ro-glow-brand: color-mix(in srgb, var(--ro-blue-500) 45%, transparent);
   --ro-glow-accent: color-mix(in srgb, var(--ro-amber-500) 28%, transparent);
