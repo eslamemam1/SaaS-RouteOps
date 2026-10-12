@@ -2,7 +2,7 @@ import { Language } from '@routeops/shared/i18n';
 import { Currency } from '@routeops/shared/money';
 import { OfferKind, SubscriptionMonths } from '@routeops/shared/pricing';
 import { CompanyAccountProblem, TimeZone } from '../domain/company-account';
-import { OfferStatus } from '../domain/offer';
+import { OfferLength, OfferStatus } from '../domain/offer';
 import { SubscriptionPaymentProblem } from '../domain/subscription-payment';
 import {
   SubscriptionProblem,
@@ -323,7 +323,10 @@ export interface OrganizationsText {
     readonly monthsHint: string;
     readonly startsOn: string;
     readonly endsOn: string;
-    readonly endsOnHint: string;
+    readonly lengthsLabel: string;
+    readonly lengths: Record<OfferLength, string>;
+    readonly runsUntil: string;
+    readonly runsOpen: string;
     readonly visibilityTitle: string;
     readonly publicHint: string;
     readonly withCode: string;
@@ -771,7 +774,15 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       monthsHint: 'مثل الدفع لـ 6 شهور أو سنة فقط.',
       startsOn: 'يبدأ في',
       endsOn: 'آخر يوم',
-      endsOnHint: 'اتركه فارغًا ليبقى العرض حتى توقفه.',
+      lengthsLabel: 'أو اختر مدة',
+      lengths: {
+        week: 'أسبوع',
+        twoWeeks: 'أسبوعان',
+        month: 'شهر',
+        open: 'بلا نهاية',
+      },
+      runsUntil: 'يبقى العرض ساريًا حتى',
+      runsOpen: 'يبقى العرض ساريًا حتى توقفه.',
       visibilityTitle: 'من يرى العرض',
       publicHint: 'في صفحة الأسعار والصفحة الرئيسية طوال مدته.',
       withCode: 'بكود خصم',
@@ -1265,7 +1276,15 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       monthsHint: 'Such as paying for 6 months or a year only.',
       startsOn: 'Starts on',
       endsOn: 'Last day',
-      endsOnHint: 'Leave it blank to keep the offer until you stop it.',
+      lengthsLabel: 'Or choose a length',
+      lengths: {
+        week: 'A week',
+        twoWeeks: 'Two weeks',
+        month: 'A month',
+        open: 'No end',
+      },
+      runsUntil: 'The offer runs until',
+      runsOpen: 'The offer runs until you stop it.',
       visibilityTitle: 'Who sees the offer',
       publicHint: 'On the pricing and home pages while it runs.',
       withCode: 'With a code',

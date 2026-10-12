@@ -117,15 +117,40 @@
       <app-field [label]="text().offers.startsOn" [control]="offerForm.startsOn">
         <input type="date" dir="ltr" [formField]="offerForm.startsOn" />
       </app-field>
-      <app-field
-        [label]="text().offers.endsOn"
-        [hint]="text().offers.endsOnHint"
-        [optional]="true"
-        [control]="offerForm.endsOn"
-      >
+      <app-field [label]="text().offers.endsOn" [optional]="true" [control]="offerForm.endsOn">
         <input type="date" dir="ltr" [formField]="offerForm.endsOn" />
       </app-field>
     </div>
+    <div class="offer-group" role="group" aria-labelledby="offer-length-label">
+      <span class="hint" id="offer-length-label">{{ text().offers.lengthsLabel }}</span>
+      <div class="ro-pills">
+        @for (choice of lengths; track choice) {
+          <button
+            type="button"
+            class="ro-pill"
+            [attr.data-length]="choice"
+            [attr.aria-pressed]="length() === choice"
+            [disabled]="choice !== 'open' && !startsOnValid()"
+            (click)="chooseLength(choice)"
+          >
+            {{ text().offers.lengths[choice] }}
+          </button>
+        }
+      </div>
+    </div>
+    @if (model().endsOn === '' || lastDay()) {
+      <p class="offer-ends">
+        <ng-icon [svg]="endIcon" aria-hidden="true" />
+        @if (lastDay(); as last) {
+          <span>{{ text().offers.runsUntil }}</span>
+          <strong
+            ><bdi>{{ last }}</bdi></strong
+          >
+        } @else {
+          <span>{{ text().offers.runsOpen }}</span>
+        }
+      </p>
+    }
   </fieldset>
 
   <fieldset class="offer-section">

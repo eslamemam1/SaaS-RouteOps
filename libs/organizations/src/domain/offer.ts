@@ -1,6 +1,7 @@
 import {
   OfferKind,
   offerRunsOn,
+  subscriptionEnd,
   SubscriptionMonths,
   SubscriptionOffer,
 } from '@routeops/shared/pricing';
@@ -110,6 +111,47 @@ export function offerMonthsError(
   months: readonly SubscriptionMonths[],
 ): SubscriptionProblem | null {
   return kind === 'percent' && months.length === 0 ? 'offerMonths' : null;
+}
+
+// Common lengths the operator picks instead of counting days; an open offer
+// has no last day.
+export const offerLengths = ['week', 'twoWeeks', 'month', 'open'] as const;
+export type OfferLength = (typeof offerLengths)[number];
+
+export function offerEndsAfter(startsOn: string, length: OfferLength): string {
+  switch (length) {
+    case 'week':
+      return addDays(startsOn, 6);
+    case 'twoWeeks':
+      return addDays(startsOn, 13);
+    case 'month':
+      return subscriptionEnd(startsOn, 1);
+    case 'open':
+      return '';
+  }
+}
+
+export function offerLength(
+  startsOn: string,
+  endsOn: string,
+): OfferLength | null {
+  if (endsOn === '') {
+    return 'open';
+  }
+  if (startsOnError(startsOn) !== null) {
+    return null;
+  }
+  return (
+    offerLengths.find(
+      (length) => offerEndsAfter(startsOn, length) === endsOn,
+    ) ?? null
+  );
+}
+
+export function addDays(day: string, days: number): string {
+  const date = new Date(`${day}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
 }
 
 export function offerEndsOnError(

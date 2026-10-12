@@ -65,6 +65,29 @@
   font-size: var(--ro-icon-size);
 }
 
+.offer-ends {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-2);
+  margin: 0;
+  padding: var(--ro-space-3) var(--ro-space-4);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-hover);
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+}
+
+.offer-ends ng-icon {
+  color: var(--ro-text-brand);
+  font-size: var(--ro-icon-size);
+}
+
+.offer-ends strong {
+  color: var(--ro-text-primary);
+}
+
 .offer-code {
   text-transform: uppercase;
 }

@@ -9,6 +9,7 @@ import {
   SubscriptionPlan,
 } from '@routeops/shared/pricing';
 import { Select } from '@routeops/shared/ui';
+import { offerEndsAfter } from '../domain/offer';
 import { CompanyAccount } from '../domain/organization';
 import { OrganizationSubscription } from '../domain/subscription';
 import { OrganizationRepository } from '../application/organization-repository';
@@ -255,6 +256,9 @@ describe('SubscriptionOffers', () => {
     );
 
     fill(offerForm.querySelector<HTMLInputElement>('.offer-code')!, 'vip30');
+    offerForm
+      .querySelector<HTMLButtonElement>('button[data-length="twoWeeks"]')!
+      .click();
     offerForm.querySelector('form')!.dispatchEvent(new Event('submit'));
     await settle(fixture);
     expect(saveOffer).toHaveBeenCalledWith(
@@ -265,6 +269,8 @@ describe('SubscriptionOffers', () => {
         months: [12],
       }),
     );
+    const details = saveOffer.mock.calls[0][1];
+    expect(details.endsOn).toBe(offerEndsAfter(details.startsOn, 'twoWeeks'));
   });
 });
 

@@ -11,12 +11,13 @@ import {
 import { form, FormField, submit, validate } from '@angular/forms/signals';
 import { NgIcon } from '@ng-icons/core';
 import {
+  lucideCalendarCheck,
   lucideEye,
   lucideGift,
   lucidePercent,
   lucideTicket,
 } from '@ng-icons/lucide';
-import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import { currencies } from '@routeops/shared/money';
 import {
   formatPrice,
@@ -35,7 +36,11 @@ import {
   offerCodeError,
   OfferDetails,
   offerDetails,
+  offerEndsAfter,
   offerEndsOnError,
+  OfferLength,
+  offerLength,
+  offerLengths,
   offerMonthsError,
   offerNameError,
   offerPercent,
@@ -78,7 +83,9 @@ export class OfferForm {
   };
   protected readonly publicIcon = lucideEye;
   protected readonly codeIcon = lucideTicket;
+  protected readonly endIcon = lucideCalendarCheck;
   protected readonly periods = subscriptionMonths;
+  protected readonly lengths = offerLengths;
 
   protected readonly busy = signal(false);
   protected readonly tried = signal(false);
@@ -90,6 +97,24 @@ export class OfferForm {
   // sent only when the offer is kept for companies that give it.
   protected readonly withCode = signal(false);
   protected readonly editing = computed(() => this.offer() !== null);
+  protected readonly startsOnValid = computed(
+    () => startsOnError(this.model().startsOn) === null,
+  );
+  protected readonly length = computed(() =>
+    offerLength(this.model().startsOn, this.model().endsOn),
+  );
+  // Read only once the dates are valid, so a half-typed date says nothing.
+  protected readonly lastDay = computed(() => {
+    const { startsOn, endsOn } = this.model();
+    if (
+      endsOn === '' ||
+      !this.startsOnValid() ||
+      offerEndsOnError(startsOn, endsOn) !== null
+    ) {
+      return null;
+    }
+    return formatDay(endsOn, this.language());
+  });
 
   // A plan no longer on offer stays choosable for an offer that names it.
   protected readonly choosablePlans = computed(() => {
@@ -157,6 +182,13 @@ export class OfferForm {
 
   protected setKind(kind: OfferKind): void {
     this.model.update((fields) => ({ ...fields, kind }));
+  }
+
+  protected chooseLength(length: OfferLength): void {
+    this.model.update((fields) => ({
+      ...fields,
+      endsOn: offerEndsAfter(fields.startsOn, length),
+    }));
   }
 
   protected togglePlan(planId: string, checked: boolean): void {

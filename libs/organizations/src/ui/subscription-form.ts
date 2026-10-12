@@ -54,7 +54,7 @@ import {
   suggestedStart,
   vehicleLimitError,
 } from '../domain/subscription';
-import { offersFor, trialAllowed } from '../domain/offer';
+import { addDays, offersFor, trialAllowed } from '../domain/offer';
 import { SubscriptionError } from '../application/subscription-error';
 import { SubscriptionRepository } from '../application/subscription-repository';
 import { organizationsText } from './organizations-text';
@@ -404,10 +404,4 @@ export class SubscriptionForm {
 
 function choiceOf(details: SubscriptionDetails): string {
   return `${details.planId}|${details.months}|${details.offerId}`;
-}
-
-function addDays(day: string, days: number): string {
-  const date = new Date(`${day}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().slice(0, 10);
 }

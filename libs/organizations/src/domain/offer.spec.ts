@@ -2,7 +2,9 @@ import { SubscriptionOffer } from '@routeops/shared/pricing';
 import {
   offerCode,
   offerCodeError,
+  offerEndsAfter,
   offerEndsOnError,
+  offerLength,
   offerPercent,
   offersFor,
   offerStatus,
@@ -75,6 +77,16 @@ describe('offer rules', () => {
     expect(offerCode('')).toBeNull();
     expect(offerCode('ab')).toBeUndefined();
     expect(offerCode('خصم')).toBeUndefined();
+  });
+
+  it('sets the last day of a common length and reads it back', () => {
+    expect(offerEndsAfter('2026-10-12', 'week')).toBe('2026-10-18');
+    expect(offerEndsAfter('2026-10-12', 'twoWeeks')).toBe('2026-10-25');
+    expect(offerEndsAfter('2026-10-12', 'month')).toBe('2026-11-11');
+    expect(offerEndsAfter('2026-10-12', 'open')).toBe('');
+    expect(offerLength('2026-10-12', '2026-10-25')).toBe('twoWeeks');
+    expect(offerLength('2026-10-12', '')).toBe('open');
+    expect(offerLength('2026-10-12', '2026-10-20')).toBeNull();
   });
 
   it('asks for a code only when the offer is kept for companies that give one', () => {
