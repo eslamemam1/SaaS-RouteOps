@@ -253,6 +253,10 @@ describe('Organizations', () => {
       provisionCompany,
     });
     await settle(fixture);
+    expect(
+      fixture.nativeElement.querySelector('app-provision-company'),
+    ).toBeNull();
+    await openProvision(fixture);
     const element: HTMLElement = fixture.nativeElement;
     const [currency, timeZone] = selects(fixture, 'app-provision-company');
 
@@ -323,6 +327,7 @@ describe('Organizations', () => {
     await settle(fixture);
     expect(text(fixture)).toContain(arabic.accounts.empty);
 
+    await openProvision(fixture);
     const element: HTMLElement = fixture.nativeElement;
     const [name, email, password] = Array.from(
       element.querySelectorAll('app-provision-company input'),
@@ -340,6 +345,41 @@ describe('Organizations', () => {
     expect(payments(fixture).textContent).not.toContain(
       arabic.payments.noCompanies,
     );
+    expect(element.querySelector('app-provision-company')).toBeNull();
+    expect(text(fixture)).toContain(arabic.provision.created);
+  });
+
+  it('shows the operator one section at a time and remembers the last one', async () => {
+    const fixture = await render({
+      currentUserIsOperator: async () => true,
+      listCompanyAccounts: async () => [gulf],
+    });
+    await settle(fixture);
+    const element: HTMLElement = fixture.nativeElement;
+    const shown = () =>
+      [...element.querySelectorAll<HTMLElement>('[role="tabpanel"]')]
+        .filter((panel) => !panel.hidden)
+        .map((panel) => panel.id);
+
+    expect(text(fixture)).toContain(arabic.operator.title);
+    expect(shown()).toEqual(['operator-panel-accounts']);
+
+    element
+      .querySelector<HTMLElement>('#operator-tab-accounts')!
+      .dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
+    await settle(fixture);
+    expect(shown()).toEqual(['operator-panel-subscriptions']);
+    expect(document.activeElement?.id).toBe('operator-tab-subscriptions');
+
+    element.querySelector<HTMLButtonElement>('#operator-tab-payments')!.click();
+    await settle(fixture);
+    expect(shown()).toEqual(['operator-panel-payments']);
+    expect(
+      element
+        .querySelector('#operator-tab-payments')!
+        .getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(localStorage.getItem('routeops.operator.section')).toBe('payments');
   });
 
   it('shows a safe error when the company accounts cannot load and tries again', async () => {
@@ -707,6 +747,18 @@ function selects(
 function fill(input: HTMLInputElement, value: string): void {
   input.value = value;
   input.dispatchEvent(new Event('input'));
+}
+
+async function openProvision(
+  fixture: ComponentFixture<Organizations>,
+): Promise<void> {
+  const element: HTMLElement = fixture.nativeElement;
+  [...element.querySelectorAll<HTMLButtonElement>('app-page-header button')]
+    .find(
+      (button) => button.textContent?.trim() === arabic.operator.addCompany,
+    )!
+    .click();
+  await settle(fixture);
 }
 
 function text(fixture: ComponentFixture<Organizations>): string {

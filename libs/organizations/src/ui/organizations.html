@@ -1,11 +1,21 @@
 <div class="ro-stack">
-  <app-page-header [title]="headerTitle()" [hint]="active()?.isActive ? todayLabel() : ''">
+  <app-page-header [title]="headerTitle()" [hint]="headerHint()">
     @if (active(); as current) {
       @if (current.isActive) {
         <a appButton [routerLink]="['/organizations', current.id, 'operations']">
           {{ text().dashboard.openToday }}
         </a>
       }
+    }
+    @if (operator()) {
+      <button
+        type="button"
+        [appButton]="active() ? 'secondary' : 'primary'"
+        (click)="operatorHome()?.addCompany()"
+      >
+        <ng-icon [svg]="addIcon" aria-hidden="true" />
+        {{ text().operator.addCompany }}
+      </button>
     }
   </app-page-header>
 
@@ -369,18 +379,6 @@
     }
   }
   @if (operator()) {
-    <app-company-accounts />
-    <app-company-subscriptions />
-    <app-subscription-plans (changed)="subscriptions()?.reload()" />
-    <app-subscription-payments />
-    <section class="ro-card">
-      <div class="ro-card-header">
-        <h2 class="ro-card-title">{{ text().provision.title }}</h2>
-        <p class="hint">{{ text().provision.hint }}</p>
-      </div>
-      <div class="ro-card-body">
-        <app-provision-company (created)="reload()" />
-      </div>
-    </section>
+    <app-operator-home />
   }
 </div>

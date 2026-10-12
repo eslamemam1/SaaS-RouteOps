@@ -52,7 +52,6 @@
               <th>{{ text().accounts.company }}</th>
               <th>{{ text().accounts.status }}</th>
               <th>{{ text().accounts.logins }}</th>
-              <th>{{ text().accounts.currency }}</th>
               <th>{{ text().accounts.createdAt }}</th>
               <th>{{ text().accounts.lastSignIn }}</th>
               <th></th>
@@ -62,7 +61,10 @@
             @for (account of pages.items(); track account.id) {
               <tr>
                 <td [attr.data-label]="text().accounts.company">
-                  <strong><bdi>{{ account.name }}</bdi></strong>
+                  <span class="ro-cell-stack">
+                    <strong><bdi>{{ account.name }}</bdi></strong>
+                    <span class="hint">{{ text().currencies[account.currency] }}</span>
+                  </span>
                 </td>
                 <td [attr.data-label]="text().accounts.status">
                   <app-tag [tone]="account.isActive ? 'success' : 'danger'">
@@ -82,9 +84,6 @@
                   } @empty {
                     <span class="hint">{{ text().accounts.noLogin }}</span>
                   }
-                </td>
-                <td [attr.data-label]="text().accounts.currency">
-                  {{ text().currencies[account.currency] }}
                 </td>
                 <td [attr.data-label]="text().accounts.createdAt">
                   {{ date(account.createdAt) }}

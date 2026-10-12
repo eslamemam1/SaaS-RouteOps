@@ -12,6 +12,7 @@ import {
   lucideCircleX,
   lucideClock,
   lucideIdCard,
+  lucidePlus,
   lucideReceipt,
   lucideRoute,
   lucideTag,
@@ -32,12 +33,8 @@ import {
 import { activeOrganization, Organization } from '../domain/organization';
 import { OrganizationAccessError } from '../application/organization-access-error';
 import { OrganizationRepository } from '../application/organization-repository';
-import { CompanyAccounts } from './company-accounts';
-import { CompanySubscriptions } from './company-subscriptions';
+import { OperatorHome } from './operator-home';
 import { organizationsText } from './organizations-text';
-import { ProvisionCompanyForm } from './provision-company';
-import { SubscriptionPayments } from './subscription-payments';
-import { SubscriptionPlans } from './subscription-plans';
 
 const sections = [
   { path: 'operations', hint: 'operationsHint', icon: lucideCalendarDays },
@@ -74,15 +71,11 @@ const setupSteps = [
   imports: [
     Alert,
     Button,
-    CompanyAccounts,
-    CompanySubscriptions,
     NgIcon,
+    OperatorHome,
     PageHeader,
     PageState,
-    ProvisionCompanyForm,
     RouterLink,
-    SubscriptionPayments,
-    SubscriptionPlans,
     Tag,
   ],
   templateUrl: './organizations.html',
@@ -98,6 +91,7 @@ export class Organizations {
   protected readonly todayFigures = todayFigures;
   protected readonly doneIcon = lucideCircleCheck;
   protected readonly nextIcon = lucideChevronRight;
+  protected readonly addIcon = lucidePlus;
   protected readonly statIcons = {
     done: lucideCircleCheck,
     revenue: lucideTrendingUp,
@@ -164,14 +158,21 @@ export class Organizations {
   protected readonly monthLabel = computed(() =>
     dateFormat(this.language(), { month: 'long', year: 'numeric' }).format(noon(this.today)),
   );
-  private readonly accounts = viewChild(CompanyAccounts);
-  private readonly payments = viewChild(SubscriptionPayments);
-  protected readonly subscriptions = viewChild(CompanySubscriptions);
-  private readonly plans = viewChild(SubscriptionPlans);
+  protected readonly operatorHome = viewChild(OperatorHome);
   protected readonly headerTitle = computed(() => {
     const active = this.active();
     const home = this.text().home;
-    return active ? `${home.welcome} ${active.name}` : home.title;
+    if (active) {
+      return `${home.welcome} ${active.name}`;
+    }
+    return this.operator() ? this.text().operator.title : home.title;
+  });
+  protected readonly headerHint = computed(() => {
+    const active = this.active();
+    if (active) {
+      return active.isActive ? this.todayLabel() : '';
+    }
+    return this.operator() ? this.text().operator.hint : '';
   });
 
   constructor() {
@@ -224,16 +225,6 @@ export class Organizations {
         this.summaryStatus.set('error');
       }
     }
-  }
-
-  protected async reload(): Promise<void> {
-    await Promise.all([
-      this.load(),
-      this.accounts()?.reload(),
-      this.payments()?.reload(),
-      this.subscriptions()?.reload(),
-      this.plans()?.reload(),
-    ]);
   }
 
   private async load(): Promise<void> {

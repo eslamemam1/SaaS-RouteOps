@@ -117,7 +117,6 @@ export interface OrganizationsText {
     readonly retry: string;
     readonly company: string;
     readonly logins: string;
-    readonly currency: string;
     readonly createdAt: string;
     readonly lastSignIn: string;
     readonly noLogin: string;
@@ -281,6 +280,16 @@ export interface OrganizationsText {
     readonly submit: string;
     readonly created: string;
   };
+  readonly operator: {
+    readonly title: string;
+    readonly hint: string;
+    readonly sectionsLabel: string;
+    readonly addCompany: string;
+    readonly accounts: string;
+    readonly subscriptions: string;
+    readonly payments: string;
+    readonly plans: string;
+  };
 }
 
 export const organizationsText: Record<Language, OrganizationsText> = {
@@ -441,11 +450,11 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       activated: 'تم تفعيل حساب',
       deactivated: 'تم إيقاف حساب',
       loading: 'جارٍ تحميل حسابات الشركات...',
-      empty: 'لا توجد شركات بعد. أنشئ أول حساب من النموذج أدناه.',
+      empty:
+        'لا توجد شركات بعد. أنشئ أول حساب من زر «إضافة شركة نقل» أعلى الصفحة.',
       retry: 'حاول مرة أخرى',
       company: 'شركة النقل',
       logins: 'البريد الإلكتروني للدخول',
-      currency: 'العملة',
       createdAt: 'تاريخ الإنشاء',
       lastSignIn: 'آخر دخول',
       noLogin: 'لا يوجد حساب دخول',
@@ -650,6 +659,16 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       created:
         'تم إنشاء حساب الشركة. أرسل لها البريد الإلكتروني وكلمة المرور لتبدأ العمل.',
     },
+    operator: {
+      title: 'إدارة الموقع',
+      hint: 'شركات النقل المشتركة معك، واشتراكاتها، وما دفعته، والباقات التي تبيعها.',
+      sectionsLabel: 'أقسام إدارة الموقع',
+      addCompany: 'إضافة شركة نقل',
+      accounts: 'الشركات',
+      subscriptions: 'الاشتراكات',
+      payments: 'المدفوعات',
+      plans: 'الباقات والأسعار',
+    },
   },
   en: {
     problems: {
@@ -817,11 +836,10 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       deactivated: 'Account stopped:',
       loading: 'Loading company accounts...',
       empty:
-        'There are no companies yet. Create the first account with the form below.',
+        'There are no companies yet. Create the first account with the "Add a transport company" button at the top.',
       retry: 'Try again',
       company: 'Transport company',
       logins: 'Sign-in email',
-      currency: 'Currency',
       createdAt: 'Created',
       lastSignIn: 'Last sign-in',
       noLogin: 'No sign-in account',
@@ -1034,6 +1052,16 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       submit: 'Create account',
       created:
         'The company account was created. Send them the email and password so they can start.',
+    },
+    operator: {
+      title: 'Site management',
+      hint: 'The transport companies subscribed with you, their subscriptions, what they paid, and the plans you sell.',
+      sectionsLabel: 'Site management sections',
+      addCompany: 'Add a transport company',
+      accounts: 'Companies',
+      subscriptions: 'Subscriptions',
+      payments: 'Payments',
+      plans: 'Plans and prices',
     },
   },
 };

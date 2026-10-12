@@ -1,0 +1,68 @@
+@if (provisioned()) {
+  <app-alert tone="success" [dismissible]="true" (dismissed)="provisioned.set(false)">
+    {{ text().provision.created }}
+  </app-alert>
+}
+<div class="operator-tabs" role="tablist" [attr.aria-label]="text().operator.sectionsLabel">
+  @for (option of sections; track option.key) {
+    <button
+      type="button"
+      role="tab"
+      class="operator-tab"
+      [id]="'operator-tab-' + option.key"
+      [attr.data-section]="option.key"
+      [attr.aria-controls]="'operator-panel-' + option.key"
+      [attr.aria-selected]="section() === option.key"
+      [attr.tabindex]="section() === option.key ? 0 : -1"
+      (click)="section.set(option.key)"
+      (keydown)="move($event)"
+    >
+      <span class="operator-tab-icon" aria-hidden="true">
+        <ng-icon [svg]="option.icon" />
+      </span>
+      {{ text().operator[option.key] }}
+    </button>
+  }
+</div>
+<!-- Every section stays loaded, so a change in one can refresh the others. -->
+<div
+  role="tabpanel"
+  id="operator-panel-accounts"
+  aria-labelledby="operator-tab-accounts"
+  [hidden]="section() !== 'accounts'"
+>
+  <app-company-accounts />
+</div>
+<div
+  role="tabpanel"
+  id="operator-panel-subscriptions"
+  aria-labelledby="operator-tab-subscriptions"
+  [hidden]="section() !== 'subscriptions'"
+>
+  <app-company-subscriptions />
+</div>
+<div
+  role="tabpanel"
+  id="operator-panel-payments"
+  aria-labelledby="operator-tab-payments"
+  [hidden]="section() !== 'payments'"
+>
+  <app-subscription-payments />
+</div>
+<div
+  role="tabpanel"
+  id="operator-panel-plans"
+  aria-labelledby="operator-tab-plans"
+  [hidden]="section() !== 'plans'"
+>
+  <app-subscription-plans (changed)="subscriptions()?.reload()" />
+</div>
+
+<app-form-drawer [title]="text().provision.title" [(open)]="provisionOpen">
+  @if (provisionOpen()) {
+    <div class="ro-form">
+      <p class="hint">{{ text().provision.hint }}</p>
+      <app-provision-company (created)="companyCreated()" />
+    </div>
+  }
+</app-form-drawer>
