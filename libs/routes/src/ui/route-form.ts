@@ -17,6 +17,7 @@ import {
   Field,
   Select,
   SelectOption,
+  TimePicker,
 } from '@routeops/shared/ui';
 import { RouteAccessError } from '../application/route-access-error';
 import { RouteRepository } from '../application/route-repository';
@@ -36,7 +37,7 @@ import { routesText } from './routes-text';
 
 @Component({
   selector: 'app-route-form',
-  imports: [Alert, Button, Field, FormField, Select, SelectOption],
+  imports: [Alert, Button, Field, FormField, Select, SelectOption, TimePicker],
   templateUrl: './route-form.html',
   styleUrl: './route-form.css',
 })

@@ -68,14 +68,14 @@
         [hint]="text().form.outboundHint"
         [control]="routeForm.outboundTime"
       >
-        <input type="time" [formField]="routeForm.outboundTime" />
+        <app-time-picker [formField]="routeForm.outboundTime" />
       </app-field>
       <app-field
         [label]="text().form.returnTime"
         [hint]="text().form.returnHint"
         [control]="routeForm.returnTime"
       >
-        <input type="time" [formField]="routeForm.returnTime" />
+        <app-time-picker [formField]="routeForm.returnTime" />
       </app-field>
     </div>
     <div class="route-days" role="group" aria-labelledby="route-days-label">

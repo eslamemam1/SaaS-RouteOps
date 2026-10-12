@@ -39,6 +39,17 @@ export interface UiText {
     readonly nextMonth: string;
     readonly today: string;
   };
+  readonly timePicker: {
+    readonly label: string;
+    readonly placeholder: string;
+    readonly hour: string;
+    readonly minute: string;
+    readonly period: string;
+    readonly am: string;
+    readonly pm: string;
+    readonly clear: string;
+    readonly done: string;
+  };
 }
 
 export const uiText: Record<Language, UiText> = {
@@ -81,6 +92,17 @@ export const uiText: Record<Language, UiText> = {
       nextMonth: 'الشهر التالي',
       today: 'اليوم',
     },
+    timePicker: {
+      label: 'اختيار الميعاد',
+      placeholder: 'اختر الميعاد',
+      hour: 'الساعة',
+      minute: 'الدقيقة',
+      period: 'صباحًا أو مساءً',
+      am: 'ص',
+      pm: 'م',
+      clear: 'مسح الميعاد',
+      done: 'تم',
+    },
   },
   en: {
     optional: '(optional)',
@@ -120,6 +142,17 @@ export const uiText: Record<Language, UiText> = {
       previousMonth: 'Previous month',
       nextMonth: 'Next month',
       today: 'Today',
+    },
+    timePicker: {
+      label: 'Choose a time',
+      placeholder: 'Choose a time',
+      hour: 'Hour',
+      minute: 'Minute',
+      period: 'AM or PM',
+      am: 'AM',
+      pm: 'PM',
+      clear: 'Clear time',
+      done: 'Done',
     },
   },
 };

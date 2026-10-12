@@ -15,4 +15,5 @@ export { PublicLayout } from './public-layout';
 export { Select, SelectOption } from './select';
 export { ShellOrganization } from './shell-organization';
 export { Tag, type Tone } from './tag';
+export { TimePicker } from './time-picker';
 export { injectListView, type ListView, ViewSwitch } from './view-switch';

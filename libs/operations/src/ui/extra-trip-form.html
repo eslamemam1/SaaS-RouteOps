@@ -29,7 +29,7 @@
       </app-select>
     </app-field>
     <app-field [label]="text().extra.time" [control]="extraForm.departureTime">
-      <input type="time" [formField]="extraForm.departureTime" />
+      <app-time-picker [formField]="extraForm.departureTime" />
     </app-field>
   </div>
   <div class="ro-form-row">

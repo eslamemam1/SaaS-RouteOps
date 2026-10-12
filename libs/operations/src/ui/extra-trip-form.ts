@@ -15,6 +15,7 @@ import {
   Field,
   Select,
   SelectOption,
+  TimePicker,
 } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
@@ -45,6 +46,7 @@ import { operationsText } from './operations-text';
     FormField,
     Select,
     SelectOption,
+    TimePicker,
   ],
   templateUrl: './extra-trip-form.html',
 })

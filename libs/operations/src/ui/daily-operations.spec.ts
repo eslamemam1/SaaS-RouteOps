@@ -3,7 +3,7 @@ import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { LanguageService } from '@routeops/shared/i18n';
-import { DayPicker, Select } from '@routeops/shared/ui';
+import { DayPicker, Select, TimePicker } from '@routeops/shared/ui';
 import { OperationsAccessError } from '../application/operations-access-error';
 import { OperationsRepository } from '../application/operations-repository';
 import {
@@ -279,9 +279,7 @@ describe('DailyOperations', () => {
     await settle(harness);
     const form = harness.routeNativeElement!.querySelector('app-extra-trip-form')!;
     choose(harness, 'app-extra-trip-form', 0, 'route-1');
-    const time = form.querySelector<HTMLInputElement>('input[type="time"]')!;
-    time.value = '07:15';
-    time.dispatchEvent(new Event('input'));
+    chooseTime(harness, 'app-extra-trip-form', '07:15');
     await settle(harness);
 
     expect(form.textContent).toContain(arabic.conflict.formHint);
@@ -308,9 +306,7 @@ describe('DailyOperations', () => {
 
     const form = harness.routeNativeElement!.querySelector('app-extra-trip-form')!;
     choose(harness, 'app-extra-trip-form', 0, 'route-1');
-    const time = form.querySelector<HTMLInputElement>('input[type="time"]')!;
-    time.value = '21:00';
-    time.dispatchEvent(new Event('input'));
+    chooseTime(harness, 'app-extra-trip-form', '21:00');
     await settle(harness);
     expect(form.textContent).toContain(arabic.extra.tripPriceRouteHint);
     const price = form.querySelector<HTMLInputElement>('input[inputmode="decimal"]')!;
@@ -531,6 +527,11 @@ function choose(
 ): void {
   const selects = harness.routeDebugElement?.queryAll(By.css(`${host} app-select`)) ?? [];
   (selects.at(index)?.componentInstance as Select).value.set(value);
+}
+
+function chooseTime(harness: RouterTestingHarness, host: string, value: string): void {
+  const picker = harness.routeDebugElement?.query(By.css(`${host} app-time-picker`));
+  (picker?.componentInstance as TimePicker).value.set(value);
 }
 
 function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {
