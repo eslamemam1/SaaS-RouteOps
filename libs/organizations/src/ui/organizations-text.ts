@@ -244,6 +244,10 @@ export interface OrganizationsText {
     readonly editTitle: string;
     readonly saveChanges: string;
     readonly companyFixed: string;
+    readonly companyTitle: string;
+    readonly activeNow: string;
+    readonly periodTitle: string;
+    readonly priceTitle: string;
     readonly chooseCompany: string;
     readonly choosePlan: string;
     readonly planHint: string;
@@ -261,6 +265,7 @@ export interface OrganizationsText {
     readonly monthly: string;
     readonly fullPrice: string;
     readonly afterDiscount: string;
+    readonly total: string;
     readonly endsOn: string;
     readonly submit: string;
     readonly cancel: string;
@@ -608,6 +613,10 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       saveChanges: 'حفظ التعديل',
       companyFixed:
         'لا يمكن تغيير شركة الاشتراك. إذا سُجّل لشركة أخرى فاحذفه وسجّله من جديد.',
+      companyTitle: 'الشركة والباقة',
+      activeNow: 'مركباتها العاملة الآن:',
+      periodTitle: 'المدة',
+      priceTitle: 'السعر',
       chooseCompany: 'اختر الشركة',
       choosePlan: 'اختر الباقة',
       planHint: 'الباقات المعروضة بعملة الشركة فقط.',
@@ -626,6 +635,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       monthly: 'السعر الشهري',
       fullPrice: 'بدون خصم',
       afterDiscount: 'بعد الخصم',
+      total: 'الإجمالي',
       endsOn: 'ينتهي في',
       submit: 'تسجيل الاشتراك',
       cancel: 'إلغاء',
@@ -1005,6 +1015,10 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       saveChanges: 'Save changes',
       companyFixed:
         "A subscription's company cannot be changed. If it was recorded for another company, delete it and record it again.",
+      companyTitle: 'Company and plan',
+      activeNow: 'Active vehicles now:',
+      periodTitle: 'Period',
+      priceTitle: 'Price',
       chooseCompany: 'Choose the company',
       choosePlan: 'Choose the plan',
       planHint: "Only plans on offer in the company's currency.",
@@ -1025,6 +1039,7 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       monthly: 'Monthly price',
       fullPrice: 'Without discount',
       afterDiscount: 'After discount',
+      total: 'Total',
       endsOn: 'Ends on',
       submit: 'Record the subscription',
       cancel: 'Cancel',

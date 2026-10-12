@@ -1,0 +1,82 @@
+.subscription-form {
+  counter-reset: subscription-step;
+}
+
+.subscription-section {
+  gap: var(--ro-space-4);
+  padding: 0;
+  border: 0;
+  border-radius: var(--ro-radius-none);
+  background: none;
+}
+
+.subscription-section + .subscription-section {
+  padding-block-start: var(--ro-space-5);
+  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+/* A floated legend sits inside the section instead of on its top border. */
+.subscription-section > legend {
+  float: inline-start;
+  display: flex;
+  align-items: center;
+  gap: var(--ro-space-2);
+  inline-size: 100%;
+  padding: 0;
+  font-size: var(--ro-text-body-md);
+  line-height: var(--ro-leading-body-md);
+}
+
+.subscription-section > legend::before {
+  counter-increment: subscription-step;
+  content: counter(subscription-step);
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: var(--ro-space-6);
+  block-size: var(--ro-space-6);
+  border-radius: var(--ro-radius-full);
+  background: var(--ro-bg-brand-subtle);
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-caption);
+}
+
+.subscription-section > .hint {
+  margin-block-start: calc(-1 * var(--ro-space-2));
+}
+
+.subscription-actions {
+  padding-block-start: var(--ro-space-4);
+  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+}
+
+.subscription-sum,
+.subscription-ends {
+  padding: var(--ro-space-3) var(--ro-space-4);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-hover);
+}
+
+.subscription-sum {
+  margin: 0;
+}
+
+.subscription-ends {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-2);
+  margin: 0;
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-body-sm);
+}
+
+.subscription-ends ng-icon {
+  color: var(--ro-text-brand);
+  font-size: var(--ro-icon-size);
+}
+
+.subscription-ends strong {
+  color: var(--ro-text-primary);
+}

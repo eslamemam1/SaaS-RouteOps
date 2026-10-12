@@ -15,8 +15,10 @@ import {
   submit,
   validate,
 } from '@angular/forms/signals';
+import { NgIcon } from '@ng-icons/core';
+import { lucideCalendarCheck } from '@ng-icons/lucide';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
-import { toAmountText } from '@routeops/shared/money';
+import { currencySymbol, toAmountText } from '@routeops/shared/money';
 import {
   formatPrice,
   fullPrice,
@@ -54,8 +56,9 @@ import { organizationsText } from './organizations-text';
 
 @Component({
   selector: 'app-subscription-form',
-  imports: [Alert, Button, Field, FormField, Select, SelectOption],
+  imports: [Alert, Button, Field, FormField, NgIcon, Select, SelectOption],
   templateUrl: './subscription-form.html',
+  styleUrl: './subscription-form.css',
 })
 export class SubscriptionForm {
   private readonly repository = inject(SubscriptionRepository);
@@ -73,6 +76,7 @@ export class SubscriptionForm {
   protected readonly text = injectText(organizationsText);
   private readonly problems = computed(() => this.text().subscriptionProblems);
 
+  protected readonly endIcon = lucideCalendarCheck;
   protected readonly busy = signal(false);
   protected readonly problem = signal<SubscriptionProblem | null>(null);
   protected readonly model = signal<SubscriptionDetails>({
@@ -97,7 +101,19 @@ export class SubscriptionForm {
   protected readonly currency = computed(
     () => this.company()?.account.currency ?? null,
   );
+  protected readonly currencyLabel = computed(() => {
+    const currency = this.currency();
+    return currency === null ? '' : currencySymbol(currency, this.language());
+  });
   protected readonly editing = computed(() => this.subscriptionId() !== null);
+  protected readonly companyHint = computed(() => {
+    const text = this.text().subscriptions;
+    if (this.editing()) {
+      return text.companyFixed;
+    }
+    const company = this.company();
+    return company ? `${text.activeNow} ${company.activeVehicles}` : '';
+  });
   // A subscription being corrected keeps its plan even if it is no longer on offer.
   protected readonly availablePlans = computed(() => {
     const currency = this.currency();
