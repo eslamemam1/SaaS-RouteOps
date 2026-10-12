@@ -45,9 +45,11 @@ export interface OrganizationsText {
     readonly suspendedTitle: string;
     readonly suspended: string;
     readonly sectionsTitle: string;
+    readonly sectionsHint: string;
   };
   readonly dashboard: {
     readonly todayTitle: string;
+    readonly todayHint: string;
     readonly openToday: string;
     readonly planned: string;
     readonly done: string;
@@ -252,12 +254,14 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       loading: 'جارٍ التحميل...',
       noCompany: 'هذا الحساب غير مرتبط بأي شركة نقل. تواصل مع مدير الموقع.',
       chooseTitle: 'اختر شركتك',
-      chooseHint: 'حسابك مرتبط بأكثر من شركة. اختر الشركة التي تريد العمل عليها.',
+      chooseHint:
+        'حسابك مرتبط بأكثر من شركة. اختر الشركة التي تريد العمل عليها.',
       welcome: 'مرحبًا،',
       customers: 'الشركات المتعاقدة',
       customersHint: 'الشركات والمصانع التي تنقل موظفيها.',
       vehicles: 'المركبات',
-      vehiclesHint: 'الأتوبيسات والميكروباصات والسيارات التي تنقل بها الموظفين.',
+      vehiclesHint:
+        'الأتوبيسات والميكروباصات والسيارات التي تنقل بها الموظفين.',
       drivers: 'السائقون',
       driversHint: 'السائقون الذين يعملون معك في نقل الموظفين.',
       routes: 'الخطوط',
@@ -265,23 +269,26 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       operations: 'التشغيل اليومي',
       operationsHint: 'رحلات كل يوم: غياب سائق، عطل مركبة، أو إجازة.',
       expenses: 'المصاريف',
-      expensesHint: 'الوقود والصيانة والرواتب وإيجار المركبات وكل ما تصرفه الشركة.',
+      expensesHint:
+        'الوقود والصيانة والرواتب وإيجار المركبات وكل ما تصرفه الشركة.',
       reports: 'التقارير',
       reportsHint: 'الرحلات التي تمّت كل شهر وإيرادها ومصاريفها وصافي الربح.',
       suspendedTitle: 'حساب الشركة موقوف',
       suspended:
         'أُوقف حساب شركتك مؤقتًا لحين سداد الاشتراك الشهري. بياناتك محفوظة ولن يُحذف منها شيء. تواصل مع مدير الموقع لإعادة تفعيل الحساب.',
       sectionsTitle: 'الأقسام',
+      sectionsHint: 'انتقل مباشرة إلى أي جزء من عمل شركتك.',
     },
     dashboard: {
       todayTitle: 'رحلات اليوم',
+      todayHint: 'تتحدّث كلما سجّلت ما تمّ أو تغيّر في التشغيل اليومي.',
       openToday: 'افتح التشغيل اليومي',
       planned: 'المقرّرة',
       done: 'تمّت',
       remaining: 'لم تتمّ بعد',
       cancelled: 'ملغاة',
       progressOf: 'من',
-      progressHint: 'رحلات كاملة تمّت من رحلات اليوم المقرّرة.',
+      progressHint: 'رحلات كاملة تمّت',
       progressLabel: 'ما تمّ من رحلات اليوم',
       splitTitle: 'أين ذهب إيراد الشهر',
       splitOver: 'المصاريف تجاوزت الإيراد هذا الشهر.',
@@ -289,7 +296,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       unopened: 'افتح التشغيل اليومي لتظهر رحلات اليوم وتسجّل ما تغيّر فيها.',
       noTrips: 'لا توجد خطوط تعمل اليوم.',
       monthTitle: 'هذا الشهر',
-      monthHint: 'بنفس حساب صفحة التقارير: الرحلات التي تمّت حتى اليوم ومصاريف الشهر المسجّلة.',
+      monthHint:
+        'بنفس حساب صفحة التقارير: الرحلات التي تمّت حتى اليوم ومصاريف الشهر المسجّلة.',
       openReports: 'افتح التقارير',
       monthDone: 'رحلات كاملة تمّت',
       revenue: 'الإيراد',
@@ -300,13 +308,17 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       attentionHint: 'أشياء لم تُسجّل بعد، فتنقص حسابات الشهر حتى تسجّلها.',
       allClear: 'كل شيء مسجّل. لا يوجد ما يحتاج انتباهك الآن.',
       unopenedDays: 'أيام عمل لم تُفتح هذا الشهر',
-      unopenedDaysHint: 'رحلات هذه الأيام لم تُسجّل، فلا تدخل في التقارير. اضغط لفتح أول يوم منها.',
+      unopenedDaysHint:
+        'رحلات هذه الأيام لم تُسجّل، فلا تدخل في التقارير. اضغط لفتح أول يوم منها.',
       driverPay: 'سائقون لم تُسجّل رواتبهم أو أجرهم كاملة',
-      driverPayHint: 'الشهر انتهى، فسجّل ما بقي لهم من صفحة المصاريف ليدخل في صافي ربح ذلك الشهر.',
+      driverPayHint:
+        'الشهر انتهى، فسجّل ما بقي لهم من صفحة المصاريف ليدخل في صافي ربح ذلك الشهر.',
       vehiclePay: 'مركبات لم تُسجّل أجرتها كاملة',
-      vehiclePayHint: 'الشهر انتهى، فسجّل إيجار المركبات المؤجّرة وأجرة مركبات المقاولين من صفحة المصاريف.',
+      vehiclePayHint:
+        'الشهر انتهى، فسجّل إيجار المركبات المؤجّرة وأجرة مركبات المقاولين من صفحة المصاريف.',
       unpriced: 'رحلات تمّت بلا سعر',
-      unpricedHint: 'أضف سعر الرحلة في صفحة الخط حتى يُحسب إيرادها، فالرحلات السابقة بلا سعر تأخذ السعر الجديد.',
+      unpricedHint:
+        'أضف سعر الرحلة في صفحة الخط حتى يُحسب إيرادها، فالرحلات السابقة بلا سعر تأخذ السعر الجديد.',
       loading: 'جارٍ تحميل أرقام اليوم والشهر...',
       retry: 'حاول مرة أخرى',
     },
@@ -316,9 +328,11 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       customers: 'أضف الشركات المتعاقدة',
       customersHint: 'الشركات التي تنقل موظفيها، وكل خط يتبع إحداها.',
       drivers: 'أضف السائقين',
-      driversHint: 'مع طريقة حساب أجر كل سائق، حتى يقترح الموقع رواتبهم آخر الشهر.',
+      driversHint:
+        'مع طريقة حساب أجر كل سائق، حتى يقترح الموقع رواتبهم آخر الشهر.',
       routes: 'أضف خطوط التشغيل',
-      routesHint: 'لكل خط شركة وسائق ومواعيد وسعر الرحلة. منها تُجهَّز رحلات كل يوم.',
+      routesHint:
+        'لكل خط شركة وسائق ومواعيد وسعر الرحلة. منها تُجهَّز رحلات كل يوم.',
       open: 'ابدأ',
       done: 'تم',
     },
@@ -415,9 +429,11 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       password: 'كلمة المرور',
       passwordHint: '6 أحرف أو أرقام على الأقل.',
       currency: 'العملة',
-      currencyHint: 'تُكتب بها كل الأسعار والإيرادات في حساب الشركة، ولا يمكن تغييرها لاحقًا.',
+      currencyHint:
+        'تُكتب بها كل الأسعار والإيرادات في حساب الشركة، ولا يمكن تغييرها لاحقًا.',
       timeZone: 'التوقيت',
-      timeZoneHint: 'يبدأ يوم الشركة وينتهي بهذا التوقيت، فتُحسب رحلات كل يوم في يومها الصحيح.',
+      timeZoneHint:
+        'يبدأ يوم الشركة وينتهي بهذا التوقيت، فتُحسب رحلات كل يوم في يومها الصحيح.',
       submit: 'إنشاء الحساب',
       created:
         'تم إنشاء حساب الشركة. أرسل لها البريد الإلكتروني وكلمة المرور لتبدأ العمل.',
@@ -435,7 +451,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       emailTaken: 'An account with this email already exists.',
       operatorOnly: 'Only the site manager can create companies.',
       signIn: 'Could not sign in. Check the email and password.',
-      signOut: 'Could not sign out. Check your internet connection and try again.',
+      signOut:
+        'Could not sign out. Check your internet connection and try again.',
       accountStatus: 'Could not change the account status. Please try again.',
       load: 'Could not load your company. Please try again.',
       create: 'Could not create the company. Please try again.',
@@ -472,9 +489,9 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       submit: 'Sign in',
       headline: "All your company's work",
       headlineHighlight: 'on one screen',
-      welcome: 'Welcome back. Sign in to follow your company\'s work.',
+      welcome: "Welcome back. Sign in to follow your company's work.",
       points: [
-        'Today\'s trips and what changed',
+        "Today's trips and what changed",
         'Driver salaries and vehicle pay',
         'Revenue, expenses, and the profit of each route',
       ],
@@ -494,39 +511,48 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       customers: 'Client companies',
       customersHint: 'The companies and factories whose staff you transport.',
       vehicles: 'Vehicles',
-      vehiclesHint: 'The buses, microbuses, and cars you use to transport staff.',
+      vehiclesHint:
+        'The buses, microbuses, and cars you use to transport staff.',
       drivers: 'Drivers',
       driversHint: 'The drivers who work with you transporting staff.',
       routes: 'Routes',
       routesHint: 'Link each client company to a vehicle, a driver, and times.',
       operations: 'Daily operations',
-      operationsHint: "Each day's trips: an absent driver, a broken vehicle, or a holiday.",
+      operationsHint:
+        "Each day's trips: an absent driver, a broken vehicle, or a holiday.",
       expenses: 'Expenses',
-      expensesHint: 'Fuel, maintenance, salaries, vehicle rent, and everything else the company spends.',
+      expensesHint:
+        'Fuel, maintenance, salaries, vehicle rent, and everything else the company spends.',
       reports: 'Reports',
-      reportsHint: 'The trips done each month, their revenue, the expenses, and net profit.',
+      reportsHint:
+        'The trips done each month, their revenue, the expenses, and net profit.',
       suspendedTitle: 'The company account is stopped',
       suspended:
         'Your company account is stopped until the monthly subscription is paid. Your data is kept and nothing is deleted. Contact the site manager to turn the account back on.',
       sectionsTitle: 'Sections',
+      sectionsHint: "Go straight to any part of your company's work.",
     },
     dashboard: {
       todayTitle: "Today's trips",
+      todayHint:
+        'Updates as you record what was done or changed in daily operations.',
       openToday: 'Open daily operations',
       planned: 'Scheduled',
       done: 'Done',
       remaining: 'Not done yet',
       cancelled: 'Cancelled',
       progressOf: 'of',
-      progressHint: "Full trips done of today's scheduled trips.",
+      progressHint: 'full trips done',
       progressLabel: "Today's trips done",
       splitTitle: "Where the month's revenue went",
       splitOver: 'Expenses went over the revenue this month.',
       unopenedTitle: 'Today is not opened yet',
-      unopened: "Open daily operations to see today's trips and record what changed.",
+      unopened:
+        "Open daily operations to see today's trips and record what changed.",
       noTrips: 'No route runs today.',
       monthTitle: 'This month',
-      monthHint: "Counted like the reports page: the trips done so far and the month's recorded expenses.",
+      monthHint:
+        "Counted like the reports page: the trips done so far and the month's recorded expenses.",
       openReports: 'Open reports',
       monthDone: 'Full trips done',
       revenue: 'Revenue',
@@ -534,16 +560,21 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       profit: 'Net profit',
       loss: 'Loss',
       attentionTitle: 'Needs your attention',
-      attentionHint: "Things not recorded yet, so the month's figures stay short until you record them.",
+      attentionHint:
+        "Things not recorded yet, so the month's figures stay short until you record them.",
       allClear: 'Everything is recorded. Nothing needs your attention now.',
       unopenedDays: 'Working days not opened this month',
-      unopenedDaysHint: 'The trips of these days were not recorded, so reports leave them out. Select to open the first one.',
+      unopenedDaysHint:
+        'The trips of these days were not recorded, so reports leave them out. Select to open the first one.',
       driverPay: 'Drivers whose salary or pay is not fully recorded',
-      driverPayHint: "The month is over, so record what is left in expenses to count it in that month's net profit.",
+      driverPayHint:
+        "The month is over, so record what is left in expenses to count it in that month's net profit.",
       vehiclePay: 'Vehicles whose pay is not fully recorded',
-      vehiclePayHint: 'The month is over, so record the rent of rented vehicles and the pay of contractor vehicles in expenses.',
+      vehiclePayHint:
+        'The month is over, so record the rent of rented vehicles and the pay of contractor vehicles in expenses.',
       unpriced: 'Done trips with no price',
-      unpricedHint: 'Add a trip price on the route page so their revenue counts; past trips with no price take the new price.',
+      unpricedHint:
+        'Add a trip price on the route page so their revenue counts; past trips with no price take the new price.',
       loading: "Loading today's and this month's figures...",
       retry: 'Try again',
     },
@@ -551,11 +582,14 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       title: 'Start here',
       hint: 'Three steps before you record daily operations. You can add vehicles now or later.',
       customers: 'Add the contracted companies',
-      customersHint: 'The companies whose staff you carry. Every route belongs to one of them.',
+      customersHint:
+        'The companies whose staff you carry. Every route belongs to one of them.',
       drivers: 'Add the drivers',
-      driversHint: "With how each driver is paid, so the site suggests their pay at the month's end.",
+      driversHint:
+        "With how each driver is paid, so the site suggests their pay at the month's end.",
       routes: 'Add the routes',
-      routesHint: "Each route has a company, a driver, times, and a trip price. Each day's trips come from them.",
+      routesHint:
+        "Each route has a company, a driver, times, and a trip price. Each day's trips come from them.",
       open: 'Start',
       done: 'Done',
     },
@@ -570,7 +604,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       activated: 'Account turned on:',
       deactivated: 'Account stopped:',
       loading: 'Loading company accounts...',
-      empty: 'There are no companies yet. Create the first account with the form below.',
+      empty:
+        'There are no companies yet. Create the first account with the form below.',
       retry: 'Try again',
       company: 'Transport company',
       logins: 'Sign-in email',
@@ -589,7 +624,8 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       passwordHint: 'At least 6 letters or numbers.',
       submit: 'Save password',
       cancel: 'Cancel',
-      changed: 'The password was changed. Tell the company so it can sign in with it from now on:',
+      changed:
+        'The password was changed. Tell the company so it can sign in with it from now on:',
     },
     payments: {
       title: 'Subscription payments',
@@ -616,13 +652,15 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       recorded: 'The payment was recorded.',
       removed: 'The payment was deleted.',
       companiesTitle: 'What each company paid',
-      companiesHint: 'Everything you recorded for each company since the start.',
+      companiesHint:
+        'Everything you recorded for each company since the start.',
       total: 'Total',
       count: 'Payments',
       lastPaidOn: 'Last payment',
       lastMonth: 'Last month paid',
       loading: 'Loading payments...',
-      empty: 'No payment is recorded yet. Record the first one when a company pays its subscription.',
+      empty:
+        'No payment is recorded yet. Record the first one when a company pays its subscription.',
       noCompanies: 'Create a company account first to record its payments.',
       retry: 'Try again',
       formTitle: 'Record a subscription payment',
@@ -652,9 +690,11 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       password: 'Password',
       passwordHint: 'At least 6 letters or numbers.',
       currency: 'Currency',
-      currencyHint: "All prices and revenue in the company's account use it. It cannot be changed later.",
+      currencyHint:
+        "All prices and revenue in the company's account use it. It cannot be changed later.",
       timeZone: 'Time zone',
-      timeZoneHint: "The company's day starts and ends in this time zone, so each day's trips count on the right day.",
+      timeZoneHint:
+        "The company's day starts and ends in this time zone, so each day's trips count on the right day.",
       submit: 'Create account',
       created:
         'The company account was created. Send them the email and password so they can start.',

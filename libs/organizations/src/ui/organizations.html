@@ -71,7 +71,9 @@
                 @if (!setUp()) {
                   <section class="ro-card" aria-labelledby="dashboard-setup">
                     <div class="ro-card-header">
-                      <h2 id="dashboard-setup" class="ro-card-title">{{ text().setup.title }}</h2>
+                      <h2 id="dashboard-setup" class="ro-card-title">
+                        {{ text().setup.title }}
+                      </h2>
                       <p class="hint">{{ text().setup.hint }}</p>
                     </div>
                     <div class="ro-card-body">
@@ -103,9 +105,15 @@
                   </section>
                 }
                 <div class="dashboard-layout">
-                  <section class="ro-card dashboard-today-card" aria-labelledby="dashboard-today">
+                  <section
+                    class="ro-card dashboard-card dashboard-today-card"
+                    aria-labelledby="dashboard-today"
+                  >
                     <div class="ro-card-header">
-                      <h2 id="dashboard-today" class="ro-card-title">{{ text().dashboard.todayTitle }}</h2>
+                      <h2 id="dashboard-today" class="ro-card-title">
+                        {{ text().dashboard.todayTitle }}
+                      </h2>
+                      <p class="hint">{{ text().dashboard.todayHint }}</p>
                     </div>
                     <div class="ro-card-body">
                       @switch (summary.today.status) {
@@ -124,10 +132,12 @@
                               <span>
                                 {{ text().dashboard.progressOf }}
                                 <bdi class="ro-numeric">{{ summary.today.planned }}</bdi>
+                                · {{ text().dashboard.progressHint }}
                               </span>
-                              <span class="dashboard-progress-percent ro-numeric"><bdi dir="ltr">{{ progress() }}%</bdi></span>
+                              <span class="dashboard-progress-percent ro-numeric"
+                                ><bdi dir="ltr">{{ progress() }}%</bdi></span
+                              >
                             </p>
-                            <p class="hint">{{ text().dashboard.progressHint }}</p>
                             <div
                               class="dashboard-bar"
                               role="progressbar"
@@ -136,17 +146,23 @@
                               [attr.aria-valuenow]="progress()"
                               [attr.aria-label]="text().dashboard.progressLabel"
                             >
-                              <span class="dashboard-bar-done" [style.inline-size.%]="progress()"></span>
+                              <span
+                                class="dashboard-bar-done"
+                                [style.inline-size.%]="progress()"
+                              ></span>
                             </div>
                           </div>
-                          <dl class="dashboard-today">
+                          <dl class="dashboard-figures dashboard-today">
                             @for (figure of todayFigures; track figure.key) {
                               <div
+                                class="dashboard-figure"
                                 [attr.data-tone]="
-                                  figure.key === 'remaining' && summary.today.remaining === 0 ? 'neutral' : figure.tone
+                                  figure.key === 'remaining' && summary.today.remaining === 0
+                                    ? 'neutral'
+                                    : figure.tone
                                 "
                               >
-                                <span class="dashboard-today-icon" aria-hidden="true">
+                                <span class="dashboard-figure-icon" aria-hidden="true">
                                   <ng-icon [svg]="figure.icon" />
                                 </span>
                                 <dt>{{ text().dashboard[figure.key] }}</dt>
@@ -159,12 +175,17 @@
                     </div>
                   </section>
 
-                  <section class="ro-card dashboard-attention-card" aria-labelledby="dashboard-attention">
+                  <section
+                    class="ro-card dashboard-card dashboard-attention-card"
+                    aria-labelledby="dashboard-attention"
+                  >
                     <div class="ro-card-header">
                       <h2 id="dashboard-attention" class="ro-card-title">
                         {{ text().dashboard.attentionTitle }}
                         @if (attention().length > 0) {
-                          <app-tag tone="warning"><bdi>{{ attention().length }}</bdi></app-tag>
+                          <app-tag tone="warning"
+                            ><bdi>{{ attention().length }}</bdi></app-tag
+                          >
                         }
                       </h2>
                       <p class="hint">{{ text().dashboard.attentionHint }}</p>
@@ -198,7 +219,11 @@
                                   </strong>
                                   <span class="hint">{{ text().dashboard[item.hint] }}</span>
                                 </span>
-                                <ng-icon class="dashboard-chevron ro-icon-flip" [svg]="nextIcon" aria-hidden="true" />
+                                <ng-icon
+                                  class="dashboard-chevron ro-icon-flip"
+                                  [svg]="nextIcon"
+                                  aria-hidden="true"
+                                />
                               </a>
                             </li>
                           }
@@ -207,105 +232,133 @@
                     </div>
                   </section>
 
-                  <section class="dashboard-month" aria-labelledby="dashboard-month">
-                    <div class="dashboard-month-header">
-                      <div>
-                        <h2 id="dashboard-month">{{ text().dashboard.monthTitle }} · {{ monthLabel() }}</h2>
+                  <section
+                    class="ro-card dashboard-card dashboard-month"
+                    aria-labelledby="dashboard-month"
+                  >
+                    <div class="ro-card-header dashboard-card-head">
+                      <div class="dashboard-card-titles">
+                        <h2 id="dashboard-month" class="ro-card-title">
+                          {{ text().dashboard.monthTitle }} · {{ monthLabel() }}
+                        </h2>
                         <p class="hint">{{ text().dashboard.monthHint }}</p>
                       </div>
-                      <a appButton="secondary" size="sm" [routerLink]="['/organizations', current.id, 'reports']">
+                      <a
+                        appButton="secondary"
+                        size="sm"
+                        [routerLink]="['/organizations', current.id, 'reports']"
+                      >
                         {{ text().dashboard.openReports }}
                       </a>
                     </div>
-                    <div class="ro-stats dashboard-figures">
-                      <div class="ro-stat ro-card" data-tone="success">
-                        <span class="ro-stat-icon">
-                          <ng-icon [svg]="statIcons.done" aria-hidden="true" />
-                        </span>
-                        <span class="ro-stat-label">{{ text().dashboard.monthDone }}</span>
-                        <strong class="ro-stat-value"><bdi>{{ summary.month.done }}</bdi></strong>
-                      </div>
-                      <div class="ro-stat ro-card" data-tone="success">
-                        <span class="ro-stat-icon">
-                          <ng-icon [svg]="statIcons.revenue" aria-hidden="true" />
-                        </span>
-                        <span class="ro-stat-label">{{ text().dashboard.revenue }}</span>
-                        <strong class="ro-stat-value"><bdi>{{ money(summary.month.revenue) }}</bdi></strong>
-                      </div>
-                      <div class="ro-stat ro-card" data-tone="warning">
-                        <span class="ro-stat-icon">
-                          <ng-icon [svg]="statIcons.expenses" aria-hidden="true" />
-                        </span>
-                        <span class="ro-stat-label">{{ text().dashboard.expenses }}</span>
-                        <strong class="ro-stat-value"><bdi>{{ money(summary.month.expenses) }}</bdi></strong>
-                      </div>
-                      <div
-                        class="ro-stat ro-card"
-                        [attr.data-tone]="summary.month.profit < 0 ? 'danger' : 'info'"
-                      >
-                        <span class="ro-stat-icon">
-                          <ng-icon [svg]="statIcons.profit" aria-hidden="true" />
-                        </span>
-                        <span class="ro-stat-label">
-                          {{ text().dashboard.profit }}
-                          @if (summary.month.profit < 0) {
-                            <app-tag tone="danger">{{ text().dashboard.loss }}</app-tag>
-                          }
-                        </span>
-                        <strong class="ro-stat-value"><bdi>{{ money(summary.month.profit) }}</bdi></strong>
-                      </div>
-                    </div>
-                    @let expensesShare = share();
-                    @if (expensesShare !== null) {
-                      <div class="ro-card dashboard-split">
-                        <strong>{{ text().dashboard.splitTitle }}</strong>
-                        <div class="dashboard-split-bar" aria-hidden="true">
-                          <span
-                            class="dashboard-split-expenses"
-                            [class.dashboard-split-over]="summary.month.profit < 0"
-                            [style.inline-size.%]="expensesShare"
-                          ></span>
+                    <div class="ro-card-body">
+                      <dl class="dashboard-figures dashboard-month-figures">
+                        <div class="dashboard-figure" data-tone="success">
+                          <span class="dashboard-figure-icon" aria-hidden="true">
+                            <ng-icon [svg]="statIcons.done" />
+                          </span>
+                          <dt>{{ text().dashboard.monthDone }}</dt>
+                          <dd class="ro-numeric">
+                            <bdi>{{ summary.month.done }}</bdi>
+                          </dd>
                         </div>
-                        @if (summary.month.profit < 0) {
-                          <p class="dashboard-split-note">{{ text().dashboard.splitOver }}</p>
-                        } @else {
-                          <ul class="dashboard-split-legend">
-                            <li>
-                              <span class="ro-dot" data-tone="warning"></span>
-                              {{ text().dashboard.expenses }}
-                              <bdi class="ro-numeric" dir="ltr">{{ expensesShare }}%</bdi>
-                            </li>
-                            <li>
-                              <span class="ro-dot" data-tone="success"></span>
-                              {{ text().dashboard.profit }}
-                              <bdi class="ro-numeric" dir="ltr">{{ 100 - expensesShare }}%</bdi>
-                            </li>
-                          </ul>
-                        }
-                      </div>
-                    }
+                        <div class="dashboard-figure" data-tone="success">
+                          <span class="dashboard-figure-icon" aria-hidden="true">
+                            <ng-icon [svg]="statIcons.revenue" />
+                          </span>
+                          <dt>{{ text().dashboard.revenue }}</dt>
+                          <dd class="ro-numeric">
+                            <bdi>{{ money(summary.month.revenue) }}</bdi>
+                          </dd>
+                        </div>
+                        <div class="dashboard-figure" data-tone="warning">
+                          <span class="dashboard-figure-icon" aria-hidden="true">
+                            <ng-icon [svg]="statIcons.expenses" />
+                          </span>
+                          <dt>{{ text().dashboard.expenses }}</dt>
+                          <dd class="ro-numeric">
+                            <bdi>{{ money(summary.month.expenses) }}</bdi>
+                          </dd>
+                        </div>
+                        <div
+                          class="dashboard-figure"
+                          [attr.data-tone]="summary.month.profit < 0 ? 'danger' : 'info'"
+                        >
+                          <span class="dashboard-figure-icon" aria-hidden="true">
+                            <ng-icon [svg]="statIcons.profit" />
+                          </span>
+                          <dt>
+                            {{ text().dashboard.profit }}
+                            @if (summary.month.profit < 0) {
+                              <app-tag tone="danger">{{ text().dashboard.loss }}</app-tag>
+                            }
+                          </dt>
+                          <dd class="ro-numeric">
+                            <bdi>{{ money(summary.month.profit) }}</bdi>
+                          </dd>
+                        </div>
+                      </dl>
+                      @let expensesShare = share();
+                      @if (expensesShare !== null) {
+                        <div class="dashboard-split">
+                          <div class="dashboard-split-head">
+                            <strong>{{ text().dashboard.splitTitle }}</strong>
+                            @if (summary.month.profit < 0) {
+                              <p class="dashboard-split-note">{{ text().dashboard.splitOver }}</p>
+                            } @else {
+                              <ul class="dashboard-split-legend">
+                                <li>
+                                  <span class="ro-dot" data-tone="warning"></span>
+                                  {{ text().dashboard.expenses }}
+                                  <bdi class="ro-numeric" dir="ltr">{{ expensesShare }}%</bdi>
+                                </li>
+                                <li>
+                                  <span class="ro-dot" data-tone="success"></span>
+                                  {{ text().dashboard.profit }}
+                                  <bdi class="ro-numeric" dir="ltr">{{ 100 - expensesShare }}%</bdi>
+                                </li>
+                              </ul>
+                            }
+                          </div>
+                          <div class="dashboard-split-bar" aria-hidden="true">
+                            <span
+                              class="dashboard-split-expenses"
+                              [class.dashboard-split-over]="summary.month.profit < 0"
+                              [style.inline-size.%]="expensesShare"
+                            ></span>
+                          </div>
+                        </div>
+                      }
+                    </div>
                   </section>
 
-                  <nav class="ro-card dashboard-links-card" aria-labelledby="dashboard-sections">
+                  <nav
+                    class="ro-card dashboard-card dashboard-links-card"
+                    aria-labelledby="dashboard-sections"
+                  >
                     <div class="ro-card-header">
-                      <h2 id="dashboard-sections" class="ro-card-title">{{ text().home.sectionsTitle }}</h2>
+                      <h2 id="dashboard-sections" class="ro-card-title">
+                        {{ text().home.sectionsTitle }}
+                      </h2>
+                      <p class="hint">{{ text().home.sectionsHint }}</p>
                     </div>
-                    <ul class="dashboard-links">
-                      @for (section of sections; track section.path) {
-                        <li>
-                          <a [routerLink]="['/organizations', current.id, section.path]">
-                            <span class="dashboard-icon" aria-hidden="true">
-                              <ng-icon [svg]="section.icon" />
-                            </span>
-                            <span class="dashboard-attention-text">
+                    <div class="ro-card-body">
+                      <ul class="dashboard-links">
+                        @for (section of sections; track section.path) {
+                          <li>
+                            <a
+                              [routerLink]="['/organizations', current.id, section.path]"
+                              [attr.title]="text().home[section.hint]"
+                            >
+                              <span class="dashboard-icon" aria-hidden="true">
+                                <ng-icon [svg]="section.icon" />
+                              </span>
                               <strong>{{ text().home[section.path] }}</strong>
-                              <span class="hint">{{ text().home[section.hint] }}</span>
-                            </span>
-                            <ng-icon class="dashboard-chevron ro-icon-flip" [svg]="nextIcon" aria-hidden="true" />
-                          </a>
-                        </li>
-                      }
-                    </ul>
+                            </a>
+                          </li>
+                        }
+                      </ul>
+                    </div>
                   </nav>
                 </div>
               }
@@ -315,7 +368,6 @@
       }
     }
   }
-
   @if (operator()) {
     <app-company-accounts />
     <app-subscription-payments />

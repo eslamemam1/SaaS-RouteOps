@@ -10,10 +10,20 @@ import { OrganizationRepository } from '../application/organization-repository';
 import { Organizations } from './organizations';
 import { organizationsText } from './organizations-text';
 
-const north: Organization = { id: 'org-north', name: 'North', currency: 'EGP', isActive: true };
+const north: Organization = {
+  id: 'org-north',
+  name: 'North',
+  currency: 'EGP',
+  isActive: true,
+};
 const busy: Dashboard = {
   today: { status: 'open', planned: 12, done: 7, remaining: 5, cancelled: 1 },
-  month: { done: 180, revenue: 9_000_000, expenses: 6_500_000, profit: 2_500_000 },
+  month: {
+    done: 180,
+    revenue: 9_000_000,
+    expenses: 6_500_000,
+    profit: 2_500_000,
+  },
   attention: { unopenedDays: 1, driverPay: 2, vehiclePay: 0, unpriced: 3 },
   firstUnopenedDay: '2026-10-03',
   payMonth: '2026-09',
@@ -21,7 +31,13 @@ const busy: Dashboard = {
 };
 const calm: Dashboard = {
   ...busy,
-  today: { status: 'unopened', planned: 0, done: 0, remaining: 0, cancelled: 0 },
+  today: {
+    status: 'unopened',
+    planned: 0,
+    done: 0,
+    remaining: 0,
+    cancelled: 0,
+  },
   month: { done: 10, revenue: 100_000, expenses: 400_000, profit: -300_000 },
   attention: { unopenedDays: 0, driverPay: 0, vehiclePay: 0, unpriced: 0 },
   firstUnopenedDay: null,
@@ -77,22 +93,34 @@ describe('Organizations', () => {
   });
 
   it('shows today’s trips, the month’s figures, and what needs attention', async () => {
-    const dashboard = vi.fn<OrganizationRepository['dashboard']>(async () => busy);
+    const dashboard = vi.fn<OrganizationRepository['dashboard']>(
+      async () => busy,
+    );
     const fixture = await render({ listMine: async () => [north], dashboard });
     await settle(fixture);
     await settle(fixture);
 
     const element: HTMLElement = fixture.nativeElement;
-    expect(dashboard).toHaveBeenCalledWith('org-north', expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/));
-    expect([...element.querySelectorAll('.dashboard-today dd')].map((item) => item.textContent?.trim())).toEqual([
-      '12',
-      '7',
-      '5',
-      '1',
-    ]);
-    expect(element.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('58');
-    expect(element.querySelector('.dashboard-split-legend')?.textContent).toContain('72%');
-    expect(element.querySelector('.dashboard-split-legend')?.textContent).toContain('28%');
+    expect(dashboard).toHaveBeenCalledWith(
+      'org-north',
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    );
+    expect(
+      [...element.querySelectorAll('.dashboard-today dd')].map((item) =>
+        item.textContent?.trim(),
+      ),
+    ).toEqual(['12', '7', '5', '1']);
+    expect(
+      element
+        .querySelector('[role="progressbar"]')
+        ?.getAttribute('aria-valuenow'),
+    ).toBe('58');
+    expect(
+      element.querySelector('.dashboard-split-legend')?.textContent,
+    ).toContain('72%');
+    expect(
+      element.querySelector('.dashboard-split-legend')?.textContent,
+    ).toContain('28%');
     expect(text(fixture)).toContain('90,000.00');
     expect(text(fixture)).toContain('25,000.00');
     const attention = [...element.querySelectorAll('.dashboard-attention a')];
@@ -109,7 +137,10 @@ describe('Organizations', () => {
   it('guides a new company through its first customer, driver, and route', async () => {
     const fixture = await render({
       listMine: async () => [north],
-      dashboard: async () => ({ ...calm, setup: { customers: 1, drivers: 0, routes: 0 } }),
+      dashboard: async () => ({
+        ...calm,
+        setup: { customers: 1, drivers: 0, routes: 0 },
+      }),
     });
     await settle(fixture);
     await settle(fixture);
@@ -118,20 +149,30 @@ describe('Organizations', () => {
     expect(text(fixture)).toContain(arabic.setup.title);
     expect(element.querySelectorAll('.dashboard-setup-done')).toHaveLength(1);
     expect(
-      [...element.querySelectorAll('.dashboard-setup a')].map((link) => link.getAttribute('href')),
-    ).toEqual(['/organizations/org-north/drivers', '/organizations/org-north/routes']);
+      [...element.querySelectorAll('.dashboard-setup a')].map((link) =>
+        link.getAttribute('href'),
+      ),
+    ).toEqual([
+      '/organizations/org-north/drivers',
+      '/organizations/org-north/routes',
+    ]);
     expect(text(fixture)).not.toContain(arabic.dashboard.allClear);
   });
 
   it('asks to open today, marks a loss, and says when everything is recorded', async () => {
-    const fixture = await render({ listMine: async () => [north], dashboard: async () => calm });
+    const fixture = await render({
+      listMine: async () => [north],
+      dashboard: async () => calm,
+    });
     await settle(fixture);
     await settle(fixture);
 
     const element: HTMLElement = fixture.nativeElement;
     expect(text(fixture)).toContain(arabic.dashboard.unopenedTitle);
     expect(text(fixture)).toContain(arabic.dashboard.loss);
-    expect(element.querySelector('.ro-stat[data-tone="danger"]')).toBeTruthy();
+    expect(
+      element.querySelector('.dashboard-figure[data-tone="danger"]'),
+    ).toBeTruthy();
     expect(text(fixture)).toContain(arabic.dashboard.splitOver);
     expect(text(fixture)).toContain(arabic.dashboard.allClear);
   });
@@ -157,7 +198,12 @@ describe('Organizations', () => {
   });
 
   it('lets a member of two companies choose which one to open', async () => {
-    const south: Organization = { id: 'org-south', name: 'South', currency: 'EGP', isActive: true };
+    const south: Organization = {
+      id: 'org-south',
+      name: 'South',
+      currency: 'EGP',
+      isActive: true,
+    };
     const fixture = await render({ listMine: async () => [north, south] });
     await settle(fixture);
 
@@ -171,7 +217,9 @@ describe('Organizations', () => {
 
     expect(text(fixture)).toContain(`${arabic.home.welcome} South`);
     expect(southButton.getAttribute('aria-pressed')).toBe('true');
-    expect(element.querySelector('a[href="/organizations/org-south/routes"]')).toBeTruthy();
+    expect(
+      element.querySelector('a[href="/organizations/org-south/routes"]'),
+    ).toBeTruthy();
   });
 
   it('shows an empty state when the account has no organization', async () => {
@@ -216,12 +264,15 @@ describe('Organizations', () => {
     fill(password, 'secret1');
     currency.value = 'SAR';
     currency.dispatchEvent(new Event('input'));
-    const timeZone = element.querySelectorAll('app-provision-company select')[1] as HTMLSelectElement;
+    const timeZone = element.querySelectorAll(
+      'app-provision-company select',
+    )[1] as HTMLSelectElement;
     expect(timeZone.value).toBe('Africa/Cairo');
     timeZone.value = 'Asia/Riyadh';
     timeZone.dispatchEvent(new Event('input'));
-    (element.querySelector('app-provision-company form') as HTMLFormElement)
-      .dispatchEvent(new Event('submit'));
+    (
+      element.querySelector('app-provision-company form') as HTMLFormElement
+    ).dispatchEvent(new Event('submit'));
     await settle(fixture);
 
     expect(provisionCompany).toHaveBeenCalledWith({
@@ -271,13 +322,16 @@ describe('Organizations', () => {
     fill(name, 'Gulf Transport');
     fill(email, 'gulf@example.com');
     fill(password, 'secret1');
-    (element.querySelector('app-provision-company form') as HTMLFormElement)
-      .dispatchEvent(new Event('submit'));
+    (
+      element.querySelector('app-provision-company form') as HTMLFormElement
+    ).dispatchEvent(new Event('submit'));
     await settle(fixture);
     await settle(fixture);
 
     expect(accountRows(fixture)[0]).toContain('Gulf Transport');
-    expect(payments(fixture).textContent).not.toContain(arabic.payments.noCompanies);
+    expect(payments(fixture).textContent).not.toContain(
+      arabic.payments.noCompanies,
+    );
   });
 
   it('shows a safe error when the company accounts cannot load and tries again', async () => {
@@ -434,8 +488,12 @@ describe('Organizations', () => {
     });
     expect(payments(fixture).textContent).toContain(arabic.payments.recorded);
     expect(payments(fixture).textContent).toContain('400.00');
-    expect(paymentRows(fixture, 'payments-month')[0]).toContain('Gulf Transport');
-    expect(paymentRows(fixture, 'payments-companies')[0]).toContain('Gulf Transport');
+    expect(paymentRows(fixture, 'payments-month')[0]).toContain(
+      'Gulf Transport',
+    );
+    expect(paymentRows(fixture, 'payments-companies')[0]).toContain(
+      'Gulf Transport',
+    );
   });
 
   it('shows each payment of the month and deletes one only after a second press', async () => {
@@ -449,7 +507,9 @@ describe('Organizations', () => {
       removeSubscriptionPayment,
     });
     await settle(fixture);
-    expect(paymentRows(fixture, 'payments-month')[0]).toContain('Bank transfer');
+    expect(paymentRows(fixture, 'payments-month')[0]).toContain(
+      'Bank transfer',
+    );
 
     paymentsButton(fixture, arabic.payments.remove).click();
     await settle(fixture);
@@ -474,8 +534,12 @@ describe('Organizations', () => {
     paymentsButton(fixture, arabic.payments.previous).click();
     await settle(fixture);
 
-    expect(payments(fixture).textContent).toContain(arabic.payments.noMonthPayments);
-    expect(paymentRows(fixture, 'payments-companies')[0]).toContain('Gulf Transport');
+    expect(payments(fixture).textContent).toContain(
+      arabic.payments.noMonthPayments,
+    );
+    expect(paymentRows(fixture, 'payments-companies')[0]).toContain(
+      'Gulf Transport',
+    );
   });
 
   it('shows a safe error when the payments cannot load and tries again', async () => {
@@ -489,7 +553,9 @@ describe('Organizations', () => {
       listSubscriptionPayments,
     });
     await settle(fixture);
-    expect(payments(fixture).textContent).toContain(arabic.payments.problems.load);
+    expect(payments(fixture).textContent).toContain(
+      arabic.payments.problems.load,
+    );
 
     paymentsButton(fixture, arabic.payments.retry).click();
     await settle(fixture);
@@ -499,7 +565,10 @@ describe('Organizations', () => {
 
   it('does not load subscription payments for a company login', async () => {
     const listSubscriptionPayments = vi.fn(async () => [gulfPayment]);
-    const fixture = await render({ listMine: async () => [north], listSubscriptionPayments });
+    const fixture = await render({
+      listMine: async () => [north],
+      listSubscriptionPayments,
+    });
     await settle(fixture);
 
     expect(listSubscriptionPayments).not.toHaveBeenCalled();
@@ -515,13 +584,18 @@ describe('Organizations', () => {
     const element: HTMLElement = fixture.nativeElement;
     expect(text(fixture)).toContain(arabic.home.suspendedTitle);
     expect(text(fixture)).toContain(arabic.home.suspended);
-    expect(element.querySelector('a[href="/organizations/org-north/routes"]')).toBeNull();
+    expect(
+      element.querySelector('a[href="/organizations/org-north/routes"]'),
+    ).toBeNull();
     expect(element.querySelector('.dashboard-today')).toBeNull();
   });
 
   it('does not list company accounts for a company login', async () => {
     const listCompanyAccounts = vi.fn(async () => [gulf]);
-    const fixture = await render({ listMine: async () => [north], listCompanyAccounts });
+    const fixture = await render({
+      listMine: async () => [north],
+      listCompanyAccounts,
+    });
     await settle(fixture);
 
     expect(listCompanyAccounts).not.toHaveBeenCalled();
@@ -597,7 +671,9 @@ function accountButton(
 ): HTMLButtonElement {
   const element: HTMLElement = fixture.nativeElement;
   return [
-    ...element.querySelectorAll<HTMLButtonElement>('app-company-accounts tbody button'),
+    ...element.querySelectorAll<HTMLButtonElement>(
+      'app-company-accounts tbody button',
+    ),
   ].find((button) => button.textContent?.trim() === label)!;
 }
 
@@ -609,19 +685,24 @@ function accountRows(fixture: ComponentFixture<Organizations>): string[] {
 }
 
 function payments(fixture: ComponentFixture<Organizations>): HTMLElement {
-  return (fixture.nativeElement as HTMLElement).querySelector('app-subscription-payments')!;
+  return (fixture.nativeElement as HTMLElement).querySelector(
+    'app-subscription-payments',
+  )!;
 }
 
 function paymentsButton(
   fixture: ComponentFixture<Organizations>,
   label: string,
 ): HTMLButtonElement {
-  return [...payments(fixture).querySelectorAll<HTMLButtonElement>('button')].find(
-    (button) => button.textContent?.trim() === label,
-  )!;
+  return [
+    ...payments(fixture).querySelectorAll<HTMLButtonElement>('button'),
+  ].find((button) => button.textContent?.trim() === label)!;
 }
 
-function paymentRows(fixture: ComponentFixture<Organizations>, table: string): string[] {
+function paymentRows(
+  fixture: ComponentFixture<Organizations>,
+  table: string,
+): string[] {
   return [...payments(fixture).querySelectorAll(`.${table} tbody tr`)].map(
     (row) => row.textContent ?? '',
   );
