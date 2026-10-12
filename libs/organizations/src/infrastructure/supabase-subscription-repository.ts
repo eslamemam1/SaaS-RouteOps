@@ -131,29 +131,30 @@ export class SupabaseSubscriptionRepository extends SubscriptionRepository {
     account: CompanyAccount,
     details: SubscriptionDetails,
   ): Promise<OrganizationSubscription> {
-    const months = Number(details.months);
-    const limit = vehicleLimit(details.vehicleLimit);
-    const price = toMinorUnits(details.price, account.currency);
-    if (!isSubscriptionMonths(months)) {
-      throw new SubscriptionError('months');
-    }
-    if (limit === undefined) {
-      throw new SubscriptionError('vehicleLimit');
-    }
-    if (typeof price !== 'number' || price <= 0) {
-      throw new SubscriptionError('price');
-    }
     const { data, error } = await this.requireClient()
       .from('organization_subscriptions')
       .insert({
         organization_id: account.id,
-        plan_id: details.planId,
-        months,
-        starts_on: details.startsOn,
-        vehicle_limit: limit,
-        price,
-        note: details.note.trim() || null,
+        ...subscriptionChanges(account, details),
       })
+      .select(subscriptionColumns)
+      .single();
+    if (error || !data) {
+      throw new SubscriptionError(problemOf(error));
+    }
+    return toSubscription(data);
+  }
+
+  async updateSubscription(
+    subscriptionId: string,
+    account: CompanyAccount,
+    details: SubscriptionDetails,
+  ): Promise<OrganizationSubscription> {
+    const { data, error } = await this.requireClient()
+      .from('organization_subscriptions')
+      .update(subscriptionChanges(account, details))
+      .eq('id', subscriptionId)
+      .eq('organization_id', account.id)
       .select(subscriptionColumns)
       .single();
     if (error || !data) {
@@ -193,6 +194,32 @@ export class SupabaseSubscriptionRepository extends SubscriptionRepository {
     }
     return this.client;
   }
+}
+
+function subscriptionChanges(
+  account: CompanyAccount,
+  details: SubscriptionDetails,
+) {
+  const months = Number(details.months);
+  const limit = vehicleLimit(details.vehicleLimit);
+  const price = toMinorUnits(details.price, account.currency);
+  if (!isSubscriptionMonths(months)) {
+    throw new SubscriptionError('months');
+  }
+  if (limit === undefined) {
+    throw new SubscriptionError('vehicleLimit');
+  }
+  if (typeof price !== 'number' || price <= 0) {
+    throw new SubscriptionError('price');
+  }
+  return {
+    plan_id: details.planId,
+    months,
+    starts_on: details.startsOn,
+    vehicle_limit: limit,
+    price,
+    note: details.note.trim() || null,
+  };
 }
 
 function problemOf(error: PostgrestError | null) {

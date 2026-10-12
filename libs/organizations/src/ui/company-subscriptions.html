@@ -123,13 +123,20 @@
                     </app-tag>
                   </td>
                   <td>
-                    <button appButton="text" size="sm" type="button" (click)="add(company)">
-                      {{
-                        company.current || company.next
-                          ? text().subscriptions.renew
-                          : text().subscriptions.add
-                      }}
-                    </button>
+                    <div class="ro-toolbar">
+                      <button appButton="text" size="sm" type="button" (click)="add(company)">
+                        {{
+                          company.current || company.next
+                            ? text().subscriptions.renew
+                            : text().subscriptions.add
+                        }}
+                      </button>
+                      @if (company.current ?? company.next; as shown) {
+                        <button appButton="text" size="sm" type="button" (click)="edit(shown)">
+                          {{ text().subscriptions.edit }}
+                        </button>
+                      }
+                    </div>
                   </td>
                 </tr>
               }
@@ -188,19 +195,29 @@
                       }
                     </td>
                     <td>
-                      <button
-                        type="button"
-                        size="sm"
-                        [appButton]="confirming() === subscription.id ? 'danger' : 'text'"
-                        [disabled]="removing() !== null"
-                        (click)="remove(subscription)"
-                      >
-                        {{
-                          confirming() === subscription.id
-                            ? text().subscriptions.confirmRemove
-                            : text().subscriptions.remove
-                        }}
-                      </button>
+                      <div class="ro-toolbar">
+                        <button
+                          appButton="text"
+                          size="sm"
+                          type="button"
+                          (click)="edit(subscription)"
+                        >
+                          {{ text().subscriptions.edit }}
+                        </button>
+                        <button
+                          type="button"
+                          size="sm"
+                          [appButton]="confirming() === subscription.id ? 'danger' : 'text'"
+                          [disabled]="removing() !== null"
+                          (click)="remove(subscription)"
+                        >
+                          {{
+                            confirming() === subscription.id
+                              ? text().subscriptions.confirmRemove
+                              : text().subscriptions.remove
+                          }}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 }
@@ -215,7 +232,7 @@
 </section>
 
 <app-form-drawer
-  [title]="text().subscriptions.formTitle"
+  [title]="editing() ? text().subscriptions.editTitle : text().subscriptions.formTitle"
   [open]="formOpen()"
   (openChange)="formOpen.set($event)"
 >
@@ -225,6 +242,7 @@
       [plans]="plans()"
       [periods]="periods()"
       [details]="formDetails()"
+      [subscriptionId]="editing()?.id ?? null"
       (saved)="recorded($event)"
       (cancelled)="formOpen.set(false)"
     />

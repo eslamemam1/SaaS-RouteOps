@@ -1,5 +1,9 @@
 <form class="ro-form" (submit)="onSubmit($event)">
-  <app-field [label]="text().subscriptions.company" [control]="subscriptionForm.organizationId">
+  <app-field
+    [label]="text().subscriptions.company"
+    [hint]="editing() ? text().subscriptions.companyFixed : ''"
+    [control]="subscriptionForm.organizationId"
+  >
     <app-select [formField]="subscriptionForm.organizationId">
       <app-option value="" [label]="text().subscriptions.chooseCompany" />
       @for (company of companies(); track company.account.id) {
@@ -113,7 +117,7 @@
   }
   <div class="ro-toolbar">
     <button appButton type="submit" [disabled]="busy()">
-      {{ text().subscriptions.submit }}
+      {{ editing() ? text().subscriptions.saveChanges : text().subscriptions.submit }}
     </button>
     <button appButton="secondary" type="button" (click)="cancelled.emit()">
       {{ text().subscriptions.cancel }}

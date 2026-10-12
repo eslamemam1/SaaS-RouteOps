@@ -217,6 +217,59 @@ describe('CompanySubscriptions', () => {
     );
   });
 
+  it('corrects a subscription and keeps its agreed price until its period changes', async () => {
+    const agreed = { ...nileSubscription, vehicleLimit: 8, price: 180_000 };
+    const updateSubscription = vi.fn<
+      SubscriptionRepository['updateSubscription']
+    >(async (id, _account, details) => ({
+      ...agreed,
+      id,
+      months: 6,
+      endsOn: '2027-01-31',
+      vehicleLimit: Number(details.vehicleLimit),
+      price: 382_500,
+    }));
+    const fixture = await render(CompanySubscriptions, {
+      ...running(),
+      listSubscriptions: async () => [agreed],
+      updateSubscription,
+    });
+
+    button(fixture, arabic.subscriptions.edit).click();
+    await settle(fixture);
+    const element: HTMLElement = fixture.nativeElement;
+    const subscriptionForm = element.querySelector('app-subscription-form')!;
+    const input = (selector: string) =>
+      subscriptionForm.querySelector<HTMLInputElement>(selector)!.value;
+    expect(element.textContent).toContain(arabic.subscriptions.editTitle);
+    expect(subscriptionForm.textContent).toContain(
+      arabic.subscriptions.companyFixed,
+    );
+    expect(input('input[inputmode="decimal"]')).toBe('1800.00');
+    expect(input('input[inputmode="numeric"]')).toBe('8');
+    expect(input('input[type="date"]')).toBe('2026-08-01');
+
+    selectsIn(fixture, 'app-subscription-form')[2].value.set('6');
+    await settle(fixture);
+    expect(input('input[inputmode="decimal"]')).toBe('3825.00');
+    subscriptionForm.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+
+    expect(updateSubscription).toHaveBeenCalledWith('subscription-1', nile, {
+      organizationId: 'org-nile',
+      planId: 'plan-starter',
+      months: '6',
+      startsOn: '2026-08-01',
+      vehicleLimit: '5',
+      price: '3825.00',
+      note: '',
+    });
+    expect(element.textContent).toContain(arabic.subscriptions.updated);
+    const history = rowsOf(fixture, '.subscriptions-history');
+    expect(history).toHaveLength(1);
+    expect(history[0]).toContain(formatPrice(382_500, 'EGP', 'ar'));
+  });
+
   it('deletes a subscription only after a second press', async () => {
     const removeSubscription = vi.fn<
       SubscriptionRepository['removeSubscription']
@@ -283,6 +336,9 @@ async function render<T>(
     saveDiscounts: async () => periods,
     listSubscriptions: async () => [],
     recordSubscription: async () => {
+      throw new Error('not used');
+    },
+    updateSubscription: async () => {
       throw new Error('not used');
     },
     removeSubscription: async () => undefined,

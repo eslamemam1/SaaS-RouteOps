@@ -24,6 +24,11 @@ export abstract class SubscriptionRepository {
     account: CompanyAccount,
     details: SubscriptionDetails,
   ): Promise<OrganizationSubscription>;
+  abstract updateSubscription(
+    subscriptionId: string,
+    account: CompanyAccount,
+    details: SubscriptionDetails,
+  ): Promise<OrganizationSubscription>;
   abstract removeSubscription(subscriptionId: string): Promise<void>;
   abstract vehicleUsage(): Promise<VehicleUsage[]>;
 }

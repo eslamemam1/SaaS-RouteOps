@@ -8,7 +8,13 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { form, FormField, submit, validate } from '@angular/forms/signals';
+import {
+  disabled,
+  form,
+  FormField,
+  submit,
+  validate,
+} from '@angular/forms/signals';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
 import { toAmountText } from '@routeops/shared/money';
 import {
@@ -59,6 +65,8 @@ export class SubscriptionForm {
   readonly plans = input.required<readonly SubscriptionPlan[]>();
   readonly periods = input.required<readonly SubscriptionPeriod[]>();
   readonly details = input.required<SubscriptionDetails>();
+  // The subscription being corrected, or null for a new one.
+  readonly subscriptionId = input<string | null>(null);
   readonly saved = output<OrganizationSubscription>();
   readonly cancelled = output<void>();
 
@@ -89,12 +97,15 @@ export class SubscriptionForm {
   protected readonly currency = computed(
     () => this.company()?.account.currency ?? null,
   );
+  protected readonly editing = computed(() => this.subscriptionId() !== null);
+  // A subscription being corrected keeps its plan even if it is no longer on offer.
   protected readonly availablePlans = computed(() => {
     const currency = this.currency();
+    const kept = this.editing() ? this.details().planId : null;
     return currency === null
       ? []
       : plansIn(
-          this.plans().filter((plan) => plan.isActive),
+          this.plans().filter((plan) => plan.isActive || plan.id === kept),
           currency,
         );
   });
@@ -134,6 +145,7 @@ export class SubscriptionForm {
   });
 
   protected readonly subscriptionForm = form(this.model, (path) => {
+    disabled(path.organizationId, () => this.editing());
     validate(path.organizationId, ({ value }) =>
       this.fieldError(subscriptionCompanyError(value(), this.accounts())),
     );
@@ -162,6 +174,7 @@ export class SubscriptionForm {
   });
 
   private chosenCompany = '';
+  private keptPlan = '';
   private readonly companyChoice = computed(() => this.model().organizationId);
   private readonly planChoice = computed(
     () => `${this.model().planId}|${this.model().months}`,
@@ -172,6 +185,9 @@ export class SubscriptionForm {
       const details = this.details();
       untracked(() => {
         this.chosenCompany = details.organizationId;
+        this.keptPlan = this.editing()
+          ? `${details.planId}|${details.months}`
+          : '';
         this.subscriptionForm().reset(details);
         this.problem.set(null);
       });
@@ -180,9 +196,16 @@ export class SubscriptionForm {
       const organizationId = this.companyChoice();
       untracked(() => this.companyChanged(organizationId));
     });
+    // A corrected subscription keeps its agreed limit and price until its plan or period changes.
     effect(() => {
-      this.planChoice();
-      untracked(() => this.fillFromPlan());
+      const choice = this.planChoice();
+      untracked(() => {
+        if (choice === this.keptPlan) {
+          return;
+        }
+        this.keptPlan = '';
+        this.fillFromPlan();
+      });
     });
   }
 
@@ -217,10 +240,18 @@ export class SubscriptionForm {
       this.busy.set(true);
       this.problem.set(null);
       try {
-        const subscription = await this.repository.recordSubscription(
-          company.account,
-          this.model(),
-        );
+        const subscriptionId = this.subscriptionId();
+        const subscription =
+          subscriptionId === null
+            ? await this.repository.recordSubscription(
+                company.account,
+                this.model(),
+              )
+            : await this.repository.updateSubscription(
+                subscriptionId,
+                company.account,
+                this.model(),
+              );
         this.saved.emit(subscription);
         return undefined;
       } catch (error) {

@@ -55,7 +55,14 @@ export interface SubscriptionDatabase {
           price: number;
           note: string | null;
         };
-        Update: never;
+        Update: {
+          plan_id: string;
+          months: number;
+          starts_on: string;
+          vehicle_limit: number | null;
+          price: number;
+          note: string | null;
+        };
         Relationships: [];
       };
     };

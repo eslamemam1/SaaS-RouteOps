@@ -711,6 +711,9 @@ async function render(
     recordSubscription: async () => {
       throw new Error('not used');
     },
+    updateSubscription: async () => {
+      throw new Error('not used');
+    },
     removeSubscription: async () => undefined,
     vehicleUsage: async () => [],
     ...subscriptionOverrides,

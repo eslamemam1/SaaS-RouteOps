@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { NgIcon } from '@ng-icons/core';
 import { lucidePlus } from '@ng-icons/lucide';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
+import { toAmountText } from '@routeops/shared/money';
 import {
   formatPrice,
   planName,
@@ -68,7 +69,10 @@ export class CompanySubscriptions {
   protected readonly formDetails = signal<SubscriptionDetails>(
     emptySubscriptionDetails(this.today),
   );
-  protected readonly outcome = signal<'recorded' | 'removed' | null>(null);
+  protected readonly editing = signal<OrganizationSubscription | null>(null);
+  protected readonly outcome = signal<
+    'recorded' | 'updated' | 'removed' | null
+  >(null);
   protected readonly problem = signal<SubscriptionProblem | null>(null);
   protected readonly confirming = signal<string | null>(null);
   protected readonly removing = signal<string | null>(null);
@@ -132,6 +136,7 @@ export class CompanySubscriptions {
     this.problem.set(null);
     const last = company ? (company.next ?? company.current) : null;
     const plan = last ? this.plansById().get(last.planId) : undefined;
+    this.editing.set(null);
     this.formDetails.set({
       ...emptySubscriptionDetails(company?.today ?? this.today),
       organizationId: company?.account.id ?? '',
@@ -142,14 +147,41 @@ export class CompanySubscriptions {
     this.formOpen.set(true);
   }
 
+  protected edit(subscription: OrganizationSubscription): void {
+    const account = this.accountsById().get(subscription.organizationId);
+    if (!account) {
+      return;
+    }
+    this.outcome.set(null);
+    this.problem.set(null);
+    this.confirming.set(null);
+    this.editing.set(subscription);
+    this.formDetails.set({
+      organizationId: subscription.organizationId,
+      planId: subscription.planId,
+      months: String(subscription.months),
+      startsOn: subscription.startsOn,
+      vehicleLimit:
+        subscription.vehicleLimit === null
+          ? ''
+          : String(subscription.vehicleLimit),
+      price: toAmountText(subscription.price, account.currency),
+      note: subscription.note,
+    });
+    this.formOpen.set(true);
+  }
+
   protected recorded(subscription: OrganizationSubscription): void {
+    const corrected = this.editing() !== null;
     this.subscriptions.update((subscriptions) =>
-      [subscription, ...subscriptions].sort((a, b) =>
-        b.startsOn.localeCompare(a.startsOn),
-      ),
+      [
+        subscription,
+        ...subscriptions.filter((item) => item.id !== subscription.id),
+      ].sort((a, b) => b.startsOn.localeCompare(a.startsOn)),
     );
     this.formOpen.set(false);
-    this.outcome.set('recorded');
+    this.editing.set(null);
+    this.outcome.set(corrected ? 'updated' : 'recorded');
   }
 
   protected async remove(

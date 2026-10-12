@@ -232,13 +232,18 @@ export interface OrganizationsText {
     readonly atLimit: string;
     readonly add: string;
     readonly renew: string;
+    readonly edit: string;
     readonly historyTitle: string;
     readonly historyHint: string;
     readonly remove: string;
     readonly confirmRemove: string;
     readonly recorded: string;
+    readonly updated: string;
     readonly removed: string;
     readonly formTitle: string;
+    readonly editTitle: string;
+    readonly saveChanges: string;
+    readonly companyFixed: string;
     readonly chooseCompany: string;
     readonly choosePlan: string;
     readonly planHint: string;
@@ -589,13 +594,20 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       atLimit: 'وصلت للحد',
       add: 'اشتراك جديد',
       renew: 'تجديد',
+      edit: 'تعديل',
       historyTitle: 'كل الاشتراكات',
-      historyHint: 'الاشتراك المسجل بالخطأ يُحذف ثم يُسجل من جديد.',
+      historyHint:
+        'عدّل الاشتراك المسجل بخطأ في الباقة أو المدة أو السعر، واحذفه إذا سُجّل لشركة أخرى.',
       remove: 'حذف',
       confirmRemove: 'تأكيد الحذف',
       recorded: 'تم تسجيل الاشتراك.',
+      updated: 'تم حفظ تعديل الاشتراك.',
       removed: 'تم حذف الاشتراك.',
       formTitle: 'اشتراك جديد',
+      editTitle: 'تعديل الاشتراك',
+      saveChanges: 'حفظ التعديل',
+      companyFixed:
+        'لا يمكن تغيير شركة الاشتراك. إذا سُجّل لشركة أخرى فاحذفه وسجّله من جديد.',
       chooseCompany: 'اختر الشركة',
       choosePlan: 'اختر الباقة',
       planHint: 'الباقات المعروضة بعملة الشركة فقط.',
@@ -979,14 +991,20 @@ export const organizationsText: Record<Language, OrganizationsText> = {
       atLimit: 'At the limit',
       add: 'New subscription',
       renew: 'Renew',
+      edit: 'Edit',
       historyTitle: 'All subscriptions',
       historyHint:
-        'A subscription recorded by mistake is deleted and recorded again.',
+        'Edit a subscription recorded with the wrong plan, period, or price, and delete it if it was recorded for another company.',
       remove: 'Delete',
       confirmRemove: 'Confirm delete',
       recorded: 'The subscription was recorded.',
+      updated: 'The subscription changes were saved.',
       removed: 'The subscription was deleted.',
       formTitle: 'New subscription',
+      editTitle: 'Edit subscription',
+      saveChanges: 'Save changes',
+      companyFixed:
+        "A subscription's company cannot be changed. If it was recorded for another company, delete it and record it again.",
       chooseCompany: 'Choose the company',
       choosePlan: 'Choose the plan',
       planHint: "Only plans on offer in the company's currency.",
