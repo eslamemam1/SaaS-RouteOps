@@ -247,15 +247,68 @@ select throws_ok(
   '23514', null,
   'a trip cannot be done and cancelled at once'
 );
-select is_empty(
-  $$delete from public.daily_trips
-    where id = (tests.trip('14000000-0000-0000-0000-000000000001', tests.sunday(2), 'return')).id
-    returning id$$,
-  'a member cannot delete a trip of a route; it is cancelled instead'
+-- Deleting a route trip records an omission so prepare does not put it back.
+select lives_ok(
+  $$update public.daily_trips set is_done = true
+    where id = (tests.trip('14000000-0000-0000-0000-000000000001', tests.sunday(-1), 'outbound')).id$$,
+  'a past trip may be marked done before it is deleted'
+);
+select lives_ok(
+  $$select public.remove_daily_trip(
+      '10000000-0000-0000-0000-000000000001',
+      (tests.trip('14000000-0000-0000-0000-000000000001', tests.sunday(-1), 'outbound')).id
+    )$$,
+  'a member deletes a done route trip from a past day'
 );
 select is_empty(
-  $$delete from public.daily_trips where service_date = tests.sunday(-1) returning id$$,
-  'a member cannot delete past trips'
+  $$select 1 from public.daily_trips
+    where route_id = '14000000-0000-0000-0000-000000000001'
+      and service_date = tests.sunday(-1)
+      and direction = 'outbound'
+      and not is_extra$$,
+  'the deleted past trip is gone'
+);
+select isnt_empty(
+  $$select 1 from public.daily_trip_omissions
+    where route_id = '14000000-0000-0000-0000-000000000001'
+      and service_date = tests.sunday(-1)
+      and direction = 'outbound'$$,
+  'deleting a route trip records an omission'
+);
+select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', tests.sunday(2));
+select lives_ok(
+  $$select public.remove_daily_trip(
+      '10000000-0000-0000-0000-000000000001',
+      (tests.trip('14000000-0000-0000-0000-000000000001', tests.sunday(2), 'return')).id
+    )$$,
+  'a member deletes a coming route trip'
+);
+select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', tests.sunday(2));
+select is_empty(
+  $$select 1 from public.daily_trips
+    where route_id = '14000000-0000-0000-0000-000000000001'
+      and service_date = tests.sunday(2)
+      and direction = 'return'
+      and not is_extra$$,
+  'preparing the day again does not restore a deleted route trip'
+);
+select is(
+  (select public.add_route_trips(
+     '10000000-0000-0000-0000-000000000001',
+     array['14000000-0000-0000-0000-000000000001']::uuid[],
+     tests.sunday(-1),
+     tests.sunday(-1)
+   )),
+  1,
+  'add_route_trips puts a deleted past trip back after clearing its omission'
+);
+select isnt_empty(
+  $$select 1 from public.daily_trips
+    where route_id = '14000000-0000-0000-0000-000000000001'
+      and service_date = tests.sunday(-1)
+      and direction = 'outbound'
+      and not is_extra$$,
+  'the restored past trip is on the day again'
 );
 
 -- A holiday for one client company.

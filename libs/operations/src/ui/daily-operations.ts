@@ -388,7 +388,7 @@ export class DailyOperations {
 
   protected async remove(trip: DailyTrip): Promise<void> {
     const organization = this.organization();
-    if (!organization || !trip.extra) {
+    if (!organization) {
       return;
     }
     if (this.confirmingRemoveId() !== trip.id) {
@@ -398,7 +398,7 @@ export class DailyOperations {
     this.markingTripId.set(trip.id);
     this.actionProblem.set(null);
     try {
-      await this.repository.removeExtraTrip(organization, trip.id);
+      await this.repository.removeTrip(organization, trip.id);
       const trips = this.trips().filter((item) => item.id !== trip.id);
       this.trips.set(trips);
       if (this.editing()?.id === trip.id) {

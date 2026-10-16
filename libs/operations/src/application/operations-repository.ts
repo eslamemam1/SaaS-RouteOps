@@ -44,8 +44,9 @@ export abstract class OperationsRepository {
     serviceDate: string,
     details: ExtraTripDetails,
   ): Promise<DailyTrip>;
-  // Removes only an extra trip; the trips of the routes are cancelled instead.
-  abstract removeExtraTrip(
+  // Removes a trip from the day as if it was never there, including a route
+  // trip that was marked done by mistake.
+  abstract removeTrip(
     organization: OperationsOrganization,
     tripId: string,
   ): Promise<void>;

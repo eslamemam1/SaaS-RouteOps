@@ -192,25 +192,28 @@ describe('SupabaseOperationsGateway', () => {
     expect(trip).toMatchObject({ routeId: '', extra: true });
   });
 
-  it('deletes only an extra trip of the organization', async () => {
-    const calls = recorder(() => ({ data: [{ id: 'trip-9' }], error: null }));
+  it('deletes a trip of the organization through remove_daily_trip', async () => {
+    const calls = recorder(() => ({ data: null, error: null }));
     const gateway = new SupabaseOperationsGateway(calls.client);
 
-    await gateway.deleteExtraTrip('org-north', 'trip-9');
+    await gateway.deleteTrip('org-north', 'trip-9');
 
-    expect(calls.deleted).toBe(true);
-    expect(calls.filters).toEqual([
-      ['id', 'trip-9'],
-      ['organization_id', 'org-north'],
-      ['is_extra', true],
+    expect(calls.rpc).toEqual([
+      [
+        'remove_daily_trip',
+        { p_organization_id: 'org-north', p_trip_id: 'trip-9' },
+      ],
     ]);
   });
 
-  it('reports a failure when no extra trip was deleted', async () => {
-    const calls = recorder(() => ({ data: [], error: null }));
+  it('reports a failure when remove_daily_trip fails', async () => {
+    const calls = recorder(() => ({
+      data: null,
+      error: { message: 'not_found' },
+    }));
     const gateway = new SupabaseOperationsGateway(calls.client);
 
-    await expect(gateway.deleteExtraTrip('org-north', 'trip-1')).rejects.toEqual(
+    await expect(gateway.deleteTrip('org-north', 'trip-1')).rejects.toEqual(
       new OperationsAccessError('save'),
     );
   });

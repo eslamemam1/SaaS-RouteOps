@@ -331,24 +331,23 @@ describe('DailyOperations', () => {
     expect(rows(harness)[0].textContent).toContain(arabic.day.extra);
   });
 
-  it('deletes an extra trip only after confirming', async () => {
-    const extra: DailyTrip = { ...outbound, id: 'trip-9', extra: true };
-    const removeExtraTrip = vi.fn(async () => undefined);
+  it('deletes a trip only after confirming', async () => {
+    const removeTrip = vi.fn(async () => undefined);
     const harness = await open({
-      day: async () => [outbound, extra],
-      removeExtraTrip,
+      day: async () => [outbound],
+      removeTrip,
     });
     await settle(harness);
     expect(buttons(harness, arabic.day.remove)).toHaveLength(1);
 
     button(harness, arabic.day.remove)?.click();
     await settle(harness);
-    expect(removeExtraTrip).not.toHaveBeenCalled();
+    expect(removeTrip).not.toHaveBeenCalled();
 
     button(harness, arabic.day.confirmRemove)?.click();
     await settle(harness);
-    expect(removeExtraTrip).toHaveBeenCalledWith(north, 'trip-9');
-    expect(rows(harness)).toHaveLength(1);
+    expect(removeTrip).toHaveBeenCalledWith(north, 'trip-1');
+    expect(text(harness)).toContain(arabic.day.empty);
   });
 
   it('changes a trip for one day from its form and closes the form', async () => {
@@ -545,7 +544,7 @@ async function open(overrides: Partial<OperationsRepository>) {
     changeTrip: async () => outbound,
     markDone: async () => outbound,
     addExtraTrip: async () => outbound,
-    removeExtraTrip: async () => undefined,
+    removeTrip: async () => undefined,
     cancelForHoliday: async () => [],
     addRouteTrips: async () => 0,
     ...overrides,

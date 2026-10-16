@@ -182,7 +182,7 @@ function fakeGateway(
     updateTrip: vi.fn(),
     updateDone: vi.fn(),
     insertExtraTrip: vi.fn(),
-    deleteExtraTrip: vi.fn(async () => undefined),
+    deleteTrip: vi.fn(async () => undefined),
     cancelCustomerTrips: vi.fn(async () => undefined),
     addRouteTrips: vi.fn(async () => 6),
   };

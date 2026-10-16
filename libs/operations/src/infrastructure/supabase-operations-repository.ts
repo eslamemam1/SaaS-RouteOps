@@ -102,11 +102,11 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     );
   }
 
-  removeExtraTrip(
+  removeTrip(
     organization: OperationsOrganization,
     tripId: string,
   ): Promise<void> {
-    return this.gateway.deleteExtraTrip(organization.id, tripId);
+    return this.gateway.deleteTrip(organization.id, tripId);
   }
 
   async cancelForHoliday(

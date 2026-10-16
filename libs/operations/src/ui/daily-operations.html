@@ -366,7 +366,6 @@
                 <ng-icon [svg]="icons.change" aria-hidden="true" />
                 <span class="ro-action-label">{{ text().day.change }}</span>
               </button>
-              @if (trip.extra) {
               <button
                 class="ro-action-remove"
                 size="sm"
@@ -390,7 +389,6 @@
                   {{ confirmingRemoveId() === trip.id ? text().day.confirmRemove : text().day.remove }}
                 </span>
               </button>
-              }
               </div>
             </td>
           </tr>

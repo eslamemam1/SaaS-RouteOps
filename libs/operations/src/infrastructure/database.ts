@@ -187,6 +187,10 @@ export type Database = {
         Args: { p_organization_id: string; p_service_date: string }
         Returns: undefined
       }
+      remove_daily_trip: {
+        Args: { p_organization_id: string; p_trip_id: string }
+        Returns: undefined
+      }
       set_trip_recording: {
         Args: { p_organization_id: string; p_trip_recording: string }
         Returns: undefined

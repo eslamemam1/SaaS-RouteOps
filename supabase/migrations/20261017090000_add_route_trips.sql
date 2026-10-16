@@ -4,7 +4,7 @@
 -- opened first and then gets the chosen routes' trips on the weekdays each
 -- route runs, at the route's current driver, vehicle, and price. Trips the day
 -- already has stay as they are.
-create function public.add_route_trips(
+create or replace function public.add_route_trips(
   p_organization_id uuid,
   p_route_ids uuid[],
   p_from date,
@@ -34,6 +34,12 @@ begin
   for v_day in
     select day::date from generate_series(p_from, p_to, interval '1 day') as day
   loop
+    -- Cleared when daily_trip_omissions exists (delete_daily_trips); no-op before that.
+    delete from public.daily_trip_omissions as omitted
+    where omitted.organization_id = p_organization_id
+      and omitted.route_id = any (p_route_ids)
+      and omitted.service_date = v_day;
+
     perform public.prepare_daily_trips(p_organization_id, v_day);
 
     insert into public.daily_trips (

@@ -47,7 +47,7 @@ export interface OperationsGateway {
     details: ExtraTripDetails,
     tripPrice: number | null,
   ): Promise<DailyTrip>;
-  deleteExtraTrip(organizationId: string, tripId: string): Promise<void>;
+  deleteTrip(organizationId: string, tripId: string): Promise<void>;
   cancelCustomerTrips(
     organizationId: string,
     serviceDate: string,
@@ -311,15 +311,12 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     return toTrip(data);
   }
 
-  async deleteExtraTrip(organizationId: string, tripId: string): Promise<void> {
-    const { data, error } = await this.requireClient()
-      .from('daily_trips')
-      .delete()
-      .eq('id', tripId)
-      .eq('organization_id', organizationId)
-      .eq('is_extra', true)
-      .select('id');
-    if (error || !data || data.length === 0) {
+  async deleteTrip(organizationId: string, tripId: string): Promise<void> {
+    const { error } = await this.requireClient().rpc('remove_daily_trip', {
+      p_organization_id: organizationId,
+      p_trip_id: tripId,
+    });
+    if (error) {
       throw new OperationsAccessError('save');
     }
   }
