@@ -380,6 +380,26 @@
       }
       @if (invoiceStatus() === 'success') {
         <p class="hint">{{ text().report.countedHint }}</p>
+        <div class="ro-toolbar reports-invoice-actions">
+          <button
+            appButton="secondary"
+            type="button"
+            data-action="download-excel"
+            (click)="downloadExcel()"
+          >
+            <ng-icon [svg]="icons.excel" aria-hidden="true" />
+            {{ text().invoice.downloadExcel }}
+          </button>
+          <button
+            appButton="secondary"
+            type="button"
+            data-action="download-pdf"
+            (click)="downloadPdf()"
+          >
+            <ng-icon [svg]="icons.pdf" aria-hidden="true" />
+            {{ text().invoice.downloadPdf }}
+          </button>
+        </div>
         <section class="ro-card">
           <div class="ro-table-scroll">
             <table class="ro-table-stack" data-table="invoice">

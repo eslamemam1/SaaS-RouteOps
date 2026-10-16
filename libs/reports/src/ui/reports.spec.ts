@@ -272,6 +272,12 @@ describe('Reports', () => {
     expect(text(harness)).toContain(formatMoney(600000, 'EGP', 'ar'));
     expect(text(harness)).toContain(arabic.invoice.grandTotal);
     expect(text(harness)).toContain(arabic.report.unopenedTitle);
+    expect(
+      harness.routeNativeElement!.querySelector('[data-action="download-excel"]'),
+    ).toBeTruthy();
+    expect(
+      harness.routeNativeElement!.querySelector('[data-action="download-pdf"]'),
+    ).toBeTruthy();
 
     harness.routeNativeElement!.querySelector<HTMLButtonElement>(
       '[data-days="lastMonth"]',

@@ -79,6 +79,8 @@ export interface ReportsText {
     readonly empty: string;
     readonly pickCustomer: string;
     readonly grandTotal: string;
+    readonly downloadExcel: string;
+    readonly downloadPdf: string;
   };
 }
 
@@ -187,6 +189,8 @@ export const reportsText: Record<Language, ReportsText> = {
       empty: 'لا توجد رحلات تمّت لهذه الشركة في هذه الفترة.',
       pickCustomer: 'اختر شركة متعاقدة لعرض فاتورتها.',
       grandTotal: 'الإجمالي الكلي',
+      downloadExcel: 'تحميل Excel',
+      downloadPdf: 'تحميل PDF',
     },
   },
   en: {
@@ -293,6 +297,8 @@ export const reportsText: Record<Language, ReportsText> = {
       empty: 'No trips were done for this company in this period.',
       pickCustomer: 'Choose a client company to show its invoice.',
       grandTotal: 'Grand total',
+      downloadExcel: 'Download Excel',
+      downloadPdf: 'Download PDF',
     },
   },
 };

@@ -4,6 +4,8 @@ import { NgIcon } from '@ng-icons/core';
 import {
   lucideCircleCheck,
   lucideCirclePlus,
+  lucideFileSpreadsheet,
+  lucidePrinter,
   lucideReceipt,
   lucideTrendingUp,
   lucideWallet,
@@ -49,6 +51,14 @@ import {
   TripCount,
   VehicleType,
 } from '../domain/trip-report';
+import {
+  downloadTextFile,
+  invoiceExcelCsv,
+  invoiceExcelFileName,
+  InvoiceExportLabels,
+  invoicePrintHtml,
+  openInvoicePdf,
+} from './invoice-export';
 import { reportsText } from './reports-text';
 
 const noChoices: ReportChoices = {
@@ -98,6 +108,10 @@ export class Reports {
 
   protected readonly text = injectText(reportsText);
   private readonly language = inject(LanguageService).language;
+  protected readonly icons = {
+    excel: lucideFileSpreadsheet,
+    pdf: lucidePrinter,
+  };
   protected readonly today = localDate(new Date());
   protected readonly thisMonth = monthOf(this.today);
   protected readonly month = signal(this.thisMonth);
@@ -301,6 +315,80 @@ export class Reports {
     this.invoiceFrom.set(days.from);
     this.invoiceTo.set(days.to);
     void this.loadInvoice();
+  }
+
+  protected downloadExcel(): void {
+    const meta = this.exportMeta();
+    if (!meta || this.invoiceLines().length === 0) {
+      return;
+    }
+    const labels = this.exportLabels();
+    const csv = invoiceExcelCsv(
+      this.invoiceLines(),
+      labels,
+      meta,
+      (line) => this.routeLabel(line),
+      (line) => this.vehicleTypeLabel(line.vehicleType),
+    );
+    downloadTextFile(
+      invoiceExcelFileName(meta),
+      csv,
+      'text/csv;charset=utf-8',
+    );
+  }
+
+  protected downloadPdf(): void {
+    const meta = this.exportMeta();
+    if (!meta || this.invoiceLines().length === 0) {
+      return;
+    }
+    openInvoicePdf(
+      invoicePrintHtml(
+        this.invoiceLines(),
+        this.exportLabels(),
+        meta,
+        (line) => this.routeLabel(line),
+        (line) => this.vehicleTypeLabel(line.vehicleType),
+        (minor) => this.money(minor),
+      ),
+    );
+  }
+
+  private exportLabels(): InvoiceExportLabels {
+    const invoice = this.text().invoice;
+    return {
+      title: invoice.title,
+      customer: invoice.customer,
+      from: invoice.from,
+      to: invoice.to,
+      serial: invoice.serial,
+      route: invoice.route,
+      vehicleType: invoice.vehicleType,
+      trips: invoice.trips,
+      rate: invoice.rate,
+      lineTotal: invoice.lineTotal,
+      grandTotal: invoice.grandTotal,
+      noRate: invoice.noRate,
+    };
+  }
+
+  private exportMeta() {
+    const organization = this.organization();
+    const customer = this.choices().customers.find(
+      (choice) => choice.id === this.customerId(),
+    );
+    if (!organization || !customer) {
+      return null;
+    }
+    return {
+      customerName: customer.label,
+      from: this.invoiceFrom(),
+      to: this.invoiceTo(),
+      fromLabel: this.day(this.invoiceFrom()),
+      toLabel: this.day(this.invoiceTo()),
+      currency: organization.currency,
+      language: this.language(),
+    };
   }
 
   private async load(): Promise<void> {
