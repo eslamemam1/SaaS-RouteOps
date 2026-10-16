@@ -68,6 +68,7 @@ export interface DriverGateway {
     path: string | null,
   ): Promise<Driver>;
   deletePhoto(path: string): Promise<void>;
+  deleteDriver(organizationId: string, driverId: string): Promise<void>;
 }
 
 type DriverRow = Pick<
@@ -98,6 +99,8 @@ const photoCacheSeconds = String(60 * 60 * 24 * 365);
 const uniqueViolation = '23505';
 // Raised by the database when an active route still uses the driver.
 const activeRoutes = 'active_routes';
+// Raised when a delete is blocked by routes, trips, or expenses.
+const inUse = 'in_use';
 
 const payTypeColumns: Record<PayType, string> = {
   none: 'none',
@@ -395,6 +398,23 @@ export class SupabaseDriverGateway implements DriverGateway {
     await this.requireClient().storage.from(photoBucket).remove([path]);
   }
 
+  // Row level security hides a row the member may not delete, so no deleted
+  // row means it was not removed.
+  async deleteDriver(organizationId: string, driverId: string): Promise<void> {
+    const { data, error } = await this.requireClient()
+      .from('drivers')
+      .delete()
+      .eq('id', driverId)
+      .eq('organization_id', organizationId)
+      .select('id');
+    if (error) {
+      throw deleteError(error);
+    }
+    if (!data || data.length === 0) {
+      throw new DriverAccessError('remove');
+    }
+  }
+
   // One request signs every photo of the list. A photo that cannot be signed
   // shows the driver's initials instead.
   private async toDrivers(
@@ -433,6 +453,13 @@ function saveError(error: PostgrestError | null): DriverAccessError {
     return new DriverAccessError('activeRoutes', routeNames(error.details));
   }
   return new DriverAccessError(error?.code === uniqueViolation ? 'nationalIdTaken' : 'save');
+}
+
+function deleteError(error: PostgrestError): DriverAccessError {
+  if (error.message === inUse) {
+    return new DriverAccessError('inUse', routeNames(error.details));
+  }
+  return new DriverAccessError('remove');
 }
 
 function toTrip(row: TripLogRow): DriverTrip {

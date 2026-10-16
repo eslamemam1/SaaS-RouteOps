@@ -55,6 +55,7 @@ export class DriverForm {
   );
   readonly driver = input<Driver | null>(null);
   readonly saved = output<DriverSaved>();
+  readonly removed = output<void>();
   readonly cancelled = output<void>();
 
   protected readonly text = injectText(driversText);
@@ -62,6 +63,7 @@ export class DriverForm {
 
   protected readonly payTypes = payTypes;
   protected readonly submitting = signal(false);
+  protected readonly confirmingRemove = signal(false);
   protected readonly problem = signal<DriverProblem | null>(null);
   protected readonly blockingRoutes = signal<readonly string[]>([]);
   protected readonly model = signal<DriverDetails>(emptyDriverDetails);
@@ -91,11 +93,41 @@ export class DriverForm {
       untracked(() => {
         this.driverForm().reset(details);
         this.problem.set(null);
+        this.confirmingRemove.set(false);
+        this.blockingRoutes.set([]);
         this.choosePhotoOf(null);
         this.photoProblem.set(null);
       });
     });
     inject(DestroyRef).onDestroy(() => this.choosePhotoOf(null));
+  }
+
+  protected async remove(): Promise<void> {
+    const driver = this.driver();
+    if (!driver) {
+      return;
+    }
+    if (!this.confirmingRemove()) {
+      this.confirmingRemove.set(true);
+      return;
+    }
+    this.submitting.set(true);
+    this.problem.set(null);
+    this.blockingRoutes.set([]);
+    try {
+      await this.repository.remove(this.organization(), driver);
+      this.removed.emit();
+    } catch (error) {
+      this.problem.set(
+        error instanceof DriverAccessError ? error.problem : 'remove',
+      );
+      this.blockingRoutes.set(
+        error instanceof DriverAccessError ? error.routes : [],
+      );
+    } finally {
+      this.submitting.set(false);
+      this.confirmingRemove.set(false);
+    }
   }
 
   protected async onPhotoPicked(event: Event): Promise<void> {

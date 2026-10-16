@@ -186,5 +186,15 @@
     <button appButton="secondary" type="button" (click)="cancelled.emit()">
       {{ text().form.cancel }}
     </button>
+    @if (driver()) {
+      <button
+        type="button"
+        [appButton]="confirmingRemove() ? 'danger' : 'text'"
+        [disabled]="submitting() || shrinking()"
+        (click)="remove()"
+      >
+        {{ confirmingRemove() ? text().form.confirmRemove : text().form.remove }}
+      </button>
+    }
   </div>
 </form>

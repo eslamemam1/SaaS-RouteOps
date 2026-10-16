@@ -113,4 +113,14 @@ export class SupabaseDriverRepository extends DriverRepository {
     }
     return saved;
   }
+
+  async remove(
+    organization: DriverOrganization,
+    driver: Driver,
+  ): Promise<void> {
+    await this.gateway.deleteDriver(organization.id, driver.id);
+    if (driver.photo) {
+      await this.gateway.deletePhoto(driver.photo.path);
+    }
+  }
 }

@@ -120,8 +120,11 @@ export interface DriversText {
     readonly add: string;
     readonly save: string;
     readonly cancel: string;
+    readonly remove: string;
+    readonly confirmRemove: string;
     readonly added: string;
     readonly saved: string;
+    readonly removed: string;
     readonly photoFailed: string;
   };
 }
@@ -139,8 +142,10 @@ export const driversText: Record<Language, DriversText> = {
       trips: 'اكتب عدد الرحلات بالأرقام فقط، مثل 26.',
       photo: 'تعذّر فتح هذه الصورة. اختر صورة بصيغة JPG أو PNG أو WebP.',
       activeRoutes: 'لا يمكن إيقاف هذا السائق لأنه سائق هذه الخطوط العاملة. اختر لها سائقًا آخر أو أوقفها من صفحة الخطوط أولًا:',
+      inUse: 'لا يمكن حذف هذا السائق لأنه مربوط بخطوط أو رحلات أو مصاريف. انقل الخطوط لسائق آخر أولًا، أو احذف ما يخصه:',
       load: 'تعذّر تحميل السائقين. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
+      remove: 'تعذّر حذف السائق. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
       signedOut: 'سجّل الدخول للمتابعة.',
       notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
@@ -287,8 +292,11 @@ export const driversText: Record<Language, DriversText> = {
       add: 'إضافة السائق',
       save: 'حفظ التعديلات',
       cancel: 'إلغاء',
+      remove: 'حذف السائق',
+      confirmRemove: 'اضغط مرة أخرى لتأكيد الحذف',
       added: 'تمت إضافة السائق.',
       saved: 'تم حفظ التعديلات.',
+      removed: 'تم حذف السائق.',
       photoFailed:
         'تم حفظ بيانات السائق، لكن تعذّر رفع الصورة. افتح تعديل السائق وحاول مرة أخرى.',
     },
@@ -307,8 +315,10 @@ export const driversText: Record<Language, DriversText> = {
       photo:
         'This photo could not be opened. Choose a JPG, PNG, or WebP photo.',
       activeRoutes: 'This driver cannot be made inactive because they drive these active routes. Give them another driver or stop them on the routes page first:',
+      inUse: 'This driver cannot be deleted because routes, trips, or expenses still name them. Move the routes to another driver first, or clear what is linked:',
       load: 'Could not load your drivers. Please try again.',
       save: 'Could not save. Please try again.',
+      remove: 'Could not delete the driver. Please try again.',
       organization: 'You cannot open this page from your account.',
       signedOut: 'Sign in to continue.',
       notConnected: 'The app is not connected to the database.',
@@ -457,8 +467,11 @@ export const driversText: Record<Language, DriversText> = {
       add: 'Add driver',
       save: 'Save changes',
       cancel: 'Cancel',
+      remove: 'Delete driver',
+      confirmRemove: 'Press again to confirm',
       added: 'The driver was added.',
       saved: 'Your changes were saved.',
+      removed: 'The driver was deleted.',
       photoFailed:
         'The driver was saved, but the photo could not be uploaded. Open the driver and try again.',
     },

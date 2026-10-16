@@ -98,6 +98,25 @@ describe('Drivers', () => {
     expect(name?.value).toBe('أحمد محمد');
   });
 
+  it('deletes a driver only after a second press', async () => {
+    const remove = vi.fn(async () => undefined);
+    const harness = await open({ list: async () => [ahmed], remove });
+    await settle(harness);
+
+    button(harness, arabic.list.edit)?.click();
+    await settle(harness);
+    button(harness, arabic.form.remove)?.click();
+    await settle(harness);
+    expect(remove).not.toHaveBeenCalled();
+
+    button(harness, arabic.form.confirmRemove)?.click();
+    await settle(harness);
+
+    expect(remove).toHaveBeenCalledWith(north, ahmed);
+    expect(text(harness)).toContain(arabic.form.removed);
+    expect(text(harness)).not.toContain('أحمد محمد');
+  });
+
   it('refuses an organization outside the user memberships', async () => {
     const list = vi.fn(async () => [ahmed]);
     const harness = await open({ organization: async () => null, list });
@@ -168,6 +187,7 @@ async function open(overrides: Partial<DriverRepository>) {
     update: async () => ahmed,
     setPhoto: async () => ahmed,
     removePhoto: async () => ahmed,
+    remove: async () => undefined,
     ...overrides,
   };
   TestBed.configureTestingModule({

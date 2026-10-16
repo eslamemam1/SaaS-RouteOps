@@ -78,9 +78,9 @@ export class Drivers {
   protected readonly pages = paginate(this.drivers);
   protected readonly editing = signal<Driver | null>(null);
   protected readonly formOpen = signal(false);
-  protected readonly outcome = signal<'added' | 'saved' | 'photoFailed' | null>(
-    null,
-  );
+  protected readonly outcome = signal<
+    'added' | 'saved' | 'removed' | 'photoFailed' | null
+  >(null);
   protected readonly formTitle = computed(() =>
     this.editing() ? this.text().form.editTitle : this.text().form.addTitle,
   );
@@ -133,6 +133,15 @@ export class Drivers {
     );
     this.stopEditing();
     this.status.set('success');
+  }
+
+  protected onRemoved(): void {
+    const removed = this.editing();
+    const drivers = this.drivers().filter((item) => item.id !== removed?.id);
+    this.drivers.set(drivers);
+    this.outcome.set('removed');
+    this.stopEditing();
+    this.status.set(drivers.length === 0 ? 'empty' : 'success');
   }
 
   private open(driver: Driver | null): void {

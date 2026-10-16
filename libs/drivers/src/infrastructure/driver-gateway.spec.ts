@@ -277,6 +277,32 @@ describe('SupabaseDriverGateway', () => {
     ).rejects.toMatchObject({ problem: 'activeRoutes', routes: ['Nasr City', 'Shubra'] });
   });
 
+  it('deletes a driver of the organization', async () => {
+    const calls = recorder({ data: [{ id: 'driver-1' }], error: null });
+    const gateway = new SupabaseDriverGateway(calls.client);
+
+    await gateway.deleteDriver('org-north', 'driver-1');
+
+    expect(calls.deleted).toBe(true);
+    expect(calls.filters).toEqual([
+      ['id', 'driver-1'],
+      ['organization_id', 'org-north'],
+    ]);
+  });
+
+  it('names the routes that keep a driver from being deleted', async () => {
+    const calls = recorder({
+      data: null,
+      error: { message: 'in_use', code: 'P0001', details: 'Nasr City\nShubra' },
+    });
+    const gateway = new SupabaseDriverGateway(calls.client);
+
+    await expect(gateway.deleteDriver('org-north', 'driver-1')).rejects.toMatchObject({
+      problem: 'inUse',
+      routes: ['Nasr City', 'Shubra'],
+    });
+  });
+
   it('replaces any other database error with a safe code', async () => {
     const calls = recorder({
       data: null,
@@ -463,13 +489,23 @@ function recorder(result: Result, signing?: Result) {
     },
     remove: () => Promise.resolve({ data: [], error: null }),
   };
+  let deleted = false;
   const query = {
-    select: () => query,
+    select: () => {
+      if (deleted) {
+        return Promise.resolve(result);
+      }
+      return query;
+    },
     insert: (value: unknown) => {
       inserted = value;
       return query;
     },
     update: () => query,
+    delete: () => {
+      deleted = true;
+      return query;
+    },
     eq: (column: string, value: string) => {
       filters.push([column, value]);
       return query;
@@ -491,6 +527,9 @@ function recorder(result: Result, signing?: Result) {
     signed,
     get inserted() {
       return inserted;
+    },
+    get deleted() {
+      return deleted;
     },
     get uploaded() {
       return uploaded;

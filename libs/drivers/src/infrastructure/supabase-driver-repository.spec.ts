@@ -147,6 +147,16 @@ describe('SupabaseDriverRepository', () => {
     expect(gateway.setPhotoPath).toHaveBeenCalledWith(north, 'driver-1', null);
     expect(gateway.deletePhoto).toHaveBeenCalledWith(oldPhoto.path);
   });
+
+  it('deletes the driver and then the photo file', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseDriverRepository(gateway);
+
+    await repository.remove(north, { ...ahmed, photo: oldPhoto });
+
+    expect(gateway.deleteDriver).toHaveBeenCalledWith('org-north', 'driver-1');
+    expect(gateway.deletePhoto).toHaveBeenCalledWith(oldPhoto.path);
+  });
 });
 
 function fakeGateway(
@@ -173,5 +183,6 @@ function fakeGateway(
     uploadPhoto: vi.fn(async () => undefined),
     setPhotoPath: vi.fn(async () => ahmed),
     deletePhoto: vi.fn(async () => undefined),
+    deleteDriver: vi.fn(async () => undefined),
   };
 }

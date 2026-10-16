@@ -202,6 +202,7 @@ async function open(overrides: Partial<DriverRepository>, query = '') {
     update: async () => ahmed,
     setPhoto: async () => ahmed,
     removePhoto: async () => ahmed,
+    remove: async () => undefined,
     ...overrides,
   };
   TestBed.configureTestingModule({

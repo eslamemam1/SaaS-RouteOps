@@ -50,4 +50,8 @@ export abstract class DriverRepository {
     organization: DriverOrganization,
     driver: Driver,
   ): Promise<Driver>;
+  abstract remove(
+    organization: DriverOrganization,
+    driver: Driver,
+  ): Promise<void>;
 }
