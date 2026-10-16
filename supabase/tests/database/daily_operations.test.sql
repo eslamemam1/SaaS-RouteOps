@@ -292,6 +292,30 @@ select is_empty(
       and not is_extra$$,
   'preparing the day again does not restore a deleted route trip'
 );
+select lives_ok(
+  $$select public.restore_omitted_trip(
+      '10000000-0000-0000-0000-000000000001',
+      '14000000-0000-0000-0000-000000000001',
+      tests.sunday(2),
+      'return'
+    )$$,
+  'a member restores a deleted route trip on the same day'
+);
+select isnt_empty(
+  $$select 1 from public.daily_trips
+    where route_id = '14000000-0000-0000-0000-000000000001'
+      and service_date = tests.sunday(2)
+      and direction = 'return'
+      and not is_extra$$,
+  'the restored trip is on the day again'
+);
+select is_empty(
+  $$select 1 from public.daily_trip_omissions
+    where route_id = '14000000-0000-0000-0000-000000000001'
+      and service_date = tests.sunday(2)
+      and direction = 'return'$$,
+  'restoring clears the omission'
+);
 select is(
   (select public.add_route_trips(
      '10000000-0000-0000-0000-000000000001',

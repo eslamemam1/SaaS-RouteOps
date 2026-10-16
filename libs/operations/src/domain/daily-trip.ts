@@ -71,6 +71,13 @@ export interface DailyTrip extends TripChange {
   readonly extra: boolean;
 }
 
+// A route trip a member deleted from a day; restore puts it back from the route.
+export interface TripOmission {
+  readonly routeId: string;
+  readonly serviceDate: string;
+  readonly direction: TripDirection;
+}
+
 export interface ExtraTripDetails {
   readonly routeId: string;
   readonly customerId: string;
@@ -134,6 +141,7 @@ export const operationsProblems = [
   'routes',
   'pastDays',
   'tooManyDays',
+  'noTrip',
   'load',
   'save',
   'organization',

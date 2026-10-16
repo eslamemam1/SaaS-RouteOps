@@ -27,6 +27,13 @@ export type Database = {
         name: string
         organization_id: string
       }>
+      daily_trip_omissions: ReadOnlyTable<{
+        created_at: string
+        direction: string
+        organization_id: string
+        route_id: string
+        service_date: string
+      }>
       daily_trips: {
         Row: {
           change_reason: string | null
@@ -190,6 +197,15 @@ export type Database = {
       remove_daily_trip: {
         Args: { p_organization_id: string; p_trip_id: string }
         Returns: undefined
+      }
+      restore_omitted_trip: {
+        Args: {
+          p_organization_id: string
+          p_route_id: string
+          p_service_date: string
+          p_direction: string
+        }
+        Returns: string
       }
       set_trip_recording: {
         Args: { p_organization_id: string; p_trip_recording: string }

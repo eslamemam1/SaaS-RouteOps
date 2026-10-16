@@ -15,6 +15,7 @@ import {
   RecordingPeriod,
   TripChange,
   TripDirection,
+  TripOmission,
   TripRecording,
 } from '../domain/daily-trip';
 import { Database } from './database';
@@ -24,6 +25,10 @@ export interface OperationsGateway {
   membershipOrganizations(userId: string): Promise<OperationsOrganization[]>;
   prepareDay(organizationId: string, serviceDate: string): Promise<void>;
   listTrips(organizationId: string, serviceDate: string): Promise<DailyTrip[]>;
+  listTripOmissions(
+    organizationId: string,
+    serviceDate: string,
+  ): Promise<TripOmission[]>;
   listChoices(organizationId: string): Promise<OperationChoices>;
   listTripRecordings(organizationId: string): Promise<RecordingPeriod[]>;
   saveTripRecording(
@@ -48,6 +53,10 @@ export interface OperationsGateway {
     tripPrice: number | null,
   ): Promise<DailyTrip>;
   deleteTrip(organizationId: string, tripId: string): Promise<void>;
+  restoreOmittedTrip(
+    organizationId: string,
+    omission: TripOmission,
+  ): Promise<void>;
   cancelCustomerTrips(
     organizationId: string,
     serviceDate: string,
@@ -64,6 +73,11 @@ const routeTripProblems: Record<string, OperationsProblem> = {
   no_routes: 'routes',
   past_days: 'pastDays',
   too_many_days: 'tooManyDays',
+};
+
+const restoreProblems: Record<string, OperationsProblem> = {
+  not_found: 'load',
+  no_trip: 'noTrip',
 };
 
 type TripRow = Pick<
@@ -154,6 +168,26 @@ export class SupabaseOperationsGateway implements OperationsGateway {
       throw new OperationsAccessError('load');
     }
     return (data ?? []).map(toTrip);
+  }
+
+  async listTripOmissions(
+    organizationId: string,
+    serviceDate: string,
+  ): Promise<TripOmission[]> {
+    const { data, error } = await this.requireClient()
+      .from('daily_trip_omissions')
+      .select('route_id, service_date, direction')
+      .eq('organization_id', organizationId)
+      .eq('service_date', serviceDate)
+      .order('route_id');
+    if (error) {
+      throw new OperationsAccessError('load');
+    }
+    return (data ?? []).map((row) => ({
+      routeId: row.route_id,
+      serviceDate: row.service_date,
+      direction: toDirection(row.direction),
+    }));
   }
 
   async listChoices(organizationId: string): Promise<OperationChoices> {
@@ -318,6 +352,23 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     });
     if (error) {
       throw new OperationsAccessError('save');
+    }
+  }
+
+  async restoreOmittedTrip(
+    organizationId: string,
+    omission: TripOmission,
+  ): Promise<void> {
+    const { error } = await this.requireClient().rpc('restore_omitted_trip', {
+      p_organization_id: organizationId,
+      p_route_id: omission.routeId,
+      p_service_date: omission.serviceDate,
+      p_direction: omission.direction,
+    });
+    if (error) {
+      throw new OperationsAccessError(
+        restoreProblems[error.message] ?? 'save',
+      );
     }
   }
 

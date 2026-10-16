@@ -6,6 +6,7 @@ import {
   PastDays,
   RecordingPeriod,
   TripChange,
+  TripOmission,
   TripRecording,
 } from '../domain/daily-trip';
 
@@ -20,6 +21,11 @@ export abstract class OperationsRepository {
     organization: OperationsOrganization,
     serviceDate: string,
   ): Promise<DailyTrip[]>;
+  // Route trips a member deleted from the day; each can be restored.
+  abstract tripOmissions(
+    organization: OperationsOrganization,
+    serviceDate: string,
+  ): Promise<TripOmission[]>;
   abstract choices(organization: OperationsOrganization): Promise<OperationChoices>;
   abstract tripRecordings(
     organization: OperationsOrganization,
@@ -49,6 +55,11 @@ export abstract class OperationsRepository {
   abstract removeTrip(
     organization: OperationsOrganization,
     tripId: string,
+  ): Promise<void>;
+  // Puts a deleted route trip back on the day from the route.
+  abstract restoreOmittedTrip(
+    organization: OperationsOrganization,
+    omission: TripOmission,
   ): Promise<void>;
   abstract cancelForHoliday(
     organization: OperationsOrganization,

@@ -348,6 +348,39 @@ describe('DailyOperations', () => {
     await settle(harness);
     expect(removeTrip).toHaveBeenCalledWith(north, 'trip-1');
     expect(text(harness)).toContain(arabic.day.empty);
+    expect(text(harness)).toContain(arabic.day.omittedTitle);
+  });
+
+  it('restores a deleted route trip from the omissions list', async () => {
+    let listed: DailyTrip[] = [outbound];
+    const restoreOmittedTrip = vi.fn(async () => {
+      listed = [outbound];
+    });
+    const harness = await open({
+      day: async () => listed,
+      tripOmissions: async () => [],
+      removeTrip: async () => {
+        listed = [];
+      },
+      restoreOmittedTrip,
+    });
+    await settle(harness);
+
+    button(harness, arabic.day.remove)?.click();
+    await settle(harness);
+    button(harness, arabic.day.confirmRemove)?.click();
+    await settle(harness);
+    expect(text(harness)).toContain(arabic.day.omittedTitle);
+
+    button(harness, arabic.day.restore)?.click();
+    await settle(harness);
+    expect(restoreOmittedTrip).toHaveBeenCalledWith(north, {
+      routeId: 'route-1',
+      serviceDate: '2000-01-01',
+      direction: 'outbound',
+    });
+    expect(text(harness)).toContain(arabic.day.notices.restored);
+    expect(rows(harness)).toHaveLength(1);
   });
 
   it('changes a trip for one day from its form and closes the form', async () => {
@@ -545,6 +578,8 @@ async function open(overrides: Partial<OperationsRepository>) {
     markDone: async () => outbound,
     addExtraTrip: async () => outbound,
     removeTrip: async () => undefined,
+    tripOmissions: async () => [],
+    restoreOmittedTrip: async () => undefined,
     cancelForHoliday: async () => [],
     addRouteTrips: async () => 0,
     ...overrides,

@@ -46,6 +46,7 @@ import {
   TripConflict,
   tripDirections,
   TripFilter,
+  TripOmission,
   TripRecording,
   tripRecordings,
   TripStatus,
@@ -70,7 +71,7 @@ const noChoices: OperationChoices = {
   routes: [],
 };
 
-type Notice = 'changed' | 'added' | 'removed' | 'allDone' | 'holiday';
+type Notice = 'changed' | 'added' | 'removed' | 'restored' | 'allDone' | 'holiday';
 
 const statusTones: Record<TripStatus, Tone> = {
   done: 'success',
@@ -139,6 +140,8 @@ export class DailyOperations {
   protected readonly markingAll = signal(false);
   protected readonly addingExtra = signal(false);
   protected readonly confirmingRemoveId = signal<string | null>(null);
+  protected readonly omissions = signal<TripOmission[]>([]);
+  protected readonly restoringKey = signal<string | null>(null);
   protected readonly directions = tripDirections;
   protected readonly filter = signal<TripFilter>(emptyTripFilter);
   protected readonly visibleTrips = computed(() =>
@@ -404,6 +407,16 @@ export class DailyOperations {
       if (this.editing()?.id === trip.id) {
         this.editing.set(null);
       }
+      if (!trip.extra && trip.routeId) {
+        this.omissions.set([
+          ...this.omissions(),
+          {
+            routeId: trip.routeId,
+            serviceDate: trip.serviceDate,
+            direction: trip.direction,
+          },
+        ]);
+      }
       if (trips.length === 0) {
         this.status.set('empty');
       }
@@ -414,6 +427,43 @@ export class DailyOperations {
       this.markingTripId.set(null);
       this.confirmingRemoveId.set(null);
     }
+  }
+
+  protected omissionKey(omission: TripOmission): string {
+    return `${omission.routeId}:${omission.direction}`;
+  }
+
+  protected async restore(omission: TripOmission): Promise<void> {
+    const organization = this.organization();
+    if (!organization) {
+      return;
+    }
+    const key = this.omissionKey(omission);
+    this.restoringKey.set(key);
+    this.actionProblem.set(null);
+    try {
+      await this.repository.restoreOmittedTrip(organization, omission);
+      const serviceDate = this.serviceDate();
+      const [trips, omissions] = await Promise.all([
+        this.repository.day(organization, serviceDate),
+        this.repository.tripOmissions(organization, serviceDate),
+      ]);
+      if (serviceDate !== this.serviceDate()) {
+        return;
+      }
+      this.trips.set(sortByTime(trips));
+      this.omissions.set(omissions);
+      this.status.set(trips.length === 0 ? 'empty' : 'success');
+      this.notice.set('restored');
+    } catch (error) {
+      this.actionProblem.set(problemOf(error, 'save'));
+    } finally {
+      this.restoringKey.set(null);
+    }
+  }
+
+  protected routeLabel(routeId: string): string {
+    return choiceLabel(this.choices().routes, routeId);
   }
 
   protected onHolidayRecorded(trips: DailyTrip[]): void {
@@ -467,12 +517,17 @@ export class DailyOperations {
     this.actionProblem.set(null);
     this.notice.set(null);
     this.addedTrips.set(null);
+    this.omissions.set([]);
     try {
-      const trips = await this.repository.day(organization, serviceDate);
+      const [trips, omissions] = await Promise.all([
+        this.repository.day(organization, serviceDate),
+        this.repository.tripOmissions(organization, serviceDate),
+      ]);
       if (serviceDate !== this.serviceDate()) {
         return;
       }
       this.trips.set(sortByTime(trips));
+      this.omissions.set(omissions);
       this.status.set(trips.length === 0 ? 'empty' : 'success');
     } catch (error) {
       this.fail(error);

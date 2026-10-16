@@ -1,3 +1,19 @@
+.operations-omissions {
+  display: grid;
+  gap: var(--ro-space-2);
+  margin: var(--ro-space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.operations-omissions li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ro-space-2) var(--ro-space-3);
+}
+
 .operations-day {
   display: grid;
 }

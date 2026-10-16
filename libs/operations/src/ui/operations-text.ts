@@ -56,11 +56,15 @@ export interface OperationsText {
     readonly noRoute: string;
     readonly remove: string;
     readonly confirmRemove: string;
+    readonly omittedTitle: string;
+    readonly omittedHint: string;
+    readonly restore: string;
     readonly markAllDone: string;
     readonly notices: {
       readonly changed: string;
       readonly added: string;
       readonly removed: string;
+      readonly restored: string;
       readonly allDone: string;
       readonly holiday: string;
     };
@@ -171,6 +175,7 @@ export const operationsText: Record<Language, OperationsText> = {
       pastDays:
         'اختر أيامًا مضت فقط، على أن يكون اليوم الأول قبل اليوم الأخير أو هو نفسه.',
       tooManyDays: 'اختر 93 يومًا على الأكثر في المرة الواحدة.',
+      noTrip: 'لا يمكن استعادة هذه الرحلة لأن الخط لم يعد يشغّل هذا الاتجاه.',
       load: 'تعذّر تحميل رحلات اليوم. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
@@ -251,11 +256,15 @@ export const operationsText: Record<Language, OperationsText> = {
       noRoute: 'بدون خط',
       remove: 'حذف',
       confirmRemove: 'تأكيد',
+      omittedTitle: 'رحلات حُذفت من هذا اليوم',
+      omittedHint: 'حُذفت بالخطأ أو لم يكن يُفترض تسجيلها. يمكنك إعادة أي منها من الخط.',
+      restore: 'استعادة',
       markAllDone: 'تسجيل كل الرحلات الظاهرة «تمّت»',
       notices: {
         changed: 'تم حفظ تغيير الرحلة.',
         added: 'تمت إضافة الرحلة.',
         removed: 'تم حذف الرحلة.',
+        restored: 'تم استعادة الرحلة.',
         allDone: 'تم تسجيل الرحلات «تمّت».',
         holiday: 'تم إلغاء رحلات الإجازة.',
       },
@@ -365,6 +374,7 @@ export const operationsText: Record<Language, OperationsText> = {
       pastDays:
         'Choose days that have passed only, with the first day on or before the last.',
       tooManyDays: 'Choose 93 days at most at a time.',
+      noTrip: 'This trip cannot be restored because the route no longer runs this direction.',
       load: "Could not load the day's trips. Please try again.",
       save: 'Could not save. Please try again.',
       organization: 'You cannot open this page from your account.',
@@ -445,11 +455,15 @@ export const operationsText: Record<Language, OperationsText> = {
       noRoute: 'No route',
       remove: 'Delete',
       confirmRemove: 'Confirm',
+      omittedTitle: 'Trips removed from this day',
+      omittedHint: 'Deleted by mistake or not meant to count. You can put any of them back from the route.',
+      restore: 'Restore',
       markAllDone: 'Mark all shown trips "Done"',
       notices: {
         changed: 'The trip change was saved.',
         added: 'The trip was added.',
         removed: 'The trip was deleted.',
+        restored: 'The trip was restored.',
         allDone: 'The trips were marked "Done".',
         holiday: 'The holiday trips were cancelled.',
       },

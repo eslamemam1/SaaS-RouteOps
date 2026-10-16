@@ -100,6 +100,31 @@
   >
     {{ text().problems[current] }}
   </app-alert>
+  } @if (omissions().length > 0 && status() !== 'loading' && status() !== 'error') {
+  <app-alert tone="warning">
+    <strong>{{ text().day.omittedTitle }}</strong>
+    <p class="hint">{{ text().day.omittedHint }}</p>
+    <ul class="operations-omissions">
+      @for (omission of omissions(); track omissionKey(omission)) {
+      <li>
+        <span>
+          {{ routeLabel(omission.routeId) }}
+          —
+          {{ text().directions[omission.direction] }}
+        </span>
+        <button
+          appButton="secondary"
+          size="sm"
+          type="button"
+          [disabled]="restoringKey() === omissionKey(omission)"
+          (click)="restore(omission)"
+        >
+          {{ text().day.restore }}
+        </button>
+      </li>
+      }
+    </ul>
+  </app-alert>
   } @switch (status()) { @case ('loading') {
   <app-page-state kind="loading" [message]="text().day.loading" />
   } @case ('error') {

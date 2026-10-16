@@ -218,6 +218,53 @@ describe('SupabaseOperationsGateway', () => {
     );
   });
 
+  it('lists trip omissions for the day', async () => {
+    const calls = recorder(() => ({
+      data: [
+        {
+          route_id: 'route-1',
+          service_date: '2026-10-15',
+          direction: 'outbound',
+        },
+      ],
+      error: null,
+    }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await expect(
+      gateway.listTripOmissions('org-north', '2026-10-15'),
+    ).resolves.toEqual([
+      {
+        routeId: 'route-1',
+        serviceDate: '2026-10-15',
+        direction: 'outbound',
+      },
+    ]);
+  });
+
+  it('restores an omitted trip through restore_omitted_trip', async () => {
+    const calls = recorder(() => ({ data: 'trip-9', error: null }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await gateway.restoreOmittedTrip('org-north', {
+      routeId: 'route-1',
+      serviceDate: '2026-10-15',
+      direction: 'return',
+    });
+
+    expect(calls.rpc).toEqual([
+      [
+        'restore_omitted_trip',
+        {
+          p_organization_id: 'org-north',
+          p_route_id: 'route-1',
+          p_service_date: '2026-10-15',
+          p_direction: 'return',
+        },
+      ],
+    ]);
+  });
+
   it('refuses a change without a reason before calling the database', async () => {
     const calls = recorder(() => ({ data: row, error: null }));
     const gateway = new SupabaseOperationsGateway(calls.client);

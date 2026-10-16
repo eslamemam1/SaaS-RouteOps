@@ -14,6 +14,7 @@ import {
   RecordingPeriod,
   TripChange,
   tripChangeError,
+  TripOmission,
   TripRecording,
 } from '../domain/daily-trip';
 import { OperationsGateway } from './operations-gateway';
@@ -43,6 +44,16 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     }
     await this.gateway.prepareDay(organization.id, serviceDate);
     return this.gateway.listTrips(organization.id, serviceDate);
+  }
+
+  tripOmissions(
+    organization: OperationsOrganization,
+    serviceDate: string,
+  ): Promise<TripOmission[]> {
+    if (!isServiceDate(serviceDate)) {
+      return Promise.reject(new OperationsAccessError('date'));
+    }
+    return this.gateway.listTripOmissions(organization.id, serviceDate);
   }
 
   choices(organization: OperationsOrganization): Promise<OperationChoices> {
@@ -107,6 +118,13 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     tripId: string,
   ): Promise<void> {
     return this.gateway.deleteTrip(organization.id, tripId);
+  }
+
+  restoreOmittedTrip(
+    organization: OperationsOrganization,
+    omission: TripOmission,
+  ): Promise<void> {
+    return this.gateway.restoreOmittedTrip(organization.id, omission);
   }
 
   async cancelForHoliday(
