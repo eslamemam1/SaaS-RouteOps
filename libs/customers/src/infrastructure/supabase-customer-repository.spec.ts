@@ -1,9 +1,19 @@
 import { CustomerAccessError } from '../application/customer-access-error';
-import { CustomerOrganization } from '../domain/customer';
+import { Customer, CustomerOrganization } from '../domain/customer';
 import { CustomerGateway } from './customer-gateway';
 import { SupabaseCustomerRepository } from './supabase-customer-repository';
 
 const north: CustomerOrganization = { id: 'org-north', name: 'North' };
+const delta: Customer = {
+  id: 'customer-1',
+  name: 'Delta Factory',
+  contactName: '',
+  phone: '',
+  email: '',
+  address: '',
+  notes: '',
+  active: true,
+};
 
 describe('SupabaseCustomerRepository', () => {
   it('resolves the organization from the signed-in user memberships', async () => {
@@ -41,6 +51,18 @@ describe('SupabaseCustomerRepository', () => {
 
     expect(gateway.listCustomers).toHaveBeenCalledWith('org-north');
   });
+
+  it('removes a customer of the organization', async () => {
+    const gateway = fakeGateway('user-1', [north]);
+    const repository = new SupabaseCustomerRepository(gateway);
+
+    await repository.remove(north, delta);
+
+    expect(gateway.deleteCustomer).toHaveBeenCalledWith(
+      'org-north',
+      'customer-1',
+    );
+  });
 });
 
 function fakeGateway(
@@ -53,5 +75,6 @@ function fakeGateway(
     listCustomers: vi.fn(async () => []),
     insertCustomer: vi.fn(),
     updateCustomer: vi.fn(),
+    deleteCustomer: vi.fn(async () => undefined),
   };
 }

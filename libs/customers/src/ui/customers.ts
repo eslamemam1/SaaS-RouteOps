@@ -59,7 +59,9 @@ export class Customers {
   protected readonly pages = paginate(this.customers);
   protected readonly editing = signal<Customer | null>(null);
   protected readonly formOpen = signal(false);
-  protected readonly outcome = signal<'added' | 'saved' | null>(null);
+  protected readonly outcome = signal<'added' | 'saved' | 'removed' | null>(
+    null,
+  );
   protected readonly formTitle = computed(() =>
     this.editing() ? this.text().form.editTitle : this.text().form.addTitle,
   );
@@ -97,6 +99,15 @@ export class Customers {
     this.outcome.set(this.editing() ? 'saved' : 'added');
     this.stopEditing();
     this.status.set('success');
+  }
+
+  protected onRemoved(): void {
+    const removed = this.editing();
+    const customers = this.customers().filter((item) => item.id !== removed?.id);
+    this.customers.set(customers);
+    this.outcome.set('removed');
+    this.stopEditing();
+    this.status.set(customers.length === 0 ? 'empty' : 'success');
   }
 
   private open(customer: Customer | null): void {

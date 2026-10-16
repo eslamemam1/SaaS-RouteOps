@@ -40,4 +40,11 @@ export class SupabaseCustomerRepository extends CustomerRepository {
   ): Promise<Customer> {
     return this.gateway.updateCustomer(organization.id, customerId, details);
   }
+
+  remove(
+    organization: CustomerOrganization,
+    customer: Customer,
+  ): Promise<void> {
+    return this.gateway.deleteCustomer(organization.id, customer.id);
+  }
 }

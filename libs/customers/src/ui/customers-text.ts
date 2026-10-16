@@ -36,8 +36,11 @@ export interface CustomersText {
     readonly add: string;
     readonly save: string;
     readonly cancel: string;
+    readonly remove: string;
+    readonly confirmRemove: string;
     readonly added: string;
     readonly saved: string;
+    readonly removed: string;
   };
 }
 
@@ -48,8 +51,10 @@ export const customersText: Record<Language, CustomersText> = {
       tooLong: 'النص أطول من المسموح.',
       emailFormat: 'أدخل بريدًا إلكترونيًا صحيحًا، مثل name@company.com',
       activeRoutes: 'لا يمكن إيقاف هذه الشركة لأن هذه الخطوط العاملة تتبعها. أوقف الخطوط أولًا من صفحة الخطوط، ثم أوقف الشركة:',
+      inUse: 'لا يمكن حذف هذه الشركة لأنها مربوطة بخطوط أو رحلات. انقل الخطوط أو احذفها أولًا، أو امسح ما يخصها:',
       load: 'تعذّر تحميل الشركات المتعاقدة. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
+      remove: 'تعذّر حذف الشركة. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
       signedOut: 'سجّل الدخول للمتابعة.',
       notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
@@ -88,8 +93,11 @@ export const customersText: Record<Language, CustomersText> = {
       add: 'إضافة الشركة',
       save: 'حفظ التعديلات',
       cancel: 'إلغاء',
+      remove: 'حذف الشركة',
+      confirmRemove: 'اضغط مرة أخرى لتأكيد الحذف',
       added: 'تمت إضافة الشركة.',
       saved: 'تم حفظ التعديلات.',
+      removed: 'تم حذف الشركة.',
     },
   },
   en: {
@@ -98,8 +106,10 @@ export const customersText: Record<Language, CustomersText> = {
       tooLong: 'This text is too long.',
       emailFormat: 'Enter a valid email, like name@company.com',
       activeRoutes: 'This company cannot be made inactive because these active routes belong to it. Stop the routes first on the routes page, then the company:',
+      inUse: 'This company cannot be deleted because routes or trips still name it. Move or remove the routes first, or clear what is linked:',
       load: 'Could not load your client companies. Please try again.',
       save: 'Could not save. Please try again.',
+      remove: 'Could not delete the company. Please try again.',
       organization: 'You cannot open this page from your account.',
       signedOut: 'Sign in to continue.',
       notConnected: 'The app is not connected to the database.',
@@ -138,8 +148,11 @@ export const customersText: Record<Language, CustomersText> = {
       add: 'Add company',
       save: 'Save changes',
       cancel: 'Cancel',
+      remove: 'Delete company',
+      confirmRemove: 'Press again to confirm',
       added: 'The company was added.',
       saved: 'Your changes were saved.',
+      removed: 'The company was deleted.',
     },
   },
 };

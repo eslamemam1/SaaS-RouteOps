@@ -18,4 +18,8 @@ export abstract class CustomerRepository {
     customerId: string,
     details: CustomerDetails,
   ): Promise<Customer>;
+  abstract remove(
+    organization: CustomerOrganization,
+    customer: Customer,
+  ): Promise<void>;
 }

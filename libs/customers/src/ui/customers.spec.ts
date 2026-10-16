@@ -83,6 +83,25 @@ describe('Customers', () => {
     expect(text(harness)).toContain('Delta Factory');
   });
 
+  it('deletes a company only after a second press', async () => {
+    const remove = vi.fn(async () => undefined);
+    const harness = await open({ list: async () => [delta], remove });
+    await settle(harness);
+
+    button(harness, arabic.list.edit)?.click();
+    await settle(harness);
+    button(harness, arabic.form.remove)?.click();
+    await settle(harness);
+    expect(remove).not.toHaveBeenCalled();
+
+    button(harness, arabic.form.confirmRemove)?.click();
+    await settle(harness);
+
+    expect(remove).toHaveBeenCalledWith(north, delta);
+    expect(text(harness)).toContain(arabic.form.removed);
+    expect(text(harness)).not.toContain('Delta Factory');
+  });
+
   it('refuses an organization outside the user memberships', async () => {
     const list = vi.fn(async () => [delta]);
     const harness = await open({ organization: async () => null, list });
@@ -121,6 +140,7 @@ async function open(overrides: Partial<CustomerRepository>) {
     list: async () => [],
     add: async () => delta,
     update: async () => delta,
+    remove: async () => undefined,
     ...overrides,
   };
   TestBed.configureTestingModule({

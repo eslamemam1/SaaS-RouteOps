@@ -108,6 +108,7 @@
     [organization]="current"
     [customer]="editing()"
     (saved)="onSaved($event)"
+    (removed)="onRemoved()"
     (cancelled)="stopEditing()"
   />
 </app-form-drawer>

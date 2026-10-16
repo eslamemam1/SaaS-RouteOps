@@ -9,6 +9,8 @@ import { Database } from './database';
 
 // Raised by the database when an active route still uses the customer.
 const activeRoutes = 'active_routes';
+// Raised when a route or trip still names the customer on delete.
+const inUse = 'in_use';
 
 export interface CustomerGateway {
   sessionUserId(): Promise<string | null>;
@@ -23,6 +25,7 @@ export interface CustomerGateway {
     customerId: string,
     details: CustomerDetails,
   ): Promise<Customer>;
+  deleteCustomer(organizationId: string, customerId: string): Promise<void>;
 }
 
 type CustomerRow = Pick<
@@ -114,6 +117,29 @@ export class SupabaseCustomerGateway implements CustomerGateway {
       throw new CustomerAccessError('save');
     }
     return toCustomer(data);
+  }
+
+  // Row level security hides a row the member may not delete, so no deleted
+  // row means it was not removed.
+  async deleteCustomer(
+    organizationId: string,
+    customerId: string,
+  ): Promise<void> {
+    const { data, error } = await this.requireClient()
+      .from('customers')
+      .delete()
+      .eq('id', customerId)
+      .eq('organization_id', organizationId)
+      .select('id');
+    if (error) {
+      if (error.message === inUse) {
+        throw new CustomerAccessError('inUse', routeNames(error.details));
+      }
+      throw new CustomerAccessError('remove');
+    }
+    if (!data || data.length === 0) {
+      throw new CustomerAccessError('remove');
+    }
   }
 
   private requireClient(): SupabaseClient<Database> {
