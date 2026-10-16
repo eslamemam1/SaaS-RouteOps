@@ -93,7 +93,7 @@
             <th>{{ text().pay.suggested }}</th>
             <th>{{ text().pay.recorded }}</th>
             <th>{{ text().pay.remaining }}</th>
-            <th></th>
+            <th class="ro-actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -158,18 +158,20 @@
               <bdi>{{ money(remaining(pay)) }}</bdi>
             </td>
             <td class="ro-actions">
-              @if (remaining(pay) > 0) {
-              <button
-                appButton="secondary"
-                size="sm"
-                type="button"
-                (click)="recordSalary(pay)"
-              >
-                {{ text().pay.record }}
-              </button>
-              } @else {
-              <app-tag tone="success">{{ text().pay.done }}</app-tag>
-              }
+              <div class="ro-actions-row">
+                @if (remaining(pay) > 0) {
+                <button
+                  appButton="secondary"
+                  size="sm"
+                  type="button"
+                  (click)="recordSalary(pay)"
+                >
+                  {{ text().pay.record }}
+                </button>
+                } @else {
+                <app-tag tone="success">{{ text().pay.done }}</app-tag>
+                }
+              </div>
             </td>
           </tr>
           }
@@ -206,7 +208,7 @@
             <th>{{ text().rent.suggested }}</th>
             <th>{{ text().rent.recorded }}</th>
             <th>{{ text().rent.remaining }}</th>
-            <th></th>
+            <th class="ro-actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -231,18 +233,20 @@
               <bdi>{{ money(remainingRent(rent)) }}</bdi>
             </td>
             <td class="ro-actions">
-              @if (remainingRent(rent) > 0) {
-              <button
-                appButton="secondary"
-                size="sm"
-                type="button"
-                (click)="recordRent(rent)"
-              >
-                {{ text().rent.record }}
-              </button>
-              } @else {
-              <app-tag tone="success">{{ text().rent.done }}</app-tag>
-              }
+              <div class="ro-actions-row">
+                @if (remainingRent(rent) > 0) {
+                <button
+                  appButton="secondary"
+                  size="sm"
+                  type="button"
+                  (click)="recordRent(rent)"
+                >
+                  {{ text().rent.record }}
+                </button>
+                } @else {
+                <app-tag tone="success">{{ text().rent.done }}</app-tag>
+                }
+              </div>
             </td>
           </tr>
           }
@@ -302,7 +306,7 @@
             <th>{{ text().list.vehicle }}</th>
             <th>{{ text().list.driver }}</th>
             <th>{{ text().list.amount }}</th>
-            <th></th>
+            <th class="ro-actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -330,14 +334,16 @@
               <bdi>{{ money(expense.amount) }}</bdi>
             </td>
             <td class="ro-actions">
-              <button
-                appButton="text"
-                size="sm"
-                type="button"
-                (click)="edit(expense)"
-              >
-                {{ text().list.edit }}
-              </button>
+              <div class="ro-actions-row">
+                <button
+                  appButton="text"
+                  size="sm"
+                  type="button"
+                  (click)="edit(expense)"
+                >
+                  {{ text().list.edit }}
+                </button>
+              </div>
             </td>
           </tr>
           }

@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
-import { lucideBus, lucidePlus } from '@ng-icons/lucide';
+import { lucideBus, lucidePencil, lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
 import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import {
   Alert,
@@ -63,6 +63,10 @@ export class Vehicles {
   protected readonly text = injectText(vehiclesText);
   protected readonly addIcon = lucidePlus;
   protected readonly vehicleIcon = lucideBus;
+  protected readonly icons = {
+    edit: lucidePencil,
+    remove: lucideTrash2,
+  };
   protected readonly view = injectListView('vehicles');
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',

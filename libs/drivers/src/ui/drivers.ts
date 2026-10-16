@@ -5,8 +5,10 @@ import {
   lucideCalendarClock,
   lucideCreditCard,
   lucideIdCard,
+  lucidePencil,
   lucidePhone,
   lucidePlus,
+  lucideTrash2,
 } from '@ng-icons/lucide';
 import { formatDay, injectText, LanguageService } from '@routeops/shared/i18n';
 import {
@@ -67,6 +69,8 @@ export class Drivers {
     nationalId: lucideIdCard,
     license: lucideCreditCard,
     expiry: lucideCalendarClock,
+    edit: lucidePencil,
+    remove: lucideTrash2,
   };
   protected readonly view = injectListView('drivers');
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(

@@ -142,20 +142,13 @@
   font-weight: var(--ro-font-medium);
 }
 
+/* Daily trip actions may wrap (mark done + change + delete). */
 td.operations-actions {
   white-space: normal;
 }
 
 .operations-actions-row {
-  display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--ro-space-1);
-}
-
-.ro-table-cards .operations-actions-row {
-  justify-content: flex-start;
 }
 
 .ro-table-cards td.operations-no-details {

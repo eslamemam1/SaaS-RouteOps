@@ -247,7 +247,7 @@
             <th>{{ text().day.crew }}</th>
             <th>{{ text().day.status }}</th>
             <th>{{ text().day.details }}</th>
-            <th></th>
+            <th class="ro-actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -332,7 +332,7 @@
               </div>
             </td>
             <td class="ro-actions operations-actions">
-              <div class="operations-actions-row">
+              <div class="ro-actions-row operations-actions-row">
               @if (canMarkDone(trip)) { @if (trip.done) {
               <button
                 appButton="text"
@@ -359,22 +359,36 @@
                 appButton="text"
                 size="sm"
                 type="button"
+                [attr.title]="text().day.change"
+                [attr.aria-label]="text().day.change"
                 (click)="edit(trip)"
               >
                 <ng-icon [svg]="icons.change" aria-hidden="true" />
-                {{ text().day.change }}
+                <span class="ro-action-label">{{ text().day.change }}</span>
               </button>
               @if (trip.extra) {
               <button
+                class="ro-action-remove"
                 size="sm"
                 type="button"
                 [appButton]="confirmingRemoveId() === trip.id ? 'danger' : 'text'"
                 [disabled]="markingTripId() === trip.id"
+                [attr.title]="
+                  confirmingRemoveId() === trip.id
+                    ? text().day.confirmRemove
+                    : text().day.remove
+                "
+                [attr.aria-label]="
+                  confirmingRemoveId() === trip.id
+                    ? text().day.confirmRemove
+                    : text().day.remove
+                "
                 (click)="remove(trip)"
               >
                 <ng-icon [svg]="icons.remove" aria-hidden="true" />
-                {{ confirmingRemoveId() === trip.id ? text().day.confirmRemove :
-                text().day.remove }}
+                <span class="ro-action-label">
+                  {{ confirmingRemoveId() === trip.id ? text().day.confirmRemove : text().day.remove }}
+                </span>
               </button>
               }
               </div>

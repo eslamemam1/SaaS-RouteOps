@@ -61,7 +61,7 @@
             <th>{{ text().list.licenseNumber }}</th>
             <th>{{ text().list.licenseExpiry }}</th>
             <th>{{ text().list.work }}</th>
-            <th></th>
+            <th class="ro-actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -135,26 +135,45 @@
               </app-tag>
             </td>
             <td class="ro-actions">
-              <a appButton="secondary" size="sm" [routerLink]="[driver.id]">
-                {{ text().list.open }}
-              </a>
-              <button
-                appButton="text"
-                size="sm"
-                type="button"
-                (click)="edit(driver)"
-              >
-                {{ text().list.edit }}
-              </button>
-              <button
-                size="sm"
-                type="button"
-                [appButton]="confirmingRemoveId() === driver.id ? 'danger' : 'text'"
-                [disabled]="removing()"
-                (click)="remove(driver)"
-              >
-                {{ confirmingRemoveId() === driver.id ? text().list.confirmRemove : text().list.remove }}
-              </button>
+              <div class="ro-actions-row">
+                <a appButton="secondary" size="sm" [routerLink]="[driver.id]">
+                  {{ text().list.open }}
+                </a>
+                <button
+                  appButton="text"
+                  size="sm"
+                  type="button"
+                  [attr.title]="text().list.edit"
+                  [attr.aria-label]="text().list.edit"
+                  (click)="edit(driver)"
+                >
+                  <ng-icon [svg]="icons.edit" aria-hidden="true" />
+                  <span class="ro-action-label">{{ text().list.edit }}</span>
+                </button>
+                <button
+                  class="ro-action-remove"
+                  size="sm"
+                  type="button"
+                  [appButton]="confirmingRemoveId() === driver.id ? 'danger' : 'text'"
+                  [disabled]="removing()"
+                  [attr.title]="
+                    confirmingRemoveId() === driver.id
+                      ? text().list.confirmRemove
+                      : text().list.remove
+                  "
+                  [attr.aria-label]="
+                    confirmingRemoveId() === driver.id
+                      ? text().list.confirmRemove
+                      : text().list.remove
+                  "
+                  (click)="remove(driver)"
+                >
+                  <ng-icon [svg]="icons.remove" aria-hidden="true" />
+                  <span class="ro-action-label">
+                    {{ confirmingRemoveId() === driver.id ? text().list.confirmRemove : text().list.remove }}
+                  </span>
+                </button>
+              </div>
             </td>
           </tr>
           }

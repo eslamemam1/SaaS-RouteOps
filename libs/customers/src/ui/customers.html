@@ -61,7 +61,7 @@
             <th>{{ text().list.email }}</th>
             <th>{{ text().list.address }}</th>
             <th>{{ text().list.dealing }}</th>
-            <th></th>
+            <th class="ro-actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -94,23 +94,42 @@
               </app-tag>
             </td>
             <td class="ro-actions">
-              <button
-                appButton="text"
-                size="sm"
-                type="button"
-                (click)="edit(customer)"
-              >
-                {{ text().list.edit }}
-              </button>
-              <button
-                size="sm"
-                type="button"
-                [appButton]="confirmingRemoveId() === customer.id ? 'danger' : 'text'"
-                [disabled]="removing()"
-                (click)="remove(customer)"
-              >
-                {{ confirmingRemoveId() === customer.id ? text().list.confirmRemove : text().list.remove }}
-              </button>
+              <div class="ro-actions-row">
+                <button
+                  appButton="text"
+                  size="sm"
+                  type="button"
+                  [attr.title]="text().list.edit"
+                  [attr.aria-label]="text().list.edit"
+                  (click)="edit(customer)"
+                >
+                  <ng-icon [svg]="icons.edit" aria-hidden="true" />
+                  <span class="ro-action-label">{{ text().list.edit }}</span>
+                </button>
+                <button
+                  class="ro-action-remove"
+                  size="sm"
+                  type="button"
+                  [appButton]="confirmingRemoveId() === customer.id ? 'danger' : 'text'"
+                  [disabled]="removing()"
+                  [attr.title]="
+                    confirmingRemoveId() === customer.id
+                      ? text().list.confirmRemove
+                      : text().list.remove
+                  "
+                  [attr.aria-label]="
+                    confirmingRemoveId() === customer.id
+                      ? text().list.confirmRemove
+                      : text().list.remove
+                  "
+                  (click)="remove(customer)"
+                >
+                  <ng-icon [svg]="icons.remove" aria-hidden="true" />
+                  <span class="ro-action-label">
+                    {{ confirmingRemoveId() === customer.id ? text().list.confirmRemove : text().list.remove }}
+                  </span>
+                </button>
+              </div>
             </td>
           </tr>
           }

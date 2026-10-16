@@ -9,6 +9,7 @@ import {
   lucidePencil,
   lucidePlus,
   lucideRoute,
+  lucideTrash2,
 } from '@ng-icons/lucide';
 import {
   Alert,
@@ -80,6 +81,7 @@ export class TransportRoutes {
     to: lucideArrowRight,
     edit: lucidePencil,
     copy: lucideCopy,
+    remove: lucideTrash2,
   };
   protected readonly view = injectListView('routes');
   private readonly language = inject(LanguageService).language;

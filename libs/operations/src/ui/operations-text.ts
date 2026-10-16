@@ -250,7 +250,7 @@ export const operationsText: Record<Language, OperationsText> = {
       extra: 'رحلة إضافية',
       noRoute: 'بدون خط',
       remove: 'حذف',
-      confirmRemove: 'تأكيد الحذف',
+      confirmRemove: 'تأكيد',
       markAllDone: 'تسجيل كل الرحلات الظاهرة «تمّت»',
       notices: {
         changed: 'تم حفظ تغيير الرحلة.',
@@ -444,7 +444,7 @@ export const operationsText: Record<Language, OperationsText> = {
       extra: 'Extra trip',
       noRoute: 'No route',
       remove: 'Delete',
-      confirmRemove: 'Confirm delete',
+      confirmRemove: 'Confirm',
       markAllDone: 'Mark all shown trips "Done"',
       notices: {
         changed: 'The trip change was saved.',

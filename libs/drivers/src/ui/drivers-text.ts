@@ -252,7 +252,7 @@ export const driversText: Record<Language, DriversText> = {
       stopped: 'لا يعمل حاليًا',
       edit: 'تعديل',
       remove: 'حذف',
-      confirmRemove: 'اضغط مرة أخرى للتأكيد',
+      confirmRemove: 'تأكيد',
     },
     form: {
       addTitle: 'إضافة سائق جديد',
@@ -426,7 +426,7 @@ export const driversText: Record<Language, DriversText> = {
       stopped: 'Stopped',
       edit: 'Edit',
       remove: 'Delete',
-      confirmRemove: 'Press again to confirm',
+      confirmRemove: 'Confirm',
     },
     form: {
       addTitle: 'Add a new driver',

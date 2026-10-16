@@ -16,6 +16,7 @@ export interface RoutesText {
     readonly allCustomers: string;
     readonly noMatch: string;
     readonly copy: string;
+    readonly copyTitle: string;
     readonly name: string;
     readonly customer: string;
     readonly crew: string;
@@ -132,7 +133,8 @@ export const routesText: Record<Language, RoutesText> = {
       filter: 'عرض خطوط',
       allCustomers: 'كل الشركات',
       noMatch: 'لا توجد خطوط تطابق البحث أو الشركة المختارة.',
-      copy: 'نسخ لشركة أخرى',
+      copy: 'نسخ',
+      copyTitle: 'نسخ هذا الخط لشركة متعاقدة أخرى',
       name: 'الخط',
       customer: 'الشركة المتعاقدة',
       crew: 'السائق والمركبة',
@@ -151,7 +153,7 @@ export const routesText: Record<Language, RoutesText> = {
       stopped: 'متوقف',
       edit: 'تعديل',
       remove: 'حذف',
-      confirmRemove: 'اضغط مرة أخرى للتأكيد',
+      confirmRemove: 'تأكيد',
     },
     form: {
       addTitle: 'إضافة خط جديد',
@@ -249,7 +251,8 @@ export const routesText: Record<Language, RoutesText> = {
       filter: 'Show routes of',
       allCustomers: 'All companies',
       noMatch: 'No route matches the search or the chosen company.',
-      copy: 'Copy for another company',
+      copy: 'Copy',
+      copyTitle: 'Copy this route for another client company',
       name: 'Route',
       customer: 'Client company',
       crew: 'Driver and vehicle',
@@ -268,7 +271,7 @@ export const routesText: Record<Language, RoutesText> = {
       stopped: 'Stopped',
       edit: 'Edit',
       remove: 'Delete',
-      confirmRemove: 'Press again to confirm',
+      confirmRemove: 'Confirm',
     },
     form: {
       addTitle: 'Add a new route',

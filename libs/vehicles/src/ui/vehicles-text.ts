@@ -286,7 +286,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       outOfService: 'خارج الخدمة',
       edit: 'تعديل',
       remove: 'حذف',
-      confirmRemove: 'اضغط مرة أخرى للتأكيد',
+      confirmRemove: 'تأكيد',
     },
     form: {
       addTitle: 'إضافة مركبة جديدة',
@@ -475,7 +475,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       outOfService: 'Out of service',
       edit: 'Edit',
       remove: 'Delete',
-      confirmRemove: 'Press again to confirm',
+      confirmRemove: 'Confirm',
     },
     form: {
       addTitle: 'Add a new vehicle',

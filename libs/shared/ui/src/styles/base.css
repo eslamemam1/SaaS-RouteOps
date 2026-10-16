@@ -191,7 +191,10 @@ label.checkbox {
 /* Fields side by side in a form, one under the other when the form is narrow. */
 .ro-form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--ro-form-column-min-width), 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(var(--ro-form-column-min-width), 1fr)
+  );
   align-items: start;
   gap: var(--ro-space-4);
 }
@@ -556,7 +559,10 @@ label.ro-chip:has(input:focus-visible) {
 /* Labelled details of one record, two to a row where there is room. */
 .ro-details {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--ro-form-column-min-width), 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(var(--ro-form-column-min-width), 1fr)
+  );
   gap: var(--ro-space-4);
 }
 
@@ -681,7 +687,10 @@ a.ro-card:hover,
 
 .ro-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--ro-card-min-width), 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(var(--ro-card-min-width), 1fr)
+  );
   gap: var(--ro-space-4);
 }
 
@@ -739,7 +748,10 @@ a.ro-card:hover,
 
 .ro-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--ro-card-min-width), 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(var(--ro-card-min-width), 1fr)
+  );
   gap: var(--ro-space-4);
 }
 
@@ -869,8 +881,78 @@ tbody tr:last-child td {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Row actions: keep display:flex off the <td> (it breaks table column width).
+ * The inner .ro-actions-row is the flex strip. In the table view labels hide so
+ * only icons show; title / aria-label keep the meaning. Cards show the words.
+ */
 .ro-actions {
+  width: 1%;
+  padding-inline: var(--ro-space-2);
   white-space: nowrap;
+  text-align: end;
+  vertical-align: middle;
+}
+
+.ro-actions-row {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ro-space-1);
+  max-inline-size: 100%;
+}
+
+.ro-actions-row .app-button[data-size='sm'] {
+  padding-inline: var(--ro-space-2);
+}
+
+.ro-table-stack:not(.ro-table-cards)
+  .ro-actions-row
+  .app-button[data-size='sm'] {
+  min-inline-size: 2rem;
+  padding-inline: var(--ro-space-2);
+}
+
+.ro-table-stack:not(.ro-table-cards) .ro-action-label {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  white-space: nowrap;
+}
+
+/* Confirm text must stay visible even when other labels are icon-only. */
+.ro-table-stack:not(.ro-table-cards)
+  .ro-action-remove[data-variant='danger']
+  .ro-action-label {
+  position: static;
+  inline-size: auto;
+  block-size: auto;
+  margin: 0;
+  clip: auto;
+  overflow: visible;
+}
+
+.ro-actions-row .ro-action-remove {
+  margin-inline-start: var(--ro-space-1);
+  padding-inline-start: var(--ro-space-3);
+  border-inline-start: 0;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.ro-actions-row .ro-action-remove[data-variant='text'] {
+  color: var(--ro-text-secondary);
+}
+
+.ro-actions-row .ro-action-remove[data-variant='text']:hover:not(:disabled) {
+  background: var(--ro-bg-danger-subtle);
+  color: var(--ro-text-danger);
 }
 
 /* The cell that names a record: a photo or icon, the name, and a short detail under it. */
@@ -944,7 +1026,10 @@ a.ro-entity-name:hover {
 
   .ro-table-cards tbody {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(var(--ro-list-card-min-width), 100%), 1fr));
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(min(var(--ro-list-card-min-width), 100%), 1fr)
+    );
     gap: var(--ro-space-4);
   }
 
@@ -960,7 +1045,8 @@ a.ro-entity-name:hover {
     box-shadow: var(--ro-shadow-none);
   }
 
-  .ro-card:has(> .ro-table-scroll > .ro-table-cards) > :is(.ro-card-header, .ro-card-body, .app-pager) {
+  .ro-card:has(> .ro-table-scroll > .ro-table-cards)
+    > :is(.ro-card-header, .ro-card-body, .app-pager) {
     padding: 0;
     border: 0;
   }
@@ -1086,16 +1172,28 @@ a.ro-entity-name:hover {
     grid-column: 1 / -1;
     margin-block: var(--ro-space-4) calc(-1 * var(--ro-space-5));
     margin-inline: calc(-1 * var(--ro-space-5));
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
+    width: auto;
     padding-block: var(--ro-space-3);
     padding-inline: var(--ro-space-5);
     border-block-start: var(--ro-border-width) solid var(--ro-border-default);
     border-end-start-radius: calc(var(--ro-radius-lg) - var(--ro-border-width));
     border-end-end-radius: calc(var(--ro-radius-lg) - var(--ro-border-width));
     background: var(--ro-bg-hover);
+    text-align: start;
     white-space: normal;
+  }
+
+  .ro-table-cards .ro-actions-row {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: var(--ro-space-2);
+  }
+
+  .ro-table-cards .ro-actions-row .ro-action-remove {
+    margin-inline-start: 0;
+    padding-inline-start: var(--ro-space-2);
+    border-inline-start: 0;
+    border-radius: var(--ro-radius-sm);
   }
 
   .ro-table-cards .ro-entity .app-avatar,
@@ -1187,9 +1285,23 @@ a.ro-entity-name:hover {
   }
 
   .ro-table-stack td.ro-actions {
-    flex-wrap: wrap;
-    padding-block-start: var(--ro-space-2);
+    width: auto;
+    padding-block-start: var(--ro-space-3);
+    text-align: start;
     white-space: normal;
+  }
+
+  .ro-table-stack .ro-actions-row {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: var(--ro-space-2);
+  }
+
+  .ro-table-stack .ro-actions-row .ro-action-remove {
+    margin-inline-start: 0;
+    padding-inline-start: var(--ro-space-2);
+    border-inline-start: 0;
+    border-radius: var(--ro-radius-sm);
   }
 }
 

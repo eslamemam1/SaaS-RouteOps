@@ -75,7 +75,7 @@ export const customersText: Record<Language, CustomersText> = {
       stopped: 'متوقف',
       edit: 'تعديل',
       remove: 'حذف',
-      confirmRemove: 'اضغط مرة أخرى للتأكيد',
+      confirmRemove: 'تأكيد',
     },
     form: {
       addTitle: 'إضافة شركة متعاقدة جديدة',
@@ -130,7 +130,7 @@ export const customersText: Record<Language, CustomersText> = {
       stopped: 'Stopped',
       edit: 'Edit',
       remove: 'Delete',
-      confirmRemove: 'Press again to confirm',
+      confirmRemove: 'Confirm',
     },
     form: {
       addTitle: 'Add a new client company',

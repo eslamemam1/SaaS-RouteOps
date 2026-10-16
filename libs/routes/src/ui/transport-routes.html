@@ -94,7 +94,7 @@
             <th>{{ text().list.days }}</th>
             <th>{{ text().list.tripPrice }}</th>
             <th>{{ text().list.work }}</th>
-            <th></th>
+            <th class="ro-actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -166,33 +166,53 @@
               </app-tag>
             </td>
             <td class="ro-actions">
-              <button
-                appButton="text"
-                size="sm"
-                type="button"
-                (click)="edit(route)"
-              >
-                <ng-icon [svg]="icons.edit" aria-hidden="true" />
-                {{ text().list.edit }}
-              </button>
-              <button
-                size="sm"
-                type="button"
-                [appButton]="confirmingRemoveId() === route.id ? 'danger' : 'text'"
-                [disabled]="removing()"
-                (click)="remove(route)"
-              >
-                {{ confirmingRemoveId() === route.id ? text().list.confirmRemove : text().list.remove }}
-              </button>
-              <button
-                appButton="text"
-                size="sm"
-                type="button"
-                (click)="copy(route)"
-              >
-                <ng-icon [svg]="icons.copy" aria-hidden="true" />
-                {{ text().list.copy }}
-              </button>
+              <div class="ro-actions-row">
+                <button
+                  appButton="text"
+                  size="sm"
+                  type="button"
+                  [attr.title]="text().list.edit"
+                  [attr.aria-label]="text().list.edit"
+                  (click)="edit(route)"
+                >
+                  <ng-icon [svg]="icons.edit" aria-hidden="true" />
+                  <span class="ro-action-label">{{ text().list.edit }}</span>
+                </button>
+                <button
+                  appButton="text"
+                  size="sm"
+                  type="button"
+                  [attr.title]="text().list.copyTitle"
+                  [attr.aria-label]="text().list.copyTitle"
+                  (click)="copy(route)"
+                >
+                  <ng-icon [svg]="icons.copy" aria-hidden="true" />
+                  <span class="ro-action-label">{{ text().list.copy }}</span>
+                </button>
+                <button
+                  class="ro-action-remove"
+                  size="sm"
+                  type="button"
+                  [appButton]="confirmingRemoveId() === route.id ? 'danger' : 'text'"
+                  [disabled]="removing()"
+                  [attr.title]="
+                    confirmingRemoveId() === route.id
+                      ? text().list.confirmRemove
+                      : text().list.remove
+                  "
+                  [attr.aria-label]="
+                    confirmingRemoveId() === route.id
+                      ? text().list.confirmRemove
+                      : text().list.remove
+                  "
+                  (click)="remove(route)"
+                >
+                  <ng-icon [svg]="icons.remove" aria-hidden="true" />
+                  <span class="ro-action-label">
+                    {{ confirmingRemoveId() === route.id ? text().list.confirmRemove : text().list.remove }}
+                  </span>
+                </button>
+              </div>
             </td>
           </tr>
           }
