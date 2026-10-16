@@ -5,6 +5,8 @@ export const reportProblems = [
   'organization',
   'load',
   'notConnected',
+  'date',
+  'tooManyDays',
 ] as const;
 
 export type ReportProblem = (typeof reportProblems)[number];
@@ -19,6 +21,10 @@ export const vehicleOwnerships = ['owned', 'rented', 'contractor'] as const;
 
 export type VehicleOwnership = (typeof vehicleOwnerships)[number];
 
+export const vehicleTypes = ['bus', 'minibus', 'microbus', 'car'] as const;
+
+export type VehicleType = (typeof vehicleTypes)[number];
+
 export interface ReportChoice {
   readonly id: string;
   readonly label: string;
@@ -27,6 +33,7 @@ export interface ReportChoice {
 export interface ReportVehicle extends ReportChoice {
   readonly ownership: VehicleOwnership;
   readonly ownerName: string;
+  readonly type: VehicleType;
 }
 
 // The same route name may serve several customers, so a route is shown with
@@ -134,14 +141,42 @@ export interface DateRange {
   readonly to: string;
 }
 
+// One line on a contracting-company invoice: a route's done trips, or the
+// extra trips that named no route.
+export interface InvoiceLine {
+  readonly routeId: string;
+  readonly label: string;
+  readonly vehicleType: VehicleType | '';
+  readonly trips: number;
+  readonly extra: number;
+  readonly rate: number | null;
+  readonly revenue: number;
+  readonly unpriced: number;
+}
+
+export const maximumInvoiceDays = 93;
+
 const monthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;
+const dayPattern = /^\d{4}-\d{2}-\d{2}$/;
 
 export function isVehicleOwnership(value: string): value is VehicleOwnership {
   return (vehicleOwnerships as readonly string[]).includes(value);
 }
 
+export function isVehicleType(value: string): value is VehicleType {
+  return (vehicleTypes as readonly string[]).includes(value);
+}
+
 export function isReportMonth(value: string): boolean {
   return monthPattern.test(value);
+}
+
+export function isReportDay(value: string): boolean {
+  if (!dayPattern.test(value)) {
+    return false;
+  }
+  const day = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(day.getTime()) && day.toISOString().slice(0, 10) === value;
 }
 
 export function monthOf(date: string): string {
@@ -161,6 +196,114 @@ export function daysSoFar(month: string, today: string): DateRange | null {
     return null;
   }
   return { from, to: to < today ? to : today };
+}
+
+export function dayCount(from: string, to: string): number {
+  const days =
+    (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) /
+    86_400_000;
+  return days + 1;
+}
+
+// Invoice days may reach today; future days never belong on a bill.
+export function invoiceDateError(
+  days: DateRange,
+  today: string,
+): ReportProblem | null {
+  if (!isReportDay(days.from) || !isReportDay(days.to)) {
+    return 'date';
+  }
+  if (days.from > days.to || days.to > today) {
+    return 'date';
+  }
+  return dayCount(days.from, days.to) > maximumInvoiceDays ? 'tooManyDays' : null;
+}
+
+// From the first of the current month through today.
+export function invoiceDaysSoFar(today: string): DateRange {
+  return { from: `${monthOf(today)}-01`, to: today };
+}
+
+export function previousMonthDays(today: string): DateRange {
+  const [year, month] = monthOf(today).split('-').map(Number);
+  const previous =
+    month === 1
+      ? `${year - 1}-12`
+      : `${year}-${String(month - 1).padStart(2, '0')}`;
+  return monthDays(previous);
+}
+
+// Exact price of one full trip when every full trip shared the same amount.
+export function invoiceRate(revenue: number, full: number): number | null {
+  if (full <= 0 || revenue <= 0) {
+    return null;
+  }
+  const halves = full * 2;
+  if (!Number.isInteger(halves) || revenue % halves !== 0) {
+    return null;
+  }
+  return (revenue / halves) * 2;
+}
+
+// Lines for one contracting company: one row per route, and one for extras
+// with no route. Mixed vehicle types on a route keep the type with most trips.
+export function customerInvoiceLines(
+  counts: readonly TripCount[],
+  customerId: string,
+  choices: ReportChoices,
+): InvoiceLine[] {
+  const ofCustomer = counts.filter((count) => count.customerId === customerId);
+  const byRoute = new Map<string, TripCount[]>();
+  for (const count of ofCustomer) {
+    const rows = byRoute.get(count.routeId) ?? [];
+    rows.push(count);
+    byRoute.set(count.routeId, rows);
+  }
+  const vehicles = new Map(
+    choices.vehicles.map((vehicle) => [vehicle.id, vehicle] as const),
+  );
+  const routes = new Map(
+    choices.routes.map((route) => [route.id, route] as const),
+  );
+  return [...byRoute]
+    .map(([routeId, rows]) => {
+      const total = rows.reduce(addCount, emptyTotal);
+      return {
+        routeId,
+        label: routes.get(routeId)?.label ?? '',
+        vehicleType: leadingVehicleType(rows, vehicles),
+        trips: total.full,
+        extra: total.extraFull,
+        rate: invoiceRate(total.revenue, total.full),
+        revenue: total.revenue,
+        unpriced: total.unpriced,
+      };
+    })
+    .sort(
+      (first, second) =>
+        first.label.localeCompare(second.label) ||
+        first.routeId.localeCompare(second.routeId),
+    );
+}
+
+function leadingVehicleType(
+  rows: readonly TripCount[],
+  vehicles: ReadonlyMap<string, ReportVehicle>,
+): VehicleType | '' {
+  const doneByType = new Map<VehicleType | '', number>();
+  for (const row of rows) {
+    const type = vehicles.get(row.vehicleId)?.type ?? '';
+    doneByType.set(type, (doneByType.get(type) ?? 0) + row.done);
+  }
+  let best: VehicleType | '' = '';
+  let bestDone = -1;
+  for (const [type, done] of doneByType) {
+    if (done > bestDone || (done === bestDone && type < best)) {
+      best = type;
+      bestDone = done;
+    }
+  }
+  return best;
 }
 
 // A vehicle with expenses but no done trips still gets a line, so its cost

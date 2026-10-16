@@ -1,6 +1,9 @@
 <div class="ro-stack">
-  <app-page-header [title]="text().report.title" [hint]="text().report.hint">
-    @if (organization()) {
+  <app-page-header
+    [title]="view() === 'invoice' ? text().invoice.title : text().report.title"
+    [hint]="view() === 'invoice' ? text().invoice.hint : text().report.hint"
+  >
+    @if (organization() && view() === 'summary') {
       <app-month-picker
         [label]="text().report.month"
         [month]="month()"
@@ -10,218 +13,438 @@
     }
   </app-page-header>
 
-  @if (status() === 'loading') {
-    <app-page-state kind="loading" [message]="text().report.loading" />
-  }
-  @if (status() === 'error') {
-    <app-page-state
-      kind="error"
-      [message]="text().problems[problem()]"
-      [retryable]="problem() === 'load'"
-      (retry)="retry()"
-    />
-  }
-  @if ((status() === 'success' || status() === 'empty') && report().unopenedDays.length > 0) {
-    <app-alert tone="warning" [title]="unopenedTitle()">
-      <p>{{ text().report.unopenedHint }}</p>
-      <p>
-        @for (unopened of report().unopenedDays; track unopened; let last = $last) {
-          @if (organization(); as current) {
-            <a [routerLink]="['/organizations', current.id, 'operations']" [queryParams]="{ date: unopened }">
-              <bdi>{{ day(unopened) }}</bdi>
-            </a>
-          }
-          @if (!last) {<span>{{ text().report.separator }}</span>}
-        }
-      </p>
-    </app-alert>
-  }
-  @if (status() === 'empty') {
-    <app-page-state kind="empty" [message]="text().report.empty" />
-  }
-  @if (status() === 'success') {
-    <div class="ro-stats">
-      @for (stat of stats(); track stat.label) {
-        <div class="ro-stat ro-card" [attr.data-tone]="stat.tone">
-          <span class="ro-stat-icon">
-            <ng-icon [svg]="stat.icon" aria-hidden="true" />
-          </span>
-          <span class="ro-stat-label">{{ stat.label }}</span>
-          <strong class="ro-stat-value ro-numeric"><bdi>{{ stat.value }}</bdi></strong>
-        </div>
-      }
+  @if (organization()) {
+    <div class="ro-toolbar reports-views" role="group" [attr.aria-label]="text().report.title">
+      <button
+        type="button"
+        size="sm"
+        [appButton]="view() === 'summary' ? 'primary' : 'secondary'"
+        [attr.aria-pressed]="view() === 'summary'"
+        data-view="summary"
+        (click)="showView('summary')"
+      >
+        {{ text().views.summary }}
+      </button>
+      <button
+        type="button"
+        size="sm"
+        [appButton]="view() === 'invoice' ? 'primary' : 'secondary'"
+        [attr.aria-pressed]="view() === 'invoice'"
+        data-view="invoice"
+        (click)="showView('invoice')"
+      >
+        {{ text().views.invoice }}
+      </button>
     </div>
-    <p class="hint">{{ text().report.countedHint }}</p>
-    @if (organization(); as current) {
-      <p class="hint">
-        {{ text().report.profitHint }}
-        <a [routerLink]="['/organizations', current.id, 'expenses']" [queryParams]="{ month: month() }">
-          {{ text().report.expensesLink }}
-        </a>
-      </p>
+  }
+
+  @if (view() === 'summary') {
+    @if (status() === 'loading') {
+      <app-page-state kind="loading" [message]="text().report.loading" />
     }
-    @if (total().unpriced > 0) {
-      <app-alert tone="warning" [title]="unpricedTitle()">
-        {{ text().report.unpricedHint }}
-        @if (organization(); as current) {
-          <a [routerLink]="['/organizations', current.id, 'routes']">
-            {{ text().report.routesLink }}
-          </a>
-        }
-      </app-alert>
+    @if (status() === 'error') {
+      <app-page-state
+        kind="error"
+        [message]="text().problems[problem()]"
+        [retryable]="problem() === 'load'"
+        (retry)="retry()"
+      />
     }
-    @if (unrecorded(); as missing) {
-      <app-alert tone="warning" [title]="text().report.unrecordedTitle">
+    @if ((status() === 'success' || status() === 'empty') && report().unopenedDays.length > 0) {
+      <app-alert tone="warning" [title]="unopenedTitle()">
+        <p>{{ text().report.unopenedHint }}</p>
         <p>
-          @if (missing.drivers > 0) {
-            <span>{{ text().report.unrecordedDrivers }} <bdi>{{ missing.drivers }}</bdi></span>
-          }
-          @if (missing.drivers > 0 && missing.vehicles > 0) {
-            <span>{{ text().report.separator }}</span>
-          }
-          @if (missing.vehicles > 0) {
-            <span>{{ text().report.unrecordedVehicles }} <bdi>{{ missing.vehicles }}</bdi></span>
+          @for (unopened of report().unopenedDays; track unopened; let last = $last) {
+            @if (organization(); as current) {
+              <a
+                [routerLink]="['/organizations', current.id, 'operations']"
+                [queryParams]="{ date: unopened }"
+              >
+                <bdi>{{ day(unopened) }}</bdi>
+              </a>
+            }
+            @if (!last) {
+              <span>{{ text().report.separator }}</span>
+            }
           }
         </p>
-        <p>
-          {{ text().report.unrecordedHint }}
-          @if (organization(); as current) {
-            <a
-              [routerLink]="['/organizations', current.id, 'expenses']"
-              [queryParams]="{ month: month() }"
+      </app-alert>
+    }
+    @if (status() === 'empty') {
+      <app-page-state kind="empty" [message]="text().report.empty" />
+    }
+    @if (status() === 'success') {
+      <div class="ro-stats">
+        @for (stat of stats(); track stat.label) {
+          <div class="ro-stat ro-card" [attr.data-tone]="stat.tone">
+            <span class="ro-stat-icon">
+              <ng-icon [svg]="stat.icon" aria-hidden="true" />
+            </span>
+            <span class="ro-stat-label">{{ stat.label }}</span>
+            <strong class="ro-stat-value ro-numeric"
+              ><bdi>{{ stat.value }}</bdi></strong
             >
-              {{ text().report.expensesLink }}
+          </div>
+        }
+      </div>
+      <p class="hint">{{ text().report.countedHint }}</p>
+      @if (organization(); as current) {
+        <p class="hint">
+          {{ text().report.profitHint }}
+          <a
+            [routerLink]="['/organizations', current.id, 'expenses']"
+            [queryParams]="{ month: month() }"
+          >
+            {{ text().report.expensesLink }}
+          </a>
+        </p>
+      }
+      @if (total().unpriced > 0) {
+        <app-alert tone="warning" [title]="unpricedTitle()">
+          {{ text().report.unpricedHint }}
+          @if (organization(); as current) {
+            <a [routerLink]="['/organizations', current.id, 'routes']">
+              {{ text().report.routesLink }}
             </a>
           }
-        </p>
-      </app-alert>
-    }
-    <section class="ro-card">
-      <div class="ro-card-header reports-groups">
-        <span class="reports-groups-label">{{ text().report.groupBy }}</span>
-        <div class="ro-toolbar" role="group" [attr.aria-label]="text().report.groupBy">
-          @for (choice of groups; track choice) {
-            <button
-              size="sm"
-              type="button"
-              [appButton]="group() === choice ? 'primary' : 'secondary'"
-              [attr.aria-pressed]="group() === choice"
-              (click)="group.set(choice)"
-            >
-              {{ text().groups[choice] }}
-            </button>
-          }
-        </div>
-      </div>
-      @if (group() === 'vehicle') {
-        <div class="ro-card-body">
-          <p class="hint">{{ text().report.vehicleExpensesHint }}</p>
-        </div>
+        </app-alert>
       }
-      @if (group() === 'route') {
-        <div class="ro-card-body ro-stack">
-          <p class="hint">{{ text().report.routeHint }}</p>
-        </div>
+      @if (unrecorded(); as missing) {
+        <app-alert tone="warning" [title]="text().report.unrecordedTitle">
+          <p>
+            @if (missing.drivers > 0) {
+              <span
+                >{{ text().report.unrecordedDrivers }}
+                <bdi>{{ missing.drivers }}</bdi></span
+              >
+            }
+            @if (missing.drivers > 0 && missing.vehicles > 0) {
+              <span>{{ text().report.separator }}</span>
+            }
+            @if (missing.vehicles > 0) {
+              <span
+                >{{ text().report.unrecordedVehicles }}
+                <bdi>{{ missing.vehicles }}</bdi></span
+              >
+            }
+          </p>
+          <p>
+            {{ text().report.unrecordedHint }}
+            @if (organization(); as current) {
+              <a
+                [routerLink]="['/organizations', current.id, 'expenses']"
+                [queryParams]="{ month: month() }"
+              >
+                {{ text().report.expensesLink }}
+              </a>
+            }
+          </p>
+        </app-alert>
       }
-      <div class="ro-table-scroll">
-        <table class="ro-table-stack">
-          <thead>
-            <tr>
-              <th>{{ text().groupHeadings[group()] }}</th>
-              @if (group() === 'vehicle') {
-                <th>{{ text().report.ownership }}</th>
-              }
-              <th>{{ text().report.done }}</th>
-              <th>{{ text().report.extra }}</th>
-              <th>{{ text().report.revenue }}</th>
-              @if (group() === 'vehicle') {
-                <th>{{ text().report.expenses }}</th>
-                <th>{{ text().report.profit }}</th>
-              }
-              @if (group() === 'route') {
-                <th>{{ text().report.driverShare }}</th>
-                <th>{{ text().report.vehicleShare }}</th>
-                <th>{{ text().report.companyShare }}</th>
-              }
-            </tr>
-          </thead>
-          <tbody>
-            @for (line of pages.items(); track line.id) {
+      <section class="ro-card">
+        <div class="ro-card-header reports-groups">
+          <span class="reports-groups-label">{{ text().report.groupBy }}</span>
+          <div class="ro-toolbar" role="group" [attr.aria-label]="text().report.groupBy">
+            @for (choice of groups; track choice) {
+              <button
+                size="sm"
+                type="button"
+                [appButton]="group() === choice ? 'primary' : 'secondary'"
+                [attr.aria-pressed]="group() === choice"
+                (click)="group.set(choice)"
+              >
+                {{ text().groups[choice] }}
+              </button>
+            }
+          </div>
+        </div>
+        @if (group() === 'vehicle') {
+          <div class="ro-card-body">
+            <p class="hint">{{ text().report.vehicleExpensesHint }}</p>
+          </div>
+        }
+        @if (group() === 'route') {
+          <div class="ro-card-body ro-stack">
+            <p class="hint">{{ text().report.routeHint }}</p>
+          </div>
+        }
+        <div class="ro-table-scroll">
+          <table class="ro-table-stack">
+            <thead>
               <tr>
-                <td [attr.data-label]="text().groupHeadings[group()]">
-                  @if (line.label) {
-                    <bdi>{{ line.label }}</bdi>
-                    @if (group() === 'route' && routeCustomer(line); as customer) {
-                      <span class="hint"> <bdi>{{ customer }}</bdi></span>
-                    }
-                  } @else {
-                    <span class="hint">{{ text().missing[group()] }}</span>
-                  }
-                </td>
+                <th>{{ text().groupHeadings[group()] }}</th>
                 @if (group() === 'vehicle') {
-                  <td [attr.data-label]="text().report.ownership">
-                    @if (vehicleOf(line); as vehicle) {
-                      <app-tag>{{ text().ownerships[vehicle.ownership] }}</app-tag>
-                      @if (vehicle.ownerName) {
-                        <span class="hint"> {{ vehicle.ownerName }}</span>
-                      }
-                    }
-                  </td>
+                  <th>{{ text().report.ownership }}</th>
                 }
-                <td class="ro-numeric" [attr.data-label]="text().report.done">
-                  <bdi>{{ line.full }}</bdi>
-                </td>
-                <td class="ro-numeric" [attr.data-label]="text().report.extra">
-                  <bdi>{{ line.extraFull }}</bdi>
-                </td>
-                <td class="ro-numeric" [attr.data-label]="text().report.revenue">
-                  <bdi>{{ money(line.revenue) }}</bdi>
-                  @if (line.unpriced > 0) {
-                    <app-tag tone="warning">
-                      <bdi>{{ line.unpriced }}</bdi> {{ text().report.unpricedTrips }}
-                    </app-tag>
-                  }
-                </td>
+                <th>{{ text().report.done }}</th>
+                <th>{{ text().report.extra }}</th>
+                <th>{{ text().report.revenue }}</th>
                 @if (group() === 'vehicle') {
-                  <td class="ro-numeric" [attr.data-label]="text().report.expenses">
-                    <bdi>{{ money(line.expenses) }}</bdi>
-                  </td>
-                  <td class="ro-numeric" [attr.data-label]="text().report.profit">
-                    <bdi>{{ money(line.revenue - line.expenses) }}</bdi>
-                    @if (line.revenue < line.expenses) {
-                      <app-tag tone="danger">{{ text().report.loss }}</app-tag>
-                    }
-                  </td>
+                  <th>{{ text().report.expenses }}</th>
+                  <th>{{ text().report.profit }}</th>
                 }
                 @if (group() === 'route') {
-                  <td class="ro-numeric" [attr.data-label]="text().report.driverShare">
-                    <bdi>{{ money(line.driverCost) }}</bdi>
-                  </td>
-                  <td class="ro-numeric" [attr.data-label]="text().report.vehicleShare">
-                    <bdi>{{ money(line.vehicleCost) }}</bdi>
-                  </td>
-                  <td class="ro-numeric" [attr.data-label]="text().report.companyShare">
-                    <bdi>{{ money(companyShare(line)) }}</bdi>
-                    @if (companyShare(line) < 0) {
-                      <app-tag tone="danger">{{ text().report.loss }}</app-tag>
-                    }
-                  </td>
+                  <th>{{ text().report.driverShare }}</th>
+                  <th>{{ text().report.vehicleShare }}</th>
+                  <th>{{ text().report.companyShare }}</th>
                 }
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      <app-pager [pages]="pages" />
-      @if (group() === 'route') {
-        <div class="ro-card-body">
-          <p>
-            {{ text().report.otherCosts }}:
-            <strong class="ro-numeric"><bdi>{{ money(otherCosts()) }}</bdi></strong>
-          </p>
-          <p class="hint">{{ text().report.otherCostsHint }}</p>
+            </thead>
+            <tbody>
+              @for (line of pages.items(); track line.id) {
+                <tr>
+                  <td [attr.data-label]="text().groupHeadings[group()]">
+                    @if (line.label) {
+                      <bdi>{{ line.label }}</bdi>
+                      @if (group() === 'route' && routeCustomer(line); as customer) {
+                        <span class="hint"> <bdi>{{ customer }}</bdi></span>
+                      }
+                    } @else {
+                      <span class="hint">{{ text().missing[group()] }}</span>
+                    }
+                  </td>
+                  @if (group() === 'vehicle') {
+                    <td [attr.data-label]="text().report.ownership">
+                      @if (vehicleOf(line); as vehicle) {
+                        <app-tag>{{ text().ownerships[vehicle.ownership] }}</app-tag>
+                        @if (vehicle.ownerName) {
+                          <span class="hint"> {{ vehicle.ownerName }}</span>
+                        }
+                      }
+                    </td>
+                  }
+                  <td class="ro-numeric" [attr.data-label]="text().report.done">
+                    <bdi>{{ line.full }}</bdi>
+                  </td>
+                  <td class="ro-numeric" [attr.data-label]="text().report.extra">
+                    <bdi>{{ line.extraFull }}</bdi>
+                  </td>
+                  <td class="ro-numeric" [attr.data-label]="text().report.revenue">
+                    <bdi>{{ money(line.revenue) }}</bdi>
+                    @if (line.unpriced > 0) {
+                      <app-tag tone="warning">
+                        <bdi>{{ line.unpriced }}</bdi> {{ text().report.unpricedTrips }}
+                      </app-tag>
+                    }
+                  </td>
+                  @if (group() === 'vehicle') {
+                    <td class="ro-numeric" [attr.data-label]="text().report.expenses">
+                      <bdi>{{ money(line.expenses) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().report.profit">
+                      <bdi>{{ money(line.revenue - line.expenses) }}</bdi>
+                      @if (line.revenue < line.expenses) {
+                        <app-tag tone="danger">{{ text().report.loss }}</app-tag>
+                      }
+                    </td>
+                  }
+                  @if (group() === 'route') {
+                    <td class="ro-numeric" [attr.data-label]="text().report.driverShare">
+                      <bdi>{{ money(line.driverCost) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().report.vehicleShare">
+                      <bdi>{{ money(line.vehicleCost) }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().report.companyShare">
+                      <bdi>{{ money(companyShare(line)) }}</bdi>
+                      @if (companyShare(line) < 0) {
+                        <app-tag tone="danger">{{ text().report.loss }}</app-tag>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
-      }
+        <app-pager [pages]="pages" />
+        @if (group() === 'route') {
+          <div class="ro-card-body">
+            <p>
+              {{ text().report.otherCosts }}:
+              <strong class="ro-numeric"
+                ><bdi>{{ money(otherCosts()) }}</bdi></strong
+              >
+            </p>
+            <p class="hint">{{ text().report.otherCostsHint }}</p>
+          </div>
+        }
+      </section>
+    }
+  } @else {
+    <section class="ro-card">
+      <div class="ro-card-body ro-stack">
+        <div class="ro-form-row reports-invoice-filters">
+          <app-field [label]="text().invoice.customer">
+            <app-select
+              [value]="customerId()"
+              (valueChange)="chooseCustomer($event)"
+            >
+              <app-option value="" [label]="text().invoice.chooseCustomer" />
+              @for (customer of choices().customers; track customer.id) {
+                <app-option [value]="customer.id" [label]="customer.label" />
+              }
+            </app-select>
+          </app-field>
+          <app-field [label]="text().invoice.from">
+            <input
+              type="date"
+              dir="ltr"
+              data-day="from"
+              [value]="invoiceFrom()"
+              [max]="today"
+              (input)="setInvoiceFrom($any($event.target).value)"
+            />
+          </app-field>
+          <app-field [label]="text().invoice.to">
+            <input
+              type="date"
+              dir="ltr"
+              data-day="to"
+              [value]="invoiceTo()"
+              [max]="today"
+              (input)="setInvoiceTo($any($event.target).value)"
+            />
+          </app-field>
+        </div>
+        <div class="ro-pills" role="group" [attr.aria-label]="text().invoice.title">
+          <button
+            type="button"
+            class="ro-pill"
+            data-days="thisMonth"
+            (click)="chooseInvoiceDays('thisMonth')"
+          >
+            {{ text().invoice.thisMonth }}
+          </button>
+          <button
+            type="button"
+            class="ro-pill"
+            data-days="lastMonth"
+            (click)="chooseInvoiceDays('lastMonth')"
+          >
+            {{ text().invoice.lastMonth }}
+          </button>
+        </div>
+      </div>
     </section>
+
+    @if (!customerId()) {
+      <app-page-state kind="empty" [message]="text().invoice.pickCustomer" />
+    } @else if (invoiceStatus() === 'loading') {
+      <app-page-state kind="loading" [message]="text().report.loading" />
+    } @else if (invoiceStatus() === 'error' && invoiceProblem(); as current) {
+      <app-page-state
+        kind="error"
+        [message]="text().problems[current]"
+        [retryable]="current === 'load'"
+        (retry)="retry()"
+      />
+    } @else if (dateProblem(); as current) {
+      <app-alert tone="warning">{{ text().problems[current] }}</app-alert>
+    } @else {
+      @if (invoiceUnopened().length > 0) {
+        <app-alert tone="warning" [title]="invoiceUnopenedTitle()">
+          <p>{{ text().report.unopenedHint }}</p>
+          <p>
+            @for (unopened of invoiceUnopened(); track unopened; let last = $last) {
+              @if (organization(); as current) {
+                <a
+                  [routerLink]="['/organizations', current.id, 'operations']"
+                  [queryParams]="{ date: unopened }"
+                >
+                  <bdi>{{ day(unopened) }}</bdi>
+                </a>
+              }
+              @if (!last) {
+                <span>{{ text().report.separator }}</span>
+              }
+            }
+          </p>
+        </app-alert>
+      }
+      @if (invoiceUnpriced() > 0) {
+        <app-alert
+          tone="warning"
+          [title]="text().report.unpricedTitle + ' (' + invoiceUnpriced() + ')'"
+        >
+          {{ text().report.unpricedHint }}
+          @if (organization(); as current) {
+            <a [routerLink]="['/organizations', current.id, 'routes']">
+              {{ text().report.routesLink }}
+            </a>
+          }
+        </app-alert>
+      }
+      @if (invoiceStatus() === 'empty') {
+        <app-page-state kind="empty" [message]="text().invoice.empty" />
+      }
+      @if (invoiceStatus() === 'success') {
+        <p class="hint">{{ text().report.countedHint }}</p>
+        <section class="ro-card">
+          <div class="ro-table-scroll">
+            <table class="ro-table-stack" data-table="invoice">
+              <thead>
+                <tr>
+                  <th>{{ text().invoice.serial }}</th>
+                  <th>{{ text().invoice.route }}</th>
+                  <th>{{ text().invoice.vehicleType }}</th>
+                  <th>{{ text().invoice.trips }}</th>
+                  <th>{{ text().invoice.rate }}</th>
+                  <th>{{ text().invoice.lineTotal }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (
+                  line of invoicePages.items();
+                  track line.routeId;
+                  let index = $index
+                ) {
+                  <tr>
+                    <td class="ro-numeric" [attr.data-label]="text().invoice.serial">
+                      <bdi>{{ invoicePages.from() + index }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().invoice.route">
+                      <bdi>{{ routeLabel(line) }}</bdi>
+                    </td>
+                    <td [attr.data-label]="text().invoice.vehicleType">
+                      {{ vehicleTypeLabel(line.vehicleType) }}
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().invoice.trips">
+                      <bdi>{{ line.trips }}</bdi>
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().invoice.rate">
+                      @if (line.rate !== null) {
+                        <bdi>{{ money(line.rate) }}</bdi>
+                      } @else {
+                        {{ text().invoice.noRate }}
+                      }
+                    </td>
+                    <td class="ro-numeric" [attr.data-label]="text().invoice.lineTotal">
+                      <bdi>{{ money(line.revenue) }}</bdi>
+                      @if (line.unpriced > 0) {
+                        <app-tag tone="warning">
+                          <bdi>{{ line.unpriced }}</bdi> {{ text().report.unpricedTrips }}
+                        </app-tag>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="5">{{ text().invoice.grandTotal }}</th>
+                  <td class="ro-numeric">
+                    <strong
+                      ><bdi>{{ money(invoiceTotal()) }}</bdi></strong
+                    >
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <app-pager [pages]="invoicePages" />
+        </section>
+      }
+    }
   }
 </div>

@@ -1,4 +1,5 @@
 import {
+  DateRange,
   MonthReport,
   ReportChoices,
   ReportOrganization,
@@ -15,4 +16,10 @@ export abstract class ReportsRepository {
     month: string,
     today: string,
   ): Promise<MonthReport>;
+  // Trip counts and unopened days for a chosen invoice range; expenses stay on month().
+  abstract range(
+    organization: ReportOrganization,
+    days: DateRange,
+    today: string,
+  ): Promise<Pick<MonthReport, 'counts' | 'unopenedDays'>>;
 }

@@ -12,6 +12,7 @@ import {
   DateRange,
   ExpenseTotal,
   isVehicleOwnership,
+  isVehicleType,
   ReportChoices,
   ReportOrganization,
   TripCount,
@@ -90,7 +91,7 @@ export class SupabaseReportsGateway implements ReportsGateway {
         .eq('organization_id', organizationId),
       client
         .from('vehicles')
-        .select('id, plate_number, ownership, owner_name')
+        .select('id, plate_number, ownership, owner_name, vehicle_type')
         .eq('organization_id', organizationId),
       client
         .from('drivers')
@@ -111,7 +112,7 @@ export class SupabaseReportsGateway implements ReportsGateway {
         customerId: row.customer_id,
       })),
       vehicles: (vehicles.data ?? []).map((row) => {
-        if (!isVehicleOwnership(row.ownership)) {
+        if (!isVehicleOwnership(row.ownership) || !isVehicleType(row.vehicle_type)) {
           throw new ReportsAccessError('load');
         }
         return {
@@ -119,6 +120,7 @@ export class SupabaseReportsGateway implements ReportsGateway {
           label: row.plate_number,
           ownership: row.ownership,
           ownerName: row.owner_name ?? '',
+          type: row.vehicle_type,
         };
       }),
       drivers: (drivers.data ?? []).map((row) => ({

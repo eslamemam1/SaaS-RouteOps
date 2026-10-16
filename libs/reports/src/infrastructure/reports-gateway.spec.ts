@@ -103,7 +103,13 @@ describe('SupabaseReportsGateway', () => {
       if (table === 'vehicles') {
         return {
           data: [
-            { id: 'van-2', plate_number: 'X 2', ownership: 'rented', owner_name: 'مكتب النور' },
+            {
+              id: 'van-2',
+              plate_number: 'X 2',
+              ownership: 'rented',
+              owner_name: 'مكتب النور',
+              vehicle_type: 'microbus',
+            },
           ],
           error: null,
         };
@@ -122,7 +128,13 @@ describe('SupabaseReportsGateway', () => {
       customers: [{ id: 'delta', label: 'Delta Factory' }],
       routes: [{ id: 'route-1', label: 'Line 1', customerId: 'delta' }],
       vehicles: [
-        { id: 'van-2', label: 'X 2', ownership: 'rented', ownerName: 'مكتب النور' },
+        {
+          id: 'van-2',
+          label: 'X 2',
+          ownership: 'rented',
+          ownerName: 'مكتب النور',
+          type: 'microbus',
+        },
       ],
       drivers: [{ id: 'ahmed', label: 'Ahmed' }],
     });

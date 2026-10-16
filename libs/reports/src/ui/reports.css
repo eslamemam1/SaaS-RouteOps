@@ -8,3 +8,11 @@
 .reports-groups-label {
   font-weight: var(--ro-font-medium);
 }
+
+.reports-views {
+  flex-wrap: wrap;
+}
+
+.reports-invoice-filters {
+  align-items: end;
+}

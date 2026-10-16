@@ -1,7 +1,9 @@
 import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
 import {
+  DateRange,
   daysSoFar,
+  invoiceDateError,
   memberOrganization,
   monthDays,
   MonthReport,
@@ -42,5 +44,21 @@ export class SupabaseReportsRepository extends ReportsRepository {
       this.gateway.unrecordedPay(organization.id, range, today),
     ]);
     return { counts, expenses, unopenedDays, unrecorded };
+  }
+
+  async range(
+    organization: ReportOrganization,
+    days: DateRange,
+    today: string,
+  ): Promise<Pick<MonthReport, 'counts' | 'unopenedDays'>> {
+    const problem = invoiceDateError(days, today);
+    if (problem) {
+      throw new ReportsAccessError(problem);
+    }
+    const [counts, unopenedDays] = await Promise.all([
+      this.gateway.tripCounts(organization.id, days, today),
+      this.gateway.unopenedDays(organization.id, days),
+    ]);
+    return { counts, unopenedDays };
   }
 }

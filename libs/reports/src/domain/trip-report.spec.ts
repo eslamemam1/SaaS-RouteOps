@@ -1,11 +1,16 @@
 import {
   costShares,
+  customerInvoiceLines,
   daysSoFar,
   ExpenseTotal,
   expenseSum,
+  invoiceDateError,
+  invoiceDaysSoFar,
+  invoiceRate,
   isReportMonth,
   memberOrganization,
   monthDays,
+  previousMonthDays,
   ReportChoices,
   reportLines,
   ReportOrganization,
@@ -47,8 +52,8 @@ describe('report lines', () => {
       { id: 'nour', label: 'Nour Company' },
     ],
     vehicles: [
-      { id: 'bus-1', label: 'أ ب ج 1234', ownership: 'owned', ownerName: '' },
-      { id: 'van-2', label: 'د هـ و 5678', ownership: 'rented', ownerName: 'مكتب النور' },
+      { id: 'bus-1', label: 'أ ب ج 1234', ownership: 'owned', ownerName: '', type: 'bus' },
+      { id: 'van-2', label: 'د هـ و 5678', ownership: 'rented', ownerName: 'مكتب النور', type: 'microbus' },
     ],
     routes: [
       { id: 'delta-1', label: 'خط المعادي', customerId: 'delta' },
@@ -186,5 +191,109 @@ describe('memberOrganization', () => {
     const north: ReportOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
     expect(memberOrganization([north], 'org-north')).toBe(north);
     expect(memberOrganization([north], 'org-south')).toBeNull();
+  });
+});
+
+describe('customer invoice', () => {
+  const choices: ReportChoices = {
+    customers: [
+      { id: 'delta', label: 'Delta Factory' },
+      { id: 'nour', label: 'Nour Company' },
+    ],
+    vehicles: [
+      { id: 'bus-1', label: 'أ ب ج 1234', ownership: 'owned', ownerName: '', type: 'bus' },
+      { id: 'van-2', label: 'د هـ و 5678', ownership: 'rented', ownerName: 'مكتب النور', type: 'microbus' },
+    ],
+    routes: [
+      { id: 'delta-1', label: 'خط المعادي', customerId: 'delta' },
+      { id: 'nour-1', label: 'خط المعادي', customerId: 'nour' },
+    ],
+    drivers: [{ id: 'ahmed', label: 'أحمد علي' }],
+  };
+  const counts: TripCount[] = [
+    { customerId: 'delta', routeId: 'delta-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, full: 20, extraFull: 0, revenue: 400000, unpriced: 0 },
+    { customerId: 'nour', routeId: 'nour-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 10, extra: 2, full: 5, extraFull: 1, revenue: 150000, unpriced: 0 },
+    { customerId: 'nour', routeId: '', vehicleId: 'van-2', driverId: '', done: 22, extra: 1, full: 11, extraFull: 0.5, revenue: 210000, unpriced: 1 },
+  ];
+
+  it('accepts only a past or today range of at most 93 days', () => {
+    expect(invoiceDateError({ from: '2026-08-26', to: '2026-09-25' }, '2026-10-12')).toBeNull();
+    expect(invoiceDateError({ from: '2026-10-01', to: '2026-10-12' }, '2026-10-12')).toBeNull();
+    expect(invoiceDateError({ from: '2026-10-01', to: '2026-10-13' }, '2026-10-12')).toBe('date');
+    expect(invoiceDateError({ from: '2026-10-12', to: '2026-10-01' }, '2026-10-12')).toBe('date');
+    expect(invoiceDateError({ from: 'bad', to: '2026-10-01' }, '2026-10-12')).toBe('date');
+    expect(
+      invoiceDateError({ from: '2026-07-10', to: '2026-10-11' }, '2026-10-12'),
+    ).toBe('tooManyDays');
+    expect(invoiceDaysSoFar('2026-10-12')).toEqual({
+      from: '2026-10-01',
+      to: '2026-10-12',
+    });
+    expect(previousMonthDays('2026-10-12')).toEqual({
+      from: '2026-09-01',
+      to: '2026-09-30',
+    });
+    expect(previousMonthDays('2026-01-05')).toEqual({
+      from: '2025-12-01',
+      to: '2025-12-31',
+    });
+  });
+
+  it('gives the unit rate only when every full trip shared one price', () => {
+    expect(invoiceRate(400000, 20)).toBe(20000);
+    expect(invoiceRate(210000, 11)).toBeNull();
+    expect(invoiceRate(0, 20)).toBeNull();
+    expect(invoiceRate(400000, 0)).toBeNull();
+  });
+
+  it('builds invoice lines for one company with route type and extras', () => {
+    expect(customerInvoiceLines(counts, 'nour', choices)).toEqual([
+      {
+        routeId: '',
+        label: '',
+        vehicleType: 'microbus',
+        trips: 11,
+        extra: 0.5,
+        rate: null,
+        revenue: 210000,
+        unpriced: 1,
+      },
+      {
+        routeId: 'nour-1',
+        label: 'خط المعادي',
+        vehicleType: 'bus',
+        trips: 5,
+        extra: 1,
+        rate: 30000,
+        revenue: 150000,
+        unpriced: 0,
+      },
+    ]);
+    expect(customerInvoiceLines(counts, 'delta', choices)).toEqual([
+      {
+        routeId: 'delta-1',
+        label: 'خط المعادي',
+        vehicleType: 'bus',
+        trips: 20,
+        extra: 0,
+        rate: 20000,
+        revenue: 400000,
+        unpriced: 0,
+      },
+    ]);
+  });
+
+  it('keeps the vehicle type with the most trips when a route mixed types', () => {
+    const mixed: TripCount[] = [
+      { customerId: 'delta', routeId: 'delta-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 10, extra: 0, full: 5, extraFull: 0, revenue: 100000, unpriced: 0 },
+      { customerId: 'delta', routeId: 'delta-1', vehicleId: 'van-2', driverId: 'ahmed', done: 30, extra: 0, full: 15, extraFull: 0, revenue: 300000, unpriced: 0 },
+    ];
+
+    expect(customerInvoiceLines(mixed, 'delta', choices)[0]).toMatchObject({
+      vehicleType: 'microbus',
+      trips: 20,
+      rate: 20000,
+      revenue: 400000,
+    });
   });
 });

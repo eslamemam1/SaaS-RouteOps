@@ -67,6 +67,7 @@ export type Database = {
         owner_name: string | null
         ownership: string
         plate_number: string
+        vehicle_type: string
       }>
     }
     Views: {

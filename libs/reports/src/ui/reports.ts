@@ -13,11 +13,14 @@ import { formatMoney } from '@routeops/shared/money';
 import {
   Alert,
   Button,
+  Field,
   MonthPicker,
   PageHeader,
   PageState,
   paginate,
   Pager,
+  Select,
+  SelectOption,
   Tag,
   Tone,
 } from '@routeops/shared/ui';
@@ -25,10 +28,15 @@ import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
 import {
   costShares,
+  customerInvoiceLines,
   expenseSum,
+  invoiceDateError,
+  invoiceDaysSoFar,
+  InvoiceLine,
   isReportMonth,
   MonthReport,
   monthOf,
+  previousMonthDays,
   ReportChoices,
   ReportGroup,
   reportGroups,
@@ -38,16 +46,25 @@ import {
   ReportProblem,
   reportTotal,
   ReportVehicle,
+  TripCount,
+  VehicleType,
 } from '../domain/trip-report';
 import { reportsText } from './reports-text';
 
-const noChoices: ReportChoices = { customers: [], routes: [], vehicles: [], drivers: [] };
+const noChoices: ReportChoices = {
+  customers: [],
+  routes: [],
+  vehicles: [],
+  drivers: [],
+};
 const noReport: MonthReport = {
   counts: [],
   expenses: [],
   unopenedDays: [],
   unrecorded: { drivers: 0, vehicles: 0 },
 };
+
+type ReportView = 'summary' | 'invoice';
 
 interface Stat {
   readonly label: string;
@@ -58,7 +75,20 @@ interface Stat {
 
 @Component({
   selector: 'app-reports',
-  imports: [Alert, Button, MonthPicker, NgIcon, PageHeader, PageState, Pager, RouterLink, Tag],
+  imports: [
+    Alert,
+    Button,
+    Field,
+    MonthPicker,
+    NgIcon,
+    PageHeader,
+    PageState,
+    Pager,
+    RouterLink,
+    Select,
+    SelectOption,
+    Tag,
+  ],
   templateUrl: './reports.html',
   styleUrl: './reports.css',
 })
@@ -71,6 +101,7 @@ export class Reports {
   protected readonly today = localDate(new Date());
   protected readonly thisMonth = monthOf(this.today);
   protected readonly month = signal(this.thisMonth);
+  protected readonly view = signal<ReportView>('summary');
   protected readonly status = signal<'loading' | 'success' | 'empty' | 'error'>(
     'loading',
   );
@@ -80,9 +111,22 @@ export class Reports {
   protected readonly report = signal<MonthReport>(noReport);
   protected readonly groups = reportGroups;
   protected readonly group = signal<ReportGroup>('customer');
+  protected readonly customerId = signal('');
+  protected readonly invoiceFrom = signal(invoiceDaysSoFar(this.today).from);
+  protected readonly invoiceTo = signal(invoiceDaysSoFar(this.today).to);
+  protected readonly invoiceStatus = signal<
+    'idle' | 'loading' | 'success' | 'empty' | 'error'
+  >('idle');
+  protected readonly invoiceProblem = signal<ReportProblem | null>(null);
+  protected readonly invoiceCounts = signal<readonly TripCount[]>([]);
+  protected readonly invoiceUnopened = signal<readonly string[]>([]);
   protected readonly total = computed(() => reportTotal(this.report().counts));
-  protected readonly expenses = computed(() => expenseSum(this.report().expenses));
-  protected readonly profit = computed(() => this.total().revenue - this.expenses());
+  protected readonly expenses = computed(() =>
+    expenseSum(this.report().expenses),
+  );
+  protected readonly profit = computed(
+    () => this.total().revenue - this.expenses(),
+  );
   protected readonly lines = computed(() =>
     reportLines(
       this.report().counts,
@@ -102,10 +146,41 @@ export class Reports {
     return drivers + vehicles > 0 ? { drivers, vehicles } : null;
   });
   protected readonly unopenedTitle = computed(
-    () => `${this.text().report.unopenedTitle} (${this.report().unopenedDays.length})`,
+    () =>
+      `${this.text().report.unopenedTitle} (${this.report().unopenedDays.length})`,
+  );
+  protected readonly invoiceUnopenedTitle = computed(
+    () =>
+      `${this.text().report.unopenedTitle} (${this.invoiceUnopened().length})`,
   );
   protected readonly unpricedTitle = computed(
     () => `${this.text().report.unpricedTitle} (${this.total().unpriced})`,
+  );
+  protected readonly dateProblem = computed(() =>
+    invoiceDateError(
+      { from: this.invoiceFrom(), to: this.invoiceTo() },
+      this.today,
+    ),
+  );
+  protected readonly invoiceLines = computed(() =>
+    customerInvoiceLines(
+      this.invoiceCounts(),
+      this.customerId(),
+      this.choices(),
+    ),
+  );
+  protected readonly invoicePages = paginate(this.invoiceLines, {
+    resetOn: () => [
+      this.customerId(),
+      this.invoiceFrom(),
+      this.invoiceTo(),
+    ],
+  });
+  protected readonly invoiceTotal = computed(() =>
+    this.invoiceLines().reduce((sum, line) => sum + line.revenue, 0),
+  );
+  protected readonly invoiceUnpriced = computed(() =>
+    this.invoiceLines().reduce((sum, line) => sum + line.unpriced, 0),
   );
   protected readonly stats = computed(() => {
     const text = this.text().report;
@@ -129,8 +204,18 @@ export class Reports {
         tone: this.profit() < 0 ? 'danger' : 'info',
         icon: lucideWallet,
       },
-      { label: text.doneTotal, value: String(total.full), tone: 'success', icon: lucideCircleCheck },
-      { label: text.extraTotal, value: String(total.extraFull), tone: 'info', icon: lucideCirclePlus },
+      {
+        label: text.doneTotal,
+        value: String(total.full),
+        tone: 'success',
+        icon: lucideCircleCheck,
+      },
+      {
+        label: text.extraTotal,
+        value: String(total.extraFull),
+        tone: 'info',
+        icon: lucideCirclePlus,
+      },
     ];
     return stats;
   });
@@ -144,7 +229,7 @@ export class Reports {
   }
 
   protected retry(): void {
-    void this.load();
+    void (this.view() === 'invoice' ? this.loadInvoice() : this.load());
   }
 
   protected money(minor: number): string {
@@ -161,7 +246,9 @@ export class Reports {
   protected routeCustomer(line: ReportLine): string {
     const route = this.choices().routes.find((choice) => choice.id === line.id);
     return route
-      ? (this.choices().customers.find((customer) => customer.id === route.customerId)?.label ?? '')
+      ? (this.choices().customers.find(
+          (customer) => customer.id === route.customerId,
+        )?.label ?? '')
       : '';
   }
 
@@ -169,11 +256,51 @@ export class Reports {
     return line.revenue - line.driverCost - line.vehicleCost;
   }
 
+  protected routeLabel(line: InvoiceLine): string {
+    return line.label || this.text().invoice.extras;
+  }
+
+  protected vehicleTypeLabel(type: VehicleType | ''): string {
+    return type ? this.text().vehicleTypes[type] : this.text().invoice.noType;
+  }
+
   protected chooseMonth(value: string): void {
     if (isReportMonth(value)) {
       this.month.set(value);
       void this.loadMonth();
     }
+  }
+
+  protected showView(view: ReportView): void {
+    this.view.set(view);
+    if (view === 'invoice') {
+      void this.loadInvoice();
+    }
+  }
+
+  protected chooseCustomer(value: string): void {
+    this.customerId.set(value);
+    void this.loadInvoice();
+  }
+
+  protected setInvoiceFrom(value: string): void {
+    this.invoiceFrom.set(value);
+    void this.loadInvoice();
+  }
+
+  protected setInvoiceTo(value: string): void {
+    this.invoiceTo.set(value);
+    void this.loadInvoice();
+  }
+
+  protected chooseInvoiceDays(kind: 'thisMonth' | 'lastMonth'): void {
+    const days =
+      kind === 'thisMonth'
+        ? invoiceDaysSoFar(this.today)
+        : previousMonthDays(this.today);
+    this.invoiceFrom.set(days.from);
+    this.invoiceTo.set(days.to);
+    void this.loadInvoice();
   }
 
   private async load(): Promise<void> {
@@ -187,8 +314,12 @@ export class Reports {
         this.status.set('error');
         return;
       }
-      this.choices.set(await this.repository.choices(organization));
+      const choices = await this.repository.choices(organization);
+      this.choices.set(choices);
       this.organization.set(organization);
+      if (!this.customerId() && choices.customers[0]) {
+        this.customerId.set(choices.customers[0].id);
+      }
       const requestedMonth =
         this.activatedRoute.snapshot.queryParamMap.get('month') ?? '';
       if (isReportMonth(requestedMonth)) {
@@ -208,7 +339,11 @@ export class Reports {
     const month = this.month();
     this.status.set('loading');
     try {
-      const report = await this.repository.month(organization, month, this.today);
+      const report = await this.repository.month(
+        organization,
+        month,
+        this.today,
+      );
       if (month !== this.month()) {
         return;
       }
@@ -223,8 +358,62 @@ export class Reports {
     }
   }
 
+  private async loadInvoice(): Promise<void> {
+    const organization = this.organization();
+    if (!organization || this.view() !== 'invoice') {
+      return;
+    }
+    if (!this.customerId()) {
+      this.invoiceCounts.set([]);
+      this.invoiceUnopened.set([]);
+      this.invoiceProblem.set(null);
+      this.invoiceStatus.set('idle');
+      return;
+    }
+    const days = { from: this.invoiceFrom(), to: this.invoiceTo() };
+    const problem = invoiceDateError(days, this.today);
+    if (problem) {
+      this.invoiceCounts.set([]);
+      this.invoiceUnopened.set([]);
+      this.invoiceProblem.set(problem);
+      this.invoiceStatus.set('error');
+      return;
+    }
+    this.invoiceStatus.set('loading');
+    this.invoiceProblem.set(null);
+    try {
+      const report = await this.repository.range(
+        organization,
+        days,
+        this.today,
+      );
+      if (
+        days.from !== this.invoiceFrom() ||
+        days.to !== this.invoiceTo() ||
+        this.view() !== 'invoice'
+      ) {
+        return;
+      }
+      this.invoiceCounts.set(report.counts);
+      this.invoiceUnopened.set(report.unopenedDays);
+      const lines = customerInvoiceLines(
+        report.counts,
+        this.customerId(),
+        this.choices(),
+      );
+      this.invoiceStatus.set(lines.length === 0 ? 'empty' : 'success');
+    } catch (error) {
+      this.invoiceProblem.set(
+        error instanceof ReportsAccessError ? error.problem : 'load',
+      );
+      this.invoiceStatus.set('error');
+    }
+  }
+
   private fail(error: unknown): void {
-    this.problem.set(error instanceof ReportsAccessError ? error.problem : 'load');
+    this.problem.set(
+      error instanceof ReportsAccessError ? error.problem : 'load',
+    );
     this.status.set('error');
   }
 }

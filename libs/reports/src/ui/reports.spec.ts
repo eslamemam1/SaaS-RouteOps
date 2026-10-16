@@ -16,8 +16,14 @@ const choices: ReportChoices = {
     { id: 'nour', label: 'Nour Company' },
   ],
   vehicles: [
-    { id: 'bus-1', label: 'ABC 1234', ownership: 'owned', ownerName: '' },
-    { id: 'van-2', label: 'XYZ 99', ownership: 'contractor', ownerName: 'Mohamed Ali' },
+    { id: 'bus-1', label: 'ABC 1234', ownership: 'owned', ownerName: '', type: 'bus' },
+    {
+      id: 'van-2',
+      label: 'XYZ 99',
+      ownership: 'contractor',
+      ownerName: 'Mohamed Ali',
+      type: 'microbus',
+    },
   ],
   routes: [{ id: 'route-1', label: 'Maadi line', customerId: 'delta' }],
   drivers: [{ id: 'ahmed', label: 'Ahmed' }],
@@ -241,6 +247,40 @@ describe('Reports', () => {
 
     expect(text(harness)).toContain(reportsText.en.report.title);
   });
+
+  it('shows a company invoice for a chosen date range', async () => {
+    const range = vi.fn(async () => ({
+      counts: october.counts,
+      unopenedDays: ['2026-10-02'],
+    }));
+    const harness = await open({ range });
+    await settle(harness);
+
+    button(harness, arabic.views.invoice)?.click();
+    await settle(harness);
+    await settle(harness);
+
+    expect(range).toHaveBeenCalledWith(
+      north,
+      expect.objectContaining({ from: expect.any(String), to: expect.any(String) }),
+      expect.any(String),
+    );
+    expect(text(harness)).toContain(arabic.invoice.title);
+    expect(text(harness)).toContain(arabic.invoice.route);
+    expect(text(harness)).toContain('Maadi line');
+    expect(text(harness)).toContain(arabic.vehicleTypes.bus);
+    expect(text(harness)).toContain(formatMoney(600000, 'EGP', 'ar'));
+    expect(text(harness)).toContain(arabic.invoice.grandTotal);
+    expect(text(harness)).toContain(arabic.report.unopenedTitle);
+
+    harness.routeNativeElement!.querySelector<HTMLButtonElement>(
+      '[data-days="lastMonth"]',
+    )!.click();
+    await settle(harness);
+    expect(range.mock.calls.at(-1)?.[1]).toEqual(
+      expect.objectContaining({ from: expect.stringMatching(/^\d{4}-\d{2}-01$/) }),
+    );
+  });
 });
 
 async function open(overrides: Partial<ReportsRepository>) {
@@ -248,6 +288,7 @@ async function open(overrides: Partial<ReportsRepository>) {
     organization: async () => north,
     choices: async () => choices,
     month: async () => october,
+    range: async () => ({ counts: october.counts, unopenedDays: [] }),
     ...overrides,
   };
   TestBed.configureTestingModule({

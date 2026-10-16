@@ -3,14 +3,20 @@ import {
   ReportGroup,
   ReportProblem,
   VehicleOwnership,
+  VehicleType,
 } from '../domain/trip-report';
 
 export interface ReportsText {
   readonly problems: Record<ReportProblem, string>;
   readonly ownerships: Record<VehicleOwnership, string>;
+  readonly vehicleTypes: Record<VehicleType, string>;
   readonly groups: Record<ReportGroup, string>;
   readonly groupHeadings: Record<ReportGroup, string>;
   readonly missing: Record<ReportGroup, string>;
+  readonly views: {
+    readonly summary: string;
+    readonly invoice: string;
+  };
   readonly report: {
     readonly title: string;
     readonly hint: string;
@@ -52,6 +58,28 @@ export interface ReportsText {
     readonly unopenedHint: string;
     readonly separator: string;
   };
+  readonly invoice: {
+    readonly title: string;
+    readonly hint: string;
+    readonly customer: string;
+    readonly chooseCustomer: string;
+    readonly from: string;
+    readonly to: string;
+    readonly thisMonth: string;
+    readonly lastMonth: string;
+    readonly serial: string;
+    readonly route: string;
+    readonly vehicleType: string;
+    readonly trips: string;
+    readonly rate: string;
+    readonly lineTotal: string;
+    readonly noRate: string;
+    readonly noType: string;
+    readonly extras: string;
+    readonly empty: string;
+    readonly pickCustomer: string;
+    readonly grandTotal: string;
+  };
 }
 
 export const reportsText: Record<Language, ReportsText> = {
@@ -61,11 +89,19 @@ export const reportsText: Record<Language, ReportsText> = {
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
       signedOut: 'سجّل الدخول للمتابعة.',
       notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
+      date: 'اختر يومين صحيحين، على أن يكون اليوم الأول قبل اليوم الأخير أو هو نفسه، ولا يتجاوز اليوم الأخير اليوم.',
+      tooManyDays: 'اختر 93 يومًا على الأكثر في المرة الواحدة.',
     },
     ownerships: {
       owned: 'ملك الشركة',
       rented: 'إيجار',
       contractor: 'مركبة مقاول',
+    },
+    vehicleTypes: {
+      bus: 'أتوبيس',
+      minibus: 'ميني باص',
+      microbus: 'ميكروباص',
+      car: 'سيارة',
     },
     groups: {
       customer: 'الشركات المتعاقدة',
@@ -84,6 +120,10 @@ export const reportsText: Record<Language, ReportsText> = {
       route: 'رحلات إضافية بدون خط',
       vehicle: 'بدون مركبة',
       driver: 'بدون سائق',
+    },
+    views: {
+      summary: 'ملخص',
+      invoice: 'فاتورة شركة',
     },
     report: {
       title: 'التقرير الشهري',
@@ -126,6 +166,28 @@ export const reportsText: Record<Language, ReportsText> = {
       unopenedHint: 'رحلات هذه الأيام غير محسوبة في التقرير، لأن أحدًا لم يفتحها في صفحة التشغيل اليومي. افتح كل يوم منها هناك ليُحسب.',
       separator: '، ',
     },
+    invoice: {
+      title: 'فاتورة شركة متعاقدة',
+      hint: 'رحلات شركة متعاقدة في الفترة التي تختارها: كل خط ونوع مركبته وعدد الرحلات الكاملة وسعر الرحلة وإجماليها. اختر أي يومين، مثل من 26 إلى 25.',
+      customer: 'الشركة المتعاقدة',
+      chooseCustomer: 'اختر شركة',
+      from: 'من يوم',
+      to: 'إلى يوم',
+      thisMonth: 'هذا الشهر حتى اليوم',
+      lastMonth: 'الشهر الماضي',
+      serial: 'م',
+      route: 'الخط',
+      vehicleType: 'نوع الخط',
+      trips: 'عدد الرحلات',
+      rate: 'السعر',
+      lineTotal: 'إجمالي قيمة الرحلات',
+      noRate: '—',
+      noType: '—',
+      extras: 'رحلات إضافية',
+      empty: 'لا توجد رحلات تمّت لهذه الشركة في هذه الفترة.',
+      pickCustomer: 'اختر شركة متعاقدة لعرض فاتورتها.',
+      grandTotal: 'الإجمالي الكلي',
+    },
   },
   en: {
     problems: {
@@ -133,11 +195,19 @@ export const reportsText: Record<Language, ReportsText> = {
       organization: 'You cannot open this page from your account.',
       signedOut: 'Sign in to continue.',
       notConnected: 'The app is not connected to the database.',
+      date: 'Choose two valid days, with the first on or before the last, and the last on or before today.',
+      tooManyDays: 'Choose 93 days at most at a time.',
     },
     ownerships: {
       owned: 'Company owned',
       rented: 'Rented',
       contractor: 'Contractor vehicle',
+    },
+    vehicleTypes: {
+      bus: 'Bus',
+      minibus: 'Minibus',
+      microbus: 'Microbus',
+      car: 'Car',
     },
     groups: {
       customer: 'Client companies',
@@ -156,6 +226,10 @@ export const reportsText: Record<Language, ReportsText> = {
       route: 'Extra trips with no route',
       vehicle: 'No vehicle',
       driver: 'No driver',
+    },
+    views: {
+      summary: 'Summary',
+      invoice: 'Company invoice',
     },
     report: {
       title: 'Monthly report',
@@ -197,6 +271,28 @@ export const reportsText: Record<Language, ReportsText> = {
       unopenedTitle: 'Days not opened in daily operations',
       unopenedHint: 'The trips of these days are not in the report, because nobody opened them on the daily operations page. Open each of these days there to count it.',
       separator: ', ',
+    },
+    invoice: {
+      title: 'Client company invoice',
+      hint: 'Done trips of one client company in the period you choose: each route, its vehicle type, full trip count, unit rate, and line total. Pick any two days, such as the 26th to the 25th.',
+      customer: 'Client company',
+      chooseCustomer: 'Choose a company',
+      from: 'From',
+      to: 'To',
+      thisMonth: 'This month to today',
+      lastMonth: 'Last month',
+      serial: '#',
+      route: 'Route',
+      vehicleType: 'Vehicle type',
+      trips: 'Trips',
+      rate: 'Rate',
+      lineTotal: 'Trip total',
+      noRate: '—',
+      noType: '—',
+      extras: 'Extra trips',
+      empty: 'No trips were done for this company in this period.',
+      pickCustomer: 'Choose a client company to show its invoice.',
+      grandTotal: 'Grand total',
     },
   },
 };
