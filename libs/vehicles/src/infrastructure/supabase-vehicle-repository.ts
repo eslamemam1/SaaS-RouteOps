@@ -76,4 +76,11 @@ export class SupabaseVehicleRepository extends VehicleRepository {
   ): Promise<Vehicle> {
     return this.gateway.updateVehicle(organization, vehicleId, details);
   }
+
+  remove(
+    organization: VehicleOrganization,
+    vehicle: Vehicle,
+  ): Promise<void> {
+    return this.gateway.deleteVehicle(organization.id, vehicle.id);
+  }
 }

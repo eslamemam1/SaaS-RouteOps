@@ -18,6 +18,21 @@
   >
     {{ text().form[done] }}
   </app-alert>
+  } @if (actionProblem(); as current) {
+  <app-alert
+    tone="danger"
+    [dismissible]="true"
+    (dismissed)="actionProblem.set(null)"
+  >
+    {{ text().problems[current] }}
+    @if (blockingRoutes().length > 0) {
+      <ul>
+        @for (name of blockingRoutes(); track name) {
+          <li><bdi>{{ name }}</bdi></li>
+        }
+      </ul>
+    }
+  </app-alert>
   } @switch (status()) { @case ('loading') {
   <app-page-state kind="loading" [message]="text().list.loading" />
   } @case ('error') {
@@ -87,6 +102,15 @@
               >
                 {{ text().list.edit }}
               </button>
+              <button
+                size="sm"
+                type="button"
+                [appButton]="confirmingRemoveId() === customer.id ? 'danger' : 'text'"
+                [disabled]="removing()"
+                (click)="remove(customer)"
+              >
+                {{ confirmingRemoveId() === customer.id ? text().list.confirmRemove : text().list.remove }}
+              </button>
             </td>
           </tr>
           }
@@ -108,7 +132,6 @@
     [organization]="current"
     [customer]="editing()"
     (saved)="onSaved($event)"
-    (removed)="onRemoved()"
     (cancelled)="stopEditing()"
   />
 </app-form-drawer>

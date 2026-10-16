@@ -81,6 +81,10 @@ export class Drivers {
   protected readonly outcome = signal<
     'added' | 'saved' | 'removed' | 'photoFailed' | null
   >(null);
+  protected readonly confirmingRemoveId = signal<string | null>(null);
+  protected readonly actionProblem = signal<DriverProblem | null>(null);
+  protected readonly blockingRoutes = signal<readonly string[]>([]);
+  protected readonly removing = signal(false);
   protected readonly formTitle = computed(() =>
     this.editing() ? this.text().form.editTitle : this.text().form.addTitle,
   );
@@ -135,17 +139,45 @@ export class Drivers {
     this.status.set('success');
   }
 
-  protected onRemoved(): void {
-    const removed = this.editing();
-    const drivers = this.drivers().filter((item) => item.id !== removed?.id);
-    this.drivers.set(drivers);
-    this.outcome.set('removed');
-    this.stopEditing();
-    this.status.set(drivers.length === 0 ? 'empty' : 'success');
+  protected async remove(driver: Driver): Promise<void> {
+    const organization = this.organization();
+    if (!organization) {
+      return;
+    }
+    if (this.confirmingRemoveId() !== driver.id) {
+      this.confirmingRemoveId.set(driver.id);
+      return;
+    }
+    this.removing.set(true);
+    this.actionProblem.set(null);
+    this.blockingRoutes.set([]);
+    try {
+      await this.repository.remove(organization, driver);
+      const drivers = this.drivers().filter((item) => item.id !== driver.id);
+      this.drivers.set(drivers);
+      if (this.editing()?.id === driver.id) {
+        this.stopEditing();
+      }
+      this.outcome.set('removed');
+      this.status.set(drivers.length === 0 ? 'empty' : 'success');
+    } catch (error) {
+      this.actionProblem.set(
+        error instanceof DriverAccessError ? error.problem : 'remove',
+      );
+      this.blockingRoutes.set(
+        error instanceof DriverAccessError ? error.routes : [],
+      );
+    } finally {
+      this.removing.set(false);
+      this.confirmingRemoveId.set(null);
+    }
   }
 
   private open(driver: Driver | null): void {
     this.outcome.set(null);
+    this.actionProblem.set(null);
+    this.blockingRoutes.set([]);
+    this.confirmingRemoveId.set(null);
     this.editing.set(driver);
     this.formOpen.set(true);
   }

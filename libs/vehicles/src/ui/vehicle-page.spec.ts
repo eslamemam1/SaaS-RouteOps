@@ -216,6 +216,7 @@ async function open(overrides: Partial<VehicleRepository>, query = '') {
     month: async () => february,
     add: async () => hiace,
     update: async () => hiace,
+    remove: async () => undefined,
     ...overrides,
   };
   TestBed.configureTestingModule({

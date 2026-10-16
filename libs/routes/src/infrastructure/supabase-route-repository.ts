@@ -45,4 +45,11 @@ export class SupabaseRouteRepository extends RouteRepository {
   ): Promise<TransportRoute> {
     return this.gateway.updateRoute(organization, routeId, details);
   }
+
+  remove(
+    organization: RouteOrganization,
+    route: TransportRoute,
+  ): Promise<void> {
+    return this.gateway.deleteRoute(organization.id, route.id);
+  }
 }

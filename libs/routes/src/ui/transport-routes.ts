@@ -97,7 +97,12 @@ export class TransportRoutes {
   protected readonly editing = signal<TransportRoute | null>(null);
   protected readonly draft = signal<TransportRouteDetails | null>(null);
   protected readonly formOpen = signal(false);
-  protected readonly outcome = signal<'added' | 'saved' | null>(null);
+  protected readonly outcome = signal<'added' | 'saved' | 'removed' | null>(
+    null,
+  );
+  protected readonly confirmingRemoveId = signal<string | null>(null);
+  protected readonly actionProblem = signal<RouteProblem | null>(null);
+  protected readonly removing = signal(false);
   protected readonly customerFilter = signal('');
   protected readonly search = signal('');
   protected readonly visibleRoutes = computed(() =>
@@ -193,11 +198,43 @@ export class TransportRoutes {
     this.status.set('success');
   }
 
+  protected async remove(route: TransportRoute): Promise<void> {
+    const organization = this.organization();
+    if (!organization) {
+      return;
+    }
+    if (this.confirmingRemoveId() !== route.id) {
+      this.confirmingRemoveId.set(route.id);
+      return;
+    }
+    this.removing.set(true);
+    this.actionProblem.set(null);
+    try {
+      await this.repository.remove(organization, route);
+      const routes = this.routes().filter((item) => item.id !== route.id);
+      this.routes.set(routes);
+      if (this.editing()?.id === route.id) {
+        this.stopEditing();
+      }
+      this.outcome.set('removed');
+      this.status.set(routes.length === 0 ? 'empty' : 'success');
+    } catch (error) {
+      this.actionProblem.set(
+        error instanceof RouteAccessError ? error.problem : 'remove',
+      );
+    } finally {
+      this.removing.set(false);
+      this.confirmingRemoveId.set(null);
+    }
+  }
+
   private open(
     route: TransportRoute | null,
     draft: TransportRouteDetails | null,
   ): void {
     this.outcome.set(null);
+    this.actionProblem.set(null);
+    this.confirmingRemoveId.set(null);
     this.editing.set(route);
     this.draft.set(draft);
     this.formOpen.set(true);

@@ -212,6 +212,23 @@ describe('TransportRoutes', () => {
     expect(text(harness)).toContain(routesText.en.list.title);
     expect(text(harness)).toContain(routesText.en.weekdays.saturday);
   });
+
+  it('deletes a route only after a second press', async () => {
+    const remove = vi.fn(async () => undefined);
+    const harness = await open({ list: async () => [delta], remove });
+    await settle(harness);
+
+    button(harness, arabic.list.remove)?.click();
+    await settle(harness);
+    expect(remove).not.toHaveBeenCalled();
+
+    button(harness, arabic.list.confirmRemove)?.click();
+    await settle(harness);
+
+    expect(remove).toHaveBeenCalledWith(north, delta);
+    expect(text(harness)).toContain(arabic.form.removed);
+    expect(text(harness)).not.toContain('Delta - Nasr City');
+  });
 });
 
 async function open(overrides: Partial<RouteRepository>) {
@@ -221,6 +238,7 @@ async function open(overrides: Partial<RouteRepository>) {
     choices: async () => choices,
     add: async () => delta,
     update: async () => delta,
+    remove: async () => undefined,
     ...overrides,
   };
   TestBed.configureTestingModule({

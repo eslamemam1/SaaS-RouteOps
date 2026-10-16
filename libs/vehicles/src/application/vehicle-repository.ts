@@ -42,4 +42,8 @@ export abstract class VehicleRepository {
     vehicleId: string,
     details: VehicleDetails,
   ): Promise<Vehicle>;
+  abstract remove(
+    organization: VehicleOrganization,
+    vehicle: Vehicle,
+  ): Promise<void>;
 }

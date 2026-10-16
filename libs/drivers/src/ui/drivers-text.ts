@@ -84,6 +84,8 @@ export interface DriversText {
     readonly working: string;
     readonly stopped: string;
     readonly edit: string;
+    readonly remove: string;
+    readonly confirmRemove: string;
   };
   readonly form: {
     readonly addTitle: string;
@@ -120,8 +122,6 @@ export interface DriversText {
     readonly add: string;
     readonly save: string;
     readonly cancel: string;
-    readonly remove: string;
-    readonly confirmRemove: string;
     readonly added: string;
     readonly saved: string;
     readonly removed: string;
@@ -251,6 +251,8 @@ export const driversText: Record<Language, DriversText> = {
       working: 'يعمل',
       stopped: 'لا يعمل حاليًا',
       edit: 'تعديل',
+      remove: 'حذف',
+      confirmRemove: 'اضغط مرة أخرى للتأكيد',
     },
     form: {
       addTitle: 'إضافة سائق جديد',
@@ -292,8 +294,6 @@ export const driversText: Record<Language, DriversText> = {
       add: 'إضافة السائق',
       save: 'حفظ التعديلات',
       cancel: 'إلغاء',
-      remove: 'حذف السائق',
-      confirmRemove: 'اضغط مرة أخرى لتأكيد الحذف',
       added: 'تمت إضافة السائق.',
       saved: 'تم حفظ التعديلات.',
       removed: 'تم حذف السائق.',
@@ -425,6 +425,8 @@ export const driversText: Record<Language, DriversText> = {
       working: 'Working',
       stopped: 'Stopped',
       edit: 'Edit',
+      remove: 'Delete',
+      confirmRemove: 'Press again to confirm',
     },
     form: {
       addTitle: 'Add a new driver',
@@ -467,8 +469,6 @@ export const driversText: Record<Language, DriversText> = {
       add: 'Add driver',
       save: 'Save changes',
       cancel: 'Cancel',
-      remove: 'Delete driver',
-      confirmRemove: 'Press again to confirm',
       added: 'The driver was added.',
       saved: 'Your changes were saved.',
       removed: 'The driver was deleted.',

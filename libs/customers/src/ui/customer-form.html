@@ -51,15 +51,5 @@
     <button appButton="secondary" type="button" (click)="cancelled.emit()">
       {{ text().form.cancel }}
     </button>
-    @if (customer()) {
-      <button
-        type="button"
-        [appButton]="confirmingRemove() ? 'danger' : 'text'"
-        [disabled]="submitting()"
-        (click)="remove()"
-      >
-        {{ confirmingRemove() ? text().form.confirmRemove : text().form.remove }}
-      </button>
-    }
   </div>
 </form>

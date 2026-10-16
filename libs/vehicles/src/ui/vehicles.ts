@@ -72,7 +72,13 @@ export class Vehicles {
   protected readonly vehicles = signal<Vehicle[]>([]);
   protected readonly editing = signal<Vehicle | null>(null);
   protected readonly formOpen = signal(false);
-  protected readonly outcome = signal<'added' | 'saved' | null>(null);
+  protected readonly outcome = signal<'added' | 'saved' | 'removed' | null>(
+    null,
+  );
+  protected readonly confirmingRemoveId = signal<string | null>(null);
+  protected readonly actionProblem = signal<VehicleProblem | null>(null);
+  protected readonly blockingRoutes = signal<readonly string[]>([]);
+  protected readonly removing = signal(false);
   protected readonly formTitle = computed(() =>
     this.editing() ? this.text().form.editTitle : this.text().form.addTitle,
   );
@@ -132,8 +138,45 @@ export class Vehicles {
     this.status.set('success');
   }
 
+  protected async remove(vehicle: Vehicle): Promise<void> {
+    const organization = this.organization();
+    if (!organization) {
+      return;
+    }
+    if (this.confirmingRemoveId() !== vehicle.id) {
+      this.confirmingRemoveId.set(vehicle.id);
+      return;
+    }
+    this.removing.set(true);
+    this.actionProblem.set(null);
+    this.blockingRoutes.set([]);
+    try {
+      await this.repository.remove(organization, vehicle);
+      const vehicles = this.vehicles().filter((item) => item.id !== vehicle.id);
+      this.vehicles.set(vehicles);
+      if (this.editing()?.id === vehicle.id) {
+        this.stopEditing();
+      }
+      this.outcome.set('removed');
+      this.status.set(vehicles.length === 0 ? 'empty' : 'success');
+    } catch (error) {
+      this.actionProblem.set(
+        error instanceof VehicleAccessError ? error.problem : 'remove',
+      );
+      this.blockingRoutes.set(
+        error instanceof VehicleAccessError ? error.routes : [],
+      );
+    } finally {
+      this.removing.set(false);
+      this.confirmingRemoveId.set(null);
+    }
+  }
+
   private open(vehicle: Vehicle | null): void {
     this.outcome.set(null);
+    this.actionProblem.set(null);
+    this.blockingRoutes.set([]);
+    this.confirmingRemoveId.set(null);
     this.editing.set(vehicle);
     this.formOpen.set(true);
   }

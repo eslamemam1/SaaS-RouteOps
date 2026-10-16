@@ -6,7 +6,7 @@ import { SupabaseVehicleGateway } from './vehicle-gateway';
 
 type Result = {
   data: unknown;
-  error: { message: string; code?: string } | null;
+  error: { message: string; code?: string; details?: string } | null;
 };
 
 const north: VehicleOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
@@ -415,12 +415,41 @@ describe('SupabaseVehicleGateway', () => {
       new VehicleAccessError('notConnected'),
     );
   });
+
+  it('deletes a vehicle of the organization', async () => {
+    const calls = recorder({ data: [{ id: 'vehicle-1' }], error: null });
+    const gateway = new SupabaseVehicleGateway(calls.client);
+
+    await gateway.deleteVehicle('org-north', 'vehicle-1');
+
+    expect(calls.deleted).toBe(true);
+    expect(calls.filters).toEqual([
+      ['id', 'vehicle-1'],
+      ['organization_id', 'org-north'],
+    ]);
+  });
+
+  it('names the routes that keep a vehicle from being deleted', async () => {
+    const calls = recorder({
+      data: null,
+      error: { message: 'in_use', code: 'P0001', details: 'Nasr City\nShubra' },
+    });
+    const gateway = new SupabaseVehicleGateway(calls.client);
+
+    await expect(
+      gateway.deleteVehicle('org-north', 'vehicle-1'),
+    ).rejects.toMatchObject({
+      problem: 'inUse',
+      routes: ['Nasr City', 'Shubra'],
+    });
+  });
 });
 
 function recorder(result: Result) {
   const filters: [string, string][] = [];
   const rpcs: [string, unknown][] = [];
   let inserted: unknown = null;
+  let deleted = false;
   const rpcPage = {
     order: () => rpcPage,
     range: () => Promise.resolve(result),
@@ -430,12 +459,21 @@ function recorder(result: Result) {
     },
   };
   const query = {
-    select: () => query,
+    select: () => {
+      if (deleted) {
+        return Promise.resolve(result);
+      }
+      return query;
+    },
     insert: (value: unknown) => {
       inserted = value;
       return query;
     },
     update: () => query,
+    delete: () => {
+      deleted = true;
+      return query;
+    },
     eq: (column: string, value: string) => {
       filters.push([column, value]);
       return query;
@@ -448,6 +486,9 @@ function recorder(result: Result) {
     rpcs,
     get inserted() {
       return inserted;
+    },
+    get deleted() {
+      return deleted;
     },
     client: {
       from: () => query,

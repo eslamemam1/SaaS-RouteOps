@@ -62,6 +62,10 @@ export class Customers {
   protected readonly outcome = signal<'added' | 'saved' | 'removed' | null>(
     null,
   );
+  protected readonly confirmingRemoveId = signal<string | null>(null);
+  protected readonly actionProblem = signal<CustomerProblem | null>(null);
+  protected readonly blockingRoutes = signal<readonly string[]>([]);
+  protected readonly removing = signal(false);
   protected readonly formTitle = computed(() =>
     this.editing() ? this.text().form.editTitle : this.text().form.addTitle,
   );
@@ -101,17 +105,45 @@ export class Customers {
     this.status.set('success');
   }
 
-  protected onRemoved(): void {
-    const removed = this.editing();
-    const customers = this.customers().filter((item) => item.id !== removed?.id);
-    this.customers.set(customers);
-    this.outcome.set('removed');
-    this.stopEditing();
-    this.status.set(customers.length === 0 ? 'empty' : 'success');
+  protected async remove(customer: Customer): Promise<void> {
+    const organization = this.organization();
+    if (!organization) {
+      return;
+    }
+    if (this.confirmingRemoveId() !== customer.id) {
+      this.confirmingRemoveId.set(customer.id);
+      return;
+    }
+    this.removing.set(true);
+    this.actionProblem.set(null);
+    this.blockingRoutes.set([]);
+    try {
+      await this.repository.remove(organization, customer);
+      const customers = this.customers().filter((item) => item.id !== customer.id);
+      this.customers.set(customers);
+      if (this.editing()?.id === customer.id) {
+        this.stopEditing();
+      }
+      this.outcome.set('removed');
+      this.status.set(customers.length === 0 ? 'empty' : 'success');
+    } catch (error) {
+      this.actionProblem.set(
+        error instanceof CustomerAccessError ? error.problem : 'remove',
+      );
+      this.blockingRoutes.set(
+        error instanceof CustomerAccessError ? error.routes : [],
+      );
+    } finally {
+      this.removing.set(false);
+      this.confirmingRemoveId.set(null);
+    }
   }
 
   private open(customer: Customer | null): void {
     this.outcome.set(null);
+    this.actionProblem.set(null);
+    this.blockingRoutes.set([]);
+    this.confirmingRemoveId.set(null);
     this.editing.set(customer);
     this.formOpen.set(true);
   }

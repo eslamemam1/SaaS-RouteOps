@@ -185,6 +185,23 @@ describe('Vehicles', () => {
     expect(text(harness)).toContain(vehiclesText.en.list.title);
     expect(text(harness)).toContain(vehiclesText.en.types.microbus);
   });
+
+  it('deletes a vehicle only after a second press', async () => {
+    const remove = vi.fn(async () => undefined);
+    const harness = await open({ list: async () => [hiace], remove });
+    await settle(harness);
+
+    button(harness, arabic.list.remove)?.click();
+    await settle(harness);
+    expect(remove).not.toHaveBeenCalled();
+
+    button(harness, arabic.list.confirmRemove)?.click();
+    await settle(harness);
+
+    expect(remove).toHaveBeenCalledWith(north, hiace);
+    expect(text(harness)).toContain(arabic.form.removed);
+    expect(text(harness)).not.toContain('Toyota Hiace');
+  });
 });
 
 async function open(overrides: Partial<VehicleRepository>) {
@@ -199,6 +216,7 @@ async function open(overrides: Partial<VehicleRepository>) {
     month: async () => ({ trips: [], rent: null, expenses: [], unopenedDays: [] }),
     add: async () => hiace,
     update: async () => hiace,
+    remove: async () => undefined,
     ...overrides,
   };
   TestBed.configureTestingModule({

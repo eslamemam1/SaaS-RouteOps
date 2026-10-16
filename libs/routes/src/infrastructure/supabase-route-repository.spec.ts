@@ -53,5 +53,6 @@ function fakeGateway(
     listChoices: vi.fn(async () => ({ customers: [], vehicles: [], drivers: [] })),
     insertRoute: vi.fn(),
     updateRoute: vi.fn(),
+    deleteRoute: vi.fn(async () => undefined),
   };
 }

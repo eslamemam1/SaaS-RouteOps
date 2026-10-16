@@ -18,6 +18,8 @@ export interface CustomersText {
     readonly current: string;
     readonly stopped: string;
     readonly edit: string;
+    readonly remove: string;
+    readonly confirmRemove: string;
   };
   readonly form: {
     readonly addTitle: string;
@@ -36,8 +38,6 @@ export interface CustomersText {
     readonly add: string;
     readonly save: string;
     readonly cancel: string;
-    readonly remove: string;
-    readonly confirmRemove: string;
     readonly added: string;
     readonly saved: string;
     readonly removed: string;
@@ -74,6 +74,8 @@ export const customersText: Record<Language, CustomersText> = {
       current: 'مستمر',
       stopped: 'متوقف',
       edit: 'تعديل',
+      remove: 'حذف',
+      confirmRemove: 'اضغط مرة أخرى للتأكيد',
     },
     form: {
       addTitle: 'إضافة شركة متعاقدة جديدة',
@@ -93,8 +95,6 @@ export const customersText: Record<Language, CustomersText> = {
       add: 'إضافة الشركة',
       save: 'حفظ التعديلات',
       cancel: 'إلغاء',
-      remove: 'حذف الشركة',
-      confirmRemove: 'اضغط مرة أخرى لتأكيد الحذف',
       added: 'تمت إضافة الشركة.',
       saved: 'تم حفظ التعديلات.',
       removed: 'تم حذف الشركة.',
@@ -129,6 +129,8 @@ export const customersText: Record<Language, CustomersText> = {
       current: 'Current',
       stopped: 'Stopped',
       edit: 'Edit',
+      remove: 'Delete',
+      confirmRemove: 'Press again to confirm',
     },
     form: {
       addTitle: 'Add a new client company',
@@ -148,8 +150,6 @@ export const customersText: Record<Language, CustomersText> = {
       add: 'Add company',
       save: 'Save changes',
       cancel: 'Cancel',
-      remove: 'Delete company',
-      confirmRemove: 'Press again to confirm',
       added: 'The company was added.',
       saved: 'Your changes were saved.',
       removed: 'The company was deleted.',

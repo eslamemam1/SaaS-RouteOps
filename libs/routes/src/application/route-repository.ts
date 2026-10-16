@@ -20,4 +20,8 @@ export abstract class RouteRepository {
     routeId: string,
     details: TransportRouteDetails,
   ): Promise<TransportRoute>;
+  abstract remove(
+    organization: RouteOrganization,
+    route: TransportRoute,
+  ): Promise<void>;
 }

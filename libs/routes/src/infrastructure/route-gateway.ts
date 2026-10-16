@@ -36,6 +36,7 @@ export interface RouteGateway {
     routeId: string,
     details: TransportRouteDetails,
   ): Promise<TransportRoute>;
+  deleteRoute(organizationId: string, routeId: string): Promise<void>;
 }
 
 type RouteRow = Pick<
@@ -61,6 +62,8 @@ const routeColumns =
 const uniqueViolation = '23505';
 // Raised by the database when an active route names an inactive choice.
 const inactiveChoice = 'inactive_choice';
+// Raised when a trip still names the route on delete.
+const inUse = 'in_use';
 
 // PostgreSQL day-of-week numbers, which the routes table stores.
 const dayNumbers: Record<Weekday, number> = {
@@ -188,6 +191,23 @@ export class SupabaseRouteGateway implements RouteGateway {
       throw new RouteAccessError(saveProblem(error));
     }
     return toRoute(data, organization.currency);
+  }
+
+  // Row level security hides a row the member may not delete, so no deleted
+  // row means it was not removed.
+  async deleteRoute(organizationId: string, routeId: string): Promise<void> {
+    const { data, error } = await this.requireClient()
+      .from('routes')
+      .delete()
+      .eq('id', routeId)
+      .eq('organization_id', organizationId)
+      .select('id');
+    if (error) {
+      throw new RouteAccessError(error.message === inUse ? 'inUse' : 'remove');
+    }
+    if (!data || data.length === 0) {
+      throw new RouteAccessError('remove');
+    }
   }
 
   private requireClient(): SupabaseClient<Database> {

@@ -34,14 +34,12 @@ export class CustomerForm {
   readonly organization = input.required<CustomerOrganization>();
   readonly customer = input<Customer | null>(null);
   readonly saved = output<Customer>();
-  readonly removed = output<void>();
   readonly cancelled = output<void>();
 
   protected readonly text = injectText(customersText);
   private readonly problems = computed(() => this.text().problems);
 
   protected readonly submitting = signal(false);
-  protected readonly confirmingRemove = signal(false);
   protected readonly problem = signal<CustomerProblem | null>(null);
   protected readonly blockingRoutes = signal<readonly string[]>([]);
   protected readonly model = signal<CustomerDetails>(emptyCustomerDetails);
@@ -55,38 +53,9 @@ export class CustomerForm {
       untracked(() => {
         this.customerForm().reset(details);
         this.problem.set(null);
-        this.confirmingRemove.set(false);
         this.blockingRoutes.set([]);
       });
     });
-  }
-
-  protected async remove(): Promise<void> {
-    const customer = this.customer();
-    if (!customer) {
-      return;
-    }
-    if (!this.confirmingRemove()) {
-      this.confirmingRemove.set(true);
-      return;
-    }
-    this.submitting.set(true);
-    this.problem.set(null);
-    this.blockingRoutes.set([]);
-    try {
-      await this.repository.remove(this.organization(), customer);
-      this.removed.emit();
-    } catch (error) {
-      this.problem.set(
-        error instanceof CustomerAccessError ? error.problem : 'remove',
-      );
-      this.blockingRoutes.set(
-        error instanceof CustomerAccessError ? error.routes : [],
-      );
-    } finally {
-      this.submitting.set(false);
-      this.confirmingRemove.set(false);
-    }
   }
 
   protected onSubmit(event: Event): void {

@@ -272,19 +272,57 @@ describe('SupabaseRouteGateway', () => {
       new RouteAccessError('notConnected'),
     );
   });
+
+  it('deletes a route of the organization', async () => {
+    const calls = recorder(() => ({
+      data: [{ id: 'route-1' }],
+      error: null,
+    }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+
+    await gateway.deleteRoute('org-north', 'route-1');
+
+    expect(calls.deleted).toBe(true);
+    expect(calls.filters).toEqual([
+      ['id', 'route-1'],
+      ['organization_id', 'org-north'],
+    ]);
+  });
+
+  it('refuses to delete a route that trips still name', async () => {
+    const calls = recorder(() => ({
+      data: null,
+      error: { message: 'in_use', code: 'P0001' },
+    }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+
+    await expect(gateway.deleteRoute('org-north', 'route-1')).rejects.toEqual(
+      new RouteAccessError('inUse'),
+    );
+  });
 });
 
 function recorder(result: (table: string) => Result) {
   const filters: [string, string][] = [];
   let inserted: unknown = null;
+  let deleted = false;
   const queryFor = (table: string) => {
     const query = {
-      select: () => query,
+      select: () => {
+        if (deleted) {
+          return Promise.resolve(result(table));
+        }
+        return query;
+      },
       insert: (value: unknown) => {
         inserted = value;
         return query;
       },
       update: () => query,
+      delete: () => {
+        deleted = true;
+        return query;
+      },
       eq: (column: string, value: string) => {
         filters.push([column, value]);
         return query;
@@ -299,6 +337,9 @@ function recorder(result: (table: string) => Result) {
     filters,
     get inserted() {
       return inserted;
+    },
+    get deleted() {
+      return deleted;
     },
     client: { from: queryFor } as unknown as SupabaseClient<Database>,
   };

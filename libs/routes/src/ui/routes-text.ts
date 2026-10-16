@@ -33,6 +33,8 @@ export interface RoutesText {
     readonly working: string;
     readonly stopped: string;
     readonly edit: string;
+    readonly remove: string;
+    readonly confirmRemove: string;
   };
   readonly form: {
     readonly addTitle: string;
@@ -83,6 +85,7 @@ export interface RoutesText {
     readonly cancel: string;
     readonly added: string;
     readonly saved: string;
+    readonly removed: string;
   };
 }
 
@@ -101,8 +104,10 @@ export const routesText: Record<Language, RoutesText> = {
       days: 'اختر يومًا واحدًا على الأقل.',
       tripPrice: 'أدخل السعر بالأرقام فقط، مثل 150 أو 150.50',
       inactiveChoice: 'الخط العامل يحتاج شركة وسائقًا ومركبة غير موقوفين. اختر غيرهم، أو فعّلهم من صفحاتهم، أو أوقف الخط.',
+      inUse: 'لا يمكن حذف هذا الخط لأن رحلات ما زالت مربوطة به. احذف الرحلات أو اترك الخط موقوفًا.',
       load: 'تعذّر تحميل الخطوط. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
+      remove: 'تعذّر حذف الخط. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
       signedOut: 'سجّل الدخول للمتابعة.',
       notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
@@ -145,6 +150,8 @@ export const routesText: Record<Language, RoutesText> = {
       working: 'يعمل',
       stopped: 'متوقف',
       edit: 'تعديل',
+      remove: 'حذف',
+      confirmRemove: 'اضغط مرة أخرى للتأكيد',
     },
     form: {
       addTitle: 'إضافة خط جديد',
@@ -197,6 +204,7 @@ export const routesText: Record<Language, RoutesText> = {
       cancel: 'إلغاء',
       added: 'تمت إضافة الخط.',
       saved: 'تم حفظ التعديلات.',
+      removed: 'تم حذف الخط.',
     },
   },
   en: {
@@ -213,8 +221,10 @@ export const routesText: Record<Language, RoutesText> = {
       days: 'Choose at least one day.',
       tripPrice: 'Enter the price in numbers only, like 150 or 150.50',
       inactiveChoice: 'An active route needs a company, driver, and vehicle that are not inactive. Choose others, turn them back on from their pages, or stop the route.',
+      inUse: 'This route cannot be deleted because trips still name it. Clear those trips, or leave the route stopped.',
       load: 'Could not load your routes. Please try again.',
       save: 'Could not save. Please try again.',
+      remove: 'Could not delete the route. Please try again.',
       organization: 'You cannot open this page from your account.',
       signedOut: 'Sign in to continue.',
       notConnected: 'The app is not connected to the database.',
@@ -257,6 +267,8 @@ export const routesText: Record<Language, RoutesText> = {
       working: 'Running',
       stopped: 'Stopped',
       edit: 'Edit',
+      remove: 'Delete',
+      confirmRemove: 'Press again to confirm',
     },
     form: {
       addTitle: 'Add a new route',
@@ -309,6 +321,7 @@ export const routesText: Record<Language, RoutesText> = {
       cancel: 'Cancel',
       added: 'The route was added.',
       saved: 'Your changes were saved.',
+      removed: 'The route was deleted.',
     },
   },
 };

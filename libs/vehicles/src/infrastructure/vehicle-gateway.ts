@@ -71,6 +71,7 @@ export interface VehicleGateway {
     vehicleId: string,
     details: VehicleDetails,
   ): Promise<Vehicle>;
+  deleteVehicle(organizationId: string, vehicleId: string): Promise<void>;
 }
 
 type VehicleRow = Pick<
@@ -101,6 +102,8 @@ const uniqueViolation = '23505';
 const activeRoutes = 'active_routes';
 // Raised by the database when the company's plan allows no more active vehicles.
 const vehicleLimit = 'vehicle_limit';
+// Raised when a route, trip, or expense still names the vehicle on delete.
+const inUse = 'in_use';
 
 const rentTypeColumns: Record<RentType, string> = {
   none: 'none',
@@ -363,6 +366,29 @@ export class SupabaseVehicleGateway implements VehicleGateway {
       throw saveError(error);
     }
     return toVehicle(data, organization.currency);
+  }
+
+  // Row level security hides a row the member may not delete, so no deleted
+  // row means it was not removed.
+  async deleteVehicle(
+    organizationId: string,
+    vehicleId: string,
+  ): Promise<void> {
+    const { data, error } = await this.requireClient()
+      .from('vehicles')
+      .delete()
+      .eq('id', vehicleId)
+      .eq('organization_id', organizationId)
+      .select('id');
+    if (error) {
+      if (error.message === inUse) {
+        throw new VehicleAccessError('inUse', routeNames(error.details));
+      }
+      throw new VehicleAccessError('remove');
+    }
+    if (!data || data.length === 0) {
+      throw new VehicleAccessError('remove');
+    }
   }
 
   private requireClient(): SupabaseClient<Database> {

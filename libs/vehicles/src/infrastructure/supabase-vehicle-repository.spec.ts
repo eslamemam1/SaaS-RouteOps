@@ -86,5 +86,6 @@ function fakeGateway(
     unopenedDays: vi.fn(async () => []),
     insertVehicle: vi.fn(),
     updateVehicle: vi.fn(),
+    deleteVehicle: vi.fn(async () => undefined),
   };
 }

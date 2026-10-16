@@ -18,6 +18,14 @@
   >
     {{ text().form[done] }}
   </app-alert>
+  } @if (actionProblem(); as current) {
+  <app-alert
+    tone="danger"
+    [dismissible]="true"
+    (dismissed)="actionProblem.set(null)"
+  >
+    {{ text().problems[current] }}
+  </app-alert>
   } @if (organization(); as current) { @if (status() === 'success' || status() === 'empty') { @if
   (missing().customers) {
   <app-alert tone="warning">
@@ -166,6 +174,15 @@
               >
                 <ng-icon [svg]="icons.edit" aria-hidden="true" />
                 {{ text().list.edit }}
+              </button>
+              <button
+                size="sm"
+                type="button"
+                [appButton]="confirmingRemoveId() === route.id ? 'danger' : 'text'"
+                [disabled]="removing()"
+                (click)="remove(route)"
+              >
+                {{ confirmingRemoveId() === route.id ? text().list.confirmRemove : text().list.remove }}
               </button>
               <button
                 appButton="text"

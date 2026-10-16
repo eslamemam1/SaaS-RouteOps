@@ -94,6 +94,8 @@ export interface VehiclesText {
     readonly inService: string;
     readonly outOfService: string;
     readonly edit: string;
+    readonly remove: string;
+    readonly confirmRemove: string;
   };
   readonly form: {
     readonly addTitle: string;
@@ -130,6 +132,7 @@ export interface VehiclesText {
     readonly cancel: string;
     readonly added: string;
     readonly saved: string;
+    readonly removed: string;
   };
 }
 
@@ -148,8 +151,10 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       date: 'أدخل تاريخًا صحيحًا.',
       activeRoutes: 'لا يمكن إيقاف هذه المركبة لأنها تعمل على هذه الخطوط. اختر لها مركبة أخرى أو أوقفها من صفحة الخطوط أولًا:',
       vehicleLimit: 'وصلتم إلى أقصى عدد من المركبات العاملة في باقتكم. أوقف مركبة أخرى أولًا، أو تواصل معنا لترقية الباقة.',
+      inUse: 'لا يمكن حذف هذه المركبة لأنها مربوطة بخطوط أو رحلات أو مصاريف. انقل الخطوط لمركبة أخرى أولًا، أو احذف ما يخصها:',
       load: 'تعذّر تحميل المركبات. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
+      remove: 'تعذّر حذف المركبة. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
       signedOut: 'سجّل الدخول للمتابعة.',
       notConnected: 'التطبيق غير متصل بقاعدة البيانات.',
@@ -280,6 +285,8 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       inService: 'في الخدمة',
       outOfService: 'خارج الخدمة',
       edit: 'تعديل',
+      remove: 'حذف',
+      confirmRemove: 'اضغط مرة أخرى للتأكيد',
     },
     form: {
       addTitle: 'إضافة مركبة جديدة',
@@ -316,6 +323,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       cancel: 'إلغاء',
       added: 'تمت إضافة المركبة.',
       saved: 'تم حفظ التعديلات.',
+      removed: 'تم حذف المركبة.',
     },
   },
   en: {
@@ -332,8 +340,10 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       date: 'Enter a valid date.',
       activeRoutes: 'This vehicle cannot be made inactive because it runs these active routes. Give them another vehicle or stop them on the routes page first:',
       vehicleLimit: 'You have reached the most active vehicles your plan allows. Make another vehicle inactive first, or contact us to upgrade your plan.',
+      inUse: 'This vehicle cannot be deleted because routes, trips, or expenses still name it. Move the routes to another vehicle first, or clear what is linked:',
       load: 'Could not load your vehicles. Please try again.',
       save: 'Could not save. Please try again.',
+      remove: 'Could not delete the vehicle. Please try again.',
       organization: 'You cannot open this page from your account.',
       signedOut: 'Sign in to continue.',
       notConnected: 'The app is not connected to the database.',
@@ -464,6 +474,8 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       inService: 'In service',
       outOfService: 'Out of service',
       edit: 'Edit',
+      remove: 'Delete',
+      confirmRemove: 'Press again to confirm',
     },
     form: {
       addTitle: 'Add a new vehicle',
@@ -500,6 +512,7 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       cancel: 'Cancel',
       added: 'The vehicle was added.',
       saved: 'Your changes were saved.',
+      removed: 'The vehicle was deleted.',
     },
   },
 };

@@ -88,13 +88,11 @@ describe('Customers', () => {
     const harness = await open({ list: async () => [delta], remove });
     await settle(harness);
 
-    button(harness, arabic.list.edit)?.click();
-    await settle(harness);
-    button(harness, arabic.form.remove)?.click();
+    button(harness, arabic.list.remove)?.click();
     await settle(harness);
     expect(remove).not.toHaveBeenCalled();
 
-    button(harness, arabic.form.confirmRemove)?.click();
+    button(harness, arabic.list.confirmRemove)?.click();
     await settle(harness);
 
     expect(remove).toHaveBeenCalledWith(north, delta);
