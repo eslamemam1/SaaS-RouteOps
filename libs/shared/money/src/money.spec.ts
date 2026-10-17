@@ -4,8 +4,20 @@ import {
   formatMoney,
   isCurrency,
   toAmountText,
+  toHundredths,
   toMinorUnits,
 } from './money';
+
+describe('toHundredths', () => {
+  it('reads a number with up to two decimals in hundredths', () => {
+    expect(toHundredths('70')).toBe(7000);
+    expect(toHundredths('33.5')).toBe(3350);
+    expect(toHundredths('٣٣٫٥')).toBe(3350);
+    expect(toHundredths('  ')).toBeNull();
+    expect(toHundredths('33.555')).toBeUndefined();
+    expect(toHundredths('-5')).toBeUndefined();
+  });
+});
 
 describe('toMinorUnits', () => {
   it('stores pounds as piasters', () => {

@@ -1,5 +1,10 @@
 import { Language } from '@routeops/shared/i18n';
-import { RouteProblem, Weekday } from '../domain/transport-route';
+import {
+  ManagementMode,
+  RouteProblem,
+  VehicleShareMode,
+  Weekday,
+} from '../domain/transport-route';
 
 export interface RoutesText {
   readonly problems: Record<RouteProblem, string>;
@@ -79,6 +84,22 @@ export interface RoutesText {
     readonly tripPriceHint: string;
     readonly shiftPrice: string;
     readonly shiftPriceHint: string;
+    readonly splitTitle: string;
+    readonly splitHint: string;
+    readonly optional: string;
+    readonly managementMode: string;
+    readonly managementHint: string;
+    readonly managementModes: Record<ManagementMode, string>;
+    readonly managementPercent: string;
+    readonly vehicleShareMode: string;
+    readonly vehicleShareHint: string;
+    readonly vehicleShareModes: Record<VehicleShareMode, string>;
+    readonly vehicleSharePercent: string;
+    readonly shareAmount: string;
+    readonly previewManagement: string;
+    readonly previewVehicle: string;
+    readonly previewRest: string;
+    readonly splitNeedsPrice: string;
     readonly notes: string;
     readonly notesHint: string;
     readonly active: string;
@@ -107,6 +128,8 @@ export const routesText: Record<Language, RoutesText> = {
       trip: 'حدد ميعاد رحلة الذهاب أو رحلة العودة على الأقل.',
       days: 'اختر يومًا واحدًا على الأقل.',
       tripPrice: 'أدخل السعر بالأرقام فقط، مثل 150 أو 150.50',
+      percent: 'أدخل نسبة من 0 إلى 100، مثل 70 أو 33.5',
+      splitTooHigh: 'فرق الإدارة ونصيب المركبة معًا أكبر من سعر الوردية. قلّل أحدهما.',
       inactiveChoice: 'الخط العامل يحتاج شركة وسائقًا ومركبة غير موقوفين. اختر غيرهم، أو فعّلهم من صفحاتهم، أو أوقف الخط.',
       driverOverlap: 'هذا السائق مشغول في خط آخر في نفس الوقت في أيام مشتركة.',
       vehicleOverlap: 'هذه المركبة مشغولة في خط آخر في نفس الوقت في أيام مشتركة.',
@@ -205,6 +228,32 @@ export const routesText: Record<Language, RoutesText> = {
       shiftPrice: 'سعر الوردية (ذهاب وعودة)',
       shiftPriceHint:
         'المبلغ الذي تدفعه الشركة المتعاقدة عن الذهاب والعودة معًا في اليوم. إذا تمّ اتجاه واحد فقط يُحسب نصف السعر. تغيير السعر لا يغيّر الرحلات التي مضت ولها سعر، أما الرحلات التي تمّت بلا سعر فتأخذ السعر الجديد.',
+      splitTitle: 'تقسيم سعر الوردية',
+      splitHint:
+        'لمركبة ملك الشركة: حدّد كم من السعر لها، وفرق الإدارة إن أردت. الباقي للسائق والشركة. يسري على الأيام القادمة، وتبقى الرحلات التي مضت على تقسيمها.',
+      optional: '(اختياري)',
+      managementMode: 'فرق الإدارة',
+      managementHint: 'يؤخذ من السعر أولًا.',
+      managementModes: {
+        none: 'بدون',
+        percent: 'نسبة من السعر',
+        amount: 'مبلغ ثابت في الوردية',
+      },
+      managementPercent: 'نسبة الإدارة',
+      vehicleShareMode: 'نصيب المركبة',
+      vehicleShareHint: 'من الباقي بعد فرق الإدارة.',
+      vehicleShareModes: {
+        none: 'بدون',
+        percent: 'نسبة من الباقي',
+        amount: 'مبلغ ثابت في الوردية',
+        whole: 'كل الباقي',
+      },
+      vehicleSharePercent: 'نسبة المركبة',
+      shareAmount: 'المبلغ في الوردية',
+      previewManagement: 'فرق الإدارة',
+      previewVehicle: 'نصيب المركبة',
+      previewRest: 'الباقي للسائق والشركة',
+      splitNeedsPrice: 'حدّد سعر الوردية أولًا لترى التقسيم.',
       notes: 'ملاحظات',
       notesHint: 'أي معلومة تريد تذكّرها عن هذا الخط.',
       active: 'الخط يعمل حاليًا',
@@ -231,6 +280,8 @@ export const routesText: Record<Language, RoutesText> = {
       trip: 'Set the outbound or return trip time, at least one.',
       days: 'Choose at least one day.',
       tripPrice: 'Enter the price in numbers only, like 150 or 150.50',
+      percent: 'Enter a percent from 0 to 100, like 70 or 33.5',
+      splitTooHigh: 'The management margin and the vehicle share together are more than the shift price. Lower one of them.',
       inactiveChoice: 'An active route needs a company, driver, and vehicle that are not inactive. Choose others, turn them back on from their pages, or stop the route.',
       driverOverlap: 'This driver is already on another route at the same time on shared days.',
       vehicleOverlap: 'This vehicle is already on another route at the same time on shared days.',
@@ -329,6 +380,32 @@ export const routesText: Record<Language, RoutesText> = {
       shiftPrice: 'Shift price (out and back)',
       shiftPriceHint:
         'What the client company pays for the outbound and return trips together each day. When only one of them runs, half the price counts. Changing it does not change past trips that have a price; done trips with no price take the new one.',
+      splitTitle: 'Shift price split',
+      splitHint:
+        'For a company-owned vehicle: set how much of the price is the vehicle\'s, and a management margin if you want one. The rest is for the driver and the company. It applies to coming days; past trips keep their split.',
+      optional: '(optional)',
+      managementMode: 'Management margin',
+      managementHint: 'Taken from the price first.',
+      managementModes: {
+        none: 'None',
+        percent: 'Percent of the price',
+        amount: 'Fixed amount per shift',
+      },
+      managementPercent: 'Management percent',
+      vehicleShareMode: "Vehicle's share",
+      vehicleShareHint: 'Of what is left after the management margin.',
+      vehicleShareModes: {
+        none: 'None',
+        percent: 'Percent of what is left',
+        amount: 'Fixed amount per shift',
+        whole: 'All that is left',
+      },
+      vehicleSharePercent: 'Vehicle percent',
+      shareAmount: 'Amount per shift',
+      previewManagement: 'Management margin',
+      previewVehicle: "Vehicle's share",
+      previewRest: 'Left for the driver and the company',
+      splitNeedsPrice: 'Set the shift price first to see the split.',
       notes: 'Notes',
       notesHint: 'Anything you want to remember about this route.',
       active: 'This route is currently running',

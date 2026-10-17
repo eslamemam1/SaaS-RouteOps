@@ -4,11 +4,14 @@ import {
   defaultCurrency,
   isCurrency,
   toAmountText,
+  toHundredths,
   toMinorUnits,
 } from '@routeops/shared/money';
 import { RouteAccessError } from '../application/route-access-error';
 import {
   driverError,
+  ManagementMode,
+  managementModes,
   RouteChoice,
   RouteChoices,
   RouteOrganization,
@@ -16,6 +19,8 @@ import {
   selectedDays,
   TransportRoute,
   TransportRouteDetails,
+  VehicleShareMode,
+  vehicleShareModes,
   Weekday,
   weekdays,
   WeekdaySelection,
@@ -54,16 +59,24 @@ type RouteRow = Pick<
   | 'return_arrival_time'
   | 'operating_days'
   | 'trip_price'
+  | 'management_mode'
+  | 'management_percent'
+  | 'management_amount'
+  | 'vehicle_share_mode'
+  | 'vehicle_share_percent'
+  | 'vehicle_share_amount'
   | 'notes'
   | 'is_active'
 >;
 
 const routeColumns =
-  'id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, return_time, return_arrival_time, operating_days, trip_price, notes, is_active';
+  'id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, return_time, return_arrival_time, operating_days, trip_price, management_mode, management_percent, management_amount, vehicle_share_mode, vehicle_share_percent, vehicle_share_amount, notes, is_active';
 
 const uniqueViolation = '23505';
 // Raised by the database when an active route names an inactive choice.
 const inactiveChoice = 'inactive_choice';
+// The check that keeps a route's fixed shares within its shift price.
+const splitWithinPrice = 'routes_split_within_price';
 const driverOverlap = 'driver_overlap';
 const vehicleOverlap = 'vehicle_overlap';
 // Raised when a trip still names the route on delete.
@@ -136,7 +149,7 @@ export class SupabaseRouteGateway implements RouteGateway {
         .order('name'),
       client
         .from('vehicles')
-        .select('id, plate_number, is_active')
+        .select('id, plate_number, is_active, ownership')
         .eq('organization_id', organizationId)
         .order('plate_number'),
       client
@@ -152,9 +165,10 @@ export class SupabaseRouteGateway implements RouteGateway {
       customers: (customers.data ?? []).map((row) =>
         choice(row.id, row.name, row.is_active),
       ),
-      vehicles: (vehicles.data ?? []).map((row) =>
-        choice(row.id, row.plate_number, row.is_active),
-      ),
+      vehicles: (vehicles.data ?? []).map((row) => ({
+        ...choice(row.id, row.plate_number, row.is_active),
+        owned: row.ownership === 'owned',
+      })),
       drivers: (drivers.data ?? []).map((row) =>
         choice(row.id, row.full_name, row.is_active),
       ),
@@ -226,6 +240,9 @@ function saveProblem(error: PostgrestError | null): RouteProblem {
   if (error?.message === inactiveChoice) {
     return 'inactiveChoice';
   }
+  if ((error?.message ?? '').includes(splitWithinPrice)) {
+    return 'splitTooHigh';
+  }
   if (error?.message === driverOverlap) {
     return 'driverOverlap';
   }
@@ -254,9 +271,68 @@ function toRoute(row: RouteRow, currency: Currency): TransportRoute {
     returnArrivalTime: toClock(row.return_arrival_time),
     days: toDays(row.operating_days),
     tripPrice: toAmountText(row.trip_price, currency),
+    managementMode: oneOf(managementModes, row.management_mode),
+    managementPercent: percentText(row.management_percent),
+    managementAmount: toAmountText(row.management_amount, currency),
+    vehicleShareMode: oneOf(vehicleShareModes, row.vehicle_share_mode),
+    vehicleSharePercent: percentText(row.vehicle_share_percent),
+    vehicleShareAmount: toAmountText(row.vehicle_share_amount, currency),
     notes: row.notes ?? '',
     active: row.is_active,
   };
+}
+
+function oneOf<T extends string>(values: readonly T[], value: string): T {
+  if (!(values as readonly string[]).includes(value)) {
+    throw new RouteAccessError('load');
+  }
+  return value as T;
+}
+
+// The database keeps a percent such as 33.50; the form shows "33.5".
+function percentText(value: number | null): string {
+  return value === null ? '' : String(Number(value));
+}
+
+// Only the value of the chosen way is kept, as the database requires.
+function splitColumns(details: TransportRouteDetails, currency: Currency) {
+  return {
+    management_mode: details.managementMode,
+    management_percent: percentColumn(details.managementMode, details.managementPercent),
+    management_amount: amountColumn(details.managementMode, details.managementAmount, currency),
+    vehicle_share_mode: details.vehicleShareMode,
+    vehicle_share_percent: percentColumn(details.vehicleShareMode, details.vehicleSharePercent),
+    vehicle_share_amount: amountColumn(details.vehicleShareMode, details.vehicleShareAmount, currency),
+  };
+}
+
+function percentColumn(
+  mode: ManagementMode | VehicleShareMode,
+  text: string,
+): number | null {
+  if (mode !== 'percent') {
+    return null;
+  }
+  const hundredths = toHundredths(text);
+  if (typeof hundredths !== 'number' || hundredths > 10000) {
+    throw new RouteAccessError('percent');
+  }
+  return hundredths / 100;
+}
+
+function amountColumn(
+  mode: ManagementMode | VehicleShareMode,
+  text: string,
+  currency: Currency,
+): number | null {
+  if (mode !== 'amount') {
+    return null;
+  }
+  const minor = toMinorUnits(text, currency);
+  if (typeof minor !== 'number') {
+    throw new RouteAccessError('tripPrice');
+  }
+  return minor;
 }
 
 function toColumns(details: TransportRouteDetails, currency: Currency) {
@@ -283,6 +359,7 @@ function toColumns(details: TransportRouteDetails, currency: Currency) {
       .map((day) => dayNumbers[day])
       .sort((first, second) => first - second),
     trip_price: tripPrice,
+    ...splitColumns(details, currency),
     notes: blankToNull(details.notes),
     is_active: details.active,
   };

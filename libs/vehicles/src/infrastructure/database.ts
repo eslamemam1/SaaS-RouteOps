@@ -199,6 +199,8 @@ export type Database = {
           notes: string | null
           price: number | null
           halves: number
+          vehicle_share: number | null
+          management_share: number | null
         }[]
       }
       vehicle_pay: {

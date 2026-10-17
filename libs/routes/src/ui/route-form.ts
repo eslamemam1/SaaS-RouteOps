@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { apply, form, FormField, submit } from '@angular/forms/signals';
 import { injectText, LanguageService } from '@routeops/shared/i18n';
-import { currencySymbol } from '@routeops/shared/money';
+import { currencySymbol, formatMoney } from '@routeops/shared/money';
 import {
   Alert,
   Button,
@@ -25,13 +25,18 @@ import {
   availableChoices,
   emptyTransportRouteDetails,
   isShift,
+  managementModes,
   RouteChoices,
   RouteOrganization,
   RouteProblem,
   routeScheduleOverlap,
+  shiftSplit,
+  splitApplies,
   TransportRoute,
   TransportRouteDetails,
+  vehicleShareModes,
   weekdays,
+  withoutSplit,
 } from '../domain/transport-route';
 import { routeDetailsSchema } from './route-fields';
 import { routesText } from './routes-text';
@@ -61,10 +66,16 @@ export class RouteForm {
   private readonly problems = computed(() => this.text().problems);
 
   protected readonly weekdays = weekdays;
+  protected readonly managementModes = managementModes;
+  protected readonly vehicleShareModes = vehicleShareModes;
   protected readonly submitting = signal(false);
   protected readonly problem = signal<RouteProblem | null>(null);
   protected readonly model = signal<TransportRouteDetails>(
     emptyTransportRouteDetails,
+  );
+  // Only a route whose vehicle is company-owned splits its shift price.
+  protected readonly splitOn = computed(() =>
+    splitApplies(this.choices().vehicles, this.model().vehicleId),
   );
   protected readonly routeForm = form(this.model, (field) => {
     apply(
@@ -72,9 +83,15 @@ export class RouteForm {
       routeDetailsSchema(
         this.problems,
         computed(() => this.organization().currency),
+        this.splitOn,
       ),
     );
   });
+  protected readonly split = computed(() =>
+    this.splitOn()
+      ? shiftSplit(this.model(), this.organization().currency)
+      : null,
+  );
 
   protected readonly customers = computed(() =>
     availableChoices(this.choices().customers, this.model().customerId),
@@ -100,6 +117,10 @@ export class RouteForm {
     });
   }
 
+  protected money(minor: number): string {
+    return formatMoney(minor, this.organization().currency, this.language());
+  }
+
   protected chooseEveryDay(): void {
     for (const day of weekdays) {
       this.routeForm.days[day]().value.set(true);
@@ -113,8 +134,11 @@ export class RouteForm {
       this.problem.set(null);
       try {
         const existing = this.route();
+        const details = this.splitOn()
+          ? this.model()
+          : withoutSplit(this.model());
         const overlap = routeScheduleOverlap(
-          this.model(),
+          details,
           this.routes(),
           existing?.id ?? '',
         );
@@ -126,9 +150,9 @@ export class RouteForm {
           ? await this.repository.update(
               this.organization(),
               existing.id,
-              this.model(),
+              details,
             )
-          : await this.repository.add(this.organization(), this.model());
+          : await this.repository.add(this.organization(), details);
         this.routeForm().reset(emptyTransportRouteDetails);
         this.saved.emit(saved);
         return undefined;
@@ -158,6 +182,12 @@ function detailsOf(route: TransportRoute): TransportRouteDetails {
     returnArrivalTime: route.returnArrivalTime,
     days: route.days,
     tripPrice: route.tripPrice,
+    managementMode: route.managementMode,
+    managementPercent: route.managementPercent,
+    managementAmount: route.managementAmount,
+    vehicleShareMode: route.vehicleShareMode,
+    vehicleSharePercent: route.vehicleSharePercent,
+    vehicleShareAmount: route.vehicleShareAmount,
     notes: route.notes,
     active: route.active,
   };

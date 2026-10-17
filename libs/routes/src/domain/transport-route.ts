@@ -1,4 +1,9 @@
-import { amountError, Currency } from '@routeops/shared/money';
+import {
+  amountError,
+  Currency,
+  toHundredths,
+  toMinorUnits,
+} from '@routeops/shared/money';
 
 export interface RouteOrganization {
   readonly id: string;
@@ -13,11 +18,28 @@ export interface RouteChoice {
   readonly active: boolean;
 }
 
+// owned is true for a company-owned vehicle, the only kind whose route may
+// split its shift price.
+export interface RouteVehicle extends RouteChoice {
+  readonly owned: boolean;
+}
+
 export interface RouteChoices {
   readonly customers: readonly RouteChoice[];
-  readonly vehicles: readonly RouteChoice[];
+  readonly vehicles: readonly RouteVehicle[];
   readonly drivers: readonly RouteChoice[];
 }
+
+// How a route with a company-owned vehicle splits its shift price. The
+// management margin is taken first; the vehicle's share comes from what is
+// left, and what remains after both is for the driver and the company.
+export const vehicleShareModes = ['none', 'percent', 'amount', 'whole'] as const;
+
+export type VehicleShareMode = (typeof vehicleShareModes)[number];
+
+export const managementModes = ['none', 'percent', 'amount'] as const;
+
+export type ManagementMode = (typeof managementModes)[number];
 
 // Ordered as the week is read in Egypt and most Arab countries.
 export const weekdays = [
@@ -50,6 +72,13 @@ export interface TransportRouteDetails {
   // the organization's currency, such as "150.50": a shift's whole price, or
   // the one trip's. Blank until a price is set.
   readonly tripPrice: string;
+  readonly managementMode: ManagementMode;
+  // As typed: a percent such as "10", or an amount per shift such as "100".
+  readonly managementPercent: string;
+  readonly managementAmount: string;
+  readonly vehicleShareMode: VehicleShareMode;
+  readonly vehicleSharePercent: string;
+  readonly vehicleShareAmount: string;
   readonly notes: string;
   readonly active: boolean;
 }
@@ -77,6 +106,8 @@ export const routeProblems = [
   'trip',
   'days',
   'tripPrice',
+  'percent',
+  'splitTooHigh',
   'inactiveChoice',
   'driverOverlap',
   'vehicleOverlap',
@@ -112,9 +143,133 @@ export const emptyTransportRouteDetails: TransportRouteDetails = {
     friday: false,
   },
   tripPrice: '',
+  ...noSplit(),
   notes: '',
   active: true,
 };
+
+function noSplit(): Pick<
+  TransportRouteDetails,
+  | 'managementMode'
+  | 'managementPercent'
+  | 'managementAmount'
+  | 'vehicleShareMode'
+  | 'vehicleSharePercent'
+  | 'vehicleShareAmount'
+> {
+  return {
+    managementMode: 'none',
+    managementPercent: '',
+    managementAmount: '',
+    vehicleShareMode: 'none',
+    vehicleSharePercent: '',
+    vehicleShareAmount: '',
+  };
+}
+
+// The route without a split, as saved for a vehicle that is not company-owned.
+export function withoutSplit(
+  details: TransportRouteDetails,
+): TransportRouteDetails {
+  return { ...details, ...noSplit() };
+}
+
+export function splitApplies(
+  vehicles: readonly RouteVehicle[],
+  vehicleId: string,
+): boolean {
+  return vehicles.some((vehicle) => vehicle.id === vehicleId && vehicle.owned);
+}
+
+// A percent from 0 to 100 with at most two decimals.
+export function percentError(value: string): RouteProblem | null {
+  const hundredths = toHundredths(value);
+  return typeof hundredths === 'number' && hundredths <= 10000 ? null : 'percent';
+}
+
+export function splitAmountError(
+  value: string,
+  currency: Currency,
+): RouteProblem | null {
+  return toMinorUnits(value, currency) === null || amountError(value, currency)
+    ? 'tripPrice'
+    : null;
+}
+
+export interface ShiftSplit {
+  readonly price: number;
+  readonly management: number;
+  readonly vehicle: number;
+  readonly rest: number;
+}
+
+// How one shift's price splits, in the smallest unit of the currency, rounded
+// down. Each trip of a shift rounds its own half, so a month's shares may
+// differ from this by a unit. Null until the price and every chosen share are
+// valid.
+export function shiftSplit(
+  details: TransportRouteDetails,
+  currency: Currency,
+): ShiftSplit | null {
+  const price = toMinorUnits(details.tripPrice, currency);
+  if (typeof price !== 'number') {
+    return null;
+  }
+  const management = shareOf(
+    details.managementMode,
+    details.managementPercent,
+    details.managementAmount,
+    price,
+    currency,
+  );
+  if (management === undefined) {
+    return null;
+  }
+  const left = price - management;
+  const vehicle =
+    details.vehicleShareMode === 'whole'
+      ? left
+      : shareOf(
+          details.vehicleShareMode,
+          details.vehicleSharePercent,
+          details.vehicleShareAmount,
+          left,
+          currency,
+        );
+  if (vehicle === undefined) {
+    return null;
+  }
+  return { price, management, vehicle, rest: left - vehicle };
+}
+
+// Shares that add up to more than the shift price.
+export function splitError(
+  details: TransportRouteDetails,
+  currency: Currency,
+): RouteProblem | null {
+  const split = shiftSplit(details, currency);
+  return split && split.rest < 0 ? 'splitTooHigh' : null;
+}
+
+function shareOf(
+  mode: string,
+  percent: string,
+  amount: string,
+  base: number,
+  currency: Currency,
+): number | undefined {
+  if (mode === 'percent') {
+    const hundredths = toHundredths(percent);
+    return typeof hundredths === 'number' && hundredths <= 10000
+      ? Math.floor((base * hundredths) / 10000)
+      : undefined;
+  }
+  if (mode === 'amount') {
+    const minor = toMinorUnits(amount, currency);
+    return typeof minor === 'number' ? minor : undefined;
+  }
+  return 0;
+}
 
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -409,6 +564,7 @@ export function copyForAnotherCustomer(
     returnArrivalTime: route.returnArrivalTime,
     days: route.days,
     tripPrice: '',
+    ...noSplit(),
     notes: '',
     active: true,
   };

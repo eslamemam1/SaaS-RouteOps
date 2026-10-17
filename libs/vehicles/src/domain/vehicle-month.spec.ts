@@ -4,6 +4,7 @@ import {
   expenseSum,
   isMonth,
   monthDays,
+  vehicleProfit,
   VehicleTrip,
   vehicleTotals,
 } from './vehicle-month';
@@ -22,6 +23,7 @@ const trip: VehicleTrip = {
   notes: '',
   price: 5000,
   halves: 1,
+  share: null,
 };
 
 describe('vehicle month', () => {
@@ -77,7 +79,22 @@ describe('vehicle month', () => {
       extraFull: 1,
       revenue: 5000,
       unpriced: 1,
+      share: 0,
+      earnsShare: false,
     });
+  });
+
+  it("makes a vehicle's profit from its share when its routes split the price", () => {
+    const withShare = vehicleTotals([
+      { ...trip, share: 3150 },
+      { ...trip, id: 'trip-2', direction: 'return', share: 3150 },
+      { ...trip, id: 'trip-3', status: 'cancelled', reason: 'holiday', share: 3150 },
+    ]);
+
+    expect(withShare.share).toBe(6300);
+    expect(withShare.earnsShare).toBe(true);
+    expect(vehicleProfit(withShare, 2000)).toBe(4300);
+    expect(vehicleProfit(vehicleTotals([trip]), 2000)).toBe(3000);
   });
 
   it('adds up expenses by category in the order of the categories', () => {

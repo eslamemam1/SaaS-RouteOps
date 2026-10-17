@@ -30,6 +30,8 @@ import { ReportsAccessError } from '../application/reports-access-error';
 import { ReportsRepository } from '../application/reports-repository';
 import {
   costShares,
+  routeCompanyShare,
+  vehicleLineProfit,
   customerInvoiceLines,
   expenseSum,
   invoiceDateError,
@@ -152,8 +154,19 @@ export class Reports {
   protected readonly pages = paginate(this.lines, {
     resetOn: () => [this.month(), this.group()],
   });
-  protected readonly otherCosts = computed(
-    () => costShares(this.report().counts, this.report().expenses).other,
+  private readonly shares = computed(() =>
+    costShares(this.report().counts, this.report().expenses),
+  );
+  protected readonly otherCosts = computed(() => this.shares().other);
+  // Share-earning vehicles' shares less their own expenses, or null.
+  protected readonly sharedVehicles = computed(
+    () => this.shares().sharedVehicles,
+  );
+  protected readonly managementTotal = computed(
+    () => this.total().management,
+  );
+  protected readonly hasSplit = computed(
+    () => this.managementTotal() > 0 || this.sharedVehicles() !== null,
   );
   protected readonly unrecorded = computed(() => {
     const { drivers, vehicles } = this.report().unrecorded;
@@ -267,7 +280,11 @@ export class Reports {
   }
 
   protected companyShare(line: ReportLine): number {
-    return line.revenue - line.driverCost - line.vehicleCost;
+    return routeCompanyShare(line);
+  }
+
+  protected vehicleProfit(line: ReportLine): number {
+    return vehicleLineProfit(line);
   }
 
   protected routeLabel(line: InvoiceLine): string {

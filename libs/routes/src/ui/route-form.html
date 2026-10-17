@@ -124,6 +124,89 @@
       <input type="text" inputmode="decimal" dir="ltr" [formField]="routeForm.tripPrice" />
       <bdi>{{ currencyLabel() }}</bdi>
     </app-field>
+    @if (splitOn()) {
+      <div class="route-split" role="group" aria-labelledby="route-split-title">
+        <div class="route-leg-head">
+          <span id="route-split-title" class="route-leg-title">
+            {{ text().form.splitTitle }}
+            <span class="route-split-optional">{{ text().form.optional }}</span>
+          </span>
+          <span class="route-leg-hint">{{ text().form.splitHint }}</span>
+        </div>
+        <div class="route-split-row">
+          <app-field [label]="text().form.managementMode" [hint]="text().form.managementHint">
+            <app-select [formField]="routeForm.managementMode">
+              @for (mode of managementModes; track mode) {
+                <app-option [value]="mode" [label]="text().form.managementModes[mode]" />
+              }
+            </app-select>
+          </app-field>
+          @if (model().managementMode === 'percent') {
+            <app-field [label]="text().form.managementPercent" [control]="routeForm.managementPercent">
+              <input type="text" inputmode="decimal" dir="ltr" [formField]="routeForm.managementPercent" />
+              <bdi>%</bdi>
+            </app-field>
+          } @else if (model().managementMode === 'amount') {
+            <app-field [label]="text().form.shareAmount" [control]="routeForm.managementAmount">
+              <input type="text" inputmode="decimal" dir="ltr" [formField]="routeForm.managementAmount" />
+              <bdi>{{ currencyLabel() }}</bdi>
+            </app-field>
+          }
+        </div>
+        <div class="route-split-row">
+          <app-field
+            [label]="text().form.vehicleShareMode"
+            [hint]="text().form.vehicleShareHint"
+            [control]="routeForm.vehicleShareMode"
+          >
+            <app-select [formField]="routeForm.vehicleShareMode">
+              @for (mode of vehicleShareModes; track mode) {
+                <app-option [value]="mode" [label]="text().form.vehicleShareModes[mode]" />
+              }
+            </app-select>
+          </app-field>
+          @if (model().vehicleShareMode === 'percent') {
+            <app-field [label]="text().form.vehicleSharePercent" [control]="routeForm.vehicleSharePercent">
+              <input type="text" inputmode="decimal" dir="ltr" [formField]="routeForm.vehicleSharePercent" />
+              <bdi>%</bdi>
+            </app-field>
+          } @else if (model().vehicleShareMode === 'amount') {
+            <app-field [label]="text().form.shareAmount" [control]="routeForm.vehicleShareAmount">
+              <input type="text" inputmode="decimal" dir="ltr" [formField]="routeForm.vehicleShareAmount" />
+              <bdi>{{ currencyLabel() }}</bdi>
+            </app-field>
+          }
+        </div>
+        @if (split(); as parts) {
+          @if (model().managementMode !== 'none' || model().vehicleShareMode !== 'none') {
+            <dl class="ro-sum route-split-preview">
+              <div>
+                <dt>{{ shift() ? text().form.shiftPrice : text().form.tripPrice }}</dt>
+                <dd><bdi>{{ money(parts.price) }}</bdi></dd>
+              </div>
+              @if (model().managementMode !== 'none') {
+                <div>
+                  <dt>{{ text().form.previewManagement }}</dt>
+                  <dd><bdi>− {{ money(parts.management) }}</bdi></dd>
+                </div>
+              }
+              @if (model().vehicleShareMode !== 'none') {
+                <div>
+                  <dt>{{ text().form.previewVehicle }}</dt>
+                  <dd><bdi>− {{ money(parts.vehicle) }}</bdi></dd>
+                </div>
+              }
+              <div class="ro-sum-total">
+                <dt>{{ text().form.previewRest }}</dt>
+                <dd><bdi>{{ money(parts.rest) }}</bdi></dd>
+              </div>
+            </dl>
+          }
+        } @else if (!model().tripPrice.trim()) {
+          <p class="route-leg-hint">{{ text().form.splitNeedsPrice }}</p>
+        }
+      </div>
+    }
     <app-field
       [label]="text().form.notes"
       [hint]="text().form.notesHint"

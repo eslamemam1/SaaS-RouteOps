@@ -91,6 +91,35 @@
   gap: var(--ro-space-3);
 }
 
+/* The shift price split, a tile like the trip legs, shown for a company-owned vehicle. */
+.route-split {
+  display: grid;
+  gap: var(--ro-space-3);
+  padding: var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-hover);
+}
+
+.route-split-optional {
+  color: var(--ro-text-muted);
+  font-weight: var(--ro-font-regular);
+}
+
+/* The way and its value share a row so each pair reads together; only the way
+   has a hint, so the controls line up along the bottom. */
+.route-split-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: var(--ro-space-3);
+}
+
+.route-split-preview {
+  padding-block-start: var(--ro-space-3);
+  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
+}
+
 .route-days {
   display: grid;
   gap: var(--ro-space-2);

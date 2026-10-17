@@ -43,7 +43,9 @@ export type ExpenseCategory = (typeof expenseCategories)[number];
 // A trip of the month the vehicle made or was planned to make. An id is empty
 // when the trip names none; price is null when neither the trip nor its route
 // has one. halves is how many halves of a full trip it is: 1 for one direction
-// of an outbound-and-return route, 2 for any other trip.
+// of an outbound-and-return route, 2 for any other trip. share is the
+// vehicle's part of the price when its route splits the shift price for a
+// company-owned vehicle, and null otherwise.
 export interface VehicleTrip {
   readonly id: string;
   readonly serviceDate: string;
@@ -58,6 +60,7 @@ export interface VehicleTrip {
   readonly notes: string;
   readonly price: number | null;
   readonly halves: number;
+  readonly share: number | null;
 }
 
 export interface WorkChoice {
@@ -101,7 +104,9 @@ export interface VehicleMonth {
 }
 
 // done counts each direction, as per-trip rent does; full and extraFull count
-// full trips.
+// full trips. share adds up the vehicle's shares of the done trips, and
+// earnsShare is true once any done trip gives it a share above zero, as the
+// reports decide it.
 export interface VehicleMonthTotals {
   readonly done: PerDirection;
   readonly extra: number;
@@ -109,6 +114,8 @@ export interface VehicleMonthTotals {
   readonly extraFull: number;
   readonly revenue: number;
   readonly unpriced: number;
+  readonly share: number;
+  readonly earnsShare: boolean;
 }
 
 export interface DateRange {
@@ -166,6 +173,8 @@ export function vehicleTotals(
   let extraHalves = 0;
   let revenue = 0;
   let unpriced = 0;
+  let share = 0;
+  let earnsShare = false;
   for (const trip of trips) {
     if (trip.status !== 'done') {
       continue;
@@ -181,6 +190,10 @@ export function vehicleTotals(
     } else {
       revenue += trip.price;
     }
+    if (trip.share) {
+      share += trip.share;
+      earnsShare = true;
+    }
   }
   return {
     done,
@@ -189,7 +202,19 @@ export function vehicleTotals(
     extraFull: extraHalves / 2,
     revenue,
     unpriced,
+    share,
+    earnsShare,
   };
+}
+
+// A vehicle that earns a share of its routes' price makes its share less its
+// expenses; any other vehicle makes its trips' revenue less its expenses, as
+// the reports' vehicle view counts it.
+export function vehicleProfit(
+  totals: VehicleMonthTotals,
+  expenses: number,
+): number {
+  return (totals.earnsShare ? totals.share : totals.revenue) - expenses;
 }
 
 // Adds up expense rows by category, in the order of the categories.

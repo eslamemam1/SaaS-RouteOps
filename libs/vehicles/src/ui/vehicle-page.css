@@ -23,6 +23,11 @@
   grid-column: span 3;
 }
 
+/* With its share there are four money figures, two to a row. */
+.vehicle-stats-share > .ro-stat {
+  grid-column: span 3;
+}
+
 /* The rent and the expenses side by side; a single card takes the whole row. */
 .vehicle-money {
   display: grid;
@@ -88,6 +93,10 @@
 
   .vehicle-stats > .vehicle-profit {
     grid-column: 1 / -1;
+  }
+
+  .vehicle-stats-share > .vehicle-profit {
+    grid-column: auto;
   }
 }
 

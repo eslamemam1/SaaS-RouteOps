@@ -24,7 +24,7 @@ Multi-tenant operations app for staff transportation companies.
 - Tag feature libraries `scope:<feature>` and `type:feature`.
 - `supabase/migrations` is the database source of truth. Local Supabase needs Docker.
 - `supabase/functions` holds the server functions that need the service-role key: `provision-company` creates a company and its login, and `set-company-password` gives a company login a new password. Deploy one with `npx supabase functions deploy <name>`.
-- `supabase/tests/database` holds pgTAP tests for tenant isolation, daily operations, vehicle ownership, the trip report, a driver's or vehicle's trip log (`trip_log.test.sql`), trip prices, the operator's company list, subscription payments, and the rules that keep a month's figures right (`month_accuracy.test.sql`). They run against the local database only.
+- `supabase/tests/database` holds pgTAP tests for tenant isolation, daily operations, vehicle ownership, the trip report, a driver's or vehicle's trip log (`trip_log.test.sql`), trip prices, a route's shift price split (`route_vehicle_split.test.sql`), the operator's company list, subscription payments, and the rules that keep a month's figures right (`month_accuracy.test.sql`). They run against the local database only.
 
 ## Tasks
 

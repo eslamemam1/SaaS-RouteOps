@@ -60,6 +60,21 @@ export function toMinorUnits(
   return Number(match[1]) * 10 ** decimals + Number(fraction);
 }
 
+// A typed number with at most two decimals, such as a percent, in hundredths:
+// "33.5" is 3350. Accepts the same digits as amounts; null for a blank text
+// and undefined for a text that is not such a number.
+export function toHundredths(text: string): number | null | undefined {
+  const normalized = normalizeDigits(text.trim());
+  if (normalized.length === 0) {
+    return null;
+  }
+  const match = /^(\d{1,9})(?:\.(\d{1,2}))?$/.exec(normalized);
+  if (!match) {
+    return undefined;
+  }
+  return Number(match[1]) * 100 + Number((match[2] ?? '').padEnd(2, '0'));
+}
+
 export function amountError(
   text: string,
   currency: Currency,

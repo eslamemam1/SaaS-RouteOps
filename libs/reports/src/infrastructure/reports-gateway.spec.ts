@@ -20,6 +20,8 @@ describe('SupabaseReportsGateway', () => {
           unpriced_trips: 1,
           done_halves: 23,
           extra_halves: 2,
+          vehicle_share: 63000,
+          management_share: 10000,
         },
       ],
       error: null,
@@ -44,6 +46,8 @@ describe('SupabaseReportsGateway', () => {
         extraFull: 1,
         revenue: 315000,
         unpriced: 1,
+        vehicleShare: 63000,
+        management: 10000,
       },
     ]);
     expect(calls.rpc).toEqual([

@@ -7,10 +7,14 @@ import {
   daysError,
   driverError,
   endPointError,
+  emptyTransportRouteDetails,
   optionalTextError,
+  percentError,
   routeLimits,
   routeNameError,
   RouteProblem,
+  splitAmountError,
+  splitError,
   startPointError,
   timeError,
   TransportRouteDetails,
@@ -26,11 +30,54 @@ function fieldError(problem: RouteProblem | null, problems: Problems) {
     : { kind: problem, message: problems()[problem] };
 }
 
+// The split is checked only while the chosen vehicle is company-owned, since
+// any other route is saved without one.
 export function routeDetailsSchema(
   problems: Problems,
   currency: Signal<Currency>,
+  splitOn: Signal<boolean>,
 ) {
   return schema<TransportRouteDetails>((path) => {
+    validate(path.managementPercent, ({ value, valueOf }) =>
+      splitOn() && valueOf(path.managementMode) === 'percent'
+        ? fieldError(percentError(value()), problems)
+        : undefined,
+    );
+    validate(path.managementAmount, ({ value, valueOf }) =>
+      splitOn() && valueOf(path.managementMode) === 'amount'
+        ? fieldError(splitAmountError(value(), currency()), problems)
+        : undefined,
+    );
+    validate(path.vehicleSharePercent, ({ value, valueOf }) =>
+      splitOn() && valueOf(path.vehicleShareMode) === 'percent'
+        ? fieldError(percentError(value()), problems)
+        : undefined,
+    );
+    validate(path.vehicleShareAmount, ({ value, valueOf }) =>
+      splitOn() && valueOf(path.vehicleShareMode) === 'amount'
+        ? fieldError(splitAmountError(value(), currency()), problems)
+        : undefined,
+    );
+    validate(path.vehicleShareMode, ({ value, valueOf }) =>
+      splitOn()
+        ? fieldError(
+            splitError(
+              {
+                ...emptyTransportRouteDetails,
+                tripPrice: valueOf(path.tripPrice),
+                managementMode: valueOf(path.managementMode),
+                managementPercent: valueOf(path.managementPercent),
+                managementAmount: valueOf(path.managementAmount),
+                vehicleShareMode: value(),
+                vehicleSharePercent: valueOf(path.vehicleSharePercent),
+                vehicleShareAmount: valueOf(path.vehicleShareAmount),
+              },
+              currency(),
+            ),
+            problems,
+          )
+        : undefined,
+    );
     validate(path.name, ({ value }) =>
       fieldError(routeNameError(value()), problems),
     );

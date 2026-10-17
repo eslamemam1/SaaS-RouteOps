@@ -186,6 +186,9 @@
                 @if (group() === 'route') {
                   <th>{{ text().report.driverShare }}</th>
                   <th>{{ text().report.vehicleShare }}</th>
+                  @if (hasSplit()) {
+                    <th>{{ text().report.management }}</th>
+                  }
                   <th>{{ text().report.companyShare }}</th>
                 }
               </tr>
@@ -232,9 +235,14 @@
                       <bdi>{{ money(line.expenses) }}</bdi>
                     </td>
                     <td class="ro-numeric" [attr.data-label]="text().report.profit">
-                      <bdi>{{ money(line.revenue - line.expenses) }}</bdi>
-                      @if (line.revenue < line.expenses) {
+                      <bdi>{{ money(vehicleProfit(line)) }}</bdi>
+                      @if (vehicleProfit(line) < 0) {
                         <app-tag tone="danger">{{ text().report.loss }}</app-tag>
+                      }
+                      @if (line.vehicleShare > 0) {
+                        <span class="hint">
+                          {{ text().report.fromShare }} <bdi>{{ money(line.vehicleShare) }}</bdi>
+                        </span>
                       }
                     </td>
                   }
@@ -245,6 +253,11 @@
                     <td class="ro-numeric" [attr.data-label]="text().report.vehicleShare">
                       <bdi>{{ money(line.vehicleCost) }}</bdi>
                     </td>
+                    @if (hasSplit()) {
+                      <td class="ro-numeric" [attr.data-label]="text().report.management">
+                        <bdi>{{ money(line.management) }}</bdi>
+                      </td>
+                    }
                     <td class="ro-numeric" [attr.data-label]="text().report.companyShare">
                       <bdi>{{ money(companyShare(line)) }}</bdi>
                       @if (companyShare(line) < 0) {
@@ -260,13 +273,31 @@
         <app-pager [pages]="pages" />
         @if (group() === 'route') {
           <div class="ro-card-body">
+            @if (managementTotal() > 0) {
+              <p>
+                {{ text().report.managementTotal }}:
+                <strong class="ro-numeric"
+                  ><bdi>{{ money(managementTotal()) }}</bdi></strong
+                >
+              </p>
+            }
+            @if (sharedVehicles() !== null) {
+              <p>
+                {{ text().report.sharedVehicles }}:
+                <strong class="ro-numeric"
+                  ><bdi>{{ money(sharedVehicles() ?? 0) }}</bdi></strong
+                >
+              </p>
+            }
             <p>
               {{ text().report.otherCosts }}:
               <strong class="ro-numeric"
                 ><bdi>{{ money(otherCosts()) }}</bdi></strong
               >
             </p>
-            <p class="hint">{{ text().report.otherCostsHint }}</p>
+            <p class="hint">
+              {{ hasSplit() ? text().report.splitCostsHint : text().report.otherCostsHint }}
+            </p>
           </div>
         }
       </section>

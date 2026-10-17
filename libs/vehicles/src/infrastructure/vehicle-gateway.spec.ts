@@ -311,6 +311,8 @@ describe('SupabaseVehicleGateway', () => {
           notes: 'Flat tyre',
           price: null,
           halves: 1,
+          vehicle_share: 31500,
+          management_share: 5000,
         },
       ],
       error: null,
@@ -334,6 +336,7 @@ describe('SupabaseVehicleGateway', () => {
         notes: 'Flat tyre',
         price: null,
         halves: 1,
+        share: 31500,
       },
     ]);
     expect(calls.rpcs).toEqual([

@@ -36,7 +36,10 @@ export interface VehiclesText {
     readonly revenue: string;
     readonly unpriced: string;
     readonly expenses: string;
+    readonly share: string;
+    readonly shareDetail: string;
     readonly profit: string;
+    readonly profitFromShare: string;
     readonly loss: string;
     readonly countedHint: string;
     readonly rentTitle: string;
@@ -226,7 +229,10 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       revenue: 'إيراد رحلاتها',
       unpriced: 'رحلة بلا سعر',
       expenses: 'مصاريفها',
+      share: 'نصيبها من الخطوط',
+      shareDetail: 'من تقسيم سعر الوردية في خطوطها',
       profit: 'ربحها',
+      profitFromShare: 'نصيبها − مصاريفها',
       loss: 'خسارة',
       countedHint:
         'تُحسب الرحلات والربح بنفس طريقة التقارير: الرحلة المنفّذة فقط، والمصاريف المسجّلة على هذه المركبة. الذهاب والعودة معًا رحلة كاملة، والاتجاه الواحد منها نصف رحلة.',
@@ -417,7 +423,10 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       revenue: 'Revenue of the trips',
       unpriced: 'trips without a price',
       expenses: 'Expenses',
+      share: 'Its share of the routes',
+      shareDetail: "From its routes' shift price split",
       profit: 'Profit',
+      profitFromShare: 'Its share − its expenses',
       loss: 'Loss',
       countedHint:
         'Trips and profit are counted as in the reports: only done trips, and the expenses recorded on this vehicle. An outbound and a return trip together are one full trip, and one direction alone is half a trip.',

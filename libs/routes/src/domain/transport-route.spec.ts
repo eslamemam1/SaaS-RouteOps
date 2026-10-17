@@ -11,17 +11,97 @@ import {
   memberOrganization,
   RouteOrganization,
   routeNameError,
+  percentError,
   routeScheduleOverlap,
   routesOfCustomer,
   searchRoutes,
   selectedDays,
+  shiftSplit,
   sortByCustomerAndName,
+  splitApplies,
+  splitError,
   startPointError,
   timeError,
   TransportRoute,
   tripError,
   tripPriceError,
+  withoutSplit,
 } from './transport-route';
+
+describe('shift price split', () => {
+  const route = {
+    ...emptyTransportRouteDetails,
+    tripPrice: '1000',
+    managementMode: 'percent' as const,
+    managementPercent: '10',
+    vehicleShareMode: 'percent' as const,
+    vehicleSharePercent: '70',
+  };
+
+  it('takes the management margin first and the vehicle share from what is left', () => {
+    expect(shiftSplit(route, 'EGP')).toEqual({
+      price: 100000,
+      management: 10000,
+      vehicle: 63000,
+      rest: 27000,
+    });
+  });
+
+  it('gives fixed amounts, or all that is left, to the vehicle', () => {
+    expect(
+      shiftSplit(
+        { ...route, managementMode: 'amount', managementAmount: '100', vehicleShareMode: 'whole' },
+        'EGP',
+      ),
+    ).toEqual({ price: 100000, management: 10000, vehicle: 90000, rest: 0 });
+    expect(
+      shiftSplit(
+        { ...route, managementMode: 'none', vehicleShareMode: 'amount', vehicleShareAmount: '800' },
+        'EGP',
+      ),
+    ).toEqual({ price: 100000, management: 0, vehicle: 80000, rest: 20000 });
+  });
+
+  it('has no split without a price or with a share that is not a number', () => {
+    expect(shiftSplit({ ...route, tripPrice: '' }, 'EGP')).toBeNull();
+    expect(shiftSplit({ ...route, vehicleSharePercent: 'x' }, 'EGP')).toBeNull();
+  });
+
+  it('refuses fixed shares above the shift price', () => {
+    expect(
+      splitError(
+        {
+          ...route,
+          managementMode: 'amount',
+          managementAmount: '300',
+          vehicleShareMode: 'amount',
+          vehicleShareAmount: '800',
+        },
+        'EGP',
+      ),
+    ).toBe('splitTooHigh');
+    expect(splitError(route, 'EGP')).toBeNull();
+  });
+
+  it('accepts a percent from 0 to 100 with two decimals, in Arabic digits too', () => {
+    expect(percentError('70')).toBeNull();
+    expect(percentError('٣٣٫٥')).toBeNull();
+    expect(percentError('100.01')).toBe('percent');
+    expect(percentError('')).toBe('percent');
+  });
+
+  it('splits only for a company-owned vehicle and saves the others without a split', () => {
+    const vehicles = [
+      { id: 'bus', label: 'Bus', active: true, owned: true },
+      { id: 'rented', label: 'Rented', active: true, owned: false },
+    ];
+    expect(splitApplies(vehicles, 'bus')).toBe(true);
+    expect(splitApplies(vehicles, 'rented')).toBe(false);
+    expect(splitApplies(vehicles, '')).toBe(false);
+    expect(withoutSplit(route).vehicleShareMode).toBe('none');
+    expect(withoutSplit(route).managementMode).toBe('none');
+  });
+});
 
 describe('route text fields', () => {
   it('requires a name and a start point', () => {
@@ -267,7 +347,7 @@ describe('the same route name for several customers', () => {
     const choices = {
       customers,
       drivers: [{ id: 'driver-2', label: 'Ahmed Ali', active: true }],
-      vehicles: [{ id: 'vehicle-3', label: 'ABC 1234', active: true }],
+      vehicles: [{ id: 'vehicle-3', label: 'ABC 1234', active: true, owned: true }],
     };
     const ids = (search: string) =>
       searchRoutes(routes, search, choices).map((item) => item.id);

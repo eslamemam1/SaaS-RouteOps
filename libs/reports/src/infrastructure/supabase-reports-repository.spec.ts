@@ -80,6 +80,8 @@ describe('SupabaseReportsRepository', () => {
         extraFull: 0,
         revenue: 20000,
         unpriced: 0,
+        vehicleShare: 0,
+        management: 0,
       },
     ]);
     const unopenedDays = vi.fn(async () => ['2026-08-27']);
@@ -101,6 +103,8 @@ describe('SupabaseReportsRepository', () => {
           extraFull: 0,
           revenue: 20000,
           unpriced: 0,
+          vehicleShare: 0,
+          management: 0,
         },
       ],
       unopenedDays: ['2026-08-27'],

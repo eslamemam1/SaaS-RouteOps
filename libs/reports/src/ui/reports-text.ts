@@ -44,8 +44,13 @@ export interface ReportsText {
     readonly driverShare: string;
     readonly vehicleShare: string;
     readonly companyShare: string;
+    readonly management: string;
+    readonly managementTotal: string;
+    readonly sharedVehicles: string;
+    readonly fromShare: string;
     readonly otherCosts: string;
     readonly otherCostsHint: string;
+    readonly splitCostsHint: string;
     readonly unrecordedTitle: string;
     readonly unrecordedDrivers: string;
     readonly unrecordedVehicles: string;
@@ -154,8 +159,14 @@ export const reportsText: Record<Language, ReportsText> = {
       driverShare: 'نصيب السائق',
       vehicleShare: 'نصيب المركبة',
       companyShare: 'نصيب الشركة',
+      management: 'فرق الإدارة',
+      managementTotal: 'فرق الإدارة من كل الخطوط',
+      sharedVehicles: 'صافي المركبات الملك (نصيبها − مصاريفها)',
+      fromShare: 'من نصيبها',
       otherCosts: 'مصاريف لا تخص خطًا بعينه',
       otherCostsHint: 'مثل مصاريف المكتب، أو مصاريف سائق أو مركبة لم تقم برحلات هذا الشهر. صافي الربح = مجموع نصيب الشركة من الخطوط − هذه المصاريف.',
+      splitCostsHint:
+        'في الخطوط التي تقسّم سعر الوردية، نصيب المركبة هو حصتها من السعر، ومصاريفها تُخصم من حصتها لا من الخط. صافي الربح = مجموع نصيب الشركة من الخطوط + فرق الإدارة + صافي المركبات الملك − المصاريف التي لا تخص خطًا بعينه.',
       unrecordedTitle: 'رواتب أو أجرة لم تُسجَّل كاملة لهذا الشهر',
       unrecordedDrivers: 'سائقون:',
       unrecordedVehicles: 'مركبات:',
@@ -262,8 +273,14 @@ export const reportsText: Record<Language, ReportsText> = {
       driverShare: 'Driver\'s share',
       vehicleShare: 'Vehicle\'s share',
       companyShare: 'Company\'s share',
+      management: 'Management margin',
+      managementTotal: 'Management margin of all routes',
+      sharedVehicles: 'Company-owned vehicles\' net (their share − their expenses)',
+      fromShare: 'from its share',
       otherCosts: 'Expenses not for one route',
       otherCostsHint: 'Such as office costs, or the costs of a driver or vehicle with no trips this month. Net profit = the company\'s share of all routes − these expenses.',
+      splitCostsHint:
+        'On routes that split the shift price, the vehicle\'s share is its part of the price, and its expenses come out of that part, not the route. Net profit = the company\'s share of all routes + the management margin + the company-owned vehicles\' net − the expenses not for one route.',
       unrecordedTitle: 'Salaries or vehicle pay not fully recorded this month',
       unrecordedDrivers: 'Drivers:',
       unrecordedVehicles: 'Vehicles:',

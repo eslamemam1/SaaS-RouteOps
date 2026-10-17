@@ -32,6 +32,12 @@ const row = {
   return_arrival_time: null,
   operating_days: [0, 1, 2, 3, 4, 6],
   trip_price: 15050,
+  management_mode: 'percent',
+  management_percent: 10,
+  management_amount: null,
+  vehicle_share_mode: 'amount',
+  vehicle_share_percent: null,
+  vehicle_share_amount: 8000,
   notes: null,
   is_active: true,
 };
@@ -48,6 +54,10 @@ describe('SupabaseRouteGateway', () => {
     expect(route.outboundTime).toBe('07:00');
     expect(route.returnTime).toBe('');
     expect(route.tripPrice).toBe('150.50');
+    expect(route.managementMode).toBe('percent');
+    expect(route.managementPercent).toBe('10');
+    expect(route.vehicleShareMode).toBe('amount');
+    expect(route.vehicleShareAmount).toBe('80.00');
     expect(route.days).toEqual({
       saturday: true,
       sunday: true,
@@ -88,6 +98,12 @@ describe('SupabaseRouteGateway', () => {
       return_arrival_time: null,
       operating_days: [0, 1, 2, 3, 4, 6],
       trip_price: null,
+      management_mode: 'none',
+      management_percent: null,
+      management_amount: null,
+      vehicle_share_mode: 'none',
+      vehicle_share_percent: null,
+      vehicle_share_amount: null,
       notes: null,
       is_active: true,
     });
@@ -157,7 +173,7 @@ describe('SupabaseRouteGateway', () => {
         table === 'customers'
           ? [{ id: 'customer-1', name: 'Delta', is_active: true }]
           : table === 'vehicles'
-            ? [{ id: 'vehicle-1', plate_number: 'ABC 1', is_active: false }]
+            ? [{ id: 'vehicle-1', plate_number: 'ABC 1', is_active: false, ownership: 'rented' }]
             : [{ id: 'driver-1', full_name: 'Ahmed', is_active: true }],
       error: null,
     }));
@@ -165,7 +181,7 @@ describe('SupabaseRouteGateway', () => {
 
     await expect(gateway.listChoices('org-north')).resolves.toEqual({
       customers: [{ id: 'customer-1', label: 'Delta', active: true }],
-      vehicles: [{ id: 'vehicle-1', label: 'ABC 1', active: false }],
+      vehicles: [{ id: 'vehicle-1', label: 'ABC 1', active: false, owned: false }],
       drivers: [{ id: 'driver-1', label: 'Ahmed', active: true }],
     });
     expect(calls.filters).toEqual([
@@ -194,6 +210,62 @@ describe('SupabaseRouteGateway', () => {
       ['id', 'route-1'],
       ['organization_id', 'org-north'],
     ]);
+  });
+
+  it('stores a split percent as a number and keeps only the chosen way', async () => {
+    const calls = recorder(() => ({ data: row, error: null }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+
+    await gateway.insertRoute(north, {
+      ...emptyTransportRouteDetails,
+      name: 'Delta',
+      customerId: 'customer-1',
+      driverId: 'driver-1',
+      startPoint: 'A',
+      endPoint: 'B',
+      outboundTime: '07:00',
+      outboundArrivalTime: '09:00',
+      tripPrice: '1000',
+      managementMode: 'amount',
+      managementPercent: '5',
+      managementAmount: '100',
+      vehicleShareMode: 'percent',
+      vehicleSharePercent: '٣٣٫٥',
+      vehicleShareAmount: '50',
+    });
+
+    expect(calls.inserted).toMatchObject({
+      management_mode: 'amount',
+      management_percent: null,
+      management_amount: 10000,
+      vehicle_share_mode: 'percent',
+      vehicle_share_percent: 33.5,
+      vehicle_share_amount: null,
+    });
+  });
+
+  it('names a split above the shift price', async () => {
+    const calls = recorder(() => ({
+      data: null,
+      error: {
+        message: 'new row for relation "routes" violates check constraint "routes_split_within_price"',
+        code: '23514',
+      },
+    }));
+    const gateway = new SupabaseRouteGateway(calls.client);
+
+    await expect(
+      gateway.insertRoute(north, {
+        ...emptyTransportRouteDetails,
+        name: 'Delta',
+        customerId: 'customer-1',
+        driverId: 'driver-1',
+        startPoint: 'A',
+        endPoint: 'B',
+        outboundTime: '07:00',
+        outboundArrivalTime: '09:00',
+      }),
+    ).rejects.toEqual(new RouteAccessError('splitTooHigh'));
   });
 
   it('refuses a route without a driver before reaching the database', async () => {

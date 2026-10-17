@@ -175,6 +175,9 @@ export type Database = {
           end_point: string
           id: string
           is_active: boolean
+          management_amount: number | null
+          management_mode: string
+          management_percent: number | null
           name: string
           notes: string | null
           operating_days: number[]
@@ -187,6 +190,9 @@ export type Database = {
           trip_price: number | null
           updated_at: string
           vehicle_id: string | null
+          vehicle_share_amount: number | null
+          vehicle_share_mode: string
+          vehicle_share_percent: number | null
         }
         Insert: {
           created_at?: string
@@ -195,6 +201,9 @@ export type Database = {
           end_point: string
           id?: string
           is_active?: boolean
+          management_amount?: number | null
+          management_mode?: string
+          management_percent?: number | null
           name: string
           notes?: string | null
           operating_days: number[]
@@ -207,6 +216,9 @@ export type Database = {
           trip_price?: number | null
           updated_at?: string
           vehicle_id?: string | null
+          vehicle_share_amount?: number | null
+          vehicle_share_mode?: string
+          vehicle_share_percent?: number | null
         }
         Update: {
           created_at?: string
@@ -215,6 +227,9 @@ export type Database = {
           end_point?: string
           id?: string
           is_active?: boolean
+          management_amount?: number | null
+          management_mode?: string
+          management_percent?: number | null
           name?: string
           notes?: string | null
           operating_days?: number[]
@@ -227,6 +242,9 @@ export type Database = {
           trip_price?: number | null
           updated_at?: string
           vehicle_id?: string | null
+          vehicle_share_amount?: number | null
+          vehicle_share_mode?: string
+          vehicle_share_percent?: number | null
         }
         Relationships: [
           {
@@ -248,6 +266,7 @@ export type Database = {
           model_year: number | null
           notes: string | null
           organization_id: string
+          ownership: string
           plate_number: string
           seats: number | null
           updated_at: string

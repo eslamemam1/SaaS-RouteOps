@@ -134,7 +134,7 @@
                     </app-alert>
                   }
 
-                  <div class="ro-stats vehicle-stats">
+                  <div class="ro-stats vehicle-stats" [class.vehicle-stats-share]="totals().earnsShare">
                     <div class="ro-stat ro-card vehicle-trip-stat" data-tone="success">
                       <span class="ro-stat-icon">
                         <ng-icon [svg]="statIcons.done" aria-hidden="true" />
@@ -173,6 +173,18 @@
                         </span>
                       }
                     </div>
+                    @if (totals().earnsShare) {
+                      <div class="ro-stat ro-card" data-tone="info">
+                        <span class="ro-stat-icon">
+                          <ng-icon [svg]="statIcons.share" aria-hidden="true" />
+                        </span>
+                        <span class="ro-stat-label">{{ text().page.share }}</span>
+                        <strong class="ro-stat-value ro-numeric">
+                          <bdi>{{ money(totals().share) }}</bdi>
+                        </strong>
+                        <span class="ro-stat-detail">{{ text().page.shareDetail }}</span>
+                      </div>
+                    }
                     <div class="ro-stat ro-card" data-tone="warning">
                       <span class="ro-stat-icon">
                         <ng-icon [svg]="statIcons.expenses" aria-hidden="true" />
@@ -195,6 +207,8 @@
                       >
                       @if (profit() < 0) {
                         <span class="ro-stat-detail">{{ text().page.loss }}</span>
+                      } @else if (totals().earnsShare) {
+                        <span class="ro-stat-detail">{{ text().page.profitFromShare }}</span>
                       }
                     </div>
                   </div>

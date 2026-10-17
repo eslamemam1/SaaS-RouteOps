@@ -427,6 +427,7 @@ function toTrip(row: TripLogRow): VehicleTrip {
     notes: row.notes ?? '',
     price: row.price === null ? null : Number(row.price),
     halves: row.halves,
+    share: row.vehicle_share === null ? null : Number(row.vehicle_share),
   };
 }
 

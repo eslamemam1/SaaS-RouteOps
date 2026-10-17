@@ -6,6 +6,7 @@ import {
   lucideArrowLeft,
   lucideBus,
   lucideCalendar,
+  lucideChartPie,
   lucideCircleCheck,
   lucideCirclePlus,
   lucideKeyRound,
@@ -55,6 +56,7 @@ import {
   monthOf,
   TripStatus,
   VehicleMonth,
+  vehicleProfit,
   vehicleTotals,
   WorkChoice,
 } from '../domain/vehicle-month';
@@ -116,6 +118,7 @@ export class VehiclePage {
     revenue: lucideTrendingUp,
     expenses: lucideReceipt,
     profit: lucideWallet,
+    share: lucideChartPie,
   };
   protected readonly statusTones = statusTones;
   protected readonly today = localDate(new Date());
@@ -143,8 +146,8 @@ export class VehiclePage {
   protected readonly expenses = computed(() =>
     expenseSum(this.data().expenses),
   );
-  protected readonly profit = computed(
-    () => this.totals().revenue - this.expenses(),
+  protected readonly profit = computed(() =>
+    vehicleProfit(this.totals(), this.expenses()),
   );
   protected readonly rent = computed(() => {
     const rent = this.data().rent;

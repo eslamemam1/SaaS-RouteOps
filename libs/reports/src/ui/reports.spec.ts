@@ -30,8 +30,8 @@ const choices: ReportChoices = {
 };
 const october: MonthReport = {
   counts: [
-    { customerId: 'delta', routeId: 'route-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, full: 20, extraFull: 0, revenue: 600000, unpriced: 0 },
-    { customerId: 'nour', routeId: '', vehicleId: 'van-2', driverId: '', done: 22, extra: 3, full: 11, extraFull: 1.5, revenue: 0, unpriced: 0 },
+    { customerId: 'delta', routeId: 'route-1', vehicleId: 'bus-1', driverId: 'ahmed', done: 40, extra: 0, full: 20, extraFull: 0, revenue: 600000, unpriced: 0, vehicleShare: 0, management: 0 },
+    { customerId: 'nour', routeId: '', vehicleId: 'van-2', driverId: '', done: 22, extra: 3, full: 11, extraFull: 1.5, revenue: 0, unpriced: 0, vehicleShare: 0, management: 0 },
   ],
   expenses: [],
   unopenedDays: [],

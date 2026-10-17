@@ -165,6 +165,8 @@ export class SupabaseReportsGateway implements ReportsGateway {
       extraFull: row.extra_halves / 2,
       revenue: Number(row.revenue),
       unpriced: row.unpriced_trips,
+      vehicleShare: Number(row.vehicle_share),
+      management: Number(row.management_share),
     }));
   }
 

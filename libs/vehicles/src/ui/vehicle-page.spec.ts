@@ -65,6 +65,7 @@ const trip: VehicleTrip = {
   notes: '',
   price: 50000,
   halves: 1,
+  share: null,
 };
 const february: VehicleMonth = {
   trips: [

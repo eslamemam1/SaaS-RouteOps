@@ -19,7 +19,7 @@ import { TransportRoutes } from './transport-routes';
 const north: RouteOrganization = { id: 'org-north', name: 'North', currency: 'EGP' };
 const choices: RouteChoices = {
   customers: [{ id: 'customer-1', label: 'Delta Factory', active: true }],
-  vehicles: [{ id: 'vehicle-1', label: 'ABC 1234', active: true }],
+  vehicles: [{ id: 'vehicle-1', label: 'ABC 1234', active: true, owned: true }],
   drivers: [{ id: 'driver-1', label: 'Ahmed', active: true }],
 };
 const delta: TransportRoute = {

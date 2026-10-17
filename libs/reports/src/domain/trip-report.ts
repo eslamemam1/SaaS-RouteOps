@@ -55,6 +55,8 @@ export interface ReportChoices {
 // where one direction of an outbound-and-return route is half of one.
 // revenue is in the smallest unit of the organization currency; unpriced trips
 // had no price of their own and no route price, so revenue leaves them out.
+// vehicleShare and management are the parts of that revenue a route's shift
+// price split gives its company-owned vehicle and the management margin.
 export interface TripCount {
   readonly customerId: string;
   readonly routeId: string;
@@ -66,6 +68,8 @@ export interface TripCount {
   readonly extraFull: number;
   readonly revenue: number;
   readonly unpriced: number;
+  readonly vehicleShare: number;
+  readonly management: number;
 }
 
 // Expenses of one category spent on one vehicle and driver, in the smallest
@@ -100,15 +104,9 @@ export type ReportGroup = (typeof reportGroups)[number];
 
 // expenses are counted only for vehicle lines, and driverCost and vehicleCost
 // only for route lines; other lines have 0.
-export interface ReportLine {
+export interface ReportLine extends ReportTotal {
   readonly id: string;
   readonly label: string;
-  readonly done: number;
-  readonly extra: number;
-  readonly full: number;
-  readonly extraFull: number;
-  readonly revenue: number;
-  readonly unpriced: number;
   readonly expenses: number;
   readonly driverCost: number;
   readonly vehicleCost: number;
@@ -117,14 +115,19 @@ export interface ReportLine {
 export interface RouteCosts {
   readonly driver: number;
   readonly vehicle: number;
+  readonly management: number;
 }
 
-// What each route carries of the recorded driver and vehicle expenses, and
-// other: the expenses no route carries, such as office costs or the costs of
-// a driver or vehicle with no done trips this month.
+// What each route carries: the recorded driver and vehicle expenses, or, for
+// a vehicle that earns a share of its routes' price, that share; and the
+// management margin. other is the expenses no route carries, such as office
+// costs or the costs of a driver or vehicle with no done trips this month.
+// sharedVehicles is the share-earning vehicles' shares less their own
+// expenses, or null when no vehicle earned a share.
 export interface CostShares {
   readonly routes: ReadonlyMap<string, RouteCosts>;
   readonly other: number;
+  readonly sharedVehicles: number | null;
 }
 
 export interface ReportTotal {
@@ -134,6 +137,8 @@ export interface ReportTotal {
   readonly extraFull: number;
   readonly revenue: number;
   readonly unpriced: number;
+  readonly vehicleShare: number;
+  readonly management: number;
 }
 
 export interface DateRange {
@@ -336,6 +341,7 @@ export function reportLines(
       expenses: spent.get(id) ?? 0,
       driverCost: shares?.get(id)?.driver ?? 0,
       vehicleCost: shares?.get(id)?.vehicle ?? 0,
+      management: shares ? (shares.get(id)?.management ?? 0) : total.management,
     }))
     .sort(
       (first, second) =>
@@ -348,42 +354,73 @@ export function reportLines(
 // and vehicle's expenses are shared over the routes by the done trips made on
 // each, so a driver or vehicle working one route puts all of it on that route.
 // Trips that name no route share theirs on the line with an empty id.
+// A vehicle that earns a share of its routes' price puts that share on each
+// route instead, and pays its own expenses from it, so net profit stays the
+// revenue less every expense.
 export function costShares(
   counts: readonly TripCount[],
   expenses: readonly ExpenseTotal[],
 ): CostShares {
+  const earning = new Set(
+    counts
+      .filter((count) => count.vehicleId && count.vehicleShare > 0)
+      .map((count) => count.vehicleId),
+  );
   const driverCosts = new Map<string, number>();
   const vehicleCosts = new Map<string, number>();
+  let earnersSpent = 0;
   for (const expense of expenses) {
     if (expense.driverId && (expense.category === 'salaries' || !expense.vehicleId)) {
       add(driverCosts, expense.driverId, expense.total);
+    } else if (expense.vehicleId && earning.has(expense.vehicleId)) {
+      earnersSpent += expense.total;
     } else if (expense.vehicleId) {
       add(vehicleCosts, expense.vehicleId, expense.total);
     }
   }
   const driverTrips = new Map<string, Map<string, number>>();
   const vehicleTrips = new Map<string, Map<string, number>>();
+  const earned = new Map<string, number>();
+  const management = new Map<string, number>();
+  let earnersShare = 0;
   for (const count of counts) {
     if (count.driverId) {
       addTrips(driverTrips, count.driverId, count.routeId, count.done);
     }
-    if (count.vehicleId) {
+    if (count.vehicleId && earning.has(count.vehicleId)) {
+      add(earned, count.routeId, count.vehicleShare);
+      earnersShare += count.vehicleShare;
+    } else if (count.vehicleId) {
       addTrips(vehicleTrips, count.vehicleId, count.routeId, count.done);
+    }
+    if (count.management > 0) {
+      add(management, count.routeId, count.management);
     }
   }
   const driverShares = spread(driverCosts, driverTrips);
   const vehicleShares = spread(vehicleCosts, vehicleTrips);
   const routes = new Map<string, RouteCosts>();
   let carried = 0;
-  for (const id of new Set([...driverShares.keys(), ...vehicleShares.keys()])) {
-    const costs = {
+  const ids = new Set([
+    ...driverShares.keys(),
+    ...vehicleShares.keys(),
+    ...earned.keys(),
+    ...management.keys(),
+  ]);
+  for (const id of ids) {
+    const spent = (driverShares.get(id) ?? 0) + (vehicleShares.get(id) ?? 0);
+    routes.set(id, {
       driver: driverShares.get(id) ?? 0,
-      vehicle: vehicleShares.get(id) ?? 0,
-    };
-    routes.set(id, costs);
-    carried += costs.driver + costs.vehicle;
+      vehicle: (vehicleShares.get(id) ?? 0) + (earned.get(id) ?? 0),
+      management: management.get(id) ?? 0,
+    });
+    carried += spent;
   }
-  return { routes, other: expenseSum(expenses) - carried };
+  return {
+    routes,
+    other: expenseSum(expenses) - carried - earnersSpent,
+    sharedVehicles: earning.size > 0 ? earnersShare - earnersSpent : null,
+  };
 }
 
 function addTrips(
@@ -455,6 +492,8 @@ const emptyTotal: ReportTotal = {
   extraFull: 0,
   revenue: 0,
   unpriced: 0,
+  vehicleShare: 0,
+  management: 0,
 };
 
 function addCount(total: ReportTotal, count: TripCount): ReportTotal {
@@ -465,7 +504,21 @@ function addCount(total: ReportTotal, count: TripCount): ReportTotal {
     extraFull: total.extraFull + count.extraFull,
     revenue: total.revenue + count.revenue,
     unpriced: total.unpriced + count.unpriced,
+    vehicleShare: total.vehicleShare + count.vehicleShare,
+    management: total.management + count.management,
   };
+}
+
+// A vehicle that earns a share of its routes' price makes its share less its
+// expenses; any other vehicle makes its revenue less its expenses.
+export function vehicleLineProfit(line: ReportLine): number {
+  return (line.vehicleShare > 0 ? line.vehicleShare : line.revenue) - line.expenses;
+}
+
+// What a route leaves the company once the driver, the vehicle, and the
+// management margin have their shares.
+export function routeCompanyShare(line: ReportLine): number {
+  return line.revenue - line.driverCost - line.vehicleCost - line.management;
 }
 
 export function memberOrganization(
