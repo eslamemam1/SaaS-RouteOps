@@ -101,11 +101,10 @@ describe('pay terms', () => {
     expect(salaryError('', 'perTrip', 'EGP')).toBeNull();
   });
 
-  it('needs the trip count once trip amounts are typed for a salary', () => {
-    expect(salaryTripsError('', 'salary', '', '')).toBeNull();
-    expect(salaryTripsError('', 'salary', '50', '')).toBe('required');
-    expect(salaryTripsError('abc', 'salary', '', '')).toBe('trips');
-    expect(salaryTripsError('', 'perTrip', '50', '50')).toBeNull();
+  it('keeps the trip count optional for a salary', () => {
+    expect(salaryTripsError('', 'salary')).toBeNull();
+    expect(salaryTripsError('abc', 'salary')).toBe('trips');
+    expect(salaryTripsError('abc', 'perTrip')).toBeNull();
   });
 
   it('needs trip amounts for a driver paid per trip and for a salary covering trips', () => {
@@ -114,6 +113,12 @@ describe('pay terms', () => {
     expect(tripAmountError('', 'salary', '26', 'EGP')).toBe('required');
     expect(tripAmountError('50.123', 'salary', '26', 'EGP')).toBe('amount');
     expect(tripAmountError('', 'none', '26', 'EGP')).toBeNull();
+  });
+
+  it('lets a fixed salary leave the extra trip amounts out, but needs both once one is typed', () => {
+    expect(tripAmountError('', 'salary', '', 'EGP', '')).toBeNull();
+    expect(tripAmountError('', 'salary', '', 'EGP', '100')).toBe('required');
+    expect(tripAmountError('80', 'salary', '', 'EGP', '100')).toBeNull();
   });
 });
 

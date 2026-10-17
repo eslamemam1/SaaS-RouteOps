@@ -36,6 +36,7 @@ const ahmedPay: DriverPay = {
   salaryTrips: 26,
   tripPay: { outbound: 5000, return: 5000 },
   done: { outbound: 30, return: 28 },
+  extraTrips: { outbound: 0, return: 0 },
   absent: { outbound: 0, return: 0 },
   recorded: 0,
 };
@@ -135,6 +136,7 @@ describe('Expenses', () => {
           {
             ...ahmedPay,
             done: { outbound: 24, return: 24 },
+            extraTrips: { outbound: 0, return: 0 },
             absent: { outbound: 2, return: 2 },
           },
         ],

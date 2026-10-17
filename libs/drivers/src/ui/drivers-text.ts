@@ -106,6 +106,7 @@ export interface DriversText {
     readonly salaryTrips: string;
     readonly salaryTripsHint: string;
     readonly extraPayHint: string;
+    readonly extraTripsHint: string;
     readonly perTripHint: string;
     readonly outboundPay: string;
     readonly returnPay: string;
@@ -274,9 +275,11 @@ export const driversText: Record<Language, DriversText> = {
       amountHint: 'بالأرقام فقط، مثل 5000 أو 5000.50',
       salaryTrips: 'الراتب يغطي كم رحلة ذهاب وعودة في الشهر؟',
       salaryTripsHint:
-        'مثال: 26 تعني 26 رحلة ذهاب و26 رحلة عودة. إذا قاد أكثر يأخذ عن كل رحلة إضافية، وإذا غاب يُخصم منه عن كل رحلة. اتركه فارغًا إذا كان راتبه ثابتًا مهما كان عدد رحلاته.',
+        'مثال: 26 تعني 26 رحلة ذهاب و26 رحلة عودة. إذا قاد أكثر يأخذ عن كل رحلة إضافية، وإذا غاب يُخصم منه عن كل رحلة. اتركه فارغًا إذا كان راتبه ثابتًا، ويمكنك عندها تحديد مبلغ للرحلات الإضافية فقط.',
       extraPayHint:
         'المبلغ عن كل رحلة إضافية فوق العدد، ويُخصم المبلغ نفسه عن كل رحلة غاب عنها.',
+      extraTripsHint:
+        'راتبه ثابت. إذا حدّدت المبلغين، يأخذ فوق راتبه مبلغ الاتجاه عن كل رحلة إضافية يقودها، وهي الرحلات التي تضيفها بنفسك في التشغيل اليومي، ولا يُخصم منه شيء عن الغياب. اتركهما فارغين إن لم يأخذ عن الرحلات الإضافية شيئًا.',
       perTripHint: 'يأخذ مبلغًا عن كل رحلة يقودها.',
       outboundPay: 'مبلغ رحلة الذهاب',
       returnPay: 'مبلغ رحلة العودة',
@@ -449,9 +452,11 @@ export const driversText: Record<Language, DriversText> = {
       salaryTrips:
         'How many outbound and return trips does the salary cover each month?',
       salaryTripsHint:
-        'Example: 26 means 26 outbound and 26 return trips. Each trip beyond them earns extra, and each trip missed through absence is taken off. Leave it blank if the salary is fixed whatever the driver does.',
+        'Example: 26 means 26 outbound and 26 return trips. Each trip beyond them earns extra, and each trip missed through absence is taken off. Leave it blank if the salary is fixed; you can then set an amount for extra trips only.',
       extraPayHint:
         'What each trip beyond that number earns; the same amount is taken off for each trip missed through absence.',
+      extraTripsHint:
+        'The salary is fixed. If you set both amounts, the driver also earns its direction\'s amount for each extra trip driven, the trips you add yourself on the daily screen, and nothing is taken off for absence. Leave both blank if extra trips earn nothing.',
       perTripHint: 'What the driver earns for each trip.',
       outboundPay: 'Outbound trip amount',
       returnPay: 'Return trip amount',

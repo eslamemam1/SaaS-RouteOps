@@ -65,6 +65,12 @@ export class DriverForm {
   protected readonly problem = signal<DriverProblem | null>(null);
   protected readonly blockingRoutes = signal<readonly string[]>([]);
   protected readonly model = signal<DriverDetails>(emptyDriverDetails);
+  // A salary without a trip count may leave the extra trip amounts out.
+  protected readonly fixedSalary = computed(
+    () =>
+      this.model().payType === 'salary' &&
+      this.model().salaryTrips.trim().length === 0,
+  );
   protected readonly photoChoice = signal<PhotoChoice>(null);
   protected readonly shrinking = signal(false);
   protected readonly photoProblem = signal<DriverProblem | null>(null);

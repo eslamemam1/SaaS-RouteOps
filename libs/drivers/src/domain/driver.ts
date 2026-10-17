@@ -17,7 +17,8 @@ export type PayType = (typeof payTypes)[number];
 // salaryTrips outbound and as many return trips a month; each done trip beyond
 // them earns outboundPay or returnPay, and each trip missed through absence
 // below them takes the same amount off. Without salaryTrips the salary is
-// fixed. A driver paid per trip earns outboundPay or returnPay for every done
+// fixed, and each extra trip earns outboundPay or returnPay on top when they
+// are set. A driver paid per trip earns outboundPay or returnPay for every done
 // trip. The expenses screen suggests a month's pay from them.
 export interface DriverDetails {
   readonly fullName: string;
@@ -119,38 +120,36 @@ export function salaryError(
   return amountProblem(value, currency, true);
 }
 
-// The trip count is optional, but the trip amounts mean nothing without it.
+// The trip count is optional.
 export function salaryTripsError(
   value: string,
   payType: PayType,
-  outboundPay: string,
-  returnPay: string,
 ): DriverProblem | null {
   if (payType !== 'salary') {
     return null;
   }
-  const count = toTripCount(value);
-  if (count === undefined) {
-    return 'trips';
-  }
-  const amountsTyped =
-    outboundPay.trim().length > 0 || returnPay.trim().length > 0;
-  return count === null && amountsTyped ? 'required' : null;
+  return toTripCount(value) === undefined ? 'trips' : null;
 }
 
-// Needed for every driver paid per trip, and for a salary that covers a
-// number of trips.
+// Needed for every driver paid per trip and for a salary that covers a number
+// of trips. A fixed salary may leave both out; once one is typed, both are
+// needed.
 export function tripAmountError(
   value: string,
   payType: PayType,
   salaryTrips: string,
   currency: Currency,
+  otherAmount = '',
 ): DriverProblem | null {
   switch (payType) {
     case 'none':
       return null;
     case 'salary':
-      return amountProblem(value, currency, salaryTrips.trim().length > 0);
+      return amountProblem(
+        value,
+        currency,
+        salaryTrips.trim().length > 0 || otherAmount.trim().length > 0,
+      );
     case 'perTrip':
       return amountProblem(value, currency, true);
   }

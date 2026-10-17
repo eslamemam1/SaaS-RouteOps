@@ -42,6 +42,7 @@ const ahmed: DriverPay = {
   salaryTrips: 26,
   tripPay: { outbound: 5000, return: 5000 },
   done: { outbound: 26, return: 26 },
+  extraTrips: { outbound: 0, return: 0 },
   absent: { outbound: 0, return: 0 },
   recorded: 0,
 };
@@ -96,6 +97,7 @@ describe('driver pay', () => {
     const absent = {
       ...ahmed,
       done: { outbound: 24, return: 24 },
+      extraTrips: { outbound: 0, return: 0 },
       absent: { outbound: 2, return: 2 },
     };
     expect(payBreakdown(absent)).toMatchObject({
@@ -113,6 +115,7 @@ describe('driver pay', () => {
     const both = {
       ...ahmed,
       done: { outbound: 28, return: 26 },
+      extraTrips: { outbound: 0, return: 0 },
       absent: { outbound: 2, return: 0 },
     };
     expect(payBreakdown(both)).toMatchObject({ extraAmount: 10000, deduction: 0, total: 310000 });
@@ -124,6 +127,7 @@ describe('driver pay', () => {
       salaryTrips: null,
       tripPay: null,
       done: { outbound: 40, return: 10 },
+      extraTrips: { outbound: 0, return: 0 },
       absent: { outbound: 3, return: 3 },
     };
     expect(suggestedPay(fixed)).toBe(300000);
@@ -137,6 +141,7 @@ describe('driver pay', () => {
       salaryTrips: null,
       tripPay: { outbound: 6000, return: 4000 },
       done: { outbound: 2, return: 2 },
+      extraTrips: { outbound: 0, return: 0 },
       absent: { outbound: 1, return: 0 },
     };
     expect(payBreakdown(mahmoud)).toMatchObject({

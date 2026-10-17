@@ -31,25 +31,29 @@ export function driverDetailsSchema(
       fieldError(salaryError(value(), valueOf(path.payType), currency()), problems),
     );
     validate(path.salaryTrips, ({ value, valueOf }) =>
+      fieldError(salaryTripsError(value(), valueOf(path.payType)), problems),
+    );
+    validate(path.outboundPay, ({ value, valueOf }) =>
       fieldError(
-        salaryTripsError(
+        tripAmountError(
           value(),
           valueOf(path.payType),
-          valueOf(path.outboundPay),
+          valueOf(path.salaryTrips),
+          currency(),
           valueOf(path.returnPay),
         ),
         problems,
       ),
     );
-    validate(path.outboundPay, ({ value, valueOf }) =>
-      fieldError(
-        tripAmountError(value(), valueOf(path.payType), valueOf(path.salaryTrips), currency()),
-        problems,
-      ),
-    );
     validate(path.returnPay, ({ value, valueOf }) =>
       fieldError(
-        tripAmountError(value(), valueOf(path.payType), valueOf(path.salaryTrips), currency()),
+        tripAmountError(
+          value(),
+          valueOf(path.payType),
+          valueOf(path.salaryTrips),
+          currency(),
+          valueOf(path.outboundPay),
+        ),
         problems,
       ),
     );

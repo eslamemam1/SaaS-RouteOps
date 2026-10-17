@@ -16,10 +16,12 @@ export type TripDirection = (typeof tripDirections)[number];
 export type PerDirection = Readonly<Record<TripDirection, number>>;
 
 // A driver's pay terms for a month, the trips of the month, and the salary
-// already recorded for them as expenses. done counts the trips the driver did;
-// absent counts trips planned for the driver that were cancelled or given to
-// another driver because the driver was absent. A salary covers salaryTrips
-// outbound and as many return trips; without salaryTrips it is fixed.
+// already recorded for them as expenses. done counts the trips the driver did,
+// and extraTrips those of them a member added to a day by hand; absent counts
+// trips planned for the driver that were cancelled or given to another driver
+// because the driver was absent. A salary covers salaryTrips outbound and as
+// many return trips. Without salaryTrips it is fixed, plus each extra trip at
+// its direction's amount when the terms have trip amounts.
 export interface DriverPay {
   readonly driverId: string;
   readonly payType: PayType;
@@ -27,6 +29,7 @@ export interface DriverPay {
   readonly salaryTrips: number | null;
   readonly tripPay: PerDirection | null;
   readonly done: PerDirection;
+  readonly extraTrips: PerDirection;
   readonly absent: PerDirection;
   readonly recorded: number;
 }
@@ -73,6 +76,8 @@ export interface DriverPayRow {
   readonly absent_outbound: number;
   readonly absent_return: number;
   readonly recorded: number;
+  readonly extra_outbound: number;
+  readonly extra_return: number;
 }
 
 // A row of vehicle_pay.
@@ -102,6 +107,7 @@ export function toDriverPay(row: DriverPayRow): DriverPay | null {
     salaryTrips: row.salary_trips,
     tripPay: amounts(row.outbound_pay, row.return_pay),
     done: { outbound: row.done_outbound, return: row.done_return },
+    extraTrips: { outbound: row.extra_outbound, return: row.extra_return },
     absent: { outbound: row.absent_outbound, return: row.absent_return },
     recorded: Number(row.recorded),
   };
@@ -142,19 +148,23 @@ function amounts(
 // Beyond the trips the salary covers, each done trip earns its direction's
 // amount. Below them, only trips missed through absence are taken off, so a
 // holiday or a breakdown costs the driver nothing, and absences first use up
-// any trips beyond the salary.
+// any trips beyond the salary. A salary that covers no set number of trips is
+// fixed, and each extra trip earns its direction's amount on top when the
+// terms have trip amounts; absences take nothing off it.
 export function payBreakdown(pay: DriverPay): PayBreakdown {
   const salary = pay.monthlySalary ?? 0;
   const rates = pay.tripPay ?? { outbound: 0, return: 0 };
   const covered = pay.payType === 'salary' ? pay.salaryTrips : 0;
   if (covered === null) {
+    const extra = pay.tripPay ? pay.extraTrips : noTrips;
+    const extraAmount = priced(extra, rates);
     return {
       salary,
-      extra: noTrips,
-      extraAmount: 0,
+      extra,
+      extraAmount,
       missed: noTrips,
       deduction: 0,
-      total: salary,
+      total: salary + extraAmount,
     };
   }
   const extra = perDirection((direction) =>

@@ -86,6 +86,7 @@ const february: DriverMonth = {
     salaryTrips: null,
     tripPay: { outbound: 10000, return: 10000 },
     done: { outbound: 1, return: 1 },
+    extraTrips: { outbound: 0, return: 0 },
     absent: { outbound: 1, return: 0 },
     recorded: 5000,
   },

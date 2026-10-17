@@ -575,7 +575,10 @@ function toPayColumns(details: DriverDetails, currency: Currency) {
         throw new DriverAccessError('trips');
       }
       const monthlySalary = requiredAmount(details.monthlySalary, currency);
-      return salaryTrips === null
+      const amountsTyped =
+        details.outboundPay.trim().length > 0 ||
+        details.returnPay.trim().length > 0;
+      return salaryTrips === null && !amountsTyped
         ? { ...none, monthly_salary: monthlySalary }
         : {
             ...none,

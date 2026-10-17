@@ -212,6 +212,8 @@ export type Database = {
           absent_outbound: number;
           absent_return: number;
           recorded: number;
+          extra_outbound: number;
+          extra_return: number;
         }[];
       };
       unopened_days: {

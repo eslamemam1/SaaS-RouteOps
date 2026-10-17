@@ -1,5 +1,6 @@
 import {
   DriverPayRow,
+  payBreakdown,
   remainingPay,
   remainingRent,
   suggestedPay,
@@ -20,6 +21,8 @@ const driverRow: DriverPayRow = {
   absent_outbound: 0,
   absent_return: 2,
   recorded: 0,
+  extra_outbound: 3,
+  extra_return: 1,
 };
 
 const vehicleRow: VehiclePayRow = {
@@ -43,6 +46,7 @@ describe('toDriverPay', () => {
       salaryTrips: 22,
       tripPay: { outbound: 10000, return: 8000 },
       done: { outbound: 24, return: 20 },
+      extraTrips: { outbound: 3, return: 1 },
       absent: { outbound: 0, return: 2 },
       recorded: 0,
     });
@@ -62,6 +66,28 @@ describe('remainingPay', () => {
     const pay = toDriverPay(driverRow)!;
 
     expect(suggestedPay(pay)).toBe(600000 + 2 * 10000 - 2 * 8000);
+  });
+
+  it('adds each extra trip to a fixed salary when the terms have trip amounts', () => {
+    const pay = toDriverPay({ ...driverRow, salary_trips: null })!;
+
+    expect(suggestedPay(pay)).toBe(600000 + 3 * 10000 + 1 * 8000);
+    expect(payBreakdown(pay)).toMatchObject({
+      extra: { outbound: 3, return: 1 },
+      missed: { outbound: 0, return: 0 },
+      deduction: 0,
+    });
+  });
+
+  it('keeps a fixed salary without trip amounts as it is', () => {
+    const pay = toDriverPay({
+      ...driverRow,
+      salary_trips: null,
+      outbound_pay: null,
+      return_pay: null,
+    })!;
+
+    expect(suggestedPay(pay)).toBe(600000);
   });
 
   it('leaves what is still due after a part was recorded, and never below zero', () => {

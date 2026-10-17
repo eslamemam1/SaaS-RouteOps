@@ -120,15 +120,16 @@
         [formField]="driverForm.salaryTrips"
       />
     </app-field>
-    } @if (model().payType === 'perTrip' || (model().payType === 'salary' &&
-    model().salaryTrips.trim())) {
+    } @if (model().payType === 'perTrip' || model().payType === 'salary') {
     <p class="hint">
-      {{ model().payType === 'salary' ? text().form.extraPayHint :
-      text().form.perTripHint }}
+      {{ model().payType === 'perTrip' ? text().form.perTripHint :
+      model().salaryTrips.trim() ? text().form.extraPayHint :
+      text().form.extraTripsHint }}
     </p>
     <app-field
       [label]="text().form.outboundPay"
       [hint]="text().form.amountHint"
+      [optional]="fixedSalary()"
       [control]="driverForm.outboundPay"
     >
       <input
@@ -142,6 +143,7 @@
     <app-field
       [label]="text().form.returnPay"
       [hint]="text().form.amountHint"
+      [optional]="fixedSalary()"
       [control]="driverForm.returnPay"
     >
       <input

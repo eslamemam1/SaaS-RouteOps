@@ -422,6 +422,8 @@ describe('SupabaseDriverGateway', () => {
           absent_outbound: 1,
           absent_return: 0,
           recorded: 50,
+          extra_outbound: 0,
+          extra_return: 0,
         },
       ],
       error: null,
@@ -443,6 +445,7 @@ describe('SupabaseDriverGateway', () => {
       salaryTrips: null,
       tripPay: { outbound: 100, return: 120 },
       done: { outbound: 3, return: 2 },
+      extraTrips: { outbound: 0, return: 0 },
       absent: { outbound: 1, return: 0 },
       recorded: 50,
     });
