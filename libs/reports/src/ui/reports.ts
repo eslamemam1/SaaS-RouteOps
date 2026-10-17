@@ -15,6 +15,7 @@ import { formatMoney } from '@routeops/shared/money';
 import {
   Alert,
   Button,
+  DayPicker,
   Field,
   MonthPicker,
   PageHeader,
@@ -90,6 +91,7 @@ interface Stat {
   imports: [
     Alert,
     Button,
+    DayPicker,
     Field,
     MonthPicker,
     NgIcon,

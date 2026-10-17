@@ -318,23 +318,21 @@
             </app-select>
           </app-field>
           <app-field [label]="text().invoice.from">
-            <input
-              type="date"
-              dir="ltr"
-              data-day="from"
-              [value]="invoiceFrom()"
+            <app-day-picker
+              [label]="text().invoice.from"
+              [day]="invoiceFrom()"
+              [today]="today"
               [max]="today"
-              (input)="setInvoiceFrom($any($event.target).value)"
+              (dayChange)="setInvoiceFrom($event)"
             />
           </app-field>
           <app-field [label]="text().invoice.to">
-            <input
-              type="date"
-              dir="ltr"
-              data-day="to"
-              [value]="invoiceTo()"
+            <app-day-picker
+              [label]="text().invoice.to"
+              [day]="invoiceTo()"
+              [today]="today"
               [max]="today"
-              (input)="setInvoiceTo($any($event.target).value)"
+              (dayChange)="setInvoiceTo($event)"
             />
           </app-field>
         </div>

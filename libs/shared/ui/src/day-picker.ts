@@ -106,6 +106,7 @@ interface DayCell {
               class="app-picker-step"
               [attr.aria-label]="text().dayPicker.nextMonth"
               [attr.title]="text().dayPicker.nextMonth"
+              [disabled]="!canMoveView(1)"
               (click)="moveView(1)"
             >
               <ng-icon
@@ -130,7 +131,10 @@ interface DayCell {
                   [attr.aria-pressed]="cell.value === day()"
                   [attr.aria-label]="cell.label"
                   [attr.data-day]="cell.value"
-                  [tabIndex]="cell.value === tabStop() ? 0 : -1"
+                  [disabled]="isDisabled(cell.value)"
+                  [tabIndex]="
+                    cell.value === tabStop() && !isDisabled(cell.value) ? 0 : -1
+                  "
                   (click)="choose(cell.value)"
                   (keydown)="onDaysKey($event)"
                 >
@@ -165,6 +169,7 @@ export class DayPicker {
   readonly day = input.required<string>();
   readonly label = input.required<string>();
   readonly today = input('');
+  readonly max = input('');
   readonly dayChange = output<string>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -238,7 +243,19 @@ export class DayPicker {
   }
 
   protected moveView(months: number): void {
+    if (!this.canMoveView(months)) {
+      return;
+    }
     this.view.update((view) => addMonths(view, months));
+  }
+
+  protected canMoveView(months: number): boolean {
+    const next = addMonths(this.view(), months);
+    return !this.max() || next <= this.max().slice(0, 7);
+  }
+
+  protected isDisabled(day: string): boolean {
+    return Boolean(this.max() && day > this.max());
   }
 
   protected onDaysKey(event: KeyboardEvent): void {
@@ -255,12 +272,18 @@ export class DayPicker {
     }
     event.preventDefault();
     const next = addDays(this.tabStop(), days);
+    if (this.isDisabled(next)) {
+      return;
+    }
     this.active.set(next);
     this.view.set(next.slice(0, 7));
     this.focusActive();
   }
 
   protected choose(day: string): void {
+    if (this.isDisabled(day)) {
+      return;
+    }
     this.close(true);
     if (day !== this.day()) {
       this.dayChange.emit(day);

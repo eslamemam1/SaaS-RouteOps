@@ -10,6 +10,7 @@ import { addDays, DayPicker } from './day-picker';
       label="اليوم"
       today="2026-10-12"
       [day]="day()"
+      [max]="max()"
       (dayChange)="day.set($event)"
     />
     <p>outside</p>
@@ -17,6 +18,7 @@ import { addDays, DayPicker } from './day-picker';
 })
 class Host {
   readonly day = signal('2026-10-12');
+  readonly max = signal('');
 }
 
 describe('addDays', () => {
@@ -94,6 +96,21 @@ describe('DayPicker', () => {
     (document.activeElement as HTMLButtonElement).click();
     await fixture.whenStable();
     expect(fixture.componentInstance.day()).toBe('2026-10-20');
+  });
+
+  it('disables days and later months after the maximum day', async () => {
+    const { fixture, element } = await render();
+    fixture.componentInstance.max.set('2026-10-12');
+    await fixture.whenStable();
+
+    trigger(element).click();
+    await fixture.whenStable();
+
+    expect(labelled(element, 'الشهر التالي')?.disabled).toBe(true);
+    expect(labelled(element, '13 أكتوبر 2026')?.disabled).toBe(true);
+    labelled(element, '13 أكتوبر 2026')?.click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.day()).toBe('2026-10-12');
   });
 
   it('closes on a click outside it without changing the day', async () => {

@@ -260,6 +260,12 @@ describe('Reports', () => {
     await settle(harness);
     await settle(harness);
 
+    expect(
+      harness.routeNativeElement!.querySelectorAll('app-day-picker'),
+    ).toHaveLength(2);
+    expect(
+      harness.routeNativeElement!.querySelector('input[type="date"]'),
+    ).toBeNull();
     expect(range).toHaveBeenCalledWith(
       north,
       expect.objectContaining({ from: expect.any(String), to: expect.any(String) }),
