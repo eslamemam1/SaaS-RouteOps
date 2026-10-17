@@ -154,7 +154,9 @@
         <button
           type="button"
           class="ro-pill"
-          [attr.aria-pressed]="!filter().status && !filter().conflictsOnly"
+          [attr.aria-pressed]="
+            !filter().status && !filter().conflictsOnly && !filter().extrasOnly
+          "
           (click)="showStatus('')"
         >
           <span>{{ text().filter.allStatuses }}</span>
@@ -170,6 +172,18 @@
           <span class="ro-dot" [attr.data-tone]="statusToneOf(tripStatus)"></span>
           <span>{{ text().statuses[tripStatus] }}</span>
           <bdi class="ro-pill-count">{{ counts()[tripStatus] }}</bdi>
+        </button>
+        } @if (extraTripsCount() > 0 || filter().extrasOnly) {
+        <button
+          type="button"
+          class="ro-pill"
+          data-tone="info"
+          [attr.aria-pressed]="filter().extrasOnly"
+          (click)="toggleExtras()"
+        >
+          <ng-icon [svg]="icons.add" aria-hidden="true" />
+          <span>{{ text().day.extra }}</span>
+          <bdi class="ro-pill-count">{{ extraTripsCount() }}</bdi>
         </button>
         } @if (conflicts().size > 0 || filter().conflictsOnly) {
         <button
@@ -287,16 +301,18 @@
                   <span>{{ text().directions[trip.direction] }}</span>
                 </span>
                 <span class="ro-entity-text">
-                  <span class="ro-entity-name">
-                    {{ trip.routeId ? label(choices().routes, trip.routeId) :
-                    text().day.noRoute }}
+                  <span class="operations-trip-heading">
+                    <span class="ro-entity-name">
+                      {{ trip.routeId ? label(choices().routes, trip.routeId) :
+                      text().day.noRoute }}
+                    </span>
+                    @if (trip.extra) {
+                    <app-tag tone="info" dot>{{ text().day.extra }}</app-tag>
+                    }
                   </span>
                   <span class="ro-entity-detail">
                     {{ label(choices().customers, trip.customerId) }}
                   </span>
-                  @if (trip.extra) {
-                  <app-tag tone="info">{{ text().day.extra }}</app-tag>
-                  }
                 </span>
               </div>
             </td>

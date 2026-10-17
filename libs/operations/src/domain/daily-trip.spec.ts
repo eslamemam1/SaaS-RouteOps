@@ -183,7 +183,7 @@ describe('filtering a busy day', () => {
   const trips = [
     trip({ id: '1', customerId: 'delta', routeId: 'nasr', vehicleId: 'bus-1', driverId: 'ahmed' }),
     trip({ id: '2', customerId: 'delta', routeId: 'nasr', direction: 'return', vehicleId: '', driverId: '' }),
-    trip({ id: '3', customerId: 'nour', routeId: 'maadi', vehicleId: '', driverId: '', done: true }),
+    trip({ id: '3', customerId: 'nour', routeId: 'maadi', vehicleId: '', driverId: '', done: true, extra: true }),
     trip({ id: '4', customerId: 'nour', routeId: 'maadi', cancelled: true, reason: 'holiday' }),
   ];
   const ids = (filter: Partial<TripFilter>, recording: TripRecording = 'manual') =>
@@ -201,6 +201,11 @@ describe('filtering a busy day', () => {
     expect(ids({ status: 'unrecorded' })).toEqual(['1', '2']);
     expect(ids({ status: 'done' })).toEqual(['3']);
     expect(ids({ status: 'done' }, 'automatic')).toEqual(['1', '2', '3']);
+  });
+
+  it('shows only manually added extra trips', () => {
+    expect(ids({ extrasOnly: true })).toEqual(['3']);
+    expect(ids({ extrasOnly: true, customerId: 'delta' })).toEqual([]);
   });
 
   it('searches route, driver, and plate, ignoring spaces and Arabic letter forms', () => {

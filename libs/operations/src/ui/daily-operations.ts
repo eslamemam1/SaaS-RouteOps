@@ -166,6 +166,9 @@ export class DailyOperations {
       (status) => this.counts()[status] > 0 || this.filter().status === status,
     ),
   );
+  protected readonly extraTripsCount = computed(
+    () => this.trips().filter((trip) => trip.extra).length,
+  );
   protected readonly dayCustomers = computed(() =>
     customersOnDay(
       this.trips(),
@@ -181,6 +184,7 @@ export class DailyOperations {
         filter.status ||
         filter.search.trim() ||
         filter.conflictsOnly ||
+        filter.extrasOnly ||
         filter.ownership,
     );
   });
@@ -305,11 +309,23 @@ export class DailyOperations {
   }
 
   protected showStatus(status: TripStatus | ''): void {
-    this.filterBy({ status, conflictsOnly: false });
+    this.filterBy({ status, conflictsOnly: false, extrasOnly: false });
   }
 
   protected toggleConflicts(): void {
-    this.filterBy({ status: '', conflictsOnly: !this.filter().conflictsOnly });
+    this.filterBy({
+      status: '',
+      conflictsOnly: !this.filter().conflictsOnly,
+      extrasOnly: false,
+    });
+  }
+
+  protected toggleExtras(): void {
+    this.filterBy({
+      status: '',
+      conflictsOnly: false,
+      extrasOnly: !this.filter().extrasOnly,
+    });
   }
 
   protected statusToneOf(status: TripStatus): Tone {

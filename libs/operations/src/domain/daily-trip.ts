@@ -546,6 +546,7 @@ export interface TripFilter {
   readonly status: TripStatus | '';
   readonly search: string;
   readonly conflictsOnly: boolean;
+  readonly extrasOnly: boolean;
   readonly ownership: VehicleOwnership | '';
 }
 
@@ -555,6 +556,7 @@ export const emptyTripFilter: TripFilter = {
   status: '',
   search: '',
   conflictsOnly: false,
+  extrasOnly: false,
   ownership: '',
 };
 
@@ -583,6 +585,7 @@ export function filterTrips(
   return trips.filter(
     (trip) =>
       (!conflicts || conflicts.has(trip.id)) &&
+      (!filter.extrasOnly || trip.extra) &&
       (!filter.ownership ||
         vehicleOwnership(choices.vehicles, trip.vehicleId) === filter.ownership) &&
       (!filter.customerId || trip.customerId === filter.customerId) &&

@@ -166,6 +166,28 @@ describe('DailyOperations', () => {
     expect(rows(harness)).toHaveLength(2);
   });
 
+  it('marks extra trips clearly and can show them alone', async () => {
+    const extraTrip: DailyTrip = {
+      ...outbound,
+      id: 'trip-extra',
+      departureTime: '20:00',
+      arrivalTime: '21:00',
+      extra: true,
+    };
+    const harness = await open({ day: async () => [outbound, extraTrip] });
+    await settle(harness);
+
+    const extraButton = statusButton(harness, arabic.day.extra);
+    expect(extraButton?.textContent).toContain('1');
+    expect(rows(harness)[1].textContent).toContain(arabic.day.extra);
+
+    extraButton?.click();
+    await settle(harness);
+
+    expect(rows(harness)).toHaveLength(1);
+    expect(rows(harness)[0].textContent).toContain(arabic.day.extra);
+  });
+
   it('narrows a busy day by company and search, then shows everything again', async () => {
     const nourTrip: DailyTrip = {
       ...outbound,

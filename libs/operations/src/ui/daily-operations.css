@@ -113,6 +113,13 @@
   margin-inline-start: auto;
 }
 
+.operations-trip-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ro-space-2);
+}
+
 .operations-crew-list {
   display: grid;
   gap: var(--ro-space-1);
