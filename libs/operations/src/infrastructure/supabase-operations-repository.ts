@@ -75,14 +75,14 @@ export class SupabaseOperationsRepository extends OperationsRepository {
 
   async changeTrip(
     organization: OperationsOrganization,
-    tripId: string,
+    trip: DailyTrip,
     change: TripChange,
   ): Promise<DailyTrip> {
-    const problem = tripChangeError(change);
+    const problem = tripChangeError(change, trip);
     if (problem) {
       throw new OperationsAccessError(problem);
     }
-    return this.gateway.updateTrip(organization.id, tripId, change);
+    return this.gateway.updateTrip(organization.id, trip.id, change);
   }
 
   markDone(

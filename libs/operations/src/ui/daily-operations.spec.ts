@@ -405,11 +405,47 @@ describe('DailyOperations', () => {
 
     expect(changeTrip).toHaveBeenCalledWith(
       north,
-      'trip-1',
+      outbound,
       expect.objectContaining({ cancelled: true, reason: 'driverAbsent' }),
     );
     expect(harness.routeNativeElement!.querySelector('app-trip-change-form')).toBeFalsy();
     expect(rows(harness)[0].textContent).toContain(arabic.statuses.cancelled);
+  });
+
+  it('puts a cancelled trip back to running without asking for a reason', async () => {
+    const cancelledTrip: DailyTrip = {
+      ...outbound,
+      cancelled: true,
+      reason: 'holiday',
+    };
+    const changeTrip = vi.fn(async () => ({
+      ...cancelledTrip,
+      cancelled: false,
+      reason: '',
+    }));
+    const harness = await open({
+      day: async () => [cancelledTrip],
+      changeTrip,
+    });
+    await settle(harness);
+
+    button(harness, arabic.day.change)?.click();
+    await settle(harness);
+    const form = harness.routeNativeElement!.querySelector('app-trip-change-form')!;
+    form.querySelector<HTMLInputElement>('input[value="running"]')!.click();
+    await settle(harness);
+    expect(form.textContent).toContain(arabic.change.restoreHint);
+    expect(form.textContent).not.toContain(arabic.change.chooseReason);
+
+    form.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle(harness);
+
+    expect(changeTrip).toHaveBeenCalledWith(
+      north,
+      cancelledTrip,
+      expect.objectContaining({ cancelled: false, reason: '' }),
+    );
+    expect(rows(harness)[0].textContent).not.toContain(arabic.statuses.cancelled);
   });
 
   it('offers the companies with running trips for a holiday', async () => {

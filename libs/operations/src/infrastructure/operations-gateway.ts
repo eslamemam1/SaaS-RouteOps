@@ -277,14 +277,15 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     tripId: string,
     change: TripChange,
   ): Promise<DailyTrip> {
-    if (change.reason === '') {
+    if (change.cancelled && change.reason === '') {
       throw new OperationsAccessError('reason');
     }
     return this.saveTrip(organizationId, tripId, {
       vehicle_id: blankToNull(change.vehicleId),
       driver_id: change.driverId,
       is_cancelled: change.cancelled,
-      change_reason: reasonColumns[change.reason],
+      change_reason:
+        change.reason === '' ? null : reasonColumns[change.reason],
       notes: blankToNull(change.notes),
       ...(change.cancelled ? { is_done: false } : {}),
     });

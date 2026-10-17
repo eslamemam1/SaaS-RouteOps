@@ -329,12 +329,37 @@ export function extraTripError(
   );
 }
 
-export function tripChangeError(change: TripChange): OperationsProblem | null {
-  return (
-    driverError(change.driverId) ??
-    reasonError(change.reason) ??
-    notesError(change.notes, change.reason)
-  );
+// A cancel always needs a reason. Putting a cancelled trip back to running
+// without changing the driver or vehicle clears the cancel and needs none.
+// Any other running change still needs a reason so prepare leaves it alone.
+export function tripChangeNeedsReason(
+  change: TripChange,
+  baseline: DailyTrip,
+): boolean {
+  if (change.cancelled) {
+    return true;
+  }
+  if (baseline.cancelled) {
+    return (
+      change.driverId !== baseline.driverId ||
+      change.vehicleId !== baseline.vehicleId
+    );
+  }
+  return true;
+}
+
+export function tripChangeError(
+  change: TripChange,
+  baseline: DailyTrip,
+): OperationsProblem | null {
+  const driverProblem = driverError(change.driverId);
+  if (driverProblem) {
+    return driverProblem;
+  }
+  if (!tripChangeNeedsReason(change, baseline)) {
+    return notesError(change.notes, change.reason);
+  }
+  return reasonError(change.reason) ?? notesError(change.notes, change.reason);
 }
 
 // Choosing a route fills in its customer, vehicle, and driver; the member may

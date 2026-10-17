@@ -111,13 +111,31 @@ describe('SupabaseOperationsRepository', () => {
       }),
     ).rejects.toEqual(new OperationsAccessError('driver'));
     await expect(
-      repository.changeTrip(north, 'trip-1', {
-        vehicleId: '',
-        driverId: '',
-        cancelled: false,
-        reason: 'driverAbsent',
-        notes: '',
-      }),
+      repository.changeTrip(
+        north,
+        {
+          id: 'trip-1',
+          routeId: 'route-1',
+          serviceDate: '2026-10-04',
+          direction: 'outbound',
+          departureTime: '07:00',
+          customerId: 'delta',
+          vehicleId: '',
+          driverId: 'ahmed',
+          cancelled: false,
+          reason: '',
+          notes: '',
+          done: false,
+          extra: false,
+        },
+        {
+          vehicleId: '',
+          driverId: '',
+          cancelled: false,
+          reason: 'driverAbsent',
+          notes: '',
+        },
+      ),
     ).rejects.toEqual(new OperationsAccessError('driver'));
     expect(gateway.insertExtraTrip).not.toHaveBeenCalled();
     expect(gateway.updateTrip).not.toHaveBeenCalled();

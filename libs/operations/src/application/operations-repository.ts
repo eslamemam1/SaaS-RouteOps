@@ -37,7 +37,7 @@ export abstract class OperationsRepository {
   ): Promise<void>;
   abstract changeTrip(
     organization: OperationsOrganization,
-    tripId: string,
+    trip: DailyTrip,
     change: TripChange,
   ): Promise<DailyTrip>;
   abstract markDone(

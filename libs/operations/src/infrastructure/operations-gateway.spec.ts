@@ -265,20 +265,44 @@ describe('SupabaseOperationsGateway', () => {
     ]);
   });
 
-  it('refuses a change without a reason before calling the database', async () => {
+  it('refuses a cancellation without a reason before calling the database', async () => {
     const calls = recorder(() => ({ data: row, error: null }));
     const gateway = new SupabaseOperationsGateway(calls.client);
 
     await expect(
       gateway.updateTrip('org-north', 'trip-1', {
         vehicleId: '',
-        driverId: '',
+        driverId: 'driver-1',
         cancelled: true,
         reason: '',
         notes: '',
       }),
     ).rejects.toEqual(new OperationsAccessError('reason'));
     expect(calls.updated).toBeNull();
+  });
+
+  it('clears the reason when a cancelled trip is put back to running', async () => {
+    const calls = recorder(() => ({
+      data: { ...row, is_cancelled: false, change_reason: null },
+      error: null,
+    }));
+    const gateway = new SupabaseOperationsGateway(calls.client);
+
+    await gateway.updateTrip('org-north', 'trip-1', {
+      vehicleId: 'vehicle-1',
+      driverId: 'driver-1',
+      cancelled: false,
+      reason: '',
+      notes: '',
+    });
+
+    expect(calls.updated).toEqual({
+      vehicle_id: 'vehicle-1',
+      driver_id: 'driver-1',
+      is_cancelled: false,
+      change_reason: null,
+      notes: null,
+    });
   });
 
   it('cancels the chosen customers trips of the day as a holiday', async () => {

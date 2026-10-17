@@ -57,6 +57,7 @@
     }
   </div>
   }
+  @if (needsReason()) {
   <app-field
     [label]="text().change.reason"
     [hint]="model().reason === 'driverAbsent' ? text().change.absentHint : text().change.reasonHint"
@@ -77,6 +78,9 @@
   >
     <textarea [formField]="changeForm.notes"></textarea>
   </app-field>
+  } @else if (trip().cancelled) {
+  <p class="hint">{{ text().change.restoreHint }}</p>
+  }
   @if (conflicts().length > 0) {
   <app-alert tone="warning">
     <p>{{ text().conflict.formHint }}</p>

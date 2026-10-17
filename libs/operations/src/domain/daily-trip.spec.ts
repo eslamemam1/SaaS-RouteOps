@@ -357,6 +357,7 @@ describe('extra trips', () => {
   });
 
   it('keeps a driver on every trip change', () => {
+    const baseline = trip({ driverId: 'ahmed' });
     const change = {
       vehicleId: '',
       driverId: 'ahmed',
@@ -364,9 +365,29 @@ describe('extra trips', () => {
       reason: 'driverAbsent' as const,
       notes: '',
     };
-    expect(tripChangeError(change)).toBeNull();
-    expect(tripChangeError({ ...change, driverId: '' })).toBe('driver');
-    expect(tripChangeError({ ...change, reason: '' })).toBe('reason');
+    expect(tripChangeError(change, baseline)).toBeNull();
+    expect(tripChangeError({ ...change, driverId: '' }, baseline)).toBe('driver');
+    expect(tripChangeError({ ...change, reason: '' }, baseline)).toBe('reason');
+  });
+
+  it('lets a cancelled trip run again without a reason when the crew is unchanged', () => {
+    const baseline = trip({
+      cancelled: true,
+      reason: 'holiday',
+      driverId: 'ahmed',
+      vehicleId: 'bus-1',
+    });
+    const restore = {
+      vehicleId: 'bus-1',
+      driverId: 'ahmed',
+      cancelled: false,
+      reason: '' as const,
+      notes: '',
+    };
+    expect(tripChangeError(restore, baseline)).toBeNull();
+    expect(
+      tripChangeError({ ...restore, driverId: 'other', reason: '' }, baseline),
+    ).toBe('reason');
   });
 });
 

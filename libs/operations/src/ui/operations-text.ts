@@ -116,6 +116,7 @@ export interface OperationsText {
     readonly outcome: string;
     readonly running: string;
     readonly runningHint: string;
+    readonly restoreHint: string;
     readonly cancelled: string;
     readonly cancelledHint: string;
     readonly reason: string;
@@ -316,7 +317,8 @@ export const operationsText: Record<Language, OperationsText> = {
       notSet: 'لم يُحدد',
       outcome: 'ماذا حدث في هذه الرحلة؟',
       running: 'الرحلة قائمة',
-      runningHint: 'غيّر السائق أو المركبة لهذا اليوم فقط إن تغيّر أحدهما.',
+      runningHint: 'غيّر السائق أو المركبة لهذا اليوم فقط إن تغيّر أحدهما. إن كانت ملغاة، اختر هذا لإعادتها.',
+      restoreHint: 'ستُعاد الرحلة كما كانت دون سبب إلغاء. احفظ للتأكيد.',
       cancelled: 'الرحلة ملغاة',
       cancelledHint: 'لا تُحسب ضمن الرحلات المنفّذة ولا في الإيراد.',
       reason: 'السبب',
@@ -515,7 +517,8 @@ export const operationsText: Record<Language, OperationsText> = {
       notSet: 'Not set',
       outcome: 'What happened to this trip?',
       running: 'The trip runs',
-      runningHint: 'Change the driver or vehicle for this day only, if either changed.',
+      runningHint: 'Change the driver or vehicle for this day only, if either changed. If it was cancelled, choose this to put it back.',
+      restoreHint: 'The trip will run again with no cancellation reason. Save to confirm.',
       cancelled: 'The trip is cancelled',
       cancelledHint: 'It does not count as a done trip or as revenue.',
       reason: 'Reason',

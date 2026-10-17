@@ -29,6 +29,7 @@ import {
   OperationsOrganization,
   OperationsProblem,
   TripChange,
+  tripChangeNeedsReason,
   tripConflicts,
 } from '../domain/daily-trip';
 import { ConflictList } from './conflict-list';
@@ -75,7 +76,7 @@ export class TripChangeForm {
     notes: '',
   });
   protected readonly changeForm = form(this.model, (field) => {
-    apply(field, tripChangeSchema(this.problems));
+    apply(field, tripChangeSchema(this.problems, this.trip));
   });
 
   protected readonly routeName = computed(
@@ -85,6 +86,9 @@ export class TripChangeForm {
   );
   protected readonly customerName = computed(() =>
     choiceLabel(this.choices().customers, this.trip().customerId),
+  );
+  protected readonly needsReason = computed(() =>
+    tripChangeNeedsReason(this.model(), this.trip()),
   );
   protected readonly conflicts = computed(() =>
     tripConflicts({ ...this.trip(), ...this.model() }, this.trips()),
@@ -112,6 +116,10 @@ export class TripChangeForm {
 
   protected setCancelled(cancelled: boolean): void {
     this.changeForm.cancelled().value.set(cancelled);
+    if (!cancelled && this.trip().cancelled) {
+      this.changeForm.reason().value.set('');
+      this.changeForm.notes().value.set('');
+    }
   }
 
   protected onSubmit(event: Event): void {
@@ -122,7 +130,7 @@ export class TripChangeForm {
       try {
         const saved = await this.repository.changeTrip(
           this.organization(),
-          this.trip().id,
+          this.trip(),
           this.model(),
         );
         this.saved.emit(saved);
