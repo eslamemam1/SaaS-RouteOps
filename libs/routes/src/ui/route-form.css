@@ -45,6 +45,52 @@
   margin-block-start: calc(-1 * var(--ro-space-2));
 }
 
+.route-legs {
+  display: grid;
+  gap: var(--ro-space-3);
+}
+
+.route-leg {
+  display: grid;
+  gap: var(--ro-space-3);
+  padding: var(--ro-space-3);
+  border: var(--ro-border-width) solid var(--ro-border-default);
+  border-radius: var(--ro-radius-md);
+  background: var(--ro-bg-hover);
+}
+
+.route-leg-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ro-space-1) var(--ro-space-2);
+}
+
+.route-leg-title {
+  color: var(--ro-text-brand);
+  font-size: var(--ro-text-body-sm);
+  line-height: var(--ro-leading-body-sm);
+  font-weight: var(--ro-font-semibold);
+}
+
+.route-leg[data-direction='return'] .route-leg-title {
+  color: var(--ro-text-accent);
+}
+
+.route-leg-hint {
+  color: var(--ro-text-secondary);
+  font-size: var(--ro-text-caption);
+  line-height: var(--ro-leading-caption);
+}
+
+/* Departure and arrival share a row so their pickers line up. */
+.route-leg-times {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--ro-space-3);
+}
+
 .route-days {
   display: grid;
   gap: var(--ro-space-2);

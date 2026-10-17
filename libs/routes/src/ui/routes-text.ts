@@ -65,13 +65,12 @@ export interface RoutesText {
     readonly endPointHint: string;
     readonly tripsTitle: string;
     readonly tripsHint: string;
-    readonly outboundTime: string;
+    readonly outboundTitle: string;
     readonly outboundHint: string;
-    readonly outboundArrival: string;
-    readonly returnTime: string;
+    readonly returnTitle: string;
     readonly returnHint: string;
-    readonly returnArrival: string;
-    readonly arrivalHint: string;
+    readonly departure: string;
+    readonly arrival: string;
     readonly days: string;
     readonly daysHint: string;
     readonly everyDay: string;
@@ -188,14 +187,14 @@ export const routesText: Record<Language, RoutesText> = {
       endPoint: 'نقطة النهاية',
       endPointHint: 'غالبًا مقر الشركة أو المصنع.',
       tripsTitle: 'المواعيد والأيام',
-      tripsHint: 'حدد ميعاد رحلة واحدة على الأقل، مع ميعاد الوصول لكل اتجاه.',
-      outboundTime: 'مغادرة الذهاب',
+      tripsHint:
+        'حدد رحلة واحدة على الأقل. يكون السائق والمركبة مشغولين من ميعاد المغادرة حتى ميعاد الوصول، فلا يمكن ربطهما برحلة أخرى في هذا الوقت.',
+      outboundTitle: 'الذهاب',
       outboundHint: 'توصيل الموظفين إلى العمل.',
-      outboundArrival: 'وصول الذهاب',
-      returnTime: 'مغادرة العودة',
+      returnTitle: 'العودة',
       returnHint: 'عودة الموظفين من العمل.',
-      returnArrival: 'وصول العودة',
-      arrivalHint: 'حتى هذا الميعاد يكون السائق والمركبة مشغولين بهذه الرحلة.',
+      departure: 'المغادرة',
+      arrival: 'الوصول',
       days: 'أيام العمل',
       daysHint: 'الأيام التي يعمل فيها هذا الخط كل أسبوع.',
       everyDay: 'اختيار كل الأيام',
@@ -312,14 +311,14 @@ export const routesText: Record<Language, RoutesText> = {
       endPoint: 'End point',
       endPointHint: 'Usually the company or factory site.',
       tripsTitle: 'Times and days',
-      tripsHint: 'Set at least one trip time, with an arrival for each direction.',
-      outboundTime: 'Outbound departure',
+      tripsHint:
+        'Set at least one trip. The driver and vehicle are busy from departure until arrival, so they cannot be on another trip in that time.',
+      outboundTitle: 'Outbound',
       outboundHint: 'Taking staff to work.',
-      outboundArrival: 'Outbound arrival',
-      returnTime: 'Return departure',
+      returnTitle: 'Return',
       returnHint: 'Taking staff home.',
-      returnArrival: 'Return arrival',
-      arrivalHint: 'The driver and vehicle stay busy on this trip until this time.',
+      departure: 'Departure',
+      arrival: 'Arrival',
       days: 'Working days',
       daysHint: 'The days this route runs every week.',
       everyDay: 'Choose every day',

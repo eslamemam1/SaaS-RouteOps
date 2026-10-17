@@ -62,37 +62,35 @@
   <fieldset class="route-section">
     <legend>{{ text().form.tripsTitle }}</legend>
     <p class="hint">{{ text().form.tripsHint }}</p>
-    <div class="ro-form-row">
-      <app-field
-        [label]="text().form.outboundTime"
-        [hint]="text().form.outboundHint"
-        [control]="routeForm.outboundTime"
-      >
-        <app-time-picker [formField]="routeForm.outboundTime" />
-      </app-field>
-      <app-field
-        [label]="text().form.outboundArrival"
-        [hint]="text().form.arrivalHint"
-        [control]="routeForm.outboundArrivalTime"
-      >
-        <app-time-picker [formField]="routeForm.outboundArrivalTime" />
-      </app-field>
-    </div>
-    <div class="ro-form-row">
-      <app-field
-        [label]="text().form.returnTime"
-        [hint]="text().form.returnHint"
-        [control]="routeForm.returnTime"
-      >
-        <app-time-picker [formField]="routeForm.returnTime" />
-      </app-field>
-      <app-field
-        [label]="text().form.returnArrival"
-        [hint]="text().form.arrivalHint"
-        [control]="routeForm.returnArrivalTime"
-      >
-        <app-time-picker [formField]="routeForm.returnArrivalTime" />
-      </app-field>
+    <div class="route-legs">
+      <div class="route-leg" role="group" aria-labelledby="route-leg-outbound">
+        <div class="route-leg-head">
+          <span id="route-leg-outbound" class="route-leg-title">{{ text().form.outboundTitle }}</span>
+          <span class="route-leg-hint">{{ text().form.outboundHint }}</span>
+        </div>
+        <div class="route-leg-times">
+          <app-field [label]="text().form.departure" [control]="routeForm.outboundTime">
+            <app-time-picker [formField]="routeForm.outboundTime" />
+          </app-field>
+          <app-field [label]="text().form.arrival" [control]="routeForm.outboundArrivalTime">
+            <app-time-picker [formField]="routeForm.outboundArrivalTime" />
+          </app-field>
+        </div>
+      </div>
+      <div class="route-leg" role="group" aria-labelledby="route-leg-return" data-direction="return">
+        <div class="route-leg-head">
+          <span id="route-leg-return" class="route-leg-title">{{ text().form.returnTitle }}</span>
+          <span class="route-leg-hint">{{ text().form.returnHint }}</span>
+        </div>
+        <div class="route-leg-times">
+          <app-field [label]="text().form.departure" [control]="routeForm.returnTime">
+            <app-time-picker [formField]="routeForm.returnTime" />
+          </app-field>
+          <app-field [label]="text().form.arrival" [control]="routeForm.returnArrivalTime">
+            <app-time-picker [formField]="routeForm.returnArrivalTime" />
+          </app-field>
+        </div>
+      </div>
     </div>
     <div class="route-days" role="group" aria-labelledby="route-days-label">
       <div class="route-days-head">
