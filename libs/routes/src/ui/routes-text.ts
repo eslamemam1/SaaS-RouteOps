@@ -67,8 +67,11 @@ export interface RoutesText {
     readonly tripsHint: string;
     readonly outboundTime: string;
     readonly outboundHint: string;
+    readonly outboundArrival: string;
     readonly returnTime: string;
     readonly returnHint: string;
+    readonly returnArrival: string;
+    readonly arrivalHint: string;
     readonly days: string;
     readonly daysHint: string;
     readonly everyDay: string;
@@ -101,10 +104,13 @@ export const routesText: Record<Language, RoutesText> = {
       endPoint: 'أدخل نقطة النهاية.',
       tooLong: 'النص أطول من المسموح.',
       time: 'أدخل ميعادًا صحيحًا.',
+      arrival: 'ميعاد الوصول يجب أن يكون بعد ميعاد المغادرة.',
       trip: 'حدد ميعاد رحلة الذهاب أو رحلة العودة على الأقل.',
       days: 'اختر يومًا واحدًا على الأقل.',
       tripPrice: 'أدخل السعر بالأرقام فقط، مثل 150 أو 150.50',
       inactiveChoice: 'الخط العامل يحتاج شركة وسائقًا ومركبة غير موقوفين. اختر غيرهم، أو فعّلهم من صفحاتهم، أو أوقف الخط.',
+      driverOverlap: 'هذا السائق مشغول في خط آخر في نفس الوقت في أيام مشتركة.',
+      vehicleOverlap: 'هذه المركبة مشغولة في خط آخر في نفس الوقت في أيام مشتركة.',
       inUse: 'لا يمكن حذف هذا الخط لأن رحلات ما زالت مربوطة به. احذف الرحلات أو اترك الخط موقوفًا.',
       load: 'تعذّر تحميل الخطوط. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
@@ -182,11 +188,14 @@ export const routesText: Record<Language, RoutesText> = {
       endPoint: 'نقطة النهاية',
       endPointHint: 'غالبًا مقر الشركة أو المصنع.',
       tripsTitle: 'المواعيد والأيام',
-      tripsHint: 'حدد ميعاد رحلة واحدة على الأقل.',
-      outboundTime: 'ميعاد الذهاب',
+      tripsHint: 'حدد ميعاد رحلة واحدة على الأقل، مع ميعاد الوصول لكل اتجاه.',
+      outboundTime: 'مغادرة الذهاب',
       outboundHint: 'توصيل الموظفين إلى العمل.',
-      returnTime: 'ميعاد العودة',
+      outboundArrival: 'وصول الذهاب',
+      returnTime: 'مغادرة العودة',
       returnHint: 'عودة الموظفين من العمل.',
+      returnArrival: 'وصول العودة',
+      arrivalHint: 'حتى هذا الميعاد يكون السائق والمركبة مشغولين بهذه الرحلة.',
       days: 'أيام العمل',
       daysHint: 'الأيام التي يعمل فيها هذا الخط كل أسبوع.',
       everyDay: 'اختيار كل الأيام',
@@ -219,10 +228,13 @@ export const routesText: Record<Language, RoutesText> = {
       endPoint: 'Enter the end point.',
       tooLong: 'This text is too long.',
       time: 'Enter a valid time.',
+      arrival: 'Arrival must be after departure.',
       trip: 'Set the outbound or return trip time, at least one.',
       days: 'Choose at least one day.',
       tripPrice: 'Enter the price in numbers only, like 150 or 150.50',
       inactiveChoice: 'An active route needs a company, driver, and vehicle that are not inactive. Choose others, turn them back on from their pages, or stop the route.',
+      driverOverlap: 'This driver is already on another route at the same time on shared days.',
+      vehicleOverlap: 'This vehicle is already on another route at the same time on shared days.',
       inUse: 'This route cannot be deleted because trips still name it. Clear those trips, or leave the route stopped.',
       load: 'Could not load your routes. Please try again.',
       save: 'Could not save. Please try again.',
@@ -300,11 +312,14 @@ export const routesText: Record<Language, RoutesText> = {
       endPoint: 'End point',
       endPointHint: 'Usually the company or factory site.',
       tripsTitle: 'Times and days',
-      tripsHint: 'Set at least one trip time.',
-      outboundTime: 'Outbound time',
+      tripsHint: 'Set at least one trip time, with an arrival for each direction.',
+      outboundTime: 'Outbound departure',
       outboundHint: 'Taking staff to work.',
-      returnTime: 'Return time',
+      outboundArrival: 'Outbound arrival',
+      returnTime: 'Return departure',
       returnHint: 'Taking staff home.',
+      returnArrival: 'Return arrival',
+      arrivalHint: 'The driver and vehicle stay busy on this trip until this time.',
       days: 'Working days',
       daysHint: 'The days this route runs every week.',
       everyDay: 'Choose every day',

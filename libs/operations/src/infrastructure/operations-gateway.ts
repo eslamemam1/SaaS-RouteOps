@@ -80,6 +80,11 @@ const restoreProblems: Record<string, OperationsProblem> = {
   no_trip: 'noTrip',
 };
 
+const overlapProblems: Record<string, OperationsProblem> = {
+  driver_overlap: 'driverOverlap',
+  vehicle_overlap: 'vehicleOverlap',
+};
+
 type TripRow = Pick<
   Database['public']['Tables']['daily_trips']['Row'],
   | 'id'
@@ -87,6 +92,7 @@ type TripRow = Pick<
   | 'service_date'
   | 'direction'
   | 'departure_time'
+  | 'arrival_time'
   | 'customer_id'
   | 'vehicle_id'
   | 'driver_id'
@@ -98,7 +104,7 @@ type TripRow = Pick<
 >;
 
 const tripColumns =
-  'id, route_id, service_date, direction, departure_time, customer_id, vehicle_id, driver_id, is_cancelled, is_done, is_extra, change_reason, notes';
+  'id, route_id, service_date, direction, departure_time, arrival_time, customer_id, vehicle_id, driver_id, is_cancelled, is_done, is_extra, change_reason, notes';
 
 const reasonColumns: Record<ChangeReason, string> = {
   holiday: 'holiday',
@@ -312,7 +318,9 @@ export class SupabaseOperationsGateway implements OperationsGateway {
       .select(tripColumns)
       .single();
     if (error || !data) {
-      throw new OperationsAccessError('save');
+      throw new OperationsAccessError(
+        (error && overlapProblems[error.message]) || 'save',
+      );
     }
     return toTrip(data);
   }
@@ -331,6 +339,7 @@ export class SupabaseOperationsGateway implements OperationsGateway {
         service_date: serviceDate,
         direction: details.direction,
         departure_time: details.departureTime,
+        arrival_time: details.arrivalTime,
         customer_id: details.customerId,
         vehicle_id: blankToNull(details.vehicleId),
         driver_id: details.driverId,
@@ -341,7 +350,9 @@ export class SupabaseOperationsGateway implements OperationsGateway {
       .select(tripColumns)
       .single();
     if (error || !data) {
-      throw new OperationsAccessError('save');
+      throw new OperationsAccessError(
+        (error && overlapProblems[error.message]) || 'save',
+      );
     }
     return toTrip(data);
   }
@@ -368,7 +379,9 @@ export class SupabaseOperationsGateway implements OperationsGateway {
     });
     if (error) {
       throw new OperationsAccessError(
-        restoreProblems[error.message] ?? 'save',
+        restoreProblems[error.message] ??
+          overlapProblems[error.message] ??
+          'save',
       );
     }
   }
@@ -432,6 +445,7 @@ function toTrip(row: TripRow): DailyTrip {
     serviceDate: row.service_date,
     direction: toDirection(row.direction),
     departureTime: row.departure_time.slice(0, 5),
+    arrivalTime: row.arrival_time.slice(0, 5),
     customerId: row.customer_id,
     vehicleId: row.vehicle_id ?? '',
     driverId: row.driver_id,

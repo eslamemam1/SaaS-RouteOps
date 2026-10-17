@@ -32,7 +32,9 @@ const delta: TransportRoute = {
   startPoint: 'Hegaz Square',
   endPoint: 'Delta Factory',
   outboundTime: '07:00',
+  outboundArrivalTime: '09:00',
   returnTime: '16:00',
+  returnArrivalTime: '18:00',
 };
 const arabic = routesText.ar;
 

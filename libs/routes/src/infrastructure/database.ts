@@ -180,7 +180,9 @@ export type Database = {
           operating_days: number[]
           organization_id: string
           outbound_time: string | null
+          outbound_arrival_time: string | null
           return_time: string | null
+          return_arrival_time: string | null
           start_point: string
           trip_price: number | null
           updated_at: string
@@ -198,7 +200,9 @@ export type Database = {
           operating_days: number[]
           organization_id: string
           outbound_time?: string | null
+          outbound_arrival_time?: string | null
           return_time?: string | null
+          return_arrival_time?: string | null
           start_point: string
           trip_price?: number | null
           updated_at?: string
@@ -216,7 +220,9 @@ export type Database = {
           operating_days?: number[]
           organization_id?: string
           outbound_time?: string | null
+          outbound_arrival_time?: string | null
           return_time?: string | null
+          return_arrival_time?: string | null
           start_point?: string
           trip_price?: number | null
           updated_at?: string

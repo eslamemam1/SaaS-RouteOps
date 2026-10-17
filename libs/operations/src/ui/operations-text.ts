@@ -80,6 +80,8 @@ export interface OperationsText {
     readonly chooseCustomer: string;
     readonly direction: string;
     readonly time: string;
+    readonly arrival: string;
+    readonly arrivalHint: string;
     readonly vehicle: string;
     readonly driver: string;
     readonly chooseDriver: string;
@@ -170,6 +172,7 @@ export const operationsText: Record<Language, OperationsText> = {
       customer: 'اختر الشركة المتعاقدة.',
       driver: 'اختر السائق.',
       time: 'اكتب ميعاد الرحلة.',
+      arrival: 'ميعاد الوصول يجب أن يكون بعد ميعاد المغادرة.',
       tripPrice: 'أدخل السعر بالأرقام فقط، مثل 150 أو 150.50',
       customers: 'اختر شركة واحدة على الأقل.',
       routes: 'اختر خطًا واحدًا على الأقل.',
@@ -177,6 +180,8 @@ export const operationsText: Record<Language, OperationsText> = {
         'اختر أيامًا مضت فقط، على أن يكون اليوم الأول قبل اليوم الأخير أو هو نفسه.',
       tooManyDays: 'اختر 93 يومًا على الأكثر في المرة الواحدة.',
       noTrip: 'لا يمكن استعادة هذه الرحلة لأن الخط لم يعد يشغّل هذا الاتجاه.',
+      driverOverlap: 'هذا السائق مشغول في رحلة أخرى في نفس الوقت.',
+      vehicleOverlap: 'هذه المركبة مشغولة في رحلة أخرى في نفس الوقت.',
       load: 'تعذّر تحميل رحلات اليوم. حاول مرة أخرى.',
       save: 'تعذّر حفظ البيانات. حاول مرة أخرى.',
       organization: 'لا يمكنك فتح هذه الصفحة من حسابك.',
@@ -225,10 +230,11 @@ export const operationsText: Record<Language, OperationsText> = {
       },
     },
     conflict: {
-      vehicle: 'المركبة نفسها في رحلة أخرى الساعة',
-      driver: 'السائق نفسه في رحلة أخرى الساعة',
+      vehicle: 'المركبة نفسها في رحلة أخرى من',
+      driver: 'السائق نفسه في رحلة أخرى من',
       filter: 'تعارض في المواعيد',
-      formHint: 'تنبيه: يفصل بين هذه الرحلة والرحلات التالية أقل من ساعة. يمكنك الحفظ رغم ذلك.',
+      formHint:
+        'لا يمكن الحفظ: السائق أو المركبة مشغولان في الرحلات التالية في نفس الوقت.',
     },
     day: {
       title: 'التشغيل اليومي',
@@ -280,7 +286,9 @@ export const operationsText: Record<Language, OperationsText> = {
       customerFromRoute: 'الشركة صاحبة الخط المختار.',
       chooseCustomer: 'اختر الشركة',
       direction: 'الاتجاه',
-      time: 'الميعاد',
+      time: 'ميعاد المغادرة',
+      arrival: 'ميعاد الوصول',
+      arrivalHint: 'حتى هذا الميعاد يكون السائق والمركبة مشغولين بهذه الرحلة.',
       vehicle: 'المركبة',
       driver: 'السائق',
       chooseDriver: 'اختر السائق',
@@ -370,6 +378,7 @@ export const operationsText: Record<Language, OperationsText> = {
       customer: 'Choose the client company.',
       driver: 'Choose the driver.',
       time: 'Enter the trip time.',
+      arrival: 'Arrival must be after departure.',
       tripPrice: 'Enter the price in numbers only, like 150 or 150.50',
       customers: 'Choose at least one company.',
       routes: 'Choose at least one route.',
@@ -377,6 +386,8 @@ export const operationsText: Record<Language, OperationsText> = {
         'Choose days that have passed only, with the first day on or before the last.',
       tooManyDays: 'Choose 93 days at most at a time.',
       noTrip: 'This trip cannot be restored because the route no longer runs this direction.',
+      driverOverlap: 'This driver is already on another trip at the same time.',
+      vehicleOverlap: 'This vehicle is already on another trip at the same time.',
       load: "Could not load the day's trips. Please try again.",
       save: 'Could not save. Please try again.',
       organization: 'You cannot open this page from your account.',
@@ -425,10 +436,11 @@ export const operationsText: Record<Language, OperationsText> = {
       },
     },
     conflict: {
-      vehicle: 'Same vehicle on another trip at',
-      driver: 'Same driver on another trip at',
+      vehicle: 'Same vehicle on another trip from',
+      driver: 'Same driver on another trip from',
       filter: 'Time conflicts',
-      formHint: 'Warning: these trips leave less than an hour from this one. You can still save.',
+      formHint:
+        'Cannot save: the driver or vehicle is busy on the following trips at the same time.',
     },
     day: {
       title: 'Daily operations',
@@ -480,7 +492,9 @@ export const operationsText: Record<Language, OperationsText> = {
       customerFromRoute: 'The company of the chosen route.',
       chooseCustomer: 'Choose a company',
       direction: 'Direction',
-      time: 'Time',
+      time: 'Departure',
+      arrival: 'Arrival',
+      arrivalHint: 'The driver and vehicle stay busy on this trip until this time.',
       vehicle: 'Vehicle',
       driver: 'Driver',
       chooseDriver: 'Choose a driver',

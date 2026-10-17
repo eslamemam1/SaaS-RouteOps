@@ -2,6 +2,7 @@ import { Signal } from '@angular/core';
 import { disabled, schema, validate } from '@angular/forms/signals';
 import { Currency } from '@routeops/shared/money';
 import {
+  arrivalTimeError,
   departureTimeError,
   driverError,
   extraCustomerError,
@@ -20,6 +21,12 @@ export function extraTripSchema(problems: Problems, currency: Signal<Currency>) 
     );
     validate(path.departureTime, ({ value }) =>
       fieldError(departureTimeError(value()), problems),
+    );
+    validate(path.arrivalTime, ({ value, valueOf }) =>
+      fieldError(
+        arrivalTimeError(valueOf(path.departureTime), value()),
+        problems,
+      ),
     );
     validate(path.driverId, ({ value }) =>
       fieldError(driverError(value()), problems),

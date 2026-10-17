@@ -22,10 +22,8 @@ insert into public.vehicles (id, organization_id, plate_number, vehicle_type, ow
   ('12000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000001', 'CONTRACTOR 1', 'microbus', 'contractor', 'Mohamed Ali', 'per_trip', null, 30000, 25000);
 insert into public.drivers (id, organization_id, full_name) values
   ('13000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Ahmed');
-insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, created_at) values
-  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001',
-   '12000000-0000-0000-0000-000000000003', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '16:00', '{0,1,2,3,4}',
-   '2026-01-01');
+insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, return_time, return_arrival_time, operating_days, created_at) values
+  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000003', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '09:00', '16:00', '18:00', '{0,1,2,3,4}', '2026-01-01');
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-02-01');
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-02-02');
 update public.daily_trips

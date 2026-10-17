@@ -39,6 +39,7 @@ export abstract class OperationsRepository {
     organization: OperationsOrganization,
     trip: DailyTrip,
     change: TripChange,
+    dayTrips?: readonly DailyTrip[],
   ): Promise<DailyTrip>;
   abstract markDone(
     organization: OperationsOrganization,
@@ -49,6 +50,7 @@ export abstract class OperationsRepository {
     organization: OperationsOrganization,
     serviceDate: string,
     details: ExtraTripDetails,
+    dayTrips?: readonly DailyTrip[],
   ): Promise<DailyTrip>;
   // Removes a trip from the day as if it was never there, including a route
   // trip that was marked done by mistake.

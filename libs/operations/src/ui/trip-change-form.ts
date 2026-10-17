@@ -128,10 +128,19 @@ export class TripChangeForm {
       this.submitting.set(true);
       this.problem.set(null);
       try {
+        if (this.conflicts().length > 0) {
+          const problem =
+            this.conflicts().some((conflict) => conflict.kind === 'driver')
+              ? 'driverOverlap'
+              : 'vehicleOverlap';
+          this.problem.set(problem);
+          return [{ kind: 'server', message: this.problems()[problem] }];
+        }
         const saved = await this.repository.changeTrip(
           this.organization(),
           this.trip(),
           this.model(),
+          this.trips(),
         );
         this.saved.emit(saved);
         return undefined;

@@ -21,10 +21,8 @@ insert into public.vehicles (id, organization_id, plate_number, vehicle_type) va
   ('12000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'NORTH 1', 'bus');
 insert into public.drivers (id, organization_id, full_name) values
   ('13000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Ahmed');
-insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, created_at) values
-  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001',
-   '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '16:00', '{0,1,2,3,4}',
-   '2026-01-01');
+insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, return_time, return_arrival_time, operating_days, created_at) values
+  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '09:00', '16:00', '18:00', '{0,1,2,3,4}', '2026-01-01');
 
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-02-01');
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-02-02');
@@ -33,9 +31,8 @@ set is_cancelled = true, change_reason = 'holiday'
 where service_date = '2026-02-02' and direction = 'return';
 insert into public.drivers (id, organization_id, full_name) values
   ('13000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'Karim');
-insert into public.daily_trips (organization_id, customer_id, vehicle_id, driver_id, service_date, direction, departure_time, is_extra, notes) values
-  ('10000000-0000-0000-0000-000000000001', '11000000-0000-0000-0000-000000000002', '12000000-0000-0000-0000-000000000001',
-   '13000000-0000-0000-0000-000000000002', '2026-02-05', 'outbound', '21:00', true, 'Airport run');
+insert into public.daily_trips (organization_id, customer_id, vehicle_id, driver_id, service_date, direction, departure_time, arrival_time, is_extra, notes) values
+  ('10000000-0000-0000-0000-000000000001', '11000000-0000-0000-0000-000000000002', '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000002', '2026-02-05', 'outbound', '21:00', '23:00', true, 'Airport run');
 
 -- Signed in as the North login.
 set local role authenticated;

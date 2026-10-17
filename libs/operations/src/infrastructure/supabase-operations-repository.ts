@@ -77,8 +77,9 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     organization: OperationsOrganization,
     trip: DailyTrip,
     change: TripChange,
+    dayTrips: readonly DailyTrip[] = [],
   ): Promise<DailyTrip> {
-    const problem = tripChangeError(change, trip);
+    const problem = tripChangeError(change, trip, dayTrips);
     if (problem) {
       throw new OperationsAccessError(problem);
     }
@@ -97,11 +98,12 @@ export class SupabaseOperationsRepository extends OperationsRepository {
     organization: OperationsOrganization,
     serviceDate: string,
     details: ExtraTripDetails,
+    dayTrips: readonly DailyTrip[] = [],
   ): Promise<DailyTrip> {
     if (!isServiceDate(serviceDate)) {
       throw new OperationsAccessError('date');
     }
-    const problem = extraTripError(details, organization.currency);
+    const problem = extraTripError(details, organization.currency, dayTrips);
     if (problem) {
       throw new OperationsAccessError(problem);
     }

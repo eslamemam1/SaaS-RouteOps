@@ -30,13 +30,10 @@ insert into public.vehicles (id, organization_id, plate_number, vehicle_type) va
 insert into public.drivers (id, organization_id, full_name) values
   ('13000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Ahmed'),
   ('13000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'Karim');
-insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, created_at) values
-  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001',
-   '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '16:00', '{0,1,2,3,4}',
-   '2026-01-01');
-insert into public.routes (id, organization_id, name, customer_id, driver_id, start_point, end_point, outbound_time, operating_days, trip_price) values
-  ('14000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'Airport Road', '11000000-0000-0000-0000-000000000001',
-   '13000000-0000-0000-0000-000000000002', 'Ring Road', 'Airport', '05:00', '{0,1,2,3,4}', 4000);
+insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, return_time, return_arrival_time, operating_days, created_at) values
+  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '09:00', '16:00', '18:00', '{0,1,2,3,4}', '2026-01-01');
+insert into public.routes (id, organization_id, name, customer_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, operating_days, trip_price) values
+  ('14000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'Airport Road', '11000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000002', 'Ring Road', 'Airport', '05:00', '07:00', '{0,1,2,3,4}', 4000);
 
 select throws_ok(
   $$insert into public.organizations (name, currency) values ('Dollar Transport', 'USD')$$,
@@ -83,18 +80,15 @@ select is(
 );
 
 select lives_ok(
-  $$insert into public.daily_trips (organization_id, route_id, customer_id, vehicle_id, driver_id, service_date, direction, departure_time, is_extra, notes)
-    values ('10000000-0000-0000-0000-000000000001', '14000000-0000-0000-0000-000000000001', '11000000-0000-0000-0000-000000000001',
-            '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', '2026-02-03', 'outbound', '20:00', true, 'Evening'),
-           ('10000000-0000-0000-0000-000000000001', null, '11000000-0000-0000-0000-000000000001',
-            '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', '2026-02-03', 'outbound', '21:00', true, 'Airport')$$,
+  $$insert into public.daily_trips (organization_id, route_id, customer_id, vehicle_id, driver_id, service_date, direction, departure_time, arrival_time, is_extra, notes)
+    values ('10000000-0000-0000-0000-000000000001', '14000000-0000-0000-0000-000000000001', '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', '2026-02-03', 'outbound', '20:00', '22:00', true, 'Evening'),
+           ('10000000-0000-0000-0000-000000000001', null, '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', '2026-02-03', 'outbound', '21:00', '23:00', true, 'Airport')$$,
   'a member adds extra trips without a price'
 );
 update public.daily_trips set trip_price = 12000 where notes = 'Airport';
 select lives_ok(
-  $$insert into public.daily_trips (organization_id, customer_id, vehicle_id, driver_id, service_date, direction, departure_time, is_extra, notes)
-    values ('10000000-0000-0000-0000-000000000001', '11000000-0000-0000-0000-000000000001',
-            '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', '2026-02-04', 'outbound', '21:00', true, 'Unpriced')$$,
+  $$insert into public.daily_trips (organization_id, customer_id, vehicle_id, driver_id, service_date, direction, departure_time, arrival_time, is_extra, notes)
+    values ('10000000-0000-0000-0000-000000000001', '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', '2026-02-04', 'outbound', '21:00', '23:00', true, 'Unpriced')$$,
   'an extra trip without a route may have no price'
 );
 

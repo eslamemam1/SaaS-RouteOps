@@ -49,7 +49,9 @@ type RouteRow = Pick<
   | 'start_point'
   | 'end_point'
   | 'outbound_time'
+  | 'outbound_arrival_time'
   | 'return_time'
+  | 'return_arrival_time'
   | 'operating_days'
   | 'trip_price'
   | 'notes'
@@ -57,11 +59,13 @@ type RouteRow = Pick<
 >;
 
 const routeColumns =
-  'id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, trip_price, notes, is_active';
+  'id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, return_time, return_arrival_time, operating_days, trip_price, notes, is_active';
 
 const uniqueViolation = '23505';
 // Raised by the database when an active route names an inactive choice.
 const inactiveChoice = 'inactive_choice';
+const driverOverlap = 'driver_overlap';
+const vehicleOverlap = 'vehicle_overlap';
 // Raised when a trip still names the route on delete.
 const inUse = 'in_use';
 
@@ -222,6 +226,12 @@ function saveProblem(error: PostgrestError | null): RouteProblem {
   if (error?.message === inactiveChoice) {
     return 'inactiveChoice';
   }
+  if (error?.message === driverOverlap) {
+    return 'driverOverlap';
+  }
+  if (error?.message === vehicleOverlap) {
+    return 'vehicleOverlap';
+  }
   return error?.code === uniqueViolation ? 'nameTaken' : 'save';
 }
 
@@ -239,7 +249,9 @@ function toRoute(row: RouteRow, currency: Currency): TransportRoute {
     startPoint: row.start_point,
     endPoint: row.end_point,
     outboundTime: toClock(row.outbound_time),
+    outboundArrivalTime: toClock(row.outbound_arrival_time),
     returnTime: toClock(row.return_time),
+    returnArrivalTime: toClock(row.return_arrival_time),
     days: toDays(row.operating_days),
     tripPrice: toAmountText(row.trip_price, currency),
     notes: row.notes ?? '',
@@ -264,7 +276,9 @@ function toColumns(details: TransportRouteDetails, currency: Currency) {
     start_point: details.startPoint.trim(),
     end_point: details.endPoint.trim(),
     outbound_time: blankToNull(details.outboundTime),
+    outbound_arrival_time: blankToNull(details.outboundArrivalTime),
     return_time: blankToNull(details.returnTime),
+    return_arrival_time: blankToNull(details.returnArrivalTime),
     operating_days: selectedDays(details.days)
       .map((day) => dayNumbers[day])
       .sort((first, second) => first - second),

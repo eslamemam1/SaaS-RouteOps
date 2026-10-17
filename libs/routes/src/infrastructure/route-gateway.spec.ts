@@ -27,7 +27,9 @@ const row = {
   start_point: 'Hegaz Square',
   end_point: 'Delta Factory',
   outbound_time: '07:00:00',
+  outbound_arrival_time: '09:00:00',
   return_time: null,
+  return_arrival_time: null,
   operating_days: [0, 1, 2, 3, 4, 6],
   trip_price: 15050,
   notes: null,
@@ -69,6 +71,7 @@ describe('SupabaseRouteGateway', () => {
       startPoint: 'Hegaz Square',
       endPoint: 'Delta Factory',
       outboundTime: '07:00',
+      outboundArrivalTime: '09:00',
     });
 
     expect(calls.inserted).toEqual({
@@ -80,7 +83,9 @@ describe('SupabaseRouteGateway', () => {
       start_point: 'Hegaz Square',
       end_point: 'Delta Factory',
       outbound_time: '07:00',
+      outbound_arrival_time: '09:00',
       return_time: null,
+      return_arrival_time: null,
       operating_days: [0, 1, 2, 3, 4, 6],
       trip_price: null,
       notes: null,
@@ -99,6 +104,7 @@ describe('SupabaseRouteGateway', () => {
       startPoint: 'A',
       endPoint: 'B',
       outboundTime: '07:00',
+      outboundArrivalTime: '09:00',
       tripPrice: '١٥٠٫٥',
     };
 
@@ -122,6 +128,7 @@ describe('SupabaseRouteGateway', () => {
         startPoint: 'A',
         endPoint: 'B',
         outboundTime: '07:00',
+        outboundArrivalTime: '09:00',
         tripPrice: '150.505',
       }),
     ).rejects.toEqual(new RouteAccessError('tripPrice'));
@@ -180,6 +187,7 @@ describe('SupabaseRouteGateway', () => {
       startPoint: 'A',
       endPoint: 'B',
       returnTime: '16:00',
+      returnArrivalTime: '18:00',
     });
 
     expect(calls.filters).toEqual([
@@ -200,6 +208,7 @@ describe('SupabaseRouteGateway', () => {
         startPoint: 'A',
         endPoint: 'B',
         outboundTime: '07:00',
+        outboundArrivalTime: '09:00',
       }),
     ).rejects.toEqual(new RouteAccessError('driver'));
     expect(calls.filters).toEqual([]);
@@ -221,6 +230,7 @@ describe('SupabaseRouteGateway', () => {
         startPoint: 'A',
         endPoint: 'B',
         outboundTime: '07:00',
+        outboundArrivalTime: '09:00',
       }),
     ).rejects.toEqual(new RouteAccessError('nameTaken'));
   });
@@ -241,6 +251,7 @@ describe('SupabaseRouteGateway', () => {
         startPoint: 'A',
         endPoint: 'B',
         outboundTime: '07:00',
+        outboundArrivalTime: '09:00',
       }),
     ).rejects.toEqual(new RouteAccessError('inactiveChoice'));
   });
@@ -261,6 +272,7 @@ describe('SupabaseRouteGateway', () => {
         startPoint: 'A',
         endPoint: 'B',
         outboundTime: '07:00',
+        outboundArrivalTime: '09:00',
       }),
     ).rejects.toEqual(new RouteAccessError('save'));
   });

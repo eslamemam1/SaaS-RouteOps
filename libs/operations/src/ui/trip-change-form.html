@@ -2,6 +2,8 @@
   <div class="ro-entity operations-trip-summary">
     <span class="ro-trip-time" [attr.data-direction]="trip().direction">
       <bdi class="ro-numeric">{{ time(trip().departureTime) }}</bdi>
+      <span>–</span>
+      <bdi class="ro-numeric">{{ time(trip().arrivalTime) }}</bdi>
       <span>{{ text().directions[trip().direction] }}</span>
     </span>
     <span class="ro-entity-text">
@@ -82,7 +84,7 @@
   <p class="hint">{{ text().change.restoreHint }}</p>
   }
   @if (conflicts().length > 0) {
-  <app-alert tone="warning">
+  <app-alert tone="danger">
     <p>{{ text().conflict.formHint }}</p>
     <app-conflict-list [conflicts]="conflicts()" [choices]="choices()" />
   </app-alert>
@@ -90,7 +92,13 @@
   <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
   <div class="ro-toolbar">
-    <button appButton type="submit" [disabled]="submitting()">{{ text().change.save }}</button>
+    <button
+      appButton
+      type="submit"
+      [disabled]="submitting() || conflicts().length > 0"
+    >
+      {{ text().change.save }}
+    </button>
     <button appButton="secondary" type="button" (click)="cancelled.emit()">
       {{ text().change.cancel }}
     </button>

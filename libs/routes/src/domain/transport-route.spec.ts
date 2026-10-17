@@ -1,4 +1,5 @@
 import {
+  arrivalError,
   availableChoices,
   choiceLabel,
   copyForAnotherCustomer,
@@ -10,6 +11,7 @@ import {
   memberOrganization,
   RouteOrganization,
   routeNameError,
+  routeScheduleOverlap,
   routesOfCustomer,
   searchRoutes,
   selectedDays,
@@ -83,6 +85,79 @@ describe('trip times', () => {
     expect(isShift({ outboundTime: '07:00', returnTime: '16:00' })).toBe(true);
     expect(isShift({ outboundTime: '07:00', returnTime: '' })).toBe(false);
     expect(isShift({ outboundTime: '', returnTime: '16:00' })).toBe(false);
+  });
+
+  it('needs an arrival after each departure', () => {
+    expect(arrivalError('07:00', '')).toBe('time');
+    expect(arrivalError('07:00', '07:00')).toBe('arrival');
+    expect(arrivalError('07:00', '09:00')).toBeNull();
+    expect(arrivalError('', '')).toBeNull();
+  });
+});
+
+describe('routeScheduleOverlap', () => {
+  const morning: TransportRoute = {
+    ...emptyTransportRouteDetails,
+    id: 'morning',
+    name: 'Morning',
+    customerId: 'delta',
+    driverId: 'ahmed',
+    vehicleId: 'bus-1',
+    outboundTime: '07:00',
+    outboundArrivalTime: '09:00',
+    returnTime: '15:00',
+    returnArrivalTime: '17:00',
+  };
+
+  it('blocks another active route for the same driver in an overlapping window', () => {
+    expect(
+      routeScheduleOverlap(
+        {
+          ...emptyTransportRouteDetails,
+          active: true,
+          driverId: 'ahmed',
+          vehicleId: 'bus-2',
+          outboundTime: '08:00',
+          outboundArrivalTime: '10:00',
+          days: morning.days,
+        },
+        [morning],
+      ),
+    ).toBe('driverOverlap');
+  });
+
+  it('allows morning and evening for the same driver', () => {
+    expect(
+      routeScheduleOverlap(
+        {
+          ...emptyTransportRouteDetails,
+          active: true,
+          driverId: 'ahmed',
+          vehicleId: 'bus-2',
+          outboundTime: '18:00',
+          outboundArrivalTime: '20:00',
+          days: morning.days,
+        },
+        [morning],
+      ),
+    ).toBeNull();
+  });
+
+  it('blocks the same vehicle on overlapping routes', () => {
+    expect(
+      routeScheduleOverlap(
+        {
+          ...emptyTransportRouteDetails,
+          active: true,
+          driverId: 'karim',
+          vehicleId: 'bus-1',
+          outboundTime: '08:00',
+          outboundArrivalTime: '10:00',
+          days: morning.days,
+        },
+        [morning],
+      ),
+    ).toBe('vehicleOverlap');
   });
 });
 
@@ -165,6 +240,7 @@ describe('the same route name for several customers', () => {
     startPoint: 'Hegaz Square',
     endPoint: 'Factory gate',
     outboundTime: '07:00',
+    outboundArrivalTime: '09:00',
     notes: 'Gate 3',
   });
   const routes = [
@@ -213,6 +289,7 @@ describe('the same route name for several customers', () => {
       startPoint: 'Hegaz Square',
       endPoint: 'Factory gate',
       outboundTime: '07:00',
+      outboundArrivalTime: '09:00',
     });
   });
 });

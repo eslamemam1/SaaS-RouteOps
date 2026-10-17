@@ -36,6 +36,7 @@ const outbound: DailyTrip = {
   serviceDate: '2000-01-01',
   direction: 'outbound',
   departureTime: '07:00',
+  arrivalTime: '09:00',
   customerId: 'customer-1',
   vehicleId: 'vehicle-1',
   driverId: 'driver-1',
@@ -50,6 +51,7 @@ const cancelledReturn: DailyTrip = {
   id: 'trip-2',
   direction: 'return',
   departureTime: '16:00',
+  arrivalTime: '18:00',
   driverId: '',
   cancelled: true,
   reason: 'vehicleBreakdown',
@@ -245,17 +247,19 @@ describe('DailyOperations', () => {
     expect(rows(harness)[0].textContent).toContain('XYZ 99');
   });
 
-  it('warns when the same vehicle has two trips less than an hour apart', async () => {
+  it('flags when the same vehicle has two overlapping trips', async () => {
     const clash: DailyTrip = {
       ...outbound,
       id: 'trip-5',
       departureTime: '07:30',
+      arrivalTime: '09:30',
       driverId: '',
     };
     const later: DailyTrip = {
       ...outbound,
       id: 'trip-6',
       departureTime: '10:00',
+      arrivalTime: '12:00',
     };
     const harness = await open({ day: async () => [outbound, clash, later] });
     await settle(harness);
@@ -271,7 +275,7 @@ describe('DailyOperations', () => {
     expect(rows(harness)).toHaveLength(2);
   });
 
-  it('warns in the extra trip form before saving a clashing driver', async () => {
+  it('blocks the extra trip form when the driver would overlap', async () => {
     const harness = await open({ day: async () => [outbound] });
     await settle(harness);
 
@@ -279,7 +283,8 @@ describe('DailyOperations', () => {
     await settle(harness);
     const form = harness.routeNativeElement!.querySelector('app-extra-trip-form')!;
     choose(harness, 'app-extra-trip-form', 0, 'route-1');
-    chooseTime(harness, 'app-extra-trip-form', '07:15');
+    chooseTime(harness, 'app-extra-trip-form', 0, '07:15');
+    chooseTime(harness, 'app-extra-trip-form', 1, '08:15');
     await settle(harness);
 
     expect(form.textContent).toContain(arabic.conflict.formHint);
@@ -292,6 +297,7 @@ describe('DailyOperations', () => {
       id: 'trip-9',
       direction: 'return',
       departureTime: '21:00',
+      arrivalTime: '23:00',
       driverId: '',
       extra: true,
     };
@@ -306,7 +312,8 @@ describe('DailyOperations', () => {
 
     const form = harness.routeNativeElement!.querySelector('app-extra-trip-form')!;
     choose(harness, 'app-extra-trip-form', 0, 'route-1');
-    chooseTime(harness, 'app-extra-trip-form', '21:00');
+    chooseTime(harness, 'app-extra-trip-form', 0, '21:00');
+    chooseTime(harness, 'app-extra-trip-form', 1, '23:00');
     await settle(harness);
     expect(form.textContent).toContain(arabic.extra.tripPriceRouteHint);
     const price = form.querySelector<HTMLInputElement>('input[inputmode="decimal"]')!;
@@ -324,8 +331,10 @@ describe('DailyOperations', () => {
         vehicleId: 'vehicle-1',
         driverId: 'driver-1',
         departureTime: '21:00',
+        arrivalTime: '23:00',
         tripPrice: '250',
       }),
+      expect.any(Array),
     );
     expect(rows(harness)).toHaveLength(1);
     expect(rows(harness)[0].textContent).toContain(arabic.day.extra);
@@ -407,6 +416,7 @@ describe('DailyOperations', () => {
       north,
       outbound,
       expect.objectContaining({ cancelled: true, reason: 'driverAbsent' }),
+      expect.any(Array),
     );
     expect(harness.routeNativeElement!.querySelector('app-trip-change-form')).toBeFalsy();
     expect(rows(harness)[0].textContent).toContain(arabic.statuses.cancelled);
@@ -444,6 +454,7 @@ describe('DailyOperations', () => {
       north,
       cancelledTrip,
       expect.objectContaining({ cancelled: false, reason: '' }),
+      expect.any(Array),
     );
     expect(rows(harness)[0].textContent).not.toContain(arabic.statuses.cancelled);
   });
@@ -658,9 +669,15 @@ function choose(
   (selects.at(index)?.componentInstance as Select).value.set(value);
 }
 
-function chooseTime(harness: RouterTestingHarness, host: string, value: string): void {
-  const picker = harness.routeDebugElement?.query(By.css(`${host} app-time-picker`));
-  (picker?.componentInstance as TimePicker).value.set(value);
+function chooseTime(
+  harness: RouterTestingHarness,
+  host: string,
+  index: number,
+  value: string,
+): void {
+  const pickers =
+    harness.routeDebugElement?.queryAll(By.css(`${host} app-time-picker`)) ?? [];
+  (pickers.at(index)?.componentInstance as TimePicker).value.set(value);
 }
 
 function rows(harness: RouterTestingHarness): HTMLTableRowElement[] {

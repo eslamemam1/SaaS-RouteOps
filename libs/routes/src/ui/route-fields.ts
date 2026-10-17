@@ -2,6 +2,7 @@ import { Signal } from '@angular/core';
 import { schema, validate } from '@angular/forms/signals';
 import { Currency } from '@routeops/shared/money';
 import {
+  arrivalError,
   customerError,
   daysError,
   driverError,
@@ -51,8 +52,14 @@ export function routeDetailsSchema(
         problems,
       ),
     );
+    validate(path.outboundArrivalTime, ({ value, valueOf }) =>
+      fieldError(arrivalError(valueOf(path.outboundTime), value()), problems),
+    );
     validate(path.returnTime, ({ value }) =>
       fieldError(timeError(value()), problems),
+    );
+    validate(path.returnArrivalTime, ({ value, valueOf }) =>
+      fieldError(arrivalError(valueOf(path.returnTime), value()), problems),
     );
     validate(path.days, ({ value }) =>
       fieldError(daysError(value()), problems),

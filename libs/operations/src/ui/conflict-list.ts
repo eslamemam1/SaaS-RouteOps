@@ -19,6 +19,8 @@ import { operationsText } from './operations-text';
         <span>
           {{ text().conflict[conflict.kind] }}
           <bdi>{{ time(conflict.trip.departureTime) }}</bdi>
+          –
+          <bdi>{{ time(conflict.trip.arrivalTime) }}</bdi>
           ({{ routeName(conflict.trip.routeId) }})
         </span>
       </div>

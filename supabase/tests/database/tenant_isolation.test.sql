@@ -36,11 +36,9 @@ insert into public.vehicles (id, organization_id, plate_number, vehicle_type) va
 insert into public.drivers (id, organization_id, full_name) values
   ('13000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Ahmed'),
   ('23000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', 'Karim');
-insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days) values
-  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001',
-   '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '16:00', '{0,1,2,3,4}'),
-  ('24000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', 'Maadi', '21000000-0000-0000-0000-000000000001',
-   '22000000-0000-0000-0000-000000000001', '23000000-0000-0000-0000-000000000001', 'Maadi', 'Bank', '08:00', null, '{0,1,2,3,4}');
+insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, return_time, return_arrival_time, operating_days) values
+  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '09:00', '16:00', '18:00', '{0,1,2,3,4}'),
+  ('24000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', 'Maadi', '21000000-0000-0000-0000-000000000001', '22000000-0000-0000-0000-000000000001', '23000000-0000-0000-0000-000000000001', 'Maadi', 'Bank', '08:00', '10:00', null, null, '{0,1,2,3,4}');
 select public.prepare_daily_trips('20000000-0000-0000-0000-000000000001', tests.sunday(2));
 
 -- Signed in as the North login.
@@ -65,16 +63,14 @@ select throws_ok(
   'a member cannot add a client company to another organization'
 );
 select throws_ok(
-  $$insert into public.routes (organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, operating_days)
-    values ('10000000-0000-0000-0000-000000000001', 'Borrowed bus', '11000000-0000-0000-0000-000000000001',
-            '22000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'A', 'B', '07:00', '{0}')$$,
+  $$insert into public.routes (organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, operating_days)
+    values ('10000000-0000-0000-0000-000000000001', 'Borrowed bus', '11000000-0000-0000-0000-000000000001', '22000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'A', 'B', '07:00', '09:00', '{0}')$$,
   '23503', null,
   'a route cannot use a vehicle of another organization'
 );
 select throws_ok(
-  $$insert into public.routes (organization_id, name, customer_id, driver_id, start_point, end_point, outbound_time, operating_days)
-    values ('10000000-0000-0000-0000-000000000001', 'Borrowed customer', '21000000-0000-0000-0000-000000000001',
-            '13000000-0000-0000-0000-000000000001', 'A', 'B', '07:00', '{0}')$$,
+  $$insert into public.routes (organization_id, name, customer_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, operating_days)
+    values ('10000000-0000-0000-0000-000000000001', 'Borrowed customer', '21000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'A', 'B', '07:00', '09:00', '{0}')$$,
   '23503', null,
   'a route cannot serve a client company of another organization'
 );
@@ -93,9 +89,8 @@ select throws_ok(
   'nobody deletes a route; it is marked inactive instead'
 );
 select throws_ok(
-  $$insert into public.daily_trips (organization_id, service_date, direction, departure_time, customer_id, driver_id, is_extra)
-    values ('20000000-0000-0000-0000-000000000001', tests.sunday(2), 'outbound', '21:00',
-            '21000000-0000-0000-0000-000000000001', '23000000-0000-0000-0000-000000000001', true)$$,
+  $$insert into public.daily_trips (organization_id, service_date, direction, departure_time, arrival_time, customer_id, driver_id, is_extra)
+    values ('20000000-0000-0000-0000-000000000001', tests.sunday(2), 'outbound', '21:00', '23:00', '21000000-0000-0000-0000-000000000001', '23000000-0000-0000-0000-000000000001', true)$$,
   '42501', null,
   'a member cannot add an extra trip to another organization'
 );

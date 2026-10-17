@@ -23,15 +23,12 @@ insert into public.drivers (id, organization_id, full_name, pay_type, monthly_sa
   ('13000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Ahmed', 'salary', 500000, 1, 5000, 4000),
   ('13000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'Karim', 'per_trip', null, null, 6000, 3000),
   ('13000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000001', 'Samy', 'none', null, null, null, null);
-insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, return_time, operating_days, created_at) values
-  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001',
-   '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '16:00', '{0,1,2,3,4}',
-   '2026-01-01');
+insert into public.routes (id, organization_id, name, customer_id, vehicle_id, driver_id, start_point, end_point, outbound_time, outbound_arrival_time, return_time, return_arrival_time, operating_days, created_at) values
+  ('14000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Nasr City', '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', 'Hegaz Square', 'Factory', '07:00', '09:00', '16:00', '18:00', '{0,1,2,3,4}', '2026-01-01');
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-02-01');
 select public.prepare_daily_trips('10000000-0000-0000-0000-000000000001', '2026-02-02');
-insert into public.daily_trips (organization_id, service_date, direction, departure_time, customer_id, vehicle_id, driver_id, is_extra) values
-  ('10000000-0000-0000-0000-000000000001', '2026-02-02', 'outbound', '20:00', '11000000-0000-0000-0000-000000000001',
-   '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', true);
+insert into public.daily_trips (organization_id, service_date, direction, departure_time, arrival_time, customer_id, vehicle_id, driver_id, is_extra) values
+  ('10000000-0000-0000-0000-000000000001', '2026-02-02', 'outbound', '20:00', '22:00', '11000000-0000-0000-0000-000000000001', '12000000-0000-0000-0000-000000000001', '13000000-0000-0000-0000-000000000001', true);
 -- Ahmed was absent for the return trip of 2026-02-02, so Karim drove it.
 update public.daily_trips
 set driver_id = '13000000-0000-0000-0000-000000000002', change_reason = 'driver_absent'

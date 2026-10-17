@@ -116,10 +116,19 @@ export class ExtraTripForm {
       this.submitting.set(true);
       this.problem.set(null);
       try {
+        if (this.conflicts().length > 0) {
+          const problem =
+            this.conflicts().some((conflict) => conflict.kind === 'driver')
+              ? 'driverOverlap'
+              : 'vehicleOverlap';
+          this.problem.set(problem);
+          return [{ kind: 'server', message: this.problems()[problem] }];
+        }
         const trip = await this.repository.addExtraTrip(
           this.organization(),
           this.serviceDate(),
           this.model(),
+          this.trips(),
         );
         this.extraForm().reset(emptyExtraTrip);
         this.added.emit(trip);

@@ -282,6 +282,8 @@
               <div class="ro-entity">
                 <span class="ro-trip-time" [attr.data-direction]="trip.direction">
                   <bdi class="ro-numeric">{{ time(trip.departureTime) }}</bdi>
+                  <span>–</span>
+                  <bdi class="ro-numeric">{{ time(trip.arrivalTime) }}</bdi>
                   <span>{{ text().directions[trip.direction] }}</span>
                 </span>
                 <span class="ro-entity-text">

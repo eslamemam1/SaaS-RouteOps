@@ -32,6 +32,13 @@
       <app-time-picker [formField]="extraForm.departureTime" />
     </app-field>
   </div>
+  <app-field
+    [label]="text().extra.arrival"
+    [hint]="text().extra.arrivalHint"
+    [control]="extraForm.arrivalTime"
+  >
+    <app-time-picker [formField]="extraForm.arrivalTime" />
+  </app-field>
   <div class="ro-form-row">
     <app-field [label]="text().extra.driver" [control]="extraForm.driverId">
       <app-select [formField]="extraForm.driverId">
@@ -63,7 +70,7 @@
     <textarea [formField]="extraForm.notes"></textarea>
   </app-field>
   @if (conflicts().length > 0) {
-    <app-alert tone="warning">
+    <app-alert tone="danger">
       <p>{{ text().conflict.formHint }}</p>
       <app-conflict-list [conflicts]="conflicts()" [choices]="choices()" />
     </app-alert>
@@ -72,7 +79,13 @@
     <app-alert tone="danger">{{ text().problems[current] }}</app-alert>
   }
   <div class="ro-toolbar">
-    <button appButton type="submit" [disabled]="submitting()">{{ text().extra.save }}</button>
+    <button
+      appButton
+      type="submit"
+      [disabled]="submitting() || conflicts().length > 0"
+    >
+      {{ text().extra.save }}
+    </button>
     <button appButton="secondary" type="button" (click)="cancelled.emit()">
       {{ text().extra.cancel }}
     </button>

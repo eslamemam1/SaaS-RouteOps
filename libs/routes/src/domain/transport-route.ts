@@ -42,7 +42,9 @@ export interface TransportRouteDetails {
   readonly startPoint: string;
   readonly endPoint: string;
   readonly outboundTime: string;
+  readonly outboundArrivalTime: string;
   readonly returnTime: string;
+  readonly returnArrivalTime: string;
   readonly days: WeekdaySelection;
   // What the customer pays for one day of the route, as the member types it in
   // the organization's currency, such as "150.50": a shift's whole price, or
@@ -71,10 +73,13 @@ export const routeProblems = [
   'endPoint',
   'tooLong',
   'time',
+  'arrival',
   'trip',
   'days',
   'tripPrice',
   'inactiveChoice',
+  'driverOverlap',
+  'vehicleOverlap',
   'inUse',
   'load',
   'save',
@@ -94,7 +99,9 @@ export const emptyTransportRouteDetails: TransportRouteDetails = {
   startPoint: '',
   endPoint: '',
   outboundTime: '',
+  outboundArrivalTime: '',
   returnTime: '',
+  returnArrivalTime: '',
   days: {
     saturday: true,
     sunday: true,
@@ -110,6 +117,22 @@ export const emptyTransportRouteDetails: TransportRouteDetails = {
 };
 
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+function minutesOf(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+function timesOverlap(
+  startA: string,
+  endA: string,
+  startB: string,
+  endB: string,
+): boolean {
+  return (
+    minutesOf(startA) < minutesOf(endB) && minutesOf(startB) < minutesOf(endA)
+  );
+}
 
 function requiredTextError(
   value: string,
@@ -154,6 +177,23 @@ export function timeError(value: string): RouteProblem | null {
   return value.length === 0 || timePattern.test(value) ? null : 'time';
 }
 
+// Arrival is required when that direction has a departure, and must be later.
+export function arrivalError(
+  departureTime: string,
+  arrivalTime: string,
+): RouteProblem | null {
+  if (departureTime.length === 0) {
+    return arrivalTime.length === 0 ? null : 'time';
+  }
+  if (arrivalTime.length === 0 || !timePattern.test(arrivalTime)) {
+    return 'time';
+  }
+  if (!timePattern.test(departureTime)) {
+    return null;
+  }
+  return minutesOf(arrivalTime) > minutesOf(departureTime) ? null : 'arrival';
+}
+
 export function tripError(
   outboundTime: string,
   returnTime: string,
@@ -168,6 +208,101 @@ export function isShift(route: {
   readonly returnTime: string;
 }): boolean {
   return route.outboundTime.length > 0 && route.returnTime.length > 0;
+}
+
+type ScheduleLeg = {
+  readonly departureTime: string;
+  readonly arrivalTime: string;
+};
+
+function routeLegs(route: {
+  readonly outboundTime: string;
+  readonly outboundArrivalTime: string;
+  readonly returnTime: string;
+  readonly returnArrivalTime: string;
+}): ScheduleLeg[] {
+  return [
+    ...(route.outboundTime
+      ? [
+          {
+            departureTime: route.outboundTime,
+            arrivalTime: route.outboundArrivalTime,
+          },
+        ]
+      : []),
+    ...(route.returnTime
+      ? [
+          {
+            departureTime: route.returnTime,
+            arrivalTime: route.returnArrivalTime,
+          },
+        ]
+      : []),
+  ].filter(
+    (leg) =>
+      timePattern.test(leg.departureTime) && timePattern.test(leg.arrivalTime),
+  );
+}
+
+function daysOverlap(
+  first: WeekdaySelection,
+  second: WeekdaySelection,
+): boolean {
+  return weekdays.some((day) => first[day] && second[day]);
+}
+
+// An active route must not put its driver or vehicle on overlapping legs with
+// itself or another active route on a shared operating day.
+export function routeScheduleOverlap(
+  details: TransportRouteDetails,
+  others: readonly TransportRoute[],
+  routeId = '',
+): RouteProblem | null {
+  if (!details.active) {
+    return null;
+  }
+  const legs = routeLegs(details);
+  if (
+    legs.length === 2 &&
+    timesOverlap(
+      legs[0].departureTime,
+      legs[0].arrivalTime,
+      legs[1].departureTime,
+      legs[1].arrivalTime,
+    )
+  ) {
+    return 'driverOverlap';
+  }
+  for (const other of others) {
+    if (
+      !other.active ||
+      other.id === routeId ||
+      !daysOverlap(details.days, other.days)
+    ) {
+      continue;
+    }
+    const sameDriver = details.driverId.length > 0 && details.driverId === other.driverId;
+    const sameVehicle =
+      details.vehicleId.length > 0 && details.vehicleId === other.vehicleId;
+    if (!sameDriver && !sameVehicle) {
+      continue;
+    }
+    for (const leg of legs) {
+      for (const otherLeg of routeLegs(other)) {
+        if (
+          timesOverlap(
+            leg.departureTime,
+            leg.arrivalTime,
+            otherLeg.departureTime,
+            otherLeg.arrivalTime,
+          )
+        ) {
+          return sameDriver ? 'driverOverlap' : 'vehicleOverlap';
+        }
+      }
+    }
+  }
+  return null;
 }
 
 export function selectedDays(days: WeekdaySelection): Weekday[] {
@@ -269,7 +404,9 @@ export function copyForAnotherCustomer(
     startPoint: route.startPoint,
     endPoint: route.endPoint,
     outboundTime: route.outboundTime,
+    outboundArrivalTime: route.outboundArrivalTime,
     returnTime: route.returnTime,
+    returnArrivalTime: route.returnArrivalTime,
     days: route.days,
     tripPrice: '',
     notes: '',

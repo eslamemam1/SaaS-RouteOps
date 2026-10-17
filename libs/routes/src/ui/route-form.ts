@@ -28,6 +28,7 @@ import {
   RouteChoices,
   RouteOrganization,
   RouteProblem,
+  routeScheduleOverlap,
   TransportRoute,
   TransportRouteDetails,
   weekdays,
@@ -50,6 +51,7 @@ export class RouteForm {
     currencySymbol(this.organization().currency, this.language()),
   );
   readonly choices = input.required<RouteChoices>();
+  readonly routes = input<readonly TransportRoute[]>([]);
   readonly route = input<TransportRoute | null>(null);
   readonly draft = input<TransportRouteDetails | null>(null);
   readonly saved = output<TransportRoute>();
@@ -111,6 +113,15 @@ export class RouteForm {
       this.problem.set(null);
       try {
         const existing = this.route();
+        const overlap = routeScheduleOverlap(
+          this.model(),
+          this.routes(),
+          existing?.id ?? '',
+        );
+        if (overlap) {
+          this.problem.set(overlap);
+          return [{ kind: 'server', message: this.problems()[overlap] }];
+        }
         const saved = existing
           ? await this.repository.update(
               this.organization(),
@@ -142,7 +153,9 @@ function detailsOf(route: TransportRoute): TransportRouteDetails {
     startPoint: route.startPoint,
     endPoint: route.endPoint,
     outboundTime: route.outboundTime,
+    outboundArrivalTime: route.outboundArrivalTime,
     returnTime: route.returnTime,
+    returnArrivalTime: route.returnArrivalTime,
     days: route.days,
     tripPrice: route.tripPrice,
     notes: route.notes,

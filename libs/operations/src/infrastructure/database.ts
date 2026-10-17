@@ -36,6 +36,7 @@ export type Database = {
       }>
       daily_trips: {
         Row: {
+          arrival_time: string
           change_reason: string | null
           created_at: string
           customer_id: string
@@ -55,6 +56,7 @@ export type Database = {
           vehicle_id: string | null
         }
         Insert: {
+          arrival_time: string
           change_reason?: string | null
           created_at?: string
           customer_id: string
@@ -74,6 +76,7 @@ export type Database = {
           vehicle_id?: string | null
         }
         Update: {
+          arrival_time?: string
           change_reason?: string | null
           created_at?: string
           customer_id?: string

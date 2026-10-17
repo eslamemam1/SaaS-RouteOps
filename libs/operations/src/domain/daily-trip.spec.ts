@@ -35,6 +35,7 @@ const trip = (overrides: Partial<DailyTrip>): DailyTrip => ({
   serviceDate: '2026-10-04',
   direction: 'outbound',
   departureTime: '07:00',
+  arrivalTime: '09:00',
   customerId: 'customer-1',
   vehicleId: 'vehicle-1',
   driverId: 'driver-1',
@@ -238,19 +239,44 @@ describe('filtering a busy day', () => {
 });
 
 describe('vehicle and driver conflicts', () => {
-  const morning = trip({ id: 'morning', departureTime: '07:00', vehicleId: 'bus-1', driverId: 'ahmed' });
+  const morning = trip({
+    id: 'morning',
+    departureTime: '07:00',
+    arrivalTime: '09:00',
+    vehicleId: 'bus-1',
+    driverId: 'ahmed',
+  });
 
-  it('warns when the same vehicle leaves again less than an hour later', () => {
-    const other = trip({ id: 'other', departureTime: '07:45', vehicleId: 'bus-1', driverId: 'karim' });
+  it('blocks when the same vehicle is busy on an overlapping trip', () => {
+    const other = trip({
+      id: 'other',
+      departureTime: '08:00',
+      arrivalTime: '10:00',
+      vehicleId: 'bus-1',
+      driverId: 'karim',
+    });
 
     expect(tripConflicts(morning, [morning, other])).toEqual([
       { kind: 'vehicle', trip: other },
     ]);
   });
 
-  it('warns about the same driver and reports both kinds when both repeat', () => {
-    const sameDriver = trip({ id: 'driver', departureTime: '06:30', vehicleId: 'bus-2', driverId: 'ahmed' });
-    const both = trip({ id: 'both', departureTime: '07:00', vehicleId: 'bus-1', driverId: 'ahmed', extra: true });
+  it('blocks the same driver and reports both kinds when both overlap', () => {
+    const sameDriver = trip({
+      id: 'driver',
+      departureTime: '06:30',
+      arrivalTime: '08:00',
+      vehicleId: 'bus-2',
+      driverId: 'ahmed',
+    });
+    const both = trip({
+      id: 'both',
+      departureTime: '07:00',
+      arrivalTime: '08:30',
+      vehicleId: 'bus-1',
+      driverId: 'ahmed',
+      extra: true,
+    });
 
     expect(
       tripConflicts(morning, [morning, sameDriver, both]).map(
@@ -259,10 +285,28 @@ describe('vehicle and driver conflicts', () => {
     ).toEqual(['driver:driver', 'both:vehicle', 'both:driver']);
   });
 
-  it('allows the same vehicle and driver an hour or more apart', () => {
-    const later = trip({ id: 'later', departureTime: '08:00', vehicleId: 'bus-1', driverId: 'ahmed' });
+  it('allows the same vehicle and driver when the next trip starts at arrival', () => {
+    const later = trip({
+      id: 'later',
+      departureTime: '09:00',
+      arrivalTime: '11:00',
+      vehicleId: 'bus-1',
+      driverId: 'ahmed',
+    });
 
     expect(tripConflicts(morning, [morning, later])).toEqual([]);
+  });
+
+  it('allows morning and evening shifts for the same driver', () => {
+    const evening = trip({
+      id: 'evening',
+      departureTime: '15:00',
+      arrivalTime: '17:00',
+      vehicleId: 'bus-1',
+      driverId: 'ahmed',
+    });
+
+    expect(tripConflicts(morning, [morning, evening])).toEqual([]);
   });
 
   it('ignores cancelled trips and trips without a vehicle or driver', () => {
@@ -274,16 +318,35 @@ describe('vehicle and driver conflicts', () => {
     expect(tripConflicts({ ...morning, cancelled: true }, [morning, trip({ id: 'y' })])).toEqual([]);
   });
 
-  it('checks a trip that is not saved yet, once its time is valid', () => {
-    const candidate = { id: '', vehicleId: 'bus-1', driverId: '', departureTime: '07:20', cancelled: false };
+  it('checks a trip that is not saved yet, once its times are valid', () => {
+    const candidate = {
+      id: '',
+      vehicleId: 'bus-1',
+      driverId: '',
+      departureTime: '08:00',
+      arrivalTime: '10:00',
+      cancelled: false,
+    };
 
     expect(tripConflicts(candidate, [morning]).map((conflict) => conflict.kind)).toEqual(['vehicle']);
     expect(tripConflicts({ ...candidate, departureTime: '' }, [morning])).toEqual([]);
   });
 
   it('lists the conflicts of every trip of the day and filters by them', () => {
-    const other = trip({ id: 'other', departureTime: '07:30', vehicleId: 'bus-1', driverId: 'karim' });
-    const free = trip({ id: 'free', departureTime: '07:30', vehicleId: 'bus-2', driverId: 'mona' });
+    const other = trip({
+      id: 'other',
+      departureTime: '08:00',
+      arrivalTime: '10:00',
+      vehicleId: 'bus-1',
+      driverId: 'karim',
+    });
+    const free = trip({
+      id: 'free',
+      departureTime: '08:00',
+      arrivalTime: '10:00',
+      vehicleId: 'bus-2',
+      driverId: 'mona',
+    });
     const day = [morning, other, free];
 
     expect([...conflictsByTrip(day).keys()]).toEqual(['morning', 'other']);
@@ -323,20 +386,41 @@ describe('extra trips', () => {
     expect(withRoute(chosen, routes, '')).toEqual({ ...chosen, routeId: '' });
   });
 
-  it('needs a company, a time, and a driver, but no route or vehicle', () => {
+  it('needs a company, departure, arrival after it, and a driver, but no route or vehicle', () => {
     expect(extraTripError(emptyExtraTrip, 'EGP')).toBe('customer');
     expect(extraTripError({ ...emptyExtraTrip, customerId: 'delta' }, 'EGP')).toBe('time');
     expect(
       extraTripError({ ...emptyExtraTrip, customerId: 'delta', departureTime: '25:00' }, 'EGP'),
     ).toBe('time');
     expect(
-      extraTripError({ ...emptyExtraTrip, customerId: 'delta', departureTime: '21:30' }, 'EGP'),
+      extraTripError({
+        ...emptyExtraTrip,
+        customerId: 'delta',
+        departureTime: '21:30',
+      }, 'EGP'),
+    ).toBe('time');
+    expect(
+      extraTripError({
+        ...emptyExtraTrip,
+        customerId: 'delta',
+        departureTime: '21:30',
+        arrivalTime: '21:00',
+      }, 'EGP'),
+    ).toBe('arrival');
+    expect(
+      extraTripError({
+        ...emptyExtraTrip,
+        customerId: 'delta',
+        departureTime: '21:30',
+        arrivalTime: '22:30',
+      }, 'EGP'),
     ).toBe('driver');
     expect(
       extraTripError({
         ...emptyExtraTrip,
         customerId: 'delta',
         departureTime: '21:30',
+        arrivalTime: '22:30',
         driverId: 'ahmed',
       }, 'EGP'),
     ).toBeNull();
@@ -347,6 +431,7 @@ describe('extra trips', () => {
       ...emptyExtraTrip,
       customerId: 'delta',
       departureTime: '21:30',
+      arrivalTime: '22:30',
       driverId: 'ahmed',
     };
 

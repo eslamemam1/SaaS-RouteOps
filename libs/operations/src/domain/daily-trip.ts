@@ -64,6 +64,8 @@ export interface DailyTrip extends TripChange {
   readonly serviceDate: string;
   readonly direction: TripDirection;
   readonly departureTime: string;
+  // When the trip ends; the driver and vehicle are occupied until then.
+  readonly arrivalTime: string;
   readonly customerId: string;
   // A member marked the trip done.
   readonly done: boolean;
@@ -83,6 +85,7 @@ export interface ExtraTripDetails {
   readonly customerId: string;
   readonly direction: TripDirection;
   readonly departureTime: string;
+  readonly arrivalTime: string;
   readonly vehicleId: string;
   readonly driverId: string;
   // As the member types it in the organization's currency, such as "150.50".
@@ -96,6 +99,7 @@ export const emptyExtraTrip: ExtraTripDetails = {
   customerId: '',
   direction: 'outbound',
   departureTime: '',
+  arrivalTime: '',
   vehicleId: '',
   driverId: '',
   tripPrice: '',
@@ -136,12 +140,15 @@ export const operationsProblems = [
   'customer',
   'driver',
   'time',
+  'arrival',
   'tripPrice',
   'customers',
   'routes',
   'pastDays',
   'tooManyDays',
   'noTrip',
+  'driverOverlap',
+  'vehicleOverlap',
   'load',
   'save',
   'organization',
@@ -297,12 +304,34 @@ export function notesError(
 
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
 
+function minutesOf(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
 export function extraCustomerError(customerId: string): OperationsProblem | null {
   return customerId.trim().length === 0 ? 'customer' : null;
 }
 
 export function departureTimeError(value: string): OperationsProblem | null {
   return timePattern.test(value) ? null : 'time';
+}
+
+// Arrival must be a clock time after departure on the same day.
+export function arrivalTimeError(
+  departureTime: string,
+  arrivalTime: string,
+): OperationsProblem | null {
+  if (!timePattern.test(arrivalTime)) {
+    return 'time';
+  }
+  if (
+    timePattern.test(departureTime) &&
+    minutesOf(arrivalTime) <= minutesOf(departureTime)
+  ) {
+    return 'arrival';
+  }
+  return null;
 }
 
 export function driverError(driverId: string): OperationsProblem | null {
@@ -319,13 +348,26 @@ export function tripPriceError(
 export function extraTripError(
   details: ExtraTripDetails,
   currency: Currency,
+  dayTrips: readonly DailyTrip[] = [],
 ): OperationsProblem | null {
   return (
     extraCustomerError(details.customerId) ??
     departureTimeError(details.departureTime) ??
+    arrivalTimeError(details.departureTime, details.arrivalTime) ??
     driverError(details.driverId) ??
     tripPriceError(details.tripPrice, currency) ??
-    notesError(details.notes, '')
+    notesError(details.notes, '') ??
+    tripOccupancyError(
+      {
+        id: '',
+        vehicleId: details.vehicleId,
+        driverId: details.driverId,
+        departureTime: details.departureTime,
+        arrivalTime: details.arrivalTime,
+        cancelled: false,
+      },
+      dayTrips,
+    )
   );
 }
 
@@ -351,15 +393,30 @@ export function tripChangeNeedsReason(
 export function tripChangeError(
   change: TripChange,
   baseline: DailyTrip,
+  dayTrips: readonly DailyTrip[] = [],
 ): OperationsProblem | null {
   const driverProblem = driverError(change.driverId);
   if (driverProblem) {
     return driverProblem;
   }
-  if (!tripChangeNeedsReason(change, baseline)) {
-    return notesError(change.notes, change.reason);
+  const fields =
+    !tripChangeNeedsReason(change, baseline)
+      ? notesError(change.notes, change.reason)
+      : reasonError(change.reason) ?? notesError(change.notes, change.reason);
+  if (fields) {
+    return fields;
   }
-  return reasonError(change.reason) ?? notesError(change.notes, change.reason);
+  return tripOccupancyError(
+    {
+      id: baseline.id,
+      vehicleId: change.vehicleId,
+      driverId: change.driverId,
+      departureTime: baseline.departureTime,
+      arrivalTime: baseline.arrivalTime,
+      cancelled: change.cancelled,
+    },
+    dayTrips,
+  );
 }
 
 // Choosing a route fills in its customer, vehicle, and driver; the member may
@@ -390,10 +447,6 @@ export function sortByTime(trips: readonly DailyTrip[]): DailyTrip[] {
   );
 }
 
-// Trips only have a departure time, so two trips of the same vehicle or driver
-// that leave less than this many minutes apart are taken to overlap.
-export const conflictWindowMinutes = 60;
-
 export type ConflictKind = 'vehicle' | 'driver';
 
 export interface TripConflict {
@@ -403,25 +456,52 @@ export interface TripConflict {
 
 export type ConflictCandidate = Pick<
   DailyTrip,
-  'id' | 'vehicleId' | 'driverId' | 'departureTime' | 'cancelled'
+  | 'id'
+  | 'vehicleId'
+  | 'driverId'
+  | 'departureTime'
+  | 'arrivalTime'
+  | 'cancelled'
 >;
 
-// Other trips of the same day that use the candidate's vehicle or driver
-// within the conflict window. Cancelled trips never conflict.
+// Half-open [departure, arrival): ending when another starts is allowed.
+export function timesOverlap(
+  startA: string,
+  endA: string,
+  startB: string,
+  endB: string,
+): boolean {
+  return (
+    minutesOf(startA) < minutesOf(endB) && minutesOf(startB) < minutesOf(endA)
+  );
+}
+
+// Other trips of the same day whose occupancy overlaps this vehicle or driver.
+// Cancelled trips never conflict.
 export function tripConflicts(
   candidate: ConflictCandidate,
   trips: readonly DailyTrip[],
 ): TripConflict[] {
-  if (candidate.cancelled || departureTimeError(candidate.departureTime)) {
+  if (
+    candidate.cancelled ||
+    departureTimeError(candidate.departureTime) ||
+    arrivalTimeError(candidate.departureTime, candidate.arrivalTime)
+  ) {
     return [];
   }
-  const start = minutesOf(candidate.departureTime);
   return trips
     .filter(
       (trip) =>
         trip.id !== candidate.id &&
         !trip.cancelled &&
-        Math.abs(minutesOf(trip.departureTime) - start) < conflictWindowMinutes,
+        !departureTimeError(trip.departureTime) &&
+        !arrivalTimeError(trip.departureTime, trip.arrivalTime) &&
+        timesOverlap(
+          candidate.departureTime,
+          candidate.arrivalTime,
+          trip.departureTime,
+          trip.arrivalTime,
+        ),
     )
     .flatMap((trip) => [
       ...(candidate.vehicleId && trip.vehicleId === candidate.vehicleId
@@ -431,6 +511,20 @@ export function tripConflicts(
         ? [{ kind: 'driver' as const, trip }]
         : []),
     ]);
+}
+
+export function tripOccupancyError(
+  candidate: ConflictCandidate,
+  trips: readonly DailyTrip[],
+): OperationsProblem | null {
+  const conflicts = tripConflicts(candidate, trips);
+  if (conflicts.some((conflict) => conflict.kind === 'driver')) {
+    return 'driverOverlap';
+  }
+  if (conflicts.some((conflict) => conflict.kind === 'vehicle')) {
+    return 'vehicleOverlap';
+  }
+  return null;
 }
 
 export function conflictsByTrip(
@@ -444,11 +538,6 @@ export function conflictsByTrip(
     }
   }
   return conflicts;
-}
-
-function minutesOf(time: string): number {
-  const [hours, minutes] = time.split(':').map(Number);
-  return hours * 60 + minutes;
 }
 
 export interface TripFilter {

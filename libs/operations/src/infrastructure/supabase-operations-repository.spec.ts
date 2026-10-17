@@ -74,6 +74,7 @@ describe('SupabaseOperationsRepository', () => {
       ...emptyExtraTrip,
       customerId: 'delta',
       departureTime: '21:00',
+      arrivalTime: '23:00',
       driverId: 'ahmed',
     };
 
@@ -108,6 +109,7 @@ describe('SupabaseOperationsRepository', () => {
         ...emptyExtraTrip,
         customerId: 'delta',
         departureTime: '21:00',
+        arrivalTime: '23:00',
       }),
     ).rejects.toEqual(new OperationsAccessError('driver'));
     await expect(
@@ -119,6 +121,7 @@ describe('SupabaseOperationsRepository', () => {
           serviceDate: '2026-10-04',
           direction: 'outbound',
           departureTime: '07:00',
+          arrivalTime: '09:00',
           customerId: 'delta',
           vehicleId: '',
           driverId: 'ahmed',

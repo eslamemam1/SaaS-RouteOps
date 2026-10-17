@@ -136,11 +136,19 @@
                 <span class="ro-time-chip">
                   <span>{{ text().list.outboundTime }}</span>
                   <bdi class="ro-numeric">{{ time(route.outboundTime) }}</bdi>
+                  @if (route.outboundArrivalTime) {
+                  <span>–</span>
+                  <bdi class="ro-numeric">{{ time(route.outboundArrivalTime) }}</bdi>
+                  }
                 </span>
                 } @if (route.returnTime) {
                 <span class="ro-time-chip" data-direction="return">
                   <span>{{ text().list.returnTime }}</span>
                   <bdi class="ro-numeric">{{ time(route.returnTime) }}</bdi>
+                  @if (route.returnArrivalTime) {
+                  <span>–</span>
+                  <bdi class="ro-numeric">{{ time(route.returnArrivalTime) }}</bdi>
+                  }
                 </span>
                 }
               </span>
@@ -234,6 +242,7 @@
   <app-route-form
     [organization]="current"
     [choices]="choices()"
+    [routes]="routes()"
     [route]="editing()"
     [draft]="draft()"
     (saved)="onSaved($event)"
