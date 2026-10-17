@@ -1,38 +1,13 @@
-.vehicle-page {
-  container: vehicle-page / inline-size;
-}
-
-/* What the vehicle is and the routes it runs now, before any month. */
-.vehicle-about {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  align-items: start;
-  gap: var(--ro-space-4);
-}
-
-.vehicle-money {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-  gap: var(--ro-space-4);
-}
-
-.vehicle-month {
-  padding-block-start: var(--ro-space-6);
-  border-block-start: var(--ro-border-width) solid var(--ro-border-default);
-}
-
+/* The month's title and picker share a row; the counting note runs under both. */
 .vehicle-month-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--ro-space-4);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ro-space-2) var(--ro-space-4);
 }
 
-.vehicle-month-title {
-  display: grid;
-  gap: var(--ro-space-1);
+.vehicle-month-hint {
+  grid-column: 1 / -1;
 }
 
 /* The two trip figures share a row, and the three money figures the next. */
@@ -48,9 +23,28 @@
   grid-column: span 3;
 }
 
-.vehicle-card-link {
+/* The rent and the expenses side by side; a single card takes the whole row. */
+.vehicle-money {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, calc(var(--ro-card-min-width) * 1.3)), 1fr)
+  );
+  align-items: start;
+  gap: var(--ro-space-4);
+}
+
+.vehicle-card-body {
+  display: grid;
+  gap: var(--ro-space-4);
+}
+
+.vehicle-card-action {
   justify-self: start;
-  font-weight: var(--ro-font-medium);
+}
+
+.vehicle-owned-hint {
+  margin-block-start: var(--ro-space-3);
 }
 
 .vehicle-routes {
@@ -82,12 +76,7 @@
   font-weight: var(--ro-font-medium);
 }
 
-@container vehicle-page (width < 860px) {
-  .vehicle-about,
-  .vehicle-money {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
+@container ro-split-main (width < 860px) {
   .vehicle-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -102,8 +91,9 @@
   }
 }
 
-@container vehicle-page (width < 440px) {
-  .vehicle-stats {
+@container ro-split-main (width < 400px) {
+  .vehicle-stats,
+  .vehicle-month-head {
     grid-template-columns: minmax(0, 1fr);
   }
 }

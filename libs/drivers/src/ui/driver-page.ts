@@ -4,12 +4,15 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgIcon } from '@ng-icons/core';
 import {
   lucideArrowLeft,
+  lucideCalendar,
   lucideCircleCheck,
   lucideCirclePlus,
   lucidePencil,
   lucidePhone,
+  lucideRoute,
   lucideTrendingUp,
   lucideUserX,
+  lucideWallet,
 } from '@ng-icons/lucide';
 import {
   formatDay,
@@ -97,6 +100,9 @@ export class DriverPage {
     back: lucideArrowLeft,
     edit: lucidePencil,
     phone: lucidePhone,
+    license: lucideCalendar,
+    pay: lucideWallet,
+    routes: lucideRoute,
   };
   protected readonly statIcons = {
     done: lucideCircleCheck,
@@ -176,6 +182,13 @@ export class DriverPage {
       ? toMinorUnits(text, organization.currency)
       : null;
     return typeof minor === 'number' ? this.money(minor) : '';
+  }
+
+  // The part of the suggested pay already recorded, as a whole percent up to 100.
+  protected recordedPercent(recorded: number, suggested: number): number {
+    return suggested > 0
+      ? Math.min(100, Math.round((recorded / suggested) * 100))
+      : 0;
   }
 
   protected label(choices: readonly WorkChoice[], id: string): string {

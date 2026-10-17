@@ -1,19 +1,26 @@
-.driver-phone {
-  display: inline-flex;
+/* The month's title and picker share a row; the counting note runs under both. */
+.driver-month-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ro-space-1);
+  gap: var(--ro-space-2) var(--ro-space-4);
 }
 
-.driver-month {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
+.driver-month-hint {
+  grid-column: 1 / -1;
+}
+
+.driver-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.driver-pay {
+  display: grid;
   gap: var(--ro-space-4);
 }
 
-.driver-panels {
-  align-items: start;
+.driver-card-action {
+  justify-self: start;
 }
 
 .driver-routes {
@@ -47,6 +54,19 @@
 
 .driver-reason {
   font-weight: var(--ro-font-medium);
+}
+
+@container ro-split-main (width < 860px) {
+  .driver-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container ro-split-main (width < 400px) {
+  .driver-stats,
+  .driver-month-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (width < 640px) {

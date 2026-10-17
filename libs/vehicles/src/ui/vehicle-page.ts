@@ -5,11 +5,15 @@ import { NgIcon } from '@ng-icons/core';
 import {
   lucideArrowLeft,
   lucideBus,
+  lucideCalendar,
   lucideCircleCheck,
   lucideCirclePlus,
+  lucideKeyRound,
   lucidePencil,
   lucideReceipt,
+  lucideRoute,
   lucideTrendingUp,
+  lucideUsers,
   lucideWallet,
 } from '@ng-icons/lucide';
 import {
@@ -101,6 +105,10 @@ export class VehiclePage {
     back: lucideArrowLeft,
     vehicle: lucideBus,
     edit: lucidePencil,
+    seats: lucideUsers,
+    ownership: lucideKeyRound,
+    license: lucideCalendar,
+    routes: lucideRoute,
   };
   protected readonly statIcons = {
     done: lucideCircleCheck,
@@ -186,6 +194,13 @@ export class VehiclePage {
       ? toMinorUnits(text, organization.currency)
       : null;
     return typeof minor === 'number' ? this.money(minor) : '';
+  }
+
+  // The part of the suggested rent already recorded, as a whole percent up to 100.
+  protected recordedPercent(recorded: number, suggested: number): number {
+    return suggested > 0
+      ? Math.min(100, Math.round((recorded / suggested) * 100))
+      : 0;
   }
 
   protected label(choices: readonly WorkChoice[], id: string): string {

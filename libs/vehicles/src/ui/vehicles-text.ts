@@ -53,6 +53,8 @@ export interface VehiclesText {
     readonly expensesTotal: string;
     readonly expensesLink: string;
     readonly detailsTitle: string;
+    readonly ownershipTitle: string;
+    readonly ownedHint: string;
     readonly notSet: string;
     readonly ownerPhone: string;
     readonly outboundRent: string;
@@ -244,6 +246,8 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       expensesTotal: 'الإجمالي',
       expensesLink: 'فتح صفحة المصاريف',
       detailsTitle: 'بيانات المركبة',
+      ownershipTitle: 'الملكية والأجرة',
+      ownedHint: 'مركبة ملك الشركة، فلا أجرة لها. مصاريفها هي ما تسجّله عليها في صفحة المصاريف، مثل الوقود والصيانة.',
       notSet: 'غير مسجّل',
       ownerPhone: 'هاتف صاحبها',
       outboundRent: 'مبلغ رحلة الذهاب',
@@ -433,6 +437,8 @@ export const vehiclesText: Record<Language, VehiclesText> = {
       expensesTotal: 'Total',
       expensesLink: 'Open the expenses page',
       detailsTitle: 'Vehicle details',
+      ownershipTitle: 'Ownership and pay',
+      ownedHint: 'A company-owned vehicle has no rent. Its costs are what you record on it on the expenses page, such as fuel and maintenance.',
       notSet: 'Not recorded',
       ownerPhone: "Owner's phone",
       outboundRent: 'Outbound trip amount',
